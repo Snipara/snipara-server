@@ -411,13 +411,15 @@ class RLMEngine:
                     "key": "session_context",
                 }
             },
-            create={
-                "projectId": self.project_id,
-                "key": "session_context",
-                "value": self.session_context,
-            },
-            update={
-                "value": self.session_context,
+            data={
+                "create": {
+                    "projectId": self.project_id,
+                    "key": "session_context",
+                    "value": self.session_context,
+                },
+                "update": {
+                    "value": self.session_context,
+                },
             },
         )
 
