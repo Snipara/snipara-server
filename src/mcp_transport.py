@@ -612,7 +612,7 @@ async def handle_request(body: dict, project_id: str, plan: Plan) -> dict | None
     if method == "initialize":
         return jsonrpc_response(id, {
             "protocolVersion": MCP_VERSION,
-            "serverInfo": {"name": "snipara", "version": "1.7.3"},
+            "serverInfo": {"name": "snipara", "version": "1.7.4"},
             "capabilities": {"tools": {}},
         })
     elif method == "tools/list":
@@ -664,12 +664,15 @@ async def mcp_endpoint(
     except Exception:
         return JSONResponse(jsonrpc_error(None, -32700, "Parse error"), status_code=400)
 
+    # Use the real database project ID from auth info, not the URL slug
+    real_project_id = api_key_info["project_id"]
+
     try:
         if isinstance(body, list):
-            responses = [r for req in body if (r := await handle_request(req, project_id, plan))]
+            responses = [r for req in body if (r := await handle_request(req, real_project_id, plan))]
             return JSONResponse(responses)
 
-        response = await handle_request(body, project_id, plan)
+        response = await handle_request(body, real_project_id, plan)
         return JSONResponse(response) if response else JSONResponse({}, status_code=204)
     except Exception as e:
         import logging
