@@ -11,7 +11,7 @@ from typing import Any
 from fastapi import APIRouter, Header, HTTPException, Request
 from fastapi.responses import JSONResponse, StreamingResponse
 
-from .auth import get_project_with_team, validate_api_key
+from .auth import get_project_with_team, validate_api_key, validate_oauth_token
 from .config import settings
 from .models import Plan, ToolName
 from .rlm_engine import RLMEngine
@@ -161,6 +161,333 @@ TOOL_DEFINITIONS = [
             "required": [],
         },
     },
+    {
+        "name": "rlm_settings",
+        "description": "Show current project settings from dashboard (max_tokens, search_mode, etc.).",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "refresh": {"type": "boolean", "default": False, "description": "Force refresh from API"},
+            },
+            "required": [],
+        },
+    },
+    {
+        "name": "rlm_upload_document",
+        "description": "Upload or update a document in the project. Supports .md, .txt, .mdx files.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "path": {"type": "string", "description": "Document path (e.g., 'docs/api.md')"},
+                "content": {"type": "string", "description": "Document content (markdown)"},
+            },
+            "required": ["path", "content"],
+        },
+    },
+    {
+        "name": "rlm_sync_documents",
+        "description": "Bulk sync multiple documents. Use for batch uploads or CI/CD integration.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "documents": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "path": {"type": "string"},
+                            "content": {"type": "string"},
+                        },
+                        "required": ["path", "content"],
+                    },
+                    "description": "Documents to sync",
+                },
+                "delete_missing": {"type": "boolean", "default": False, "description": "Delete docs not in list"},
+            },
+            "required": ["documents"],
+        },
+    },
+    {
+        "name": "rlm_plan",
+        "description": "Generate execution plan for complex queries. Returns step-by-step plan with dependencies.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string", "description": "Complex question to plan for"},
+                "strategy": {
+                    "type": "string",
+                    "enum": ["breadth_first", "depth_first", "relevance_first"],
+                    "default": "relevance_first",
+                    "description": "Execution strategy",
+                },
+                "max_tokens": {"type": "integer", "default": 16000, "description": "Total token budget"},
+            },
+            "required": ["query"],
+        },
+    },
+    {
+        "name": "rlm_shared_context",
+        "description": "Get merged context from linked shared collections.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "categories": {
+                    "type": "array",
+                    "items": {"type": "string", "enum": ["MANDATORY", "BEST_PRACTICES", "GUIDELINES", "REFERENCE"]},
+                    "description": "Filter by categories (default: all)",
+                },
+                "max_tokens": {"type": "integer", "default": 4000, "description": "Token budget"},
+                "include_content": {"type": "boolean", "default": True, "description": "Include merged content"},
+            },
+            "required": [],
+        },
+    },
+    {
+        "name": "rlm_list_templates",
+        "description": "List available prompt templates from shared collections.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "category": {"type": "string", "description": "Filter by category"},
+            },
+            "required": [],
+        },
+    },
+    {
+        "name": "rlm_get_template",
+        "description": "Get a specific prompt template by ID or slug. Optionally render with variables.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "template_id": {"type": "string", "description": "Template ID"},
+                "slug": {"type": "string", "description": "Template slug"},
+                "variables": {
+                    "type": "object",
+                    "additionalProperties": {"type": "string"},
+                    "description": "Variables to substitute in template",
+                },
+            },
+            "required": [],
+        },
+    },
+    {
+        "name": "rlm_remember",
+        "description": "Store a memory for later semantic recall.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "content": {"type": "string", "description": "The memory content to store"},
+                "type": {
+                    "type": "string",
+                    "enum": ["fact", "decision", "learning", "preference", "todo", "context"],
+                    "default": "fact",
+                    "description": "Type of memory",
+                },
+                "scope": {
+                    "type": "string",
+                    "enum": ["agent", "project", "team", "user"],
+                    "default": "project",
+                    "description": "Visibility scope",
+                },
+                "category": {"type": "string", "description": "Optional category for grouping"},
+                "ttl_days": {"type": "integer", "description": "Days until expiration (null = permanent)"},
+                "related_to": {"type": "array", "items": {"type": "string"}, "description": "IDs of related memories"},
+                "document_refs": {"type": "array", "items": {"type": "string"}, "description": "Referenced document paths"},
+            },
+            "required": ["content"],
+        },
+    },
+    {
+        "name": "rlm_recall",
+        "description": "Semantically recall relevant memories based on a query.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string", "description": "Search query"},
+                "type": {"type": "string", "enum": ["fact", "decision", "learning", "preference", "todo", "context"], "description": "Filter by memory type"},
+                "scope": {"type": "string", "enum": ["agent", "project", "team", "user"], "description": "Filter by scope"},
+                "category": {"type": "string", "description": "Filter by category"},
+                "limit": {"type": "integer", "default": 5, "description": "Maximum memories to return"},
+                "min_relevance": {"type": "number", "default": 0.5, "description": "Minimum relevance score (0-1)"},
+            },
+            "required": ["query"],
+        },
+    },
+    {
+        "name": "rlm_memories",
+        "description": "List memories with optional filters. For browsing stored memories without semantic search.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "type": {"type": "string", "enum": ["fact", "decision", "learning", "preference", "todo", "context"], "description": "Filter by memory type"},
+                "scope": {"type": "string", "enum": ["agent", "project", "team", "user"], "description": "Filter by scope"},
+                "category": {"type": "string", "description": "Filter by category"},
+                "search": {"type": "string", "description": "Text search in content"},
+                "limit": {"type": "integer", "default": 20, "description": "Maximum memories to return"},
+                "offset": {"type": "integer", "default": 0, "description": "Pagination offset"},
+            },
+            "required": [],
+        },
+    },
+    {
+        "name": "rlm_forget",
+        "description": "Delete memories by ID or filter criteria. Use with caution.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "memory_id": {"type": "string", "description": "Specific memory ID to delete"},
+                "type": {"type": "string", "enum": ["fact", "decision", "learning", "preference", "todo", "context"], "description": "Delete all of this type"},
+                "category": {"type": "string", "description": "Delete all in this category"},
+                "older_than_days": {"type": "integer", "description": "Delete memories older than N days"},
+            },
+            "required": [],
+        },
+    },
+    {
+        "name": "rlm_swarm_create",
+        "description": "Create a new agent swarm for multi-agent coordination.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "name": {"type": "string", "description": "Swarm name"},
+                "description": {"type": "string", "description": "Swarm description"},
+                "max_agents": {"type": "integer", "default": 10, "description": "Maximum agents allowed"},
+                "config": {"type": "object", "description": "Optional swarm configuration"},
+            },
+            "required": ["name"],
+        },
+    },
+    {
+        "name": "rlm_swarm_join",
+        "description": "Join an existing swarm as an agent.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "swarm_id": {"type": "string", "description": "Swarm to join"},
+                "agent_id": {"type": "string", "description": "Your unique agent identifier"},
+                "role": {"type": "string", "enum": ["coordinator", "worker", "observer"], "default": "worker", "description": "Your role in the swarm"},
+                "capabilities": {"type": "array", "items": {"type": "string"}, "description": "Your capabilities (e.g., 'code', 'test', 'review')"},
+            },
+            "required": ["swarm_id", "agent_id"],
+        },
+    },
+    {
+        "name": "rlm_claim",
+        "description": "Claim exclusive access to a resource (file, function, module).",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "swarm_id": {"type": "string", "description": "Swarm ID"},
+                "agent_id": {"type": "string", "description": "Your agent identifier"},
+                "resource_type": {"type": "string", "enum": ["file", "function", "module", "component", "other"], "description": "Type of resource"},
+                "resource_id": {"type": "string", "description": "Resource identifier (e.g., file path)"},
+                "timeout_seconds": {"type": "integer", "default": 300, "description": "Claim timeout"},
+            },
+            "required": ["swarm_id", "agent_id", "resource_type", "resource_id"],
+        },
+    },
+    {
+        "name": "rlm_release",
+        "description": "Release a claimed resource.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "swarm_id": {"type": "string", "description": "Swarm ID"},
+                "agent_id": {"type": "string", "description": "Your agent identifier"},
+                "claim_id": {"type": "string", "description": "Claim ID to release"},
+                "resource_type": {"type": "string", "description": "Resource type (alternative to claim_id)"},
+                "resource_id": {"type": "string", "description": "Resource ID (alternative to claim_id)"},
+            },
+            "required": ["swarm_id", "agent_id"],
+        },
+    },
+    {
+        "name": "rlm_state_get",
+        "description": "Read shared swarm state by key.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "swarm_id": {"type": "string", "description": "Swarm ID"},
+                "key": {"type": "string", "description": "State key to read"},
+            },
+            "required": ["swarm_id", "key"],
+        },
+    },
+    {
+        "name": "rlm_state_set",
+        "description": "Write shared swarm state with optimistic locking.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "swarm_id": {"type": "string", "description": "Swarm ID"},
+                "agent_id": {"type": "string", "description": "Your agent identifier"},
+                "key": {"type": "string", "description": "State key"},
+                "value": {"description": "Value to set (any JSON-serializable type)"},
+                "expected_version": {"type": "integer", "description": "Expected version for optimistic locking"},
+            },
+            "required": ["swarm_id", "agent_id", "key", "value"],
+        },
+    },
+    {
+        "name": "rlm_broadcast",
+        "description": "Send an event to all agents in the swarm.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "swarm_id": {"type": "string", "description": "Swarm ID"},
+                "agent_id": {"type": "string", "description": "Your agent identifier"},
+                "event_type": {"type": "string", "description": "Event type (e.g., 'task_completed', 'error')"},
+                "payload": {"type": "object", "description": "Event data"},
+            },
+            "required": ["swarm_id", "agent_id", "event_type"],
+        },
+    },
+    {
+        "name": "rlm_task_create",
+        "description": "Create a task in the swarm's distributed task queue.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "swarm_id": {"type": "string", "description": "Swarm ID"},
+                "agent_id": {"type": "string", "description": "Creating agent identifier"},
+                "title": {"type": "string", "description": "Task title"},
+                "description": {"type": "string", "description": "Task description"},
+                "priority": {"type": "integer", "default": 0, "description": "Priority (higher = more urgent)"},
+                "depends_on": {"type": "array", "items": {"type": "string"}, "description": "Task IDs this depends on"},
+                "metadata": {"type": "object", "description": "Additional task data"},
+            },
+            "required": ["swarm_id", "agent_id", "title"],
+        },
+    },
+    {
+        "name": "rlm_task_claim",
+        "description": "Claim a task from the queue.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "swarm_id": {"type": "string", "description": "Swarm ID"},
+                "agent_id": {"type": "string", "description": "Your agent identifier"},
+                "task_id": {"type": "string", "description": "Specific task to claim (optional)"},
+                "timeout_seconds": {"type": "integer", "default": 600, "description": "Task timeout"},
+            },
+            "required": ["swarm_id", "agent_id"],
+        },
+    },
+    {
+        "name": "rlm_task_complete",
+        "description": "Mark a claimed task as completed or failed.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "swarm_id": {"type": "string", "description": "Swarm ID"},
+                "agent_id": {"type": "string", "description": "Your agent identifier"},
+                "task_id": {"type": "string", "description": "Task to complete"},
+                "success": {"type": "boolean", "default": True, "description": "Whether task succeeded"},
+                "result": {"description": "Task result data"},
+            },
+            "required": ["swarm_id", "agent_id", "task_id"],
+        },
+    },
 ]
 
 
@@ -172,17 +499,68 @@ def jsonrpc_error(id: Any, code: int, message: str) -> dict:
     return {"jsonrpc": "2.0", "id": id, "error": {"code": code, "message": message}}
 
 
-async def validate_request(project_id: str, api_key: str) -> tuple[dict | None, Plan, str | None]:
+async def authenticate_request(
+    project_id: str,
+    x_api_key: str | None,
+    authorization: str | None,
+) -> tuple[dict | None, str | None]:
+    """
+    Authenticate a request using API key or OAuth token.
+
+    Tries in order:
+    1. X-API-Key header (API key)
+    2. Authorization: Bearer header (could be API key or OAuth token)
+
+    Returns (auth_info, error_message)
+    """
+    api_key = None
+
+    # Try X-API-Key header first
+    if x_api_key:
+        api_key = x_api_key
+
+    # Try Authorization: Bearer header
+    elif authorization:
+        if authorization.startswith("Bearer "):
+            token = authorization[7:]
+            # Check if it's an OAuth token
+            if token.startswith("snipara_at_"):
+                auth_info = await validate_oauth_token(token, project_id)
+                if auth_info:
+                    return auth_info, None
+                return None, "Invalid or expired OAuth token"
+            # Otherwise treat as API key
+            api_key = token
+        else:
+            # Treat the whole value as API key
+            api_key = authorization
+
+    if not api_key:
+        return None, "Authentication required. Use X-API-Key or Authorization: Bearer header"
+
+    # Validate API key
+    auth_info = await validate_api_key(api_key, project_id)
+    if auth_info:
+        return auth_info, None
+
+    return None, "Invalid API key"
+
+
+async def validate_request(
+    project_id: str,
+    x_api_key: str | None,
+    authorization: str | None,
+) -> tuple[dict | None, Plan, str | None]:
     """Validate API key and check limits. Returns (api_key_info, plan, error)."""
-    api_key_info = await validate_api_key(api_key, project_id)
-    if not api_key_info:
-        return None, Plan.FREE, "Invalid API key"
+    auth_info, error = await authenticate_request(project_id, x_api_key, authorization)
+    if error:
+        return None, Plan.FREE, error
 
     project = await get_project_with_team(project_id)
     if not project:
         return None, Plan.FREE, "Project not found"
 
-    if not await check_rate_limit(api_key_info["id"]):
+    if not await check_rate_limit(auth_info["id"]):
         return None, Plan.FREE, f"Rate limit exceeded: {settings.rate_limit_requests}/min"
 
     plan = Plan(project.team.subscription.plan if project.team.subscription else "FREE")
@@ -190,7 +568,7 @@ async def validate_request(project_id: str, api_key: str) -> tuple[dict | None, 
     if limits.exceeded:
         return None, plan, f"Monthly limit exceeded: {limits.current}/{limits.max}"
 
-    return api_key_info, plan, None
+    return auth_info, plan, None
 
 
 async def handle_call_tool(id: Any, params: dict, project_id: str, plan: Plan) -> dict:
@@ -248,18 +626,36 @@ async def handle_request(body: dict, project_id: str, plan: Plan) -> dict | None
 
 
 @router.post("/{project_id}")
-async def mcp_endpoint(project_id: str, request: Request, authorization: str = Header(...)):
+async def mcp_endpoint(
+    project_id: str,
+    request: Request,
+    x_api_key: str | None = Header(None, alias="X-API-Key"),
+    authorization: str | None = Header(None),
+):
     """
     MCP Streamable HTTP endpoint.
 
+    Supports both authentication methods:
+    - X-API-Key: rlm_xxx (preferred)
+    - Authorization: Bearer rlm_xxx (backwards compatible)
+    - Authorization: Bearer snipara_at_xxx (OAuth token)
+
     Config example (Claude Code):
     ```json
-    {"mcpServers": {"snipara": {"type": "http", "url": "https://api.snipara.com/mcp/{project_id}", "headers": {"Authorization": "Bearer sk-..."}}}}
+    {
+      "mcpServers": {
+        "snipara": {
+          "type": "http",
+          "url": "https://api.snipara.com/mcp/PROJECT_SLUG",
+          "headers": {
+            "X-API-Key": "rlm_your_api_key"
+          }
+        }
+      }
+    }
     ```
     """
-    api_key = authorization[7:] if authorization.startswith("Bearer ") else authorization
-
-    api_key_info, plan, error = await validate_request(project_id, api_key)
+    api_key_info, plan, error = await validate_request(project_id, x_api_key, authorization)
     if error:
         raise HTTPException(status_code=401 if "Invalid" in error else 429, detail=error)
 
@@ -277,11 +673,13 @@ async def mcp_endpoint(project_id: str, request: Request, authorization: str = H
 
 
 @router.get("/{project_id}")
-async def mcp_sse(project_id: str, authorization: str = Header(...)):
+async def mcp_sse(
+    project_id: str,
+    x_api_key: str | None = Header(None, alias="X-API-Key"),
+    authorization: str | None = Header(None),
+):
     """MCP SSE endpoint for server-initiated messages (keep-alive)."""
-    api_key = authorization[7:] if authorization.startswith("Bearer ") else authorization
-
-    _, _, error = await validate_request(project_id, api_key)
+    _, _, error = await validate_request(project_id, x_api_key, authorization)
     if error:
         raise HTTPException(status_code=401, detail=error)
 
