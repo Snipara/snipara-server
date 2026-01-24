@@ -3,7 +3,7 @@
 ## Repository Structure
 
 ```
-sniparamcp/                    # GitHub: alopez3006/sniparamcp
+snipara-fastapi/                    # GitHub: alopez3006/snipara-fastapi
 ├── src/
 │   ├── server.py              # FastAPI application & routes
 │   ├── rlm_engine.py          # Core RLM logic & tool handlers
@@ -22,7 +22,7 @@ sniparamcp/                    # GitHub: alopez3006/sniparamcp
 ### Railway Configuration
 
 **Service:** SniparaMCP
-**Repository:** `alopez3006/sniparamcp`
+**Repository:** `alopez3006/snipara-fastapi`
 **Branch:** `main`
 
 #### railway.toml
@@ -93,7 +93,7 @@ If watch path is set to a subdirectory that doesn't exist, deployments won't tri
 #### Option 1: Railway CLI
 
 ```bash
-cd /path/to/sniparamcp
+cd /path/to/snipara-fastapi
 railway link          # Interactive: select workspace & service
 railway up            # Deploy current directory
 ```
@@ -231,7 +231,7 @@ curl http://localhost:8000/health
 
 | Repo | Purpose |
 |------|---------|
-| `alopez3006/sniparamcp` | MCP server (this repo, deployed to Railway) |
+| `alopez3006/snipara-fastapi` | MCP server (this repo, deployed to Railway) |
 | `alopez3006/snipara` | Web app monorepo (deployed to Vercel) |
 
 ---
