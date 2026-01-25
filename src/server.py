@@ -46,6 +46,42 @@ from .mcp_transport import router as mcp_router
 
 logger = logging.getLogger(__name__)
 
+# ============ SENTRY INITIALIZATION ============
+
+
+def _filter_sentry_event(event: dict) -> dict:
+    """Remove sensitive data from Sentry events."""
+    if "request" in event and "headers" in event["request"]:
+        headers = event["request"]["headers"]
+        for key in ["authorization", "x-api-key"]:
+            if key in headers:
+                headers[key] = "[REDACTED]"
+    return event
+
+
+# Initialize Sentry if DSN is configured
+if settings.sentry_dsn:
+    try:
+        import sentry_sdk
+        from sentry_sdk.integrations.fastapi import FastApiIntegration
+        from sentry_sdk.integrations.starlette import StarletteIntegration
+
+        sentry_sdk.init(
+            dsn=settings.sentry_dsn,
+            environment=settings.environment,
+            traces_sample_rate=0.1 if settings.environment == "production" else 1.0,
+            integrations=[
+                FastApiIntegration(),
+                StarletteIntegration(),
+            ],
+            before_send=lambda event, hint: _filter_sentry_event(event),
+        )
+        logger.info("Sentry error tracking initialized")
+    except ImportError:
+        logger.warning("Sentry DSN configured but sentry-sdk not installed")
+else:
+    logger.debug("Sentry DSN not configured - error tracking disabled")
+
 
 # ============ SECURITY HELPERS ============
 
@@ -219,7 +255,7 @@ async def validate_and_rate_limit(
         raise HTTPException(status_code=404, detail="Project not found")
 
     # 3. Check rate limit
-    rate_ok = await check_rate_limit(api_key_info["id"])
+    rate_ok = await check_rate_limit(auth_info["id"])
     if not rate_ok:
         raise HTTPException(
             status_code=429,
@@ -232,7 +268,7 @@ async def validate_and_rate_limit(
     # 5. Get project automation settings (from dashboard)
     project_settings = await get_project_settings(project_id)
 
-    return api_key_info, project, plan, project_settings
+    return auth_info, project, plan, project_settings
 
 
 async def validate_team_and_rate_limit(

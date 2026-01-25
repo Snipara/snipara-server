@@ -1,5 +1,8 @@
 """Usage tracking and rate limiting module."""
 
+import logging
+import time
+from collections import defaultdict
 from datetime import datetime, timedelta
 
 import redis.asyncio as redis
@@ -8,9 +11,15 @@ from .config import settings
 from .db import get_db
 from .models import LimitsInfo, Plan
 
+logger = logging.getLogger(__name__)
+
 # Redis client for rate limiting
 _redis: redis.Redis | None = None
 _redis_available: bool | None = None
+
+# In-memory rate limiting fallback (per-process)
+_local_rate_limits: dict[str, list[float]] = defaultdict(list)
+_fallback_warning_logged: bool = False
 
 
 async def get_redis() -> redis.Redis | None:
@@ -51,17 +60,21 @@ async def check_rate_limit(api_key_id: str) -> bool:
     """
     Check if the API key has exceeded rate limits.
 
+    Uses Redis when available, falls back to in-memory sliding window.
+
     Args:
         api_key_id: The API key ID
 
     Returns:
         True if within limits, False if exceeded
     """
+    global _fallback_warning_logged
+
     r = await get_redis()
 
-    # If Redis is not available, skip rate limiting
+    # In-memory fallback when Redis unavailable
     if r is None:
-        return True
+        return _check_rate_limit_memory(api_key_id)
 
     try:
         key = f"rate_limit:{api_key_id}"
@@ -75,15 +88,54 @@ async def check_rate_limit(api_key_id: str) -> bool:
 
         count = int(count)
         if count >= settings.rate_limit_requests:
+            logger.warning(f"Rate limit exceeded for {api_key_id[:8]}...")
             return False
 
         # Increment counter
         await r.incr(key)
         return True
     except Exception as e:
-        # If Redis fails, allow the request
-        print(f"[Warning] Rate limit check failed: {e}")
-        return True
+        # Redis error - fall back to in-memory
+        logger.error(f"Redis rate limit check failed: {e}")
+        return _check_rate_limit_memory(api_key_id)
+
+
+def _check_rate_limit_memory(api_key_id: str) -> bool:
+    """
+    In-memory rate limit check (fallback).
+
+    Uses a sliding window algorithm. Note: This is per-process only and
+    won't work correctly with multiple server instances.
+
+    Args:
+        api_key_id: The API key ID
+
+    Returns:
+        True if within limits, False if exceeded
+    """
+    global _fallback_warning_logged
+
+    if not _fallback_warning_logged:
+        logger.warning(
+            "Redis unavailable - using in-memory rate limiting. "
+            "This is per-process only and won't work correctly "
+            "with multiple server instances."
+        )
+        _fallback_warning_logged = True
+
+    now = time.time()
+    window_seconds = settings.rate_limit_window
+    window = _local_rate_limits[api_key_id]
+
+    # Remove expired entries (sliding window)
+    window[:] = [t for t in window if now - t < window_seconds]
+
+    if len(window) >= settings.rate_limit_requests:
+        logger.warning(f"Rate limit exceeded for {api_key_id[:8]}... (in-memory)")
+        return False
+
+    window.append(now)
+    return True
 
 
 async def check_usage_limits(project_id: str, plan: Plan) -> LimitsInfo:

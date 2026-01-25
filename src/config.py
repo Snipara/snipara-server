@@ -50,6 +50,12 @@ class Settings(BaseSettings):
         "ENTERPRISE": -1,  # unlimited
     }
 
+    # Sentry error tracking (optional)
+    sentry_dsn: str = ""
+
+    # Environment name for Sentry
+    environment: str = "development"
+
     @property
     def cors_origins_list(self) -> list[str]:
         """Get CORS origins as a list."""
