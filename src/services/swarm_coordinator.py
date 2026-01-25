@@ -777,9 +777,8 @@ async def claim_task(
         where={"id": task.id},
         data={
             "status": "IN_PROGRESS",
-            "assignedTo": agent.id,
+            "agent": {"connect": {"id": agent.id}},
             "startedAt": datetime.now(timezone.utc),
-            "deadline": deadline,
         },
     )
 
