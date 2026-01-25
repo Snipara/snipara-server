@@ -475,34 +475,37 @@ def jsonrpc_error(id: Any, code: int, message: str) -> dict:
     return {"jsonrpc": "2.0", "id": id, "error": {"code": code, "message": message}}
 
 
-async def validate_request(project_id: str, api_key: str) -> tuple[dict | None, Plan, str | None]:
-    """Validate API key or OAuth token and check limits. Returns (auth_info, plan, error)."""
+async def validate_request(project_id_or_slug: str, api_key: str) -> tuple[dict | None, Plan, str | None, str | None]:
+    """Validate API key or OAuth token and check limits. Returns (auth_info, plan, error, actual_project_id)."""
     auth_info = None
 
     # Check if it's an OAuth token
     if api_key.startswith("snipara_at_"):
-        auth_info = await validate_oauth_token(api_key, project_id)
+        auth_info = await validate_oauth_token(api_key, project_id_or_slug)
         if not auth_info:
-            return None, Plan.FREE, "Invalid or expired OAuth token"
+            return None, Plan.FREE, "Invalid or expired OAuth token", None
     else:
         # Fall back to API key validation
-        auth_info = await validate_api_key(api_key, project_id)
+        auth_info = await validate_api_key(api_key, project_id_or_slug)
         if not auth_info:
-            return None, Plan.FREE, "Invalid API key"
+            return None, Plan.FREE, "Invalid API key", None
 
-    project = await get_project_with_team(project_id)
+    project = await get_project_with_team(project_id_or_slug)
     if not project:
-        return None, Plan.FREE, "Project not found"
+        return None, Plan.FREE, "Project not found", None
+
+    # Use actual database ID for all operations
+    actual_project_id = project.id
 
     if not await check_rate_limit(auth_info["id"]):
-        return None, Plan.FREE, f"Rate limit exceeded: {settings.rate_limit_requests}/min"
+        return None, Plan.FREE, f"Rate limit exceeded: {settings.rate_limit_requests}/min", None
 
     plan = Plan(project.team.subscription.plan if project.team.subscription else "FREE")
-    limits = await check_usage_limits(project_id, plan)
+    limits = await check_usage_limits(actual_project_id, plan)
     if limits.exceeded:
-        return None, plan, f"Monthly limit exceeded: {limits.current}/{limits.max}"
+        return None, plan, f"Monthly limit exceeded: {limits.current}/{limits.max}", None
 
-    return auth_info, plan, None
+    return auth_info, plan, None, actual_project_id
 
 
 async def handle_call_tool(id: Any, params: dict, project_id: str, plan: Plan) -> dict:
@@ -589,7 +592,7 @@ async def mcp_endpoint(
     else:
         raise HTTPException(status_code=401, detail="Missing authentication: X-API-Key or Authorization header required")
 
-    api_key_info, plan, error = await validate_request(project_id, api_key)
+    api_key_info, plan, error, actual_project_id = await validate_request(project_id, api_key)
     if error:
         raise HTTPException(status_code=401 if "Invalid" in error else 429, detail=error)
 
@@ -598,11 +601,12 @@ async def mcp_endpoint(
     except Exception:
         return JSONResponse(jsonrpc_error(None, -32700, "Parse error"), status_code=400)
 
+    # Use actual database ID for all operations (not URL slug)
     if isinstance(body, list):
-        responses = [r for req in body if (r := await handle_request(req, project_id, plan))]
+        responses = [r for req in body if (r := await handle_request(req, actual_project_id, plan))]
         return JSONResponse(responses)
 
-    response = await handle_request(body, project_id, plan)
+    response = await handle_request(body, actual_project_id, plan)
     return JSONResponse(response) if response else JSONResponse({}, status_code=204)
 
 
@@ -621,7 +625,7 @@ async def mcp_sse(
     else:
         raise HTTPException(status_code=401, detail="Missing authentication: X-API-Key or Authorization header required")
 
-    _, _, error = await validate_request(project_id, api_key)
+    _, _, error, _ = await validate_request(project_id, api_key)
     if error:
         raise HTTPException(status_code=401, detail=error)
 
