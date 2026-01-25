@@ -8,6 +8,8 @@ import logging
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
+from prisma import Json
+
 from ..db import get_db
 from .agent_limits import check_swarm_agent_limits, check_swarm_limits
 
@@ -614,7 +616,7 @@ async def set_state(
         await db.sharedstate.update(
             where={"id": existing.id},
             data={
-                "value": parsed_value,  # Json field accepts dict/list directly
+                "value": Json(parsed_value),  # Wrap with Json() for Prisma
                 "version": new_version,
                 "updatedBy": agent_id,
             },
@@ -632,7 +634,7 @@ async def set_state(
             data={
                 "swarm": {"connect": {"id": swarm_id}},
                 "key": key,
-                "value": parsed_value,  # Json field accepts dict/list directly
+                "value": Json(parsed_value),  # Wrap with Json() for Prisma
                 "version": 1,
                 "updatedBy": agent_id,
             }
@@ -868,7 +870,7 @@ async def complete_task(
         where={"id": task.id},
         data={
             "status": status,
-            "result": parsed_result if parsed_result is not None else None,
+            "result": Json(parsed_result) if parsed_result is not None else None,
             "completedAt": datetime.now(timezone.utc),
         },
     )
