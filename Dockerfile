@@ -19,7 +19,11 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# Generate Prisma client
+# Create appuser home directory structure for Prisma cache
+RUN mkdir -p /home/appuser/.cache
+ENV HOME="/home/appuser"
+
+# Generate Prisma client (with HOME set so binaries go to /home/appuser/.cache)
 COPY prisma ./prisma
 RUN prisma generate
 
@@ -37,11 +41,11 @@ RUN groupadd --gid 1000 appgroup && \
 COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Copy Prisma binaries cache from builder and set ownership for appuser
-COPY --from=builder /root/.cache/prisma-python /home/appuser/.cache/prisma-python
+# Copy Prisma binaries cache from builder (already at /home/appuser/.cache)
+COPY --from=builder /home/appuser/.cache /home/appuser/.cache
 RUN chown -R appuser:appgroup /home/appuser
 
-# Set HOME for appuser so prisma-python finds the cache in ~/.cache/prisma-python
+# Set HOME for appuser (must match build stage HOME)
 ENV HOME="/home/appuser"
 
 # Copy application code
