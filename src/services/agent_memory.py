@@ -532,10 +532,7 @@ async def delete_memories(
         where["createdAt"] = {"lt": cutoff}
 
     # Get IDs to delete embeddings
-    to_delete = await db.agentmemory.find_many(
-        where=where,
-        select={"id": True},
-    )
+    to_delete = await db.agentmemory.find_many(where=where)
     memory_ids = [m.id for m in to_delete]
 
     # Delete memories
