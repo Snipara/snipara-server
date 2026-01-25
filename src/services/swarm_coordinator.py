@@ -609,10 +609,9 @@ async def set_state(
         await db.sharedstate.update(
             where={"id": existing.id},
             data={
-                "value": value_str,
+                "value": value,  # Json field accepts dict/list directly
                 "version": new_version,
                 "updatedBy": agent_id,
-                "updatedAt": datetime.now(timezone.utc),
             },
         )
 
