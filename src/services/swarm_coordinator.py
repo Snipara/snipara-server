@@ -5,7 +5,7 @@ Manages multi-agent swarms, resource claims, shared state, and task queues.
 
 import json
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from ..db import get_db
@@ -55,11 +55,10 @@ async def create_swarm(
 
     swarm = await db.agentswarm.create(
         data={
-            "projectId": project_id,
+            "project": {"connect": {"id": project_id}},
             "name": name,
             "description": description,
             "maxAgents": max_agents,
-            "config": json.dumps(config) if config else None,
             "isActive": True,
         }
     )
@@ -130,29 +129,27 @@ async def join_swarm(
     )
 
     if existing:
-        # Update last seen
+        # Update last heartbeat
         await db.swarmagent.update(
             where={"id": existing.id},
-            data={"lastSeenAt": datetime.utcnow()},
+            data={"lastHeartbeat": datetime.now(timezone.utc)},
         )
         return {
             "success": True,
             "agent_id": existing.id,
             "swarm_id": swarm_id,
-            "role": existing.role,
-            "message": "Already in swarm, updated last seen",
+            "role": role,  # Return requested role (not stored in DB)
+            "message": "Already in swarm, updated heartbeat",
         }
 
     # Join swarm
-    role_upper = role.upper()
     agent = await db.swarmagent.create(
         data={
-            "swarmId": swarm_id,
+            "swarm": {"connect": {"id": swarm_id}},
             "agentId": agent_id,
-            "role": role_upper,
-            "capabilities": capabilities or [],
+            "name": agent_id,  # Use agent_id as name
             "isActive": True,
-            "lastSeenAt": datetime.utcnow(),
+            "lastHeartbeat": datetime.now(timezone.utc),
         }
     )
 
@@ -209,7 +206,7 @@ async def leave_swarm(swarm_id: str, agent_id: str) -> dict[str, Any]:
         },
         data={
             "status": "RELEASED",
-            "releasedAt": datetime.utcnow(),
+            "releasedAt": datetime.now(timezone.utc),
         },
     )
 
@@ -319,7 +316,7 @@ async def acquire_claim(
 
     if existing:
         # Lazy expiration check
-        if existing.expiresAt and existing.expiresAt < datetime.utcnow():
+        if existing.expiresAt and existing.expiresAt < datetime.now(timezone.utc):
             # Claim expired, mark it
             await db.resourceclaim.update(
                 where={"id": existing.id},
@@ -330,7 +327,7 @@ async def acquire_claim(
             # Claim is still active
             if existing.agentId == agent.id:
                 # Same agent, extend the claim
-                new_expires = datetime.utcnow() + timedelta(seconds=timeout_seconds)
+                new_expires = datetime.now(timezone.utc) + timedelta(seconds=timeout_seconds)
                 await db.resourceclaim.update(
                     where={"id": existing.id},
                     data={"expiresAt": new_expires},
@@ -353,12 +350,12 @@ async def acquire_claim(
                 }
 
     # Create new claim
-    expires_at = datetime.utcnow() + timedelta(seconds=timeout_seconds)
+    expires_at = datetime.now(timezone.utc) + timedelta(seconds=timeout_seconds)
 
     claim = await db.resourceclaim.create(
         data={
-            "swarmId": swarm_id,
-            "agentId": agent.id,
+            "swarm": {"connect": {"id": swarm_id}},
+            "agent": {"connect": {"id": agent.id}},
             "resourceType": resource_type,
             "resourceId": resource_id,
             "status": "ACTIVE",
@@ -445,7 +442,7 @@ async def release_claim(
         where={"id": claim.id},
         data={
             "status": "RELEASED",
-            "releasedAt": datetime.utcnow(),
+            "releasedAt": datetime.now(timezone.utc),
         },
     )
 
@@ -493,7 +490,7 @@ async def check_claim(
         }
 
     # Lazy expiration
-    if claim.expiresAt and claim.expiresAt < datetime.utcnow():
+    if claim.expiresAt and claim.expiresAt < datetime.now(timezone.utc):
         await db.resourceclaim.update(
             where={"id": claim.id},
             data={"status": "EXPIRED"},
@@ -615,7 +612,7 @@ async def set_state(
                 "value": value_str,
                 "version": new_version,
                 "updatedBy": agent_id,
-                "updatedAt": datetime.utcnow(),
+                "updatedAt": datetime.now(timezone.utc),
             },
         )
 
@@ -629,12 +626,11 @@ async def set_state(
         # Create new state
         await db.sharedstate.create(
             data={
-                "swarmId": swarm_id,
+                "swarm": {"connect": {"id": swarm_id}},
                 "key": key,
-                "value": value_str,
+                "value": value,  # Json field accepts dict/list directly
                 "version": 1,
                 "updatedBy": agent_id,
-                "updatedAt": datetime.utcnow(),
             }
         )
 
@@ -678,14 +674,12 @@ async def create_task(
 
     task = await db.swarmtask.create(
         data={
-            "swarmId": swarm_id,
+            "swarm": {"connect": {"id": swarm_id}},
             "title": title,
             "description": description,
             "status": "PENDING",
             "priority": priority,
             "dependsOn": depends_on or [],
-            "metadata": json.dumps(metadata) if metadata else None,
-            "createdBy": agent_id,
         }
     )
 
@@ -778,14 +772,14 @@ async def claim_task(
             }
 
     # Claim the task
-    deadline = datetime.utcnow() + timedelta(seconds=timeout_seconds)
+    deadline = datetime.now(timezone.utc) + timedelta(seconds=timeout_seconds)
 
     await db.swarmtask.update(
         where={"id": task.id},
         data={
             "status": "IN_PROGRESS",
             "assignedTo": agent.id,
-            "startedAt": datetime.utcnow(),
+            "startedAt": datetime.now(timezone.utc),
             "deadline": deadline,
         },
     )
@@ -873,7 +867,7 @@ async def complete_task(
         data={
             "status": status,
             "result": result_str,
-            "completedAt": datetime.utcnow(),
+            "completedAt": datetime.now(timezone.utc),
         },
     )
 
