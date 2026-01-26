@@ -177,6 +177,57 @@ Do NOT read files directly when Snipara can provide the context more efficiently
 ---
 """
 
+# First-query tool tips - injected only on the first query of a session
+# This helps users understand all available tools without wasting tokens on every query
+# Tips are plan-filtered: users only see tools available to their plan
+
+
+def get_first_query_tips(plan: "Plan") -> str:
+    """Generate plan-filtered tool tips for first query.
+
+    Args:
+        plan: User's current plan (FREE, PRO, TEAM, ENTERPRISE)
+
+    Returns:
+        Tool tips string with only tools available to this plan
+    """
+    tips = ["## Snipara Tool Guide (First Query Tips)", ""]
+
+    # Primary tools - available to all plans
+    tips.append("**Primary Tools:**")
+    tips.append("- `rlm_context_query` - Full documentation query with token budgeting")
+    tips.append("- `rlm_ask` - Quick, simple query (~2500 tokens, no config needed)")
+    tips.append("- `rlm_search` - Regex pattern search across documentation")
+    tips.append("")
+
+    # Pro+ tools - semantic search, decompose, multi-query
+    if plan in SEMANTIC_SEARCH_PLANS:
+        tips.append("**Power User Tools (Pro+):**")
+        tips.append("- `rlm_multi_query` - Batch multiple queries in parallel")
+        tips.append("- `rlm_decompose` - Break complex queries into sub-queries")
+        tips.append("- `rlm_shared_context` - Get team coding standards/best practices")
+        tips.append("")
+
+    # Team+ tools - multi-project, plan, templates
+    if plan in PLAN_FEATURE_PLANS:
+        tips.append("**Team Tools (Team+):**")
+        tips.append("- `rlm_multi_project_query` - Search across ALL your projects")
+        tips.append("- `rlm_plan` - Generate execution plan for complex questions")
+        tips.append("- `rlm_list_templates` / `rlm_get_template` - Use prompt templates")
+        tips.append("")
+
+    # Utility tools - available to all
+    tips.append("**Utility Tools:**")
+    tips.append("- `rlm_inject` / `rlm_context` / `rlm_clear_context` - Session context")
+    tips.append("- `rlm_stats` / `rlm_sections` - Browse documentation structure")
+    tips.append("")
+
+    tips.append("**Tip:** Use `rlm_ask` for quick answers, `rlm_context_query` for full control.")
+    tips.append("")
+    tips.append("---")
+
+    return "\n".join(tips)
+
 logger = logging.getLogger(__name__)
 
 # Initialize tiktoken encoder (using cl100k_base for GPT-4/Claude compatibility)
@@ -266,6 +317,7 @@ class RLMEngine:
         self.index: DocumentationIndex | None = None
         self.session_context: str = ""
         self._chunks_available: bool | None = None  # Cache for chunk availability check
+        self._tips_shown_this_session: bool = False  # Track if first-query tips were shown
 
         # Load settings from dashboard config or use defaults
         if settings:
@@ -906,6 +958,23 @@ class RLMEngine:
         if include_shared_context and self.plan not in SHARED_CONTEXT_PLANS:
             include_shared_context = False
 
+        # First-query tool tips injection
+        # Inject tips only on the first query of this session to help users
+        # discover available tools without wasting tokens on every query
+        is_first_query = not self._tips_shown_this_session
+        if is_first_query:
+            self._tips_shown_this_session = True
+
+        # Build effective session context (includes plan-filtered tips on first query only)
+        if is_first_query:
+            tips = get_first_query_tips(self.plan)
+            if self.session_context:
+                effective_session_context = f"{tips}\n{self.session_context}"
+            else:
+                effective_session_context = tips
+        else:
+            effective_session_context = self.session_context
+
         if not self.index:
             return ToolResult(
                 data=ContextQueryResult(
@@ -924,13 +993,13 @@ class RLMEngine:
         if prefer_summaries:
             summaries_by_path = await self._load_summaries_for_project()
 
-        # Account for session context tokens if present
+        # Account for session context tokens if present (includes tips on first query)
         session_context_tokens = 0
         session_context_included = False
         remaining_budget = max_tokens
 
-        if self.session_context:
-            session_context_tokens = count_tokens(self.session_context)
+        if effective_session_context:
+            session_context_tokens = count_tokens(effective_session_context)
             if session_context_tokens < remaining_budget * 0.2:  # Max 20% for context
                 remaining_budget -= session_context_tokens
                 session_context_included = True
@@ -1078,6 +1147,7 @@ class RLMEngine:
             system_instructions=instructions,
             shared_context_included=len(shared_context_sections) > 0,
             shared_context_tokens=shared_context_tokens,
+            first_query_tips_included=is_first_query and session_context_included,
         )
 
         # Calculate actual token usage for billing

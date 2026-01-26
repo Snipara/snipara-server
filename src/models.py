@@ -312,6 +312,10 @@ class ContextQueryResult(BaseModel):
         ge=0,
         description="Number of tokens from shared context collections",
     )
+    first_query_tips_included: bool = Field(
+        default=False,
+        description="Whether first-query tool tips were included (shown only on first query)",
+    )
 
 
 # ============ RECURSIVE CONTEXT MODELS (Phase 4.5) ============
