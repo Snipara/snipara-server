@@ -1,11 +1,7 @@
-// Prisma schema for MCP Server (Python client)
-// This should mirror the main schema in packages/database
-
 generator client {
-  provider             = "prisma-client-py"
-  interface            = "asyncio"
-  recursive_type_depth = 5
+  provider        = "prisma-client-js"
   previewFeatures = ["postgresqlExtensions"]
+  binaryTargets   = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
@@ -41,6 +37,11 @@ model User {
 
   // Snipara Agents relations
   agentsSubscriptions AgentsSubscription[]
+
+  // Consent tracking
+  cookiesAcceptedAt    DateTime?
+  termsAcceptedAt      DateTime?
+  privacyAcceptedAt    DateTime?
 
   // Ban status (Admin Dashboard)
   isBanned      Boolean   @default(false)
@@ -146,8 +147,9 @@ model TeamMember {
   team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
 
   // Permission system relations
-  permissions   TeamPermission[]
-  projectAccess ProjectMember[]
+  permissions    TeamPermission[]
+  projectAccess  ProjectMember[]
+  accessRequests AccessRequest[]
 
   @@unique([userId, teamId])
   @@map("team_members")
@@ -181,9 +183,17 @@ enum PermissionMode {
 }
 
 enum ProjectAccessLevel {
+  NONE   // Can list project, cannot access MCP (must request access)
   VIEWER // Read-only: view project, query MCP, view docs
-  EDITOR // Read-write: manage docs, settings
+  EDITOR // Read-write: manage docs, inject context
   ADMIN  // Full access: API keys, automation, delete
+}
+
+enum AccessRequestStatus {
+  PENDING   // Waiting for approval
+  APPROVED  // Request approved (ProjectMember created)
+  DENIED    // Request denied
+  CANCELLED // Requester cancelled
 }
 
 // Team permission configuration (opt-in toggle for TEAM+ plans)
@@ -241,6 +251,33 @@ model ProjectMember {
   @@map("project_members")
 }
 
+// Access requests for project-level permissions
+model AccessRequest {
+  id           String             @id @default(cuid())
+  projectId    String
+  project      Project            @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  teamMemberId String
+  teamMember   TeamMember         @relation(fields: [teamMemberId], references: [id], onDelete: Cascade)
+
+  // Request details
+  requestedLevel ProjectAccessLevel  @default(VIEWER)
+  reason         String?             @db.Text
+  status         AccessRequestStatus @default(PENDING)
+
+  // Resolution
+  resolvedBy  String?
+  resolvedAt  DateTime?
+  denyReason  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([projectId, teamMemberId, status])
+  @@index([projectId, status])
+  @@index([teamMemberId, status])
+  @@map("access_requests")
+}
+
 // ============================================
 // Project Models
 // ============================================
@@ -273,6 +310,15 @@ model Project {
   maxTokensPerQuery     Int     @default(4000)
   searchMode            String  @default("hybrid") // keyword, semantic, hybrid
   includeSummaries      Boolean @default(true)
+  memoryInjectionEnabled Boolean @default(false) // Agents feature: inject memories on session start
+
+  // Memory Injection Filter Settings
+  memoryInjectTypes               String[] @default(["FACT", "DECISION", "LEARNING", "PREFERENCE", "TODO", "CONTEXT"])
+  memoryExcludeSessionCheckpoints Boolean  @default(false) // Exclude category="session" from injection
+  memoryMinConfidence             Float    @default(0.2)   // Minimum confidence for injection (0-1)
+  memoryRecallQuery               String?  // Custom recall query template, supports {project_name}, {project_slug}
+  memorySaveOnCommit              Boolean  @default(false) // Save memory when git commit is detected
+
   systemInstructions    String? @db.Text // Custom instructions to prepend to every query response
 
   // Relations
@@ -287,7 +333,8 @@ model Project {
   oauthTokens    OAuthToken[]
 
   // Permission system (project-level access)
-  members ProjectMember[]
+  members        ProjectMember[]
+  accessRequests AccessRequest[]
 
   // Snipara Agents relations
   queryCaches    QueryCache[]
@@ -1267,6 +1314,10 @@ model AgentsSubscription {
   // Billing cycle
   currentPeriodStart    DateTime?
   currentPeriodEnd      DateTime?
+
+  // Grace period for Context plan requirement (Agents TEAM/ENTERPRISE needs Context TEAM/ENTERPRISE)
+  gracePeriodEnd        DateTime?
+  gracePeriodReason     String?
 
   createdAt             DateTime    @default(now())
   updatedAt             DateTime    @updatedAt
