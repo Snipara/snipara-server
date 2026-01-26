@@ -88,7 +88,6 @@ async def load_team_context_for_project(project_id: str) -> list[SharedDocument]
     # Get project's team
     project = await db.project.find_unique(
         where={"id": project_id},
-        select={"teamId": True}
     )
 
     if not project or not project.teamId:
