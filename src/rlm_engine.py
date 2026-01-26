@@ -852,9 +852,24 @@ class RLMEngine:
         return ToolResult(data=response, input_tokens=0, output_tokens=50)
 
     async def _handle_sections(self, params: dict[str, Any]) -> ToolResult:
-        """Handle rlm_sections - list all documentation sections."""
+        """Handle rlm_sections - list documentation sections with pagination."""
         if not self.index:
             return ToolResult(data="No documentation loaded", input_tokens=0, output_tokens=0)
+
+        # Pagination params
+        limit = min(params.get("limit", 50), 500)  # Default 50, max 500
+        offset = params.get("offset", 0)
+        title_filter = params.get("filter", "").lower()
+
+        # Filter sections by title if filter provided
+        all_sections = self.index.sections
+        if title_filter:
+            all_sections = [s for s in all_sections if title_filter in s.title.lower()]
+
+        total_count = len(all_sections)
+
+        # Apply pagination
+        paginated = all_sections[offset : offset + limit]
 
         sections = [
             SectionInfo(
@@ -863,11 +878,15 @@ class RLMEngine:
                 start_line=s.start_line,
                 end_line=s.end_line,
             ).model_dump()
-            for s in self.index.sections
+            for s in paginated
         ]
 
         response = {
-            "total_sections": len(sections),
+            "total_sections": total_count,
+            "returned": len(sections),
+            "offset": offset,
+            "limit": limit,
+            "has_more": (offset + limit) < total_count,
             "sections": sections,
         }
 

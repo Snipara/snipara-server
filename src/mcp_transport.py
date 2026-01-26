@@ -216,8 +216,25 @@ TOOL_DEFINITIONS = [
     },
     {
         "name": "rlm_sections",
-        "description": "List all indexed document sections.",
-        "inputSchema": {"type": "object", "properties": {}, "required": []},
+        "description": "List indexed document sections with optional pagination and filtering.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer",
+                    "description": "Maximum sections to return (default: 50, max: 500)",
+                },
+                "offset": {
+                    "type": "integer",
+                    "description": "Number of sections to skip for pagination (default: 0)",
+                },
+                "filter": {
+                    "type": "string",
+                    "description": "Filter sections by title prefix (case-insensitive)",
+                },
+            },
+            "required": [],
+        },
     },
     {
         "name": "rlm_read",
