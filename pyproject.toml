@@ -1,6 +1,6 @@
 [project]
 name = "rlm-mcp-server"
-version = "1.9.0"
+version = "1.10.0"
 description = "Hosted MCP server for RLM SaaS - Context-efficient documentation queries"
 readme = "README.md"
 requires-python = ">=3.11"
