@@ -1,3 +1,3 @@
-"""RLM MCP Server - Hosted MCP endpoint for RLM SaaS."""
+"""Snipara FastAPI Server - Hosted MCP endpoint for Snipara."""
 
-__version__ = "1.1.0"
+__version__ = "1.7.9"
