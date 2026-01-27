@@ -35,6 +35,7 @@ class ToolName(str, Enum):
     RLM_SHARED_CONTEXT = "rlm_shared_context"
     RLM_LIST_TEMPLATES = "rlm_list_templates"
     RLM_GET_TEMPLATE = "rlm_get_template"
+    RLM_UPLOAD_SHARED_DOCUMENT = "rlm_upload_shared_document"
     # Phase 8.2: Agent Memory Tools
     RLM_REMEMBER = "rlm_remember"
     RLM_RECALL = "rlm_recall"

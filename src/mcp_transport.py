@@ -327,6 +327,37 @@ TOOL_DEFINITIONS = [
             "required": [],
         },
     },
+    {
+        "name": "rlm_upload_shared_document",
+        "description": "Upload or update a document in a shared context collection. Use for team best practices, coding standards, and guidelines. Requires Team plan or higher.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "collection_id": {"type": "string", "description": "The shared collection ID"},
+                "title": {"type": "string", "description": "Document title"},
+                "content": {"type": "string", "description": "Document content (markdown)"},
+                "category": {
+                    "type": "string",
+                    "enum": ["MANDATORY", "BEST_PRACTICES", "GUIDELINES", "REFERENCE"],
+                    "default": "BEST_PRACTICES",
+                    "description": "Document category for token budget allocation",
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Tags for filtering and organization",
+                },
+                "priority": {
+                    "type": "integer",
+                    "default": 0,
+                    "minimum": 0,
+                    "maximum": 100,
+                    "description": "Priority within category (higher = more important)",
+                },
+            },
+            "required": ["collection_id", "title", "content"],
+        },
+    },
     # Phase 8.2: Agent Memory Tools
     {
         "name": "rlm_remember",

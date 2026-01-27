@@ -55,6 +55,7 @@ from .services.embeddings import get_embeddings_service
 from .services.shared_context import (
     allocate_shared_context_budget,
     compute_context_hash,
+    create_shared_document,
     DocumentCategory,
     get_shared_prompt_templates,
     load_project_shared_context,
@@ -571,6 +572,7 @@ class RLMEngine:
             ToolName.RLM_SHARED_CONTEXT: self._handle_shared_context,
             ToolName.RLM_LIST_TEMPLATES: self._handle_list_templates,
             ToolName.RLM_GET_TEMPLATE: self._handle_get_template,
+            ToolName.RLM_UPLOAD_SHARED_DOCUMENT: self._handle_upload_shared_document,
             # Phase 8.2: Agent Memory Tools
             ToolName.RLM_REMEMBER: self._handle_remember,
             ToolName.RLM_RECALL: self._handle_recall,
@@ -2603,6 +2605,93 @@ class RLMEngine:
             input_tokens=0,
             output_tokens=count_tokens(rendered_prompt),
         )
+
+    async def _handle_upload_shared_document(
+        self, params: dict[str, Any]
+    ) -> ToolResult:
+        """
+        Handle rlm_upload_shared_document - upload a document to a shared collection.
+
+        Args:
+            params: Dict containing:
+                - collection_id: The shared collection ID
+                - title: Document title
+                - content: Document content (markdown)
+                - category: Optional (MANDATORY, BEST_PRACTICES, GUIDELINES, REFERENCE)
+                - tags: Optional list of tags
+                - priority: Optional priority (0-100)
+
+        Returns:
+            ToolResult with document ID and status
+        """
+        collection_id = params.get("collection_id", "")
+        title = params.get("title", "")
+        content = params.get("content", "")
+        category = params.get("category")
+        tags = params.get("tags")
+        priority = params.get("priority", 0)
+
+        if not collection_id:
+            return ToolResult(
+                data={"error": "collection_id is required"},
+                input_tokens=0,
+                output_tokens=0,
+            )
+
+        if not title:
+            return ToolResult(
+                data={"error": "title is required"},
+                input_tokens=0,
+                output_tokens=0,
+            )
+
+        if not content:
+            return ToolResult(
+                data={"error": "content is required"},
+                input_tokens=0,
+                output_tokens=0,
+            )
+
+        # Plan gating - require Team+ for shared context write operations
+        if self.plan not in {Plan.TEAM, Plan.ENTERPRISE}:
+            return ToolResult(
+                data={
+                    "error": "rlm_upload_shared_document requires Team plan or higher",
+                    "upgrade_url": "/billing/upgrade",
+                },
+                input_tokens=0,
+                output_tokens=0,
+            )
+
+        try:
+            result = await create_shared_document(
+                collection_id=collection_id,
+                user_id=self.user_id,
+                title=title,
+                content=content,
+                category=category,
+                tags=tags,
+                priority=priority,
+            )
+
+            return ToolResult(
+                data=result,
+                input_tokens=count_tokens(content),
+                output_tokens=0,
+            )
+        except ValueError as e:
+            return ToolResult(
+                data={"error": str(e)},
+                input_tokens=0,
+                output_tokens=0,
+            )
+        except Exception as e:
+            logger.error(f"Error uploading shared document: {e}")
+            return ToolResult(
+                data={"error": f"Failed to upload document: {str(e)}"},
+                input_tokens=0,
+                output_tokens=0,
+            )
 
     # ============ PHASE 8.2: AGENT MEMORY HANDLERS ============
 

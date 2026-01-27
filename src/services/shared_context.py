@@ -526,3 +526,141 @@ async def get_shared_prompt_templates(
             })
 
     return templates
+
+
+async def create_shared_document(
+    collection_id: str,
+    user_id: str,
+    title: str,
+    content: str,
+    category: str | None = None,
+    tags: list[str] | None = None,
+    priority: int = 0,
+) -> dict:
+    """
+    Create or update a document in a shared context collection.
+
+    Args:
+        collection_id: The collection ID
+        user_id: The user creating the document (for auth check)
+        title: Document title
+        content: Document content (markdown)
+        category: Optional category (MANDATORY, BEST_PRACTICES, GUIDELINES, REFERENCE)
+        tags: Optional list of tags
+        priority: Optional priority (0-100)
+
+    Returns:
+        Dict with document details
+
+    Raises:
+        ValueError: If collection not found or user doesn't have access
+    """
+    import re
+
+    db = await get_db()
+
+    # Check collection exists and user has access
+    collection = await db.sharedcontextcollection.find_first(
+        where={
+            "id": collection_id,
+            "OR": [
+                {"ownerId": user_id},
+                {"team": {"members": {"some": {"userId": user_id}}}},
+            ],
+        },
+    )
+
+    if not collection:
+        raise ValueError(
+            "Collection not found or you don't have access. "
+            "You must own the collection or be a member of its team."
+        )
+
+    # Generate slug from title
+    slug = re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-")
+    if not slug:
+        slug = "document"
+
+    # Compute token count (rough: 4 chars per token)
+    token_count = len(content) // 4
+
+    # Compute content hash
+    content_hash = hashlib.sha256(content.encode()).hexdigest()[:16]
+
+    # Validate category
+    valid_categories = ["MANDATORY", "BEST_PRACTICES", "GUIDELINES", "REFERENCE"]
+    doc_category = category.upper() if category else "BEST_PRACTICES"
+    if doc_category not in valid_categories:
+        doc_category = "BEST_PRACTICES"
+
+    # Check if document with slug exists
+    existing = await db.shareddocument.find_first(
+        where={"collectionId": collection_id, "slug": slug}
+    )
+
+    if existing:
+        # Update existing document
+        if existing.contentHash == content_hash:
+            return {
+                "document_id": existing.id,
+                "slug": slug,
+                "action": "unchanged",
+                "token_count": token_count,
+                "message": f"Document '{title}' is unchanged",
+            }
+
+        await db.shareddocument.update(
+            where={"id": existing.id},
+            data={
+                "title": title,
+                "content": content,
+                "category": doc_category,
+                "tags": tags or [],
+                "tokenCount": token_count,
+                "contentHash": content_hash,
+                "priority": priority,
+            },
+        )
+
+        # Increment collection version
+        await db.sharedcontextcollection.update(
+            where={"id": collection_id},
+            data={"version": {"increment": 1}},
+        )
+
+        return {
+            "document_id": existing.id,
+            "slug": slug,
+            "action": "updated",
+            "token_count": token_count,
+            "message": f"Document '{title}' updated ({token_count} tokens)",
+        }
+
+    # Create new document
+    doc = await db.shareddocument.create(
+        data={
+            "collectionId": collection_id,
+            "title": title,
+            "slug": slug,
+            "content": content,
+            "category": doc_category,
+            "tags": tags or [],
+            "tokenCount": token_count,
+            "contentHash": content_hash,
+            "priority": priority,
+        }
+    )
+
+    # Increment collection version
+    await db.sharedcontextcollection.update(
+        where={"id": collection_id},
+        data={"version": {"increment": 1}},
+    )
+
+    return {
+        "document_id": doc.id,
+        "slug": slug,
+        "action": "created",
+        "token_count": token_count,
+        "message": f"Document '{title}' created ({token_count} tokens)",
+    }
