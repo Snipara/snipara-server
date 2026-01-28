@@ -1,7 +1,7 @@
 """Embeddings service for semantic search.
 
 Uses sentence-transformers with lazy model loading to avoid startup cost.
-Model: BAAI/bge-base-en-v1.5 (768 dimensions, high quality)
+Model: BAAI/bge-large-en-v1.5 (1024 dimensions, high quality)
 """
 
 from __future__ import annotations
@@ -19,8 +19,8 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 # Model configuration
-MODEL_NAME = "BAAI/bge-base-en-v1.5"
-EMBEDDING_DIMENSION = 768
+MODEL_NAME = "BAAI/bge-large-en-v1.5"
+EMBEDDING_DIMENSION = 1024
 
 # Timeout configuration (in seconds)
 # Note: First request may take longer due to model cold-start (loading into memory)
@@ -75,7 +75,7 @@ class EmbeddingsService:
             text: The text to embed.
 
         Returns:
-            List of floats representing the embedding vector (384 dimensions).
+            List of floats representing the embedding vector (1024 dimensions).
         """
         model = self._load_model()
         embedding = model.encode(text, convert_to_numpy=True)
@@ -113,7 +113,7 @@ class EmbeddingsService:
             timeout: Maximum time to wait for embedding (default: 5 seconds).
 
         Returns:
-            List of floats representing the embedding vector (384 dimensions).
+            List of floats representing the embedding vector (1024 dimensions).
 
         Raises:
             asyncio.TimeoutError: If embedding takes longer than timeout.

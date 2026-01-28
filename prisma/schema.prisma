@@ -389,7 +389,7 @@ model DocumentVersion {
 model DocumentChunk {
   id         String                    @id @default(cuid())
   content    String                    @db.Text
-  embedding  Unsupported("vector(768)")
+  embedding  Unsupported("vector(1024)")
   startLine  Int
   endLine    Int
   tokenCount Int
