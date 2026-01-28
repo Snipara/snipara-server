@@ -1,6 +1,6 @@
 [project]
 name = "snipara-fastapi"
-version = "1.8.1"
+version = "1.8.2"
 description = "Hosted MCP server for Snipara - Context optimization and Agent infrastructure for LLMs"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -42,7 +42,7 @@ requires = ["hatchling<1.26"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src"]
+packages = ["src", "benchmarks", "tests"]
 
 [tool.hatch.metadata]
 license-files = []
