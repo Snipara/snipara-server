@@ -1,0 +1,1355 @@
+generator client {
+  provider             = "prisma-client-py"
+  interface            = "asyncio"
+  recursive_type_depth = 5
+  previewFeatures      = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [vector]
+}
+
+// ============================================
+// NextAuth.js Models
+// ============================================
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Notification preferences (stored as JSON)
+  notificationPrefs Json @default("{\"emailNotifications\":true,\"usageAlerts\":true,\"billingNotifications\":true}")
+
+  // Relations
+  accounts          Account[]
+  sessions          Session[]
+  teamMembers       TeamMember[]
+  apiKeys           ApiKey[]
+  teamApiKeys       TeamApiKey[]
+  sharedCollections SharedContextCollection[]
+  oauthTokens       OAuthToken[]
+
+  // Snipara Agents relations
+  agentsSubscriptions AgentsSubscription[]
+
+  // Consent tracking
+  cookiesAcceptedAt    DateTime?
+  termsAcceptedAt      DateTime?
+  privacyAcceptedAt    DateTime?
+
+  // Ban status (Admin Dashboard)
+  isBanned      Boolean   @default(false)
+  bannedAt      DateTime?
+  bannedReason  String?
+
+  // Admin audit log relations
+  adminActions  AdminAuditLog[] @relation("AdminActions")
+  adminTargets  AdminAuditLog[] @relation("AdminTargets")
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ============================================
+// Team Models
+// ============================================
+
+model Team {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  image     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // SSO Settings (Enterprise)
+  ssoEnabled    Boolean @default(false)
+  ssoProvider   String? // "saml" | "oidc" | "auth0"
+  ssoEntityId   String?
+  ssoSignOnUrl  String?
+  ssoCertificate String? @db.Text
+  ssoMetadataUrl String?
+
+  // Relations
+  members           TeamMember[]
+  invites           TeamInvite[]
+  projects          Project[]
+  subscription      Subscription?
+  teamContexts      TeamContext[]
+  auditLogs         AuditLog[]
+  sharedCollections SharedContextCollection[]
+  teamApiKeys       TeamApiKey[]
+
+  // Permission system (TEAM+ plans only)
+  permissionConfig TeamPermissionConfig?
+
+  // Snipara Agents relations
+  agentsSubscriptions AgentsSubscription[]
+
+  @@map("teams")
+}
+
+model TeamMember {
+  id        String   @id @default(cuid())
+  role      Role     @default(MEMBER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  userId String
+  teamId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  // Permission system relations
+  permissions    TeamPermission[]
+  projectAccess  ProjectMember[]
+  accessRequests AccessRequest[]
+
+  @@unique([userId, teamId])
+  @@map("team_members")
+}
+
+model TeamInvite {
+  id        String   @id @default(cuid())
+  email     String
+  role      Role     @default(MEMBER)
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  // Relations
+  teamId String
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@unique([email, teamId])
+  @@map("team_invites")
+}
+
+enum Role {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+enum PermissionMode {
+  SIMPLE   // Role-based defaults only (backward compatible)
+  ADVANCED // Fine-grained permissions enabled
+}
+
+enum ProjectAccessLevel {
+  NONE   // Can list project, cannot access MCP (must request access)
+  VIEWER // Read-only: view project, query MCP, view docs
+  EDITOR // Read-write: manage docs, inject context
+  ADMIN  // Full access: API keys, automation, delete
+}
+
+enum AccessRequestStatus {
+  PENDING   // Waiting for approval
+  APPROVED  // Request approved (ProjectMember created)
+  DENIED    // Request denied
+  CANCELLED // Requester cancelled
+}
+
+// Team permission configuration (opt-in toggle for TEAM+ plans)
+model TeamPermissionConfig {
+  id     String         @id @default(cuid())
+  teamId String         @unique
+  team   Team           @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  mode PermissionMode @default(SIMPLE)
+
+  // Feature flags (which permissions are enforced)
+  projectAccessControlEnabled Boolean @default(false)
+  billingAccessControlEnabled Boolean @default(false)
+  agentsAccessControlEnabled  Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("team_permission_configs")
+}
+
+// Team-level permission overrides per member
+model TeamPermission {
+  id           String     @id @default(cuid())
+  teamMemberId String
+  teamMember   TeamMember @relation(fields: [teamMemberId], references: [id], onDelete: Cascade)
+
+  permission String   // e.g., "team.billing.view", "team.agents.access"
+  granted    Boolean? // true=grant, false=deny, null=inherit from role
+
+  grantedBy String?
+  grantedAt DateTime @default(now())
+
+  @@unique([teamMemberId, permission])
+  @@index([teamMemberId])
+  @@map("team_permissions")
+}
+
+// Project-level access (junction table for fine-grained control)
+model ProjectMember {
+  id           String             @id @default(cuid())
+  projectId    String
+  project      Project            @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  teamMemberId String
+  teamMember   TeamMember         @relation(fields: [teamMemberId], references: [id], onDelete: Cascade)
+
+  accessLevel ProjectAccessLevel @default(VIEWER)
+
+  grantedBy String?
+  grantedAt DateTime @default(now())
+
+  @@unique([projectId, teamMemberId])
+  @@index([projectId])
+  @@index([teamMemberId])
+  @@map("project_members")
+}
+
+// Access requests for project-level permissions
+model AccessRequest {
+  id           String             @id @default(cuid())
+  projectId    String
+  project      Project            @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  teamMemberId String
+  teamMember   TeamMember         @relation(fields: [teamMemberId], references: [id], onDelete: Cascade)
+
+  // Request details
+  requestedLevel ProjectAccessLevel  @default(VIEWER)
+  reason         String?             @db.Text
+  status         AccessRequestStatus @default(PENDING)
+
+  // Resolution
+  resolvedBy  String?
+  resolvedAt  DateTime?
+  denyReason  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([projectId, teamMemberId, status])
+  @@index([projectId, status])
+  @@index([teamMemberId, status])
+  @@map("access_requests")
+}
+
+// ============================================
+// Project Models
+// ============================================
+
+model Project {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String
+  description String?
+  icon        String?  @db.Text  // Base64 encoded image data URL
+  githubRepo  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // GitHub sync settings
+  githubBranch        String?   // Branch to sync (default: main)
+  githubPath          String?   // Path filter (e.g., "docs/")
+  githubLastSyncAt    DateTime?
+  githubLastCommitSha String?
+  githubSyncEnabled   Boolean   @default(false)
+  githubWebhookId     String?   // GitHub webhook ID for auto-sync
+
+  // Automation settings
+  automationClient      String  @default("claude-code") // claude-code, cursor, continue, windsurf, codex, custom
+  autoInjectContext     Boolean @default(false)
+  trackAccessedFiles    Boolean @default(false)
+  preserveOnCompaction  Boolean @default(true)
+  restoreOnSessionStart Boolean @default(true)
+  enrichPrompts         Boolean @default(false)
+  maxTokensPerQuery     Int     @default(4000)
+  searchMode            String  @default("hybrid") // keyword, semantic, hybrid
+  includeSummaries      Boolean @default(true)
+  memoryInjectionEnabled Boolean @default(false) // Agents feature: inject memories on session start
+
+  // Memory Injection Filter Settings
+  memoryInjectTypes               String[] @default(["FACT", "DECISION", "LEARNING", "PREFERENCE", "TODO", "CONTEXT"])
+  memoryExcludeSessionCheckpoints Boolean  @default(false) // Exclude category="session" from injection
+  memoryMinConfidence             Float    @default(0.2)   // Minimum confidence for injection (0-1)
+  memoryRecallQuery               String?  // Custom recall query template, supports {project_name}, {project_slug}
+  memorySaveOnCommit              Boolean  @default(false) // Save memory when git commit is detected
+
+  systemInstructions    String? @db.Text // Custom instructions to prepend to every query response
+
+  // Relations
+  teamId         String
+  team           Team             @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  documents      Document[]
+  sessionContext SessionContext[]
+  apiKeys        ApiKey[]
+  queries        Query[]
+  checkpoints    SessionCheckpoint[]
+  sharedContexts ProjectSharedContext[]
+  oauthTokens    OAuthToken[]
+
+  // Permission system (project-level access)
+  members        ProjectMember[]
+  accessRequests AccessRequest[]
+
+  // Snipara Agents relations
+  queryCaches    QueryCache[]
+  cacheStats     CacheStats?
+  agentMemories  AgentMemory[]
+  memoryStats    MemoryStats?
+  agentSwarms    AgentSwarm[]
+
+  @@unique([teamId, slug])
+  @@map("projects")
+}
+
+model Document {
+  id        String   @id @default(cuid())
+  path      String
+  content   String   @db.Text
+  hash      String
+  size      Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  chunks    DocumentChunk[]
+  summaries DocumentSummary[]
+  versions  DocumentVersion[]
+
+  @@unique([projectId, path])
+  @@index([projectId])
+  @@map("documents")
+}
+
+model DocumentVersion {
+  id        String   @id @default(cuid())
+  content   String   @db.Text
+  hash      String
+  size      Int
+  version   Int      // Version number (1, 2, 3...)
+  createdAt DateTime @default(now())
+
+  // Relations
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@unique([documentId, version])
+  @@index([documentId])
+  @@map("document_versions")
+}
+
+model DocumentChunk {
+  id         String                    @id @default(cuid())
+  content    String                    @db.Text
+  embedding  Unsupported("vector(1024)")
+  startLine  Int
+  endLine    Int
+  tokenCount Int
+  title      String?
+  createdAt  DateTime                  @default(now())
+
+  // Relations
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([documentId])
+  @@map("document_chunks")
+}
+
+// ============================================
+// Document Summary Models (LLM-generated summaries)
+// ============================================
+
+model DocumentSummary {
+  id          String   @id @default(cuid())
+
+  // The summary content
+  summary     String   @db.Text
+  summaryType String   @default("concise") // concise, detailed, technical, keywords, custom
+
+  // Optional: which part of the document this summarizes
+  sectionId   String?  // Section identifier (e.g., "## Authentication")
+  lineStart   Int?     // Starting line (for partial document summaries)
+  lineEnd     Int?     // Ending line
+
+  // Token info
+  tokenCount  Int
+
+  // Attribution - who/what generated this summary
+  generatedBy String?  // e.g., "claude-3.5-sonnet", "gpt-4", "user"
+
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  documentId  String
+  document    Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  // Denormalized for easier queries
+  projectId   String
+
+  // One summary per type per document (or per section if sectionId is set)
+  @@unique([documentId, summaryType, sectionId])
+  @@index([projectId])
+  @@index([documentId])
+  @@index([summaryType])
+  @@map("document_summaries")
+}
+
+model SessionContext {
+  id        String   @id @default(cuid())
+  key       String
+  value     String   @db.Text
+  expiresAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, key])
+  @@index([projectId])
+  @@map("session_contexts")
+}
+
+// ============================================
+// Session Checkpoint Models (for hook-based automation)
+// ============================================
+
+model SessionCheckpoint {
+  id           String   @id @default(cuid())
+  sessionId    String   // Client session ID (from Claude Code, etc.)
+  content      String   @db.Text // Full checkpoint content (markdown)
+  filesTracked String[] // Array of file paths tracked in this session
+  commands     String[] // Array of recent commands executed
+  task         String?  // Current task description
+  source       String   @default("precompact") // precompact, manual, auto
+  expiresAt    DateTime // When this checkpoint should be cleaned up
+  createdAt    DateTime @default(now())
+
+  // Relations
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, createdAt])
+  @@index([sessionId])
+  @@index([expiresAt])
+  @@map("session_checkpoints")
+}
+
+// ============================================
+// API Key Models
+// ============================================
+
+model ApiKey {
+  id         String    @id @default(cuid())
+  name       String
+  keyHash    String    @unique
+  keyPrefix  String
+  lastUsedAt DateTime?
+  expiresAt  DateTime?
+  createdAt  DateTime  @default(now())
+  revokedAt  DateTime?
+
+  // Relations
+  userId    String
+  projectId String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([keyHash])
+  @@map("api_keys")
+}
+
+model TeamApiKey {
+  id         String    @id @default(cuid())
+  name       String
+  keyHash    String    @unique
+  keyPrefix  String
+  lastUsedAt DateTime?
+  expiresAt  DateTime?
+  createdAt  DateTime  @default(now())
+  revokedAt  DateTime?
+
+  // Relations
+  userId String
+  teamId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team   Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@index([teamId])
+  @@index([keyHash])
+  @@map("team_api_keys")
+}
+
+// ============================================
+// OAuth Device Flow Models
+// ============================================
+
+enum DeviceCodeStatus {
+  PENDING    // Waiting for user authorization
+  AUTHORIZED // User has authorized, ready for token exchange
+  EXPIRED    // Code has expired
+  USED       // Token already issued
+  DENIED     // User denied authorization
+}
+
+model DeviceCode {
+  id         String           @id @default(cuid())
+  deviceCode String           @unique // Long random code for client polling
+  userCode   String           @unique // Short human-readable code (e.g., "ABCD-1234")
+
+  // Scope and context
+  projectId String? // Project being authorized (set when user approves)
+  scope     String  @default("mcp:read mcp:write")
+  clientId  String? // Optional client identifier (e.g., "claude-desktop")
+
+  // Status
+  status         DeviceCodeStatus @default(PENDING)
+  authorizedAt   DateTime?
+  authorizedById String? // User who authorized
+
+  // Expiration and polling
+  expiresAt DateTime
+  interval  Int      @default(5) // Polling interval in seconds
+
+  createdAt DateTime @default(now())
+
+  @@index([deviceCode])
+  @@index([userCode])
+  @@index([expiresAt])
+  @@map("device_codes")
+}
+
+model OAuthToken {
+  id String @id @default(cuid())
+
+  // Token data (hashed for security)
+  accessTokenHash  String  @unique
+  refreshTokenHash String? @unique
+
+  // Token prefix for identification (first 12 chars)
+  tokenPrefix String
+
+  // Ownership
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  // Scope and metadata
+  scope      String
+  clientId   String? // Client that requested the token
+  clientName String? // Human-readable client name (e.g., "Claude Desktop")
+
+  // Expiration
+  accessExpiresAt  DateTime
+  refreshExpiresAt DateTime?
+
+  // Status
+  revokedAt  DateTime?
+  lastUsedAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([projectId])
+  @@index([accessTokenHash])
+  @@index([refreshTokenHash])
+  @@map("oauth_tokens")
+}
+
+// ============================================
+// Usage Tracking Models
+// ============================================
+
+model Query {
+  id           String   @id @default(cuid())
+  tool         String
+  inputTokens  Int
+  outputTokens Int
+  latencyMs    Int
+  success      Boolean
+  errorMessage String?
+  createdAt    DateTime @default(now())
+
+  // Relations
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, createdAt])
+  @@index([createdAt])
+  @@map("queries")
+}
+
+// ============================================
+// Team Context Models (Shared Context)
+// ============================================
+
+model TeamContext {
+  id          String   @id @default(cuid())
+  name        String   // Display name for the context
+  key         String   // Unique key within team
+  value       String   @db.Text
+  description String?
+  isActive    Boolean  @default(true)
+  priority    Int      @default(0) // Higher priority contexts are loaded first
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Who created/updated this context
+  createdById String
+  updatedById String?
+
+  // Relations
+  teamId String
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, key])
+  @@index([teamId, isActive])
+  @@map("team_contexts")
+}
+
+// ============================================
+// Audit Log Models (Enterprise)
+// ============================================
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  action     String   // e.g., "project.create", "document.delete", "team.member.add"
+  entityType String   // e.g., "project", "document", "team"
+  entityId   String   // ID of the affected entity
+  details    Json?    // Additional details about the action
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  // Who performed the action
+  actorId String
+
+  // Which team this audit log belongs to
+  teamId String
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@index([teamId, createdAt])
+  @@index([actorId])
+  @@index([entityType, entityId])
+  @@map("audit_logs")
+}
+
+// ============================================
+// Billing Models
+// ============================================
+
+model Subscription {
+  id                   String             @id @default(cuid())
+  plan                 Plan               @default(FREE)
+  status               SubscriptionStatus @default(ACTIVE)
+  stripeCustomerId     String?
+  stripeSubscriptionId String?            @unique
+  stripePriceId        String?
+  currentPeriodStart   DateTime?
+  currentPeriodEnd     DateTime?
+  cancelAtPeriodEnd    Boolean            @default(false)
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  // Relations
+  teamId String @unique
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
+}
+
+enum Plan {
+  FREE
+  PRO
+  TEAM
+  ENTERPRISE
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELED
+  PAST_DUE
+  TRIALING
+  UNPAID
+}
+
+// ============================================
+// Shared Context Collections
+// ============================================
+
+enum SharedContextScope {
+  GLOBAL // Public templates anyone can use/fork
+  TEAM   // Shared within a team
+  USER   // Personal across user's projects
+}
+
+enum DocumentCategory {
+  MANDATORY       // Must be followed (highest priority within tier)
+  BEST_PRACTICES  // Recommended patterns
+  GUIDELINES      // Nice-to-have suggestions
+  REFERENCE       // Background info, examples
+}
+
+model SharedContextCollection {
+  id          String             @id @default(cuid())
+  name        String
+  slug        String
+  description String?            @db.Text
+  scope       SharedContextScope
+
+  // Ownership (depends on scope)
+  ownerId String?
+  owner   User?   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  teamId  String?
+  team    Team?   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  // Visibility
+  isPublic   Boolean @default(false) // GLOBAL can be public
+  isOfficial Boolean @default(false) // Curated by us
+
+  // Stats
+  usageCount Int @default(0) // How many projects use this
+
+  // Content
+  documents       SharedDocument[]
+  mcpConfig       SharedMcpConfig?
+  promptTemplates PromptTemplate[]
+
+  // Projects using this collection
+  projectLinks ProjectSharedContext[]
+
+  // Discovery
+  discoveryRuns      DiscoveryRun[]
+  discoveredPatterns DiscoveredPattern[]
+
+  // Metadata
+  version   Int      @default(1) // For cache invalidation
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([slug, scope, teamId])
+  @@index([scope, isPublic])
+  @@index([teamId])
+  @@index([ownerId])
+  @@map("shared_context_collections")
+}
+
+model SharedDocument {
+  id           String                  @id @default(cuid())
+  collectionId String
+  collection   SharedContextCollection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+
+  // Content
+  title   String
+  slug    String
+  content String @db.Text
+
+  // Classification
+  category DocumentCategory @default(BEST_PRACTICES)
+  tags     String[]
+
+  // Pre-computed (for performance)
+  tokenCount  Int     @default(0)
+  contentHash String // SHA256 for change detection
+  embedding   Bytes? // Pre-computed embedding vector
+
+  // Ordering
+  priority Int @default(0) // Within category
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([collectionId, slug])
+  @@index([collectionId, category])
+  @@index([collectionId, priority])
+  @@map("shared_documents")
+}
+
+model SharedMcpConfig {
+  id           String                  @id @default(cuid())
+  collectionId String                  @unique
+  collection   SharedContextCollection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+
+  // Tool configuration
+  enabledTools  String[]
+  disabledTools String[]
+
+  // Default parameters
+  defaultMaxTokens  Int?
+  defaultSearchMode String? // "hybrid", "semantic", "keyword"
+
+  // Auto-provisioning rules
+  autoProvision Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("shared_mcp_configs")
+}
+
+model PromptTemplate {
+  id           String                  @id @default(cuid())
+  collectionId String
+  collection   SharedContextCollection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+
+  // Identity
+  name        String
+  slug        String
+  description String?
+
+  // Content
+  prompt    String   @db.Text
+  variables String[] // e.g., ["file_path", "language"]
+
+  // Classification
+  category String // "refactoring", "security", "review"
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([collectionId, slug])
+  @@index([collectionId, category])
+  @@map("prompt_templates")
+}
+
+// Junction table: Project <-> SharedContextCollection
+model ProjectSharedContext {
+  id           String                  @id @default(cuid())
+  projectId    String
+  project      Project                 @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  collectionId String
+  collection   SharedContextCollection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+
+  // Configuration per link
+  priority  Int     @default(0) // Order in inheritance chain
+  isEnabled Boolean @default(true)
+
+  // Overrides
+  tokenBudgetPercent Int?               // Override default allocation %
+  enabledCategories  DocumentCategory[] // Filter to specific categories
+
+  // Conflict acknowledgment
+  acknowledgedConflicts Json? // Conflicts user accepted
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([projectId, collectionId])
+  @@index([projectId, priority])
+  @@index([collectionId])
+  @@map("project_shared_contexts")
+}
+
+// ============================================
+// Best Practices Discovery
+// ============================================
+
+enum DiscoveryStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+}
+
+model DiscoveryRun {
+  id           String                  @id @default(cuid())
+  collectionId String
+  collection   SharedContextCollection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+
+  // Status
+  status       DiscoveryStatus @default(PENDING)
+  progress     Int             @default(0) // 0-100
+  errorMessage String?
+
+  // Results
+  patternsFound      Int       @default(0)
+  patternsAdopted    Int       @default(0) // How many patterns were added to collection
+  suggestionsGenerated Int     @default(0)
+  suggestionsAccepted  Int     @default(0)
+
+  // Metadata
+  projectsScanned    Int       @default(0)
+  documentsAnalyzed  Int       @default(0)
+  tokensUsed         Int       @default(0)
+
+  // Timestamps
+  startedAt   DateTime?
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  // Results stored as JSON
+  results     Json?     // Array of DiscoveredPattern objects
+
+  // Who triggered the discovery
+  triggeredById String
+
+  @@index([collectionId, createdAt])
+  @@index([status])
+  @@map("discovery_runs")
+}
+
+// Track discovered patterns for review
+model DiscoveredPattern {
+  id           String                  @id @default(cuid())
+  collectionId String
+  collection   SharedContextCollection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+
+  // Pattern info
+  title       String
+  description String  @db.Text
+  content     String  @db.Text // The actual best practice content
+  category    DocumentCategory @default(BEST_PRACTICES)
+
+  // Discovery metadata
+  source      String   // "scanned" or "ai_suggested"
+  adoptionRate Float   @default(0) // 0-1, how many linked projects have this pattern
+  projectsUsing String[] // Array of project IDs that implement this pattern
+
+  // Status
+  status      String   @default("pending") // pending, accepted, rejected
+  rejectedReason String?
+
+  // If accepted, link to the created SharedDocument
+  adoptedDocumentId String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([collectionId, status])
+  @@index([collectionId, adoptionRate])
+  @@map("discovered_patterns")
+}
+
+// ============================================
+// Snipara Agents - Context Caching (Phase 8.1)
+// ============================================
+
+model QueryCache {
+  id            String   @id @default(cuid())
+  projectId     String
+
+  // Cache key
+  queryHash     String   // SHA-256 of normalized query params
+
+  // Cached response
+  sections      Json     // Array of section objects
+  totalTokens   Int
+  suggestions   String[]
+
+  // Metadata
+  hitCount      Int      @default(0)
+  lastHitAt     DateTime?
+  createdAt     DateTime @default(now())
+  expiresAt     DateTime
+
+  // Invalidation tracking
+  documentVersions Json  // { docId: versionHash } for invalidation
+
+  project       Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, queryHash])
+  @@index([projectId, expiresAt])
+  @@index([expiresAt])
+  @@map("query_caches")
+}
+
+model CacheStats {
+  id            String   @id @default(cuid())
+  projectId     String   @unique
+
+  // Counters (reset monthly)
+  l1Hits        Int      @default(0)
+  l1Misses      Int      @default(0)
+  l2Hits        Int      @default(0)
+  l2Misses      Int      @default(0)
+
+  // Cost savings
+  tokensSaved   BigInt   @default(0)
+  computeMsSaved BigInt  @default(0)
+
+  periodStart   DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  project       Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("cache_stats")
+}
+
+// ============================================
+// Snipara Agents - Agent Memory Layer (Phase 8.2)
+// ============================================
+
+enum MemoryType {
+  FACT        // Objective information
+  DECISION    // Choice made with rationale
+  LEARNING    // Pattern or insight discovered
+  PREFERENCE  // User/team preference
+  TODO        // Deferred task or reminder
+  CONTEXT     // General session context
+}
+
+enum MemoryScope {
+  AGENT       // Specific to one agent/session
+  PROJECT     // Shared across project
+  TEAM        // Shared across team
+  USER        // Personal across all projects
+}
+
+model AgentMemory {
+  id            String       @id @default(cuid())
+  projectId     String
+
+  // Memory content
+  content       String       @db.Text
+  type          MemoryType   @default(FACT)
+  scope         MemoryScope  @default(PROJECT)
+  category      String?      // Optional grouping
+
+  // Metadata
+  source        String?      // What created this memory
+  confidence    Float        @default(1.0)  // 0-1, decreases over time
+
+  // Relationships
+  relatedMemoryIds String[]  // Links to related memories
+  documentRefs  String[]     // Referenced document paths
+
+  // Lifecycle
+  accessCount   Int          @default(0)
+  lastAccessedAt DateTime?
+  expiresAt     DateTime?    // Null = permanent
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  project       Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, type])
+  @@index([projectId, category])
+  @@index([projectId, scope])
+  @@index([expiresAt])
+  @@map("agent_memories")
+}
+
+model MemoryStats {
+  id            String   @id @default(cuid())
+  projectId     String   @unique
+
+  totalMemories Int      @default(0)
+  totalRecalls  Int      @default(0)
+  avgRelevance  Float    @default(0)
+
+  // By type
+  factCount     Int      @default(0)
+  decisionCount Int      @default(0)
+  learningCount Int      @default(0)
+
+  updatedAt     DateTime @updatedAt
+
+  project       Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("memory_stats")
+}
+
+// ============================================
+// Snipara Agents - Multi-Agent Swarms (Phase 9.1)
+// ============================================
+
+enum ClaimStatus {
+  ACTIVE
+  RELEASED
+  EXPIRED
+}
+
+enum TaskStatus {
+  PENDING
+  CLAIMED
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+model AgentSwarm {
+  id            String   @id @default(cuid())
+  projectId     String
+  name          String
+  description   String?
+
+  // Configuration
+  maxAgents     Int      @default(10)
+  taskTimeout   Int      @default(300)  // seconds
+  claimTimeout  Int      @default(600)  // seconds
+
+  // State
+  isActive      Boolean  @default(true)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  completedAt   DateTime?
+
+  project       Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  agents        SwarmAgent[]
+  claims        ResourceClaim[]
+  state         SharedState[]
+  events        SwarmEvent[]
+  tasks         SwarmTask[]
+
+  @@unique([projectId, name])
+  @@index([projectId, isActive])
+  @@map("agent_swarms")
+}
+
+model SwarmAgent {
+  id            String   @id @default(cuid())
+  swarmId       String
+  agentId       String   // External agent identifier
+  name          String?  // Human-readable name
+
+  // Status
+  isActive      Boolean  @default(true)
+  lastHeartbeat DateTime @default(now())
+
+  // Stats
+  tasksCompleted Int     @default(0)
+  tasksFailed   Int      @default(0)
+
+  joinedAt      DateTime @default(now())
+  leftAt        DateTime?
+
+  swarm         AgentSwarm @relation(fields: [swarmId], references: [id], onDelete: Cascade)
+  claims        ResourceClaim[]
+  events        SwarmEvent[]
+  tasks         SwarmTask[]
+
+  @@unique([swarmId, agentId])
+  @@index([swarmId, isActive])
+  @@map("swarm_agents")
+}
+
+model ResourceClaim {
+  id            String      @id @default(cuid())
+  swarmId       String
+  agentId       String
+
+  // Resource identification
+  resourceType  String      // "file", "function", "module", "custom"
+  resourceId    String      // e.g., "src/auth.ts"
+
+  // Status
+  status        ClaimStatus @default(ACTIVE)
+
+  // Lifecycle
+  claimedAt     DateTime    @default(now())
+  expiresAt     DateTime
+  releasedAt    DateTime?
+
+  swarm         AgentSwarm  @relation(fields: [swarmId], references: [id], onDelete: Cascade)
+  agent         SwarmAgent  @relation(fields: [agentId], references: [id], onDelete: Cascade)
+
+  @@index([swarmId, status])
+  @@index([swarmId, resourceType, resourceId])
+  @@index([expiresAt])
+  @@map("resource_claims")
+}
+
+model SharedState {
+  id            String   @id @default(cuid())
+  swarmId       String
+
+  key           String
+  value         Json
+
+  // Versioning for conflict detection
+  version       Int      @default(1)
+
+  updatedBy     String?  // agentId
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  swarm         AgentSwarm @relation(fields: [swarmId], references: [id], onDelete: Cascade)
+
+  @@unique([swarmId, key])
+  @@map("shared_state")
+}
+
+model SwarmEvent {
+  id            String   @id @default(cuid())
+  swarmId       String
+  agentId       String?
+
+  eventType     String   // "task_completed", "file_changed", etc.
+  payload       Json
+
+  createdAt     DateTime @default(now())
+
+  swarm         AgentSwarm @relation(fields: [swarmId], references: [id], onDelete: Cascade)
+  agent         SwarmAgent? @relation(fields: [agentId], references: [id])
+
+  @@index([swarmId, eventType])
+  @@index([swarmId, createdAt])
+  @@map("swarm_events")
+}
+
+model SwarmTask {
+  id            String     @id @default(cuid())
+  swarmId       String
+
+  // Task definition
+  title         String
+  description   String?    @db.Text
+  priority      Int        @default(0)  // Higher = more urgent
+
+  // Dependencies
+  dependsOn     String[]   // Task IDs that must complete first
+
+  // Assignment
+  assignedTo    String?    // agentId
+  status        TaskStatus @default(PENDING)
+
+  // Results
+  result        Json?
+  error         String?    @db.Text
+
+  // Lifecycle
+  createdAt     DateTime   @default(now())
+  claimedAt     DateTime?
+  startedAt     DateTime?
+  completedAt   DateTime?
+
+  swarm         AgentSwarm @relation(fields: [swarmId], references: [id], onDelete: Cascade)
+  agent         SwarmAgent? @relation(fields: [assignedTo], references: [id])
+
+  @@index([swarmId, status])
+  @@index([swarmId, priority])
+  @@map("swarm_tasks")
+}
+
+// ============================================
+// Snipara Agents - Subscription (separate billing)
+// ============================================
+
+enum AgentsPlan {
+  STARTER     // $15/mo
+  PRO         // $39/mo
+  TEAM        // $79/mo
+  ENTERPRISE  // $199/mo
+}
+
+model AgentsSubscription {
+  id                    String      @id @default(cuid())
+  userId                String
+  teamId                String?
+
+  // Plan info
+  plan                  AgentsPlan  @default(STARTER)
+  status                String      @default("active") // active, canceled, past_due
+
+  // Stripe
+  stripeSubscriptionId  String?     @unique
+  stripeCustomerId      String?
+  stripePriceId         String?
+
+  // Usage limits (from plan)
+  memoryLimit           Int         @default(1000)
+  swarmLimit            Int         @default(1)
+  agentsPerSwarmLimit   Int         @default(2)
+  cacheTtlSeconds       Int         @default(300)
+
+  // Current usage
+  currentMemoryCount    Int         @default(0)
+  currentSwarmCount     Int         @default(0)
+
+  // Billing cycle
+  currentPeriodStart    DateTime?
+  currentPeriodEnd      DateTime?
+
+  // Grace period for Context plan requirement (Agents TEAM/ENTERPRISE needs Context TEAM/ENTERPRISE)
+  gracePeriodEnd        DateTime?
+  gracePeriodReason     String?
+
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+
+  user                  User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team                  Team?       @relation(fields: [teamId], references: [id])
+
+  @@unique([userId, teamId])
+  @@index([stripeSubscriptionId])
+  @@map("agents_subscriptions")
+}
+
+// ============================================
+// Admin Audit Log (Platform Admin)
+// ============================================
+
+model AdminAuditLog {
+  id           String   @id @default(cuid())
+  adminId      String
+  action       String   // BAN_USER, UNBAN_USER, CHANGE_PLAN, etc.
+  targetUserId String?
+  details      Json?
+  ipAddress    String?
+  createdAt    DateTime @default(now())
+
+  admin      User  @relation("AdminActions", fields: [adminId], references: [id], onDelete: Cascade)
+  targetUser User? @relation("AdminTargets", fields: [targetUserId], references: [id], onDelete: SetNull)
+
+  @@index([adminId])
+  @@index([targetUserId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("admin_audit_logs")
+}
