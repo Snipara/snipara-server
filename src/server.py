@@ -604,7 +604,7 @@ async def mcp_endpoint(
     )
 
     # Check usage limits
-    limits = await check_usage_limits(project_id, plan)
+    limits = await check_usage_limits(project.id, plan)
     if limits.exceeded:
         raise HTTPException(
             status_code=429,
@@ -614,7 +614,7 @@ async def mcp_endpoint(
     # Execute the tool with project settings from dashboard
     try:
         engine = RLMEngine(
-            project_id, plan=plan, settings=project_settings,
+            project.id, plan=plan, settings=project_settings,
             user_id=api_key_info.get("user_id"),
             access_level=api_key_info.get("access_level", "EDITOR"),
         )
@@ -624,7 +624,7 @@ async def mcp_endpoint(
 
         # Track usage
         await track_usage(
-            project_id=project_id,
+            project_id=project.id,
             tool=request.tool.value,
             input_tokens=result.input_tokens,
             output_tokens=result.output_tokens,
@@ -647,7 +647,7 @@ async def mcp_endpoint(
 
         # Track failed request (log full error internally)
         await track_usage(
-            project_id=project_id,
+            project_id=project.id,
             tool=request.tool.value,
             input_tokens=0,
             output_tokens=0,
@@ -877,17 +877,17 @@ async def get_context(
         Current session context
     """
     # Validate API key, project, and rate limit
-    api_key_info, _, _, _ = await validate_and_rate_limit(project_id, api_key)
+    api_key_info, project, _, _ = await validate_and_rate_limit(project_id, api_key)
 
     engine = RLMEngine(
-        project_id,
+        project.id,
         user_id=api_key_info.get("user_id"),
         access_level=api_key_info.get("access_level", "EDITOR"),
     )
     await engine.load_session_context()
 
     return {
-        "project_id": project_id,
+        "project_id": project.id,
         "context": engine.session_context,
         "has_context": bool(engine.session_context),
     }
@@ -1130,10 +1130,10 @@ async def mcp_sse_endpoint(
         SSE stream with tool execution events
     """
     # Validate API key, project, and rate limit
-    api_key_info, _, plan, _ = await validate_and_rate_limit(project_id, api_key)
+    api_key_info, project, plan, _ = await validate_and_rate_limit(project_id, api_key)
 
     # Check usage limits
-    limits = await check_usage_limits(project_id, plan)
+    limits = await check_usage_limits(project.id, plan)
     if limits.exceeded:
         raise HTTPException(
             status_code=429,
@@ -1168,7 +1168,7 @@ async def mcp_sse_endpoint(
     # Return SSE stream
     return StreamingResponse(
         sse_event_generator(
-            project_id, tool_name, parsed_params, plan,
+            project.id, tool_name, parsed_params, plan,
             user_id=api_key_info.get("user_id"),
             access_level=api_key_info.get("access_level", "EDITOR"),
         ),
@@ -1201,10 +1201,10 @@ async def mcp_sse_endpoint_post(
         SSE stream with tool execution events
     """
     # Validate API key, project, and rate limit
-    api_key_info, _, plan, _ = await validate_and_rate_limit(project_id, api_key)
+    api_key_info, project, plan, _ = await validate_and_rate_limit(project_id, api_key)
 
     # Check usage limits
-    limits = await check_usage_limits(project_id, plan)
+    limits = await check_usage_limits(project.id, plan)
     if limits.exceeded:
         raise HTTPException(
             status_code=429,
@@ -1214,7 +1214,7 @@ async def mcp_sse_endpoint_post(
     # Return SSE stream
     return StreamingResponse(
         sse_event_generator(
-            project_id, request.tool, request.params, plan,
+            project.id, request.tool, request.params, plan,
             user_id=api_key_info.get("user_id"),
             access_level=api_key_info.get("access_level", "EDITOR"),
         ),
