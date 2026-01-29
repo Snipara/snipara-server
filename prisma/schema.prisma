@@ -34,6 +34,7 @@ model User {
   teamApiKeys       TeamApiKey[]
   oauthTokens       OAuthToken[]
   sharedCollections SharedContextCollection[]
+  agentsSubscriptions AgentsSubscription[]
 
   @@map("users")
 }
@@ -97,6 +98,7 @@ model Team {
   teamApiKeys       TeamApiKey[]
   teamContexts      TeamContext[]
   sharedCollections SharedContextCollection[]
+  agentsSubscriptions AgentsSubscription[]
 
   @@map("teams")
 }
@@ -170,6 +172,9 @@ model Project {
   queries        Query[]
   oauthTokens    OAuthToken[]
   sharedContexts ProjectSharedContext[]
+  agentMemories  AgentMemory[]
+  memoryStats    MemoryStats?
+  agentSwarms    AgentSwarm[]
 
   @@unique([teamId, slug])
   @@map("projects")
@@ -618,4 +623,306 @@ model ProjectSharedContext {
   @@index([projectId, priority])
   @@index([collectionId])
   @@map("project_shared_contexts")
+}
+
+// ============================================
+// Snipara Agents - Memory (Phase 8)
+// ============================================
+
+enum MemoryType {
+  FACT        // Objective information
+  DECISION    // Choice made with rationale
+  LEARNING    // Pattern or insight discovered
+  PREFERENCE  // User/team preference
+  TODO        // Deferred task or reminder
+  CONTEXT     // General session context
+}
+
+enum MemoryScope {
+  AGENT       // Specific to one agent/session
+  PROJECT     // Shared across project
+  TEAM        // Shared across team
+  USER        // Personal across all projects
+}
+
+model AgentMemory {
+  id            String       @id @default(cuid())
+  projectId     String
+
+  // Memory content
+  content       String       @db.Text
+  type          MemoryType   @default(FACT)
+  scope         MemoryScope  @default(PROJECT)
+  category      String?      // Optional grouping
+
+  // Metadata
+  source        String?      // What created this memory
+  confidence    Float        @default(1.0)  // 0-1, decreases over time
+
+  // Relationships
+  relatedMemoryIds String[]  // Links to related memories
+  documentRefs  String[]     // Referenced document paths
+
+  // Lifecycle
+  accessCount   Int          @default(0)
+  lastAccessedAt DateTime?
+  expiresAt     DateTime?    // Null = permanent
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  project       Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, type])
+  @@index([projectId, category])
+  @@index([projectId, scope])
+  @@index([expiresAt])
+  @@map("agent_memories")
+}
+
+model MemoryStats {
+  id            String   @id @default(cuid())
+  projectId     String   @unique
+
+  totalMemories Int      @default(0)
+  totalRecalls  Int      @default(0)
+  avgRelevance  Float    @default(0)
+
+  // By type
+  factCount     Int      @default(0)
+  decisionCount Int      @default(0)
+  learningCount Int      @default(0)
+
+  updatedAt     DateTime @updatedAt
+
+  project       Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("memory_stats")
+}
+
+// ============================================
+// Snipara Agents - Multi-Agent Swarms (Phase 9.1)
+// ============================================
+
+enum ClaimStatus {
+  ACTIVE
+  RELEASED
+  EXPIRED
+}
+
+enum TaskStatus {
+  PENDING
+  CLAIMED
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+model AgentSwarm {
+  id            String   @id @default(cuid())
+  projectId     String
+  name          String
+  description   String?
+
+  // Configuration
+  maxAgents     Int      @default(10)
+  taskTimeout   Int      @default(300)  // seconds
+  claimTimeout  Int      @default(600)  // seconds
+
+  // State
+  isActive      Boolean  @default(true)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  completedAt   DateTime?
+
+  project       Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  agents        SwarmAgent[]
+  claims        ResourceClaim[]
+  state         SharedState[]
+  events        SwarmEvent[]
+  tasks         SwarmTask[]
+
+  @@unique([projectId, name])
+  @@index([projectId, isActive])
+  @@map("agent_swarms")
+}
+
+model SwarmAgent {
+  id            String   @id @default(cuid())
+  swarmId       String
+  agentId       String   // External agent identifier
+  name          String?  // Human-readable name
+
+  // Status
+  isActive      Boolean  @default(true)
+  lastHeartbeat DateTime @default(now())
+
+  // Stats
+  tasksCompleted Int     @default(0)
+  tasksFailed   Int      @default(0)
+
+  joinedAt      DateTime @default(now())
+  leftAt        DateTime?
+
+  swarm         AgentSwarm @relation(fields: [swarmId], references: [id], onDelete: Cascade)
+  claims        ResourceClaim[]
+  events        SwarmEvent[]
+  tasks         SwarmTask[]
+
+  @@unique([swarmId, agentId])
+  @@index([swarmId, isActive])
+  @@map("swarm_agents")
+}
+
+model ResourceClaim {
+  id            String      @id @default(cuid())
+  swarmId       String
+  agentId       String
+
+  // Resource identification
+  resourceType  String      // "file", "function", "module", "custom"
+  resourceId    String      // e.g., "src/auth.ts"
+
+  // Status
+  status        ClaimStatus @default(ACTIVE)
+
+  // Lifecycle
+  claimedAt     DateTime    @default(now())
+  expiresAt     DateTime
+  releasedAt    DateTime?
+
+  swarm         AgentSwarm  @relation(fields: [swarmId], references: [id], onDelete: Cascade)
+  agent         SwarmAgent  @relation(fields: [agentId], references: [id], onDelete: Cascade)
+
+  @@index([swarmId, status])
+  @@index([swarmId, resourceType, resourceId])
+  @@index([expiresAt])
+  @@map("resource_claims")
+}
+
+model SharedState {
+  id            String   @id @default(cuid())
+  swarmId       String
+
+  key           String
+  value         Json
+
+  // Versioning for conflict detection
+  version       Int      @default(1)
+
+  updatedBy     String?  // agentId
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  swarm         AgentSwarm @relation(fields: [swarmId], references: [id], onDelete: Cascade)
+
+  @@unique([swarmId, key])
+  @@map("shared_state")
+}
+
+model SwarmEvent {
+  id            String   @id @default(cuid())
+  swarmId       String
+  agentId       String?
+
+  eventType     String   // "task_completed", "file_changed", etc.
+  payload       Json
+
+  createdAt     DateTime @default(now())
+
+  swarm         AgentSwarm @relation(fields: [swarmId], references: [id], onDelete: Cascade)
+  agent         SwarmAgent? @relation(fields: [agentId], references: [id])
+
+  @@index([swarmId, eventType])
+  @@index([swarmId, createdAt])
+  @@map("swarm_events")
+}
+
+model SwarmTask {
+  id            String     @id @default(cuid())
+  swarmId       String
+
+  // Task definition
+  title         String
+  description   String?    @db.Text
+  priority      Int        @default(0)  // Higher = more urgent
+
+  // Dependencies
+  dependsOn     String[]   // Task IDs that must complete first
+
+  // Assignment
+  assignedTo    String?    // agentId
+  status        TaskStatus @default(PENDING)
+
+  // Results
+  result        Json?
+  error         String?    @db.Text
+
+  // Lifecycle
+  createdAt     DateTime   @default(now())
+  claimedAt     DateTime?
+  startedAt     DateTime?
+  completedAt   DateTime?
+
+  swarm         AgentSwarm @relation(fields: [swarmId], references: [id], onDelete: Cascade)
+  agent         SwarmAgent? @relation(fields: [assignedTo], references: [id])
+
+  @@index([swarmId, status])
+  @@index([swarmId, priority])
+  @@map("swarm_tasks")
+}
+
+// ============================================
+// Snipara Agents - Subscription (separate billing)
+// ============================================
+
+enum AgentsPlan {
+  STARTER     // $15/mo
+  PRO         // $39/mo
+  TEAM        // $79/mo
+  ENTERPRISE  // $199/mo
+}
+
+model AgentsSubscription {
+  id                    String      @id @default(cuid())
+  userId                String
+  teamId                String?
+
+  // Plan info
+  plan                  AgentsPlan  @default(STARTER)
+  status                String      @default("active") // active, canceled, past_due
+
+  // Stripe
+  stripeSubscriptionId  String?     @unique
+  stripeCustomerId      String?
+  stripePriceId         String?
+
+  // Usage limits (from plan)
+  memoryLimit           Int         @default(1000)
+  swarmLimit            Int         @default(1)
+  agentsPerSwarmLimit   Int         @default(2)
+  cacheTtlSeconds       Int         @default(300)
+
+  // Current usage
+  currentMemoryCount    Int         @default(0)
+  currentSwarmCount     Int         @default(0)
+
+  // Billing cycle
+  currentPeriodStart    DateTime?
+  currentPeriodEnd      DateTime?
+
+  // Grace period for Context plan requirement (Agents TEAM/ENTERPRISE needs Context TEAM/ENTERPRISE)
+  gracePeriodEnd        DateTime?
+  gracePeriodReason     String?
+
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+
+  user                  User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team                  Team?       @relation(fields: [teamId], references: [id])
+
+  @@unique([userId, teamId])
+  @@index([stripeSubscriptionId])
+  @@map("agents_subscriptions")
 }

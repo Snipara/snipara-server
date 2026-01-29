@@ -726,7 +726,14 @@ async def validate_request(project_id_or_slug: str, api_key: str) -> tuple[dict 
         )
         return None, Plan.FREE, f"Rate limit exceeded: {settings.rate_limit_requests}/min", None
 
-    plan = Plan(project.team.subscription.plan if project.team.subscription else "FREE")
+    if project.team and project.team.subscription:
+        plan = Plan(project.team.subscription.plan)
+    else:
+        from .license import resolve_license
+
+        license_info = await resolve_license()
+        plan = Plan(license_info.plan)
+
     limits = await check_usage_limits(actual_project_id, plan)
     if limits.exceeded:
         return None, plan, f"Monthly limit exceeded: {limits.current}/{limits.max}", None
@@ -761,6 +768,17 @@ async def handle_call_tool(id: Any, params: dict, project_id: str, plan: Plan) -
         tool_enum = ToolName(tool_name)
     except ValueError:
         return jsonrpc_error(id, -32602, f"Unknown tool: {tool_name}")
+
+    # License gate check (self-hosted)
+    from .license import is_tool_available, resolve_license
+
+    license_info = await resolve_license()
+    if not is_tool_available(tool_name, license_info):
+        return jsonrpc_error(
+            id, -32602,
+            f"Tool '{tool_name}' requires a license key. "
+            f"Set SNIPARA_LICENSE_KEY or purchase at snipara.com/pricing",
+        )
 
     try:
         engine = RLMEngine(project_id, plan=plan)
@@ -811,11 +829,19 @@ async def handle_request(body: dict, project_id: str, plan: Plan) -> dict | None
     if method == "initialize":
         return jsonrpc_response(id, {
             "protocolVersion": MCP_VERSION,
-            "serverInfo": {"name": "snipara", "version": "1.0.0"},
+            "serverInfo": {"name": "snipara", "version": "2.0.0"},
             "capabilities": {"tools": {}},
         })
     elif method == "tools/list":
-        return jsonrpc_response(id, {"tools": TOOL_DEFINITIONS})
+        # Filter tools based on license (self-hosted)
+        from .license import is_tool_available, resolve_license
+
+        license_info = await resolve_license()
+        available_tools = [
+            tool for tool in TOOL_DEFINITIONS
+            if is_tool_available(tool["name"], license_info)
+        ]
+        return jsonrpc_response(id, {"tools": available_tools})
     elif method == "tools/call":
         return await handle_call_tool(id, params, project_id, plan)
     elif method == "ping":

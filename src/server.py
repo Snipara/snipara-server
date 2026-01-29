@@ -173,7 +173,7 @@ class SecurityHeadersMiddleware:
 async def lifespan(app: FastAPI):
     """Application lifespan handler for startup/shutdown."""
     # Startup
-    logger.info(f"Starting RLM MCP Server v{__version__}")
+    logger.info(f"Starting Snipara Server v{__version__}")
 
     # Validate CORS configuration in production
     if not settings.debug and settings.cors_allowed_origins == "*":
@@ -183,6 +183,28 @@ async def lifespan(app: FastAPI):
         )
 
     await get_db()  # Initialize database connection
+
+    # Initialize license system (self-hosted)
+    from .license import ensure_license_table, resolve_license
+
+    await ensure_license_table()
+    license_info = await resolve_license()
+
+    if license_info.is_trial:
+        logger.info(
+            f"Trial mode: {license_info.trial_days_left} days remaining (all features enabled)"
+        )
+    elif license_info.plan == "FREE":
+        logger.warning(
+            "No valid license key. Running in FREE tier mode. "
+            "Set SNIPARA_LICENSE_KEY for full features."
+        )
+    else:
+        logger.info(
+            f"Licensed: {license_info.plan} plan "
+            f"(expires {license_info.expires_at})"
+        )
+
     yield
     # Shutdown
     await close_db()
@@ -290,8 +312,14 @@ async def validate_and_rate_limit(
             detail=f"Rate limit exceeded: {settings.rate_limit_requests} requests per minute",
         )
 
-    # 5. Determine plan
-    plan = Plan(project.team.subscription.plan if project.team.subscription else "FREE")
+    # 5. Determine plan (subscription-based or license-based for self-hosted)
+    if project.team and project.team.subscription:
+        plan = Plan(project.team.subscription.plan)
+    else:
+        from .license import resolve_license
+
+        license_info = await resolve_license()
+        plan = Plan(license_info.plan)
 
     # 6. Get project automation settings (from dashboard)
     project_settings = await get_project_settings(project_id)
@@ -335,7 +363,13 @@ async def validate_team_and_rate_limit(
             detail=f"Rate limit exceeded: {settings.rate_limit_requests} requests per minute",
         )
 
-    plan = Plan(team.subscription.plan if team.subscription else "FREE")
+    if team.subscription:
+        plan = Plan(team.subscription.plan)
+    else:
+        from .license import resolve_license
+
+        license_info = await resolve_license()
+        plan = Plan(license_info.plan)
 
     return api_key_info, team, plan
 
@@ -566,10 +600,26 @@ async def health_check() -> HealthResponse:
 async def root():
     """Root endpoint with API info."""
     return {
-        "name": "RLM MCP Server",
+        "name": "Snipara Server",
         "version": __version__,
         "docs": "/docs",
         "health": "/health",
+    }
+
+
+@app.get("/license", tags=["License"])
+async def license_status():
+    """Check current license status (plan, trial, expiry)."""
+    from .license import resolve_license
+
+    license_info = await resolve_license()
+    return {
+        "plan": license_info.plan,
+        "is_trial": license_info.is_trial,
+        "trial_days_left": license_info.trial_days_left,
+        "licensed_to": license_info.licensed_to,
+        "expires_at": license_info.expires_at.isoformat() if license_info.expires_at else None,
+        "features": license_info.features,
     }
 
 
@@ -789,7 +839,13 @@ async def team_mcp_transport_endpoint(
         )
         raise HTTPException(status_code=429, detail="Rate limit exceeded")
 
-    plan = Plan(team.subscription.plan if team.subscription else "FREE")
+    if team.subscription:
+        plan = Plan(team.subscription.plan)
+    else:
+        from .license import resolve_license
+
+        license_info = await resolve_license()
+        plan = Plan(license_info.plan)
 
     # Parse JSON-RPC request
     try:

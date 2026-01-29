@@ -1,3 +1,3 @@
-"""Snipara FastAPI Server - Hosted MCP endpoint for Snipara."""
+"""Snipara Server - Self-hostable Context Optimization Server for LLMs."""
 
-__version__ = "1.9.1"
+__version__ = "2.0.0"

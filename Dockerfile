@@ -48,8 +48,10 @@ RUN chown -R appuser:appgroup /home/appuser
 # Set HOME for appuser (must match build stage HOME)
 ENV HOME="/home/appuser"
 
-# Copy application code
+# Copy application code and scripts
 COPY src ./src
+COPY scripts ./scripts
+COPY prisma ./prisma
 
 # Set ownership
 RUN chown -R appuser:appgroup /app
@@ -64,11 +66,6 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD python -c "import httpx; httpx.get('http://localhost:8000/health')" || exit 1
 
-# Run the server with Gunicorn + Uvicorn workers for better concurrency
-# Workers = 2 (optimized for Hobby plan with 8GB RAM)
-CMD ["gunicorn", "src.server:app", \
-     "-w", "2", \
-     "-k", "uvicorn.workers.UvicornWorker", \
-     "-b", "0.0.0.0:8000", \
-     "--timeout", "120", \
-     "--graceful-timeout", "30"]
+# Run database initialization then start the server
+# Workers = 2 (optimized for 8GB RAM)
+CMD ["bash", "-c", "bash scripts/init-db.sh && gunicorn src.server:app -w 2 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000 --timeout 120 --graceful-timeout 30"]

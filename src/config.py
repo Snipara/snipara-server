@@ -50,6 +50,11 @@ class Settings(BaseSettings):
         "ENTERPRISE": -1,  # unlimited
     }
 
+    # License key for self-hosted deployments (optional)
+    # 30-day trial without key, then FREE tier only
+    # Purchase at https://snipara.com/pricing
+    snipara_license_key: str = ""
+
     # Sentry error tracking (optional)
     sentry_dsn: str = ""
 

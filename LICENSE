@@ -1,21 +1,72 @@
-MIT License
+Functional Source License, Version 1.1, Apache 2.0 Future License
 
 Copyright (c) 2026 Snipara
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Parameters
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+Licensor:             Snipara
+Licensed Work:        Snipara Server 2.0.0
+                      The Licensed Work is (c) 2026 Snipara.
+Additional Use Grant: You may make production use of the Licensed Work,
+                      provided your use does not include offering the
+                      Licensed Work to third parties as a hosted or
+                      managed context optimization service that competes
+                      with Snipara's paid offerings.
+Change Date:          2028-01-29
+Change License:       Apache License, Version 2.0
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+License text below is provided for informational purposes only.
+
+TERMS AND CONDITIONS
+
+1. Grant of Rights
+
+The Licensor hereby grants you the right to copy, modify, create derivative
+works, redistribute, and make non-production use of the Licensed Work.
+
+The Licensor hereby grants you an additional right to make production use of
+the Licensed Work, subject to the terms of the "Additional Use Grant" above.
+
+2. Limitation of Liability
+
+THE LICENSED WORK IS PROVIDED "AS IS". THE LICENSOR HEREBY DISCLAIMS ALL
+WARRANTIES, EXPRESS OR IMPLIED, INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE, AND
+NON-INFRINGEMENT.
+
+3. Trademark
+
+This License does not grant any rights in the trademarks, service marks,
+brand names, or logos of the Licensor.
+
+4. Patents
+
+If you institute patent litigation against any entity alleging that the
+Licensed Work constitutes patent infringement, then any rights granted to
+you under this License for the Licensed Work shall terminate as of the date
+such litigation is filed.
+
+5. Change Date and Change License
+
+On the Change Date, or the fourth anniversary of the first publicly
+available distribution of a specific version of the Licensed Work under
+this License, whichever comes first, the Licensor hereby grants you rights
+under the terms of the Change License, and the rights granted in Sections
+1 and 2 of this License will terminate.
+
+6. General
+
+6.1. Violation of any of the terms of this License will automatically
+terminate your rights under this License for the current and all other
+versions of the Licensed Work.
+
+6.2. This License does not grant you any right in any trademark or logo of
+the Licensor or its affiliates.
+
+6.3. If you are in compliance with the terms of this License, the Licensor
+hereby grants you, as an additional permission, the right to use the
+trademarks, service marks, brand names, and logos of the Licensor solely
+to identify the origin of the Licensed Work.
+
+For more information about the Functional Source License, visit:
+https://fsl.software

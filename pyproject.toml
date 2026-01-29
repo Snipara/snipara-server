@@ -1,11 +1,11 @@
 [project]
-name = "snipara-fastapi"
-version = "1.9.0"
-description = "Hosted MCP server for Snipara - Context optimization and Agent infrastructure for LLMs"
+name = "snipara-server"
+version = "2.0.0"
+description = "Self-hostable context optimization server for LLMs"
 readme = "README.md"
 requires-python = ">=3.11"
-license = { text = "MIT" }
-authors = [{ name = "RLM SaaS Team" }]
+license = { text = "FSL-1.1-Apache-2.0" }
+authors = [{ name = "Snipara" }]
 
 dependencies = [
     "fastapi>=0.109.0",
