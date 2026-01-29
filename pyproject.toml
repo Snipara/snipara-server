@@ -1,6 +1,6 @@
 [project]
 name = "snipara-fastapi"
-version = "1.8.2"
+version = "1.9.0"
 description = "Hosted MCP server for Snipara - Context optimization and Agent infrastructure for LLMs"
 readme = "README.md"
 requires-python = ">=3.11"
