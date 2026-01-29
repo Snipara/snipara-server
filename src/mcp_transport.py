@@ -53,7 +53,7 @@ from .auth import get_project_with_team, validate_api_key, validate_oauth_token
 from .config import settings
 from .models import Plan, ToolName
 from .rlm_engine import RLMEngine
-from .usage import check_rate_limit, check_usage_limits, track_usage
+from .usage import check_rate_limit, check_usage_limits, is_scan_blocked, log_security_event, track_usage
 
 
 # ============ ROUTER CONFIGURATION ============
@@ -693,6 +693,12 @@ async def validate_request(project_id_or_slug: str, api_key: str) -> tuple[dict 
         - error_message: Error string if validation failed, None if success
         - actual_project_id: Database ID (not slug) for operations
     """
+    # Anti-scan check
+    key_prefix = api_key[:12]
+    if await is_scan_blocked(key_prefix):
+        log_security_event("scan.blocked", "api_key", key_prefix, key_prefix)
+        return None, Plan.FREE, "Too many failed requests. Try again later.", None
+
     auth_info = None
 
     # Check if it's an OAuth token
@@ -714,6 +720,10 @@ async def validate_request(project_id_or_slug: str, api_key: str) -> tuple[dict 
     actual_project_id = project.id
 
     if not await check_rate_limit(auth_info["id"]):
+        log_security_event(
+            "rate_limit.exceeded", "api_key", auth_info["id"],
+            auth_info.get("user_id", auth_info["id"]),
+        )
         return None, Plan.FREE, f"Rate limit exceeded: {settings.rate_limit_requests}/min", None
 
     plan = Plan(project.team.subscription.plan if project.team.subscription else "FREE")

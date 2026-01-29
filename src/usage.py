@@ -1,5 +1,6 @@
 """Usage tracking and rate limiting module."""
 
+import asyncio
 import logging
 import time
 from collections import defaultdict
@@ -255,3 +256,155 @@ async def get_usage_stats(project_id: str, days: int = 30) -> dict:
         "queries_by_tool": tool_counts,
         "period_days": days,
     }
+
+
+# ============ SECURITY AUDIT LOGGING ============
+
+
+async def _write_audit_log(
+    action: str,
+    entity_type: str,
+    entity_id: str,
+    actor_id: str,
+    team_id: str | None = None,
+    details: dict | None = None,
+    ip_address: str | None = None,
+) -> None:
+    """Write an audit log entry. Internal - never raises."""
+    try:
+        db = await get_db()
+        await db.auditlog.create(
+            data={
+                "action": action,
+                "entityType": entity_type,
+                "entityId": entity_id,
+                "actorId": actor_id,
+                "teamId": team_id or actor_id,
+                "details": details,
+                "ipAddress": ip_address,
+            }
+        )
+    except Exception as e:
+        logger.debug(f"Audit log write failed (non-fatal): {e}")
+
+
+def log_security_event(
+    action: str,
+    entity_type: str,
+    entity_id: str,
+    actor_id: str,
+    team_id: str | None = None,
+    details: dict | None = None,
+    ip_address: str | None = None,
+) -> None:
+    """
+    Fire-and-forget security audit log entry.
+
+    Never blocks the request or raises exceptions.
+
+    Args:
+        action: Event type (e.g., "access.denied", "rate_limit.exceeded", "auth.failed")
+        entity_type: What was accessed (e.g., "project", "team", "api_key")
+        entity_id: ID of the entity
+        actor_id: Who performed the action (user ID, key ID, or key prefix)
+        team_id: Optional team ID
+        details: Optional JSON details (no content/queries - only metadata)
+        ip_address: Optional client IP
+    """
+    try:
+        asyncio.create_task(
+            _write_audit_log(action, entity_type, entity_id, actor_id, team_id, details, ip_address)
+        )
+    except RuntimeError:
+        # No running event loop (e.g., during shutdown)
+        pass
+
+
+# ============ ANTI-SCAN PROTECTION ============
+
+# Thresholds
+SCAN_WINDOW_SECONDS = 300   # 5 minutes
+SCAN_THRESHOLD = 10         # unique denied slugs
+SCAN_BLOCK_SECONDS = 900    # 15 minute block
+
+# In-memory tracking (per-process fallback)
+_scan_denials: dict[str, dict[str, float]] = defaultdict(dict)  # key_prefix -> {slug: timestamp}
+_scan_blocks: dict[str, float] = {}  # key_prefix -> block_until timestamp
+
+
+async def record_access_denial(identifier: str, project_slug: str) -> None:
+    """
+    Record a denied project access attempt for scan detection.
+
+    Args:
+        identifier: Key prefix (first 12 chars of API key)
+        project_slug: The project slug/ID that was denied
+    """
+    now = time.time()
+
+    # Try Redis first
+    r = await get_redis()
+    if r is not None:
+        try:
+            redis_key = f"scan_denials:{identifier}"
+            await r.hset(redis_key, project_slug, str(now))
+            await r.expire(redis_key, SCAN_WINDOW_SECONDS)
+
+            # Count unique denied slugs in window
+            all_denials = await r.hgetall(redis_key)
+            unique_count = sum(
+                1 for ts in all_denials.values()
+                if now - float(ts) < SCAN_WINDOW_SECONDS
+            )
+
+            if unique_count >= SCAN_THRESHOLD:
+                block_key = f"scan_block:{identifier}"
+                await r.setex(block_key, SCAN_BLOCK_SECONDS, "1")
+                logger.warning(f"Scan blocked: {identifier} ({unique_count} denied slugs)")
+            return
+        except Exception as e:
+            logger.debug(f"Redis scan tracking failed, using in-memory: {e}")
+
+    # In-memory fallback
+    denials = _scan_denials[identifier]
+    denials[project_slug] = now
+
+    # Prune expired entries
+    denials_copy = {s: t for s, t in denials.items() if now - t < SCAN_WINDOW_SECONDS}
+    _scan_denials[identifier] = denials_copy
+
+    if len(denials_copy) >= SCAN_THRESHOLD:
+        _scan_blocks[identifier] = now + SCAN_BLOCK_SECONDS
+        logger.warning(f"Scan blocked (in-memory): {identifier} ({len(denials_copy)} denied slugs)")
+
+
+async def is_scan_blocked(identifier: str) -> bool:
+    """
+    Check if a key prefix is blocked due to scan detection.
+
+    Args:
+        identifier: Key prefix (first 12 chars of API key)
+
+    Returns:
+        True if blocked, False otherwise
+    """
+    now = time.time()
+
+    # Try Redis first
+    r = await get_redis()
+    if r is not None:
+        try:
+            block_key = f"scan_block:{identifier}"
+            blocked = await r.get(block_key)
+            return blocked is not None
+        except Exception:
+            pass
+
+    # In-memory fallback
+    block_until = _scan_blocks.get(identifier)
+    if block_until and now < block_until:
+        return True
+    elif block_until:
+        # Expired - clean up
+        _scan_blocks.pop(identifier, None)
+    return False

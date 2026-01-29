@@ -15,6 +15,7 @@ from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import ValidationError
 from . import __version__
 from .auth import (
+    check_team_key_project_access,
     get_project_settings,
     get_project_with_team,
     get_team_by_slug_or_id,
@@ -41,6 +42,9 @@ from .usage import (
     check_usage_limits,
     close_redis,
     get_usage_stats,
+    is_scan_blocked,
+    log_security_event,
+    record_access_denial,
     track_usage,
 )
 from .mcp_transport import router as mcp_router
@@ -236,6 +240,12 @@ async def validate_and_rate_limit(
     Raises:
         HTTPException on validation failure
     """
+    # 0. Anti-scan: check if this key prefix is blocked
+    key_prefix = api_key[:12]
+    if await is_scan_blocked(key_prefix):
+        log_security_event("scan.blocked", "api_key", key_prefix, key_prefix)
+        raise HTTPException(status_code=429, detail="Too many failed requests. Try again later.")
+
     # 1. Validate auth (OAuth token or API key)
     auth_info = None
 
@@ -252,6 +262,12 @@ async def validate_and_rate_limit(
 
     # 2. Check for access denial (team keys with NONE access level)
     if auth_info.get("access_denied"):
+        await record_access_denial(key_prefix, project_id)
+        log_security_event(
+            "access.denied", "project", project_id,
+            auth_info.get("id", key_prefix),
+            details={"reason": "team_key_no_access"},
+        )
         raise HTTPException(
             status_code=403,
             detail="Access denied to this project. Use rlm_request_access tool to request access.",
@@ -265,6 +281,10 @@ async def validate_and_rate_limit(
     # 4. Check rate limit
     rate_ok = await check_rate_limit(auth_info["id"])
     if not rate_ok:
+        log_security_event(
+            "rate_limit.exceeded", "api_key", auth_info["id"],
+            auth_info.get("user_id", auth_info["id"]),
+        )
         raise HTTPException(
             status_code=429,
             detail=f"Rate limit exceeded: {settings.rate_limit_requests} requests per minute",
@@ -289,6 +309,12 @@ async def validate_team_and_rate_limit(
     Returns:
         Tuple of (api_key_info, team, plan)
     """
+    # Anti-scan check
+    key_prefix = api_key[:12]
+    if await is_scan_blocked(key_prefix):
+        log_security_event("scan.blocked", "api_key", key_prefix, key_prefix)
+        raise HTTPException(status_code=429, detail="Too many failed requests. Try again later.")
+
     team = await get_team_by_slug_or_id(team_slug_or_id)
     if not team:
         raise HTTPException(status_code=404, detail="Team not found")
@@ -299,6 +325,11 @@ async def validate_team_and_rate_limit(
 
     rate_ok = await check_rate_limit(api_key_info["id"])
     if not rate_ok:
+        log_security_event(
+            "rate_limit.exceeded", "api_key", api_key_info["id"],
+            api_key_info.get("user_id", api_key_info["id"]),
+            team_id=team.id,
+        )
         raise HTTPException(
             status_code=429,
             detail=f"Rate limit exceeded: {settings.rate_limit_requests} requests per minute",
@@ -313,9 +344,16 @@ async def execute_multi_project_query(
     team: any,
     plan: Plan,
     params: dict,
+    user_id: str | None = None,
 ) -> tuple[dict, int, int]:
     """
     Execute a multi-project query for a team.
+
+    Args:
+        team: Team object with projects
+        plan: Subscription plan
+        params: Query parameters
+        user_id: Optional user ID for per-project ACL checks
 
     Returns:
         Tuple of (result_payload, total_input_tokens, total_output_tokens)
@@ -358,6 +396,32 @@ async def execute_multi_project_query(
     per_project_budget = max(1, parsed.max_tokens // len(projects))
 
     async def execute_project(project: any) -> dict:
+        # Per-project ACL check (when user_id is available)
+        project_access_level = "EDITOR"
+        if user_id:
+            try:
+                access_level_result, _ = await check_team_key_project_access(
+                    user_id, project.id, team.id
+                )
+                if access_level_result == "NONE":
+                    log_security_event(
+                        "multi_project.access_denied", "project", project.id,
+                        user_id, team_id=team.id,
+                        details={"project_slug": project.slug},
+                    )
+                    return {
+                        "project_id": project.id,
+                        "project_slug": project.slug,
+                        "success": False,
+                        "skipped": True,
+                        "error": "Access denied to this project",
+                        "input_tokens": 0,
+                        "output_tokens": 0,
+                    }
+                project_access_level = access_level_result
+            except Exception as e:
+                logger.debug(f"ACL check failed for {project.slug}, defaulting to EDITOR: {e}")
+
         limits = await check_usage_limits(project.id, plan)
         if limits.exceeded:
             return {
@@ -384,7 +448,7 @@ async def execute_multi_project_query(
         try:
             engine = RLMEngine(
                 project.id, plan=plan, settings=project_settings,
-                user_id=None, access_level="EDITOR"  # Multi-project uses team key
+                user_id=user_id, access_level=project_access_level,
             )
             result = await engine.execute(ToolName.RLM_CONTEXT_QUERY, tool_params)
 
@@ -613,14 +677,15 @@ async def team_mcp_endpoint(
     """
     start_time = time.perf_counter()
 
-    _, team, plan = await validate_team_and_rate_limit(team_slug, api_key)
+    api_key_info, team, plan = await validate_team_and_rate_limit(team_slug, api_key)
 
     if request.tool != ToolName.RLM_MULTI_PROJECT_QUERY:
         raise HTTPException(status_code=400, detail="Invalid tool for team API key")
 
     try:
         result_payload, input_tokens, output_tokens = await execute_multi_project_query(
-            team, plan, request.params
+            team, plan, request.params,
+            user_id=api_key_info.get("user_id"),
         )
 
         latency_ms = int((time.perf_counter() - start_time) * 1000)
@@ -709,9 +774,19 @@ async def team_mcp_transport_endpoint(
 
     api_key_info = await validate_team_api_key(api_key, team.id)
     if not api_key_info:
+        log_security_event(
+            "auth.failed", "team", team_id, api_key[:12],
+            team_id=team.id,
+            details={"reason": "invalid_team_api_key"},
+        )
         raise HTTPException(status_code=401, detail="Invalid API key")
 
     if not await check_rate_limit(api_key_info["id"]):
+        log_security_event(
+            "rate_limit.exceeded", "api_key", api_key_info["id"],
+            api_key_info.get("user_id", api_key_info["id"]),
+            team_id=team.id,
+        )
         raise HTTPException(status_code=429, detail="Rate limit exceeded")
 
     plan = Plan(team.subscription.plan if team.subscription else "FREE")
@@ -722,21 +797,24 @@ async def team_mcp_transport_endpoint(
     except Exception:
         return JSONResponse(_jsonrpc_error(None, -32700, "Parse error"), status_code=400)
 
+    # Extract user_id for ACL checks
+    team_user_id = api_key_info.get("user_id")
+
     # Handle batch requests
     if isinstance(body, list):
         responses = []
         for req in body:
-            resp = await _handle_team_request(req, team, plan)
+            resp = await _handle_team_request(req, team, plan, user_id=team_user_id)
             if resp:  # Skip notifications (no id)
                 responses.append(resp)
         return JSONResponse(responses)
 
     # Handle single request
-    response = await _handle_team_request(body, team, plan)
+    response = await _handle_team_request(body, team, plan, user_id=team_user_id)
     return JSONResponse(response) if response else Response(status_code=204)
 
 
-async def _handle_team_request(body: dict, team: any, plan: Plan) -> dict | None:
+async def _handle_team_request(body: dict, team: any, plan: Plan, user_id: str | None = None) -> dict | None:
     """Handle a single JSON-RPC request for team endpoint."""
     method = body.get("method")
     id = body.get("id")
@@ -754,14 +832,14 @@ async def _handle_team_request(body: dict, team: any, plan: Plan) -> dict | None
     elif method == "tools/list":
         return _jsonrpc_response(id, {"tools": [TEAM_TOOL_DEFINITION]})
     elif method == "tools/call":
-        return await _handle_team_call_tool(id, params, team, plan)
+        return await _handle_team_call_tool(id, params, team, plan, user_id=user_id)
     elif method == "ping":
         return _jsonrpc_response(id, {})
     else:
         return _jsonrpc_error(id, -32601, f"Method not found: {method}")
 
 
-async def _handle_team_call_tool(id: any, params: dict, team: any, plan: Plan) -> dict:
+async def _handle_team_call_tool(id: any, params: dict, team: any, plan: Plan, user_id: str | None = None) -> dict:
     """Handle MCP tools/call request for team endpoint."""
     tool_name = params.get("name")
     arguments = params.get("arguments", {})
@@ -771,7 +849,7 @@ async def _handle_team_call_tool(id: any, params: dict, team: any, plan: Plan) -
 
     try:
         result_payload, input_tokens, output_tokens = await execute_multi_project_query(
-            team, plan, arguments
+            team, plan, arguments, user_id=user_id,
         )
 
         return _jsonrpc_response(id, {
