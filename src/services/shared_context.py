@@ -303,11 +303,15 @@ def allocate_shared_context_budget(
     # Track usage per category
     category_used: dict[DocumentCategory, int] = {cat: 0 for cat in DocumentCategory}
     selected: list[SharedDocument] = []
+    selected_ids: set[str] = set()
     total_used = 0
 
     def _try_add_doc(doc: SharedDocument, category_budget: int) -> bool:
         """Try to add a document, truncating if necessary. Returns True if added."""
         nonlocal total_used
+
+        if doc.id in selected_ids:
+            return False
 
         remaining_category = category_budget - category_used[doc.category]
         remaining_total = max_tokens - total_used
@@ -320,6 +324,7 @@ def allocate_shared_context_budget(
         # If doc fits, add as-is
         if doc.token_count <= available:
             selected.append(doc)
+            selected_ids.add(doc.id)
             category_used[doc.category] += doc.token_count
             total_used += doc.token_count
             return True
@@ -328,6 +333,7 @@ def allocate_shared_context_budget(
         if available >= 100:
             truncated = _truncate_document(doc, available)
             selected.append(truncated)
+            selected_ids.add(doc.id)
             category_used[doc.category] += truncated.token_count
             total_used += truncated.token_count
             return True
@@ -350,7 +356,7 @@ def allocate_shared_context_budget(
     # Third pass: Fill remaining budget with any category (use full remaining as budget)
     remaining = max_tokens - total_used
     for doc in context.documents:
-        if doc in selected:
+        if doc.id in selected_ids:
             continue
         if remaining < 100:
             break
