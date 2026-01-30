@@ -430,6 +430,73 @@ async def validate_oauth_token(token: str, project_id_or_slug: str) -> dict | No
     }
 
 
+async def validate_oauth_token_any_project(token: str) -> dict | None:
+    """
+    Validate an OAuth access token without requiring a specific project.
+
+    Used by project-agnostic GPT Store endpoints (/v1/gpt/me/*) where the
+    project is resolved from the token itself (each token is scoped to one project).
+
+    Args:
+        token: The OAuth access token (snipara_at_...)
+
+    Returns:
+        Token record with project info if valid, None otherwise
+    """
+    db = await get_db()
+
+    token_hash = hash_api_key(token)
+
+    # Find the OAuth token by hash only — no project filter needed
+    oauth_token = await db.oauthtoken.find_first(
+        where={
+            "accessTokenHash": token_hash,
+        },
+        include={
+            "project": {
+                "include": {
+                    "team": {
+                        "include": {
+                            "subscription": True,
+                        }
+                    }
+                }
+            },
+            "user": True,
+        },
+    )
+
+    if not oauth_token:
+        return None
+
+    # Check if revoked
+    if oauth_token.revokedAt:
+        return None
+
+    # Check if expired
+    if oauth_token.accessExpiresAt < datetime.now(timezone.utc):
+        return None
+
+    # Update last used timestamp
+    await db.oauthtoken.update(
+        where={"id": oauth_token.id},
+        data={"lastUsedAt": datetime.now(timezone.utc)},
+    )
+
+    oauth_access_level = "EDITOR" if "mcp:write" in (oauth_token.scope or "") else "VIEWER"
+
+    return {
+        "id": oauth_token.id,
+        "user_id": oauth_token.userId,
+        "project_id": oauth_token.projectId,
+        "project": oauth_token.project,
+        "scope": oauth_token.scope,
+        "auth_type": "oauth",
+        "access_level": oauth_access_level,
+        "access_denied": False,
+    }
+
+
 async def get_project_settings(project_id_or_slug: str) -> dict | None:
     """
     Get project automation settings from database.
