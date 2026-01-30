@@ -33,6 +33,13 @@ class Settings(BaseSettings):
     rate_limit_requests: int = 100  # requests per minute per API key
     rate_limit_window: int = 60  # seconds
 
+    # IP-based rate limiting (secondary layer)
+    ip_rate_limit_requests: int = 300  # requests per window per IP
+    ip_rate_limit_window: int = 60  # seconds
+
+    # Fail-closed: reject requests when Redis is unavailable in production
+    rate_limit_fail_closed: bool = False
+
     # Security: Max JSON payload size for SSE params (in bytes)
     max_json_payload_size: int = 102400  # 100KB
 
@@ -49,11 +56,6 @@ class Settings(BaseSettings):
         "TEAM": 20000,
         "ENTERPRISE": -1,  # unlimited
     }
-
-    # License key for self-hosted deployments (optional)
-    # 30-day trial without key, then FREE tier only
-    # Purchase at https://snipara.com/pricing
-    snipara_license_key: str = ""
 
     # Sentry error tracking (optional)
     sentry_dsn: str = ""

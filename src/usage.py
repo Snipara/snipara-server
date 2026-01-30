@@ -20,6 +20,7 @@ _redis_available: bool | None = None
 
 # In-memory rate limiting fallback (per-process)
 _local_rate_limits: dict[str, list[float]] = defaultdict(list)
+_local_ip_rate_limits: dict[str, list[float]] = defaultdict(list)
 _fallback_warning_logged: bool = False
 
 
@@ -73,8 +74,11 @@ async def check_rate_limit(api_key_id: str) -> bool:
 
     r = await get_redis()
 
-    # In-memory fallback when Redis unavailable
+    # Fail-closed: reject when Redis unavailable in production
     if r is None:
+        if settings.rate_limit_fail_closed:
+            logger.error("Redis unavailable and rate_limit_fail_closed=True - rejecting request")
+            return False
         return _check_rate_limit_memory(api_key_id)
 
     try:
@@ -96,8 +100,10 @@ async def check_rate_limit(api_key_id: str) -> bool:
         await r.incr(key)
         return True
     except Exception as e:
-        # Redis error - fall back to in-memory
+        # Redis error - fail-closed or fall back to in-memory
         logger.error(f"Redis rate limit check failed: {e}")
+        if settings.rate_limit_fail_closed:
+            return False
         return _check_rate_limit_memory(api_key_id)
 
 
@@ -137,6 +143,55 @@ def _check_rate_limit_memory(api_key_id: str) -> bool:
 
     window.append(now)
     return True
+
+
+async def check_ip_rate_limit(client_ip: str) -> bool:
+    """
+    Check if a client IP has exceeded rate limits.
+
+    Secondary rate limiting layer that prevents distributed attacks
+    using multiple API keys from the same IP address.
+
+    Args:
+        client_ip: The client IP address
+
+    Returns:
+        True if within limits, False if exceeded
+    """
+    if not client_ip:
+        return True  # Skip if IP not available
+
+    r = await get_redis()
+
+    if r is None:
+        # In-memory fallback for IP rate limiting
+        now = time.time()
+        window = _local_ip_rate_limits[client_ip]
+        window[:] = [t for t in window if now - t < settings.ip_rate_limit_window]
+        if len(window) >= settings.ip_rate_limit_requests:
+            logger.warning(f"IP rate limit exceeded for {client_ip}")
+            return False
+        window.append(now)
+        return True
+
+    try:
+        key = f"ip_rate_limit:{client_ip}"
+        count = await r.get(key)
+
+        if count is None:
+            await r.setex(key, settings.ip_rate_limit_window, 1)
+            return True
+
+        count = int(count)
+        if count >= settings.ip_rate_limit_requests:
+            logger.warning(f"IP rate limit exceeded for {client_ip}")
+            return False
+
+        await r.incr(key)
+        return True
+    except Exception as e:
+        logger.error(f"Redis IP rate limit check failed: {e}")
+        return True  # Fail open for IP checks (API key limit is primary)
 
 
 async def check_usage_limits(project_id: str, plan: Plan) -> LimitsInfo:

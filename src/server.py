@@ -38,6 +38,7 @@ from .models import (
 )
 from .rlm_engine import RLMEngine, count_tokens
 from .usage import (
+    check_ip_rate_limit,
     check_rate_limit,
     check_usage_limits,
     close_redis,
@@ -169,11 +170,67 @@ class SecurityHeadersMiddleware:
         await self.app(scope, receive, send_with_headers)
 
 
+class IPRateLimitMiddleware:
+    """
+    Secondary rate limiting layer by client IP address.
+
+    Applies to all HTTP requests before reaching endpoint handlers.
+    Uses X-Forwarded-For header (behind reverse proxy) or direct client address.
+    Skips health check endpoint to avoid blocking monitoring.
+    """
+
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+
+        # Skip health check endpoint
+        path = scope.get("path", "")
+        if path == "/health":
+            await self.app(scope, receive, send)
+            return
+
+        # Extract client IP from X-Forwarded-For (behind proxy) or direct connection
+        client_ip = None
+        headers = dict(scope.get("headers", []))
+        forwarded_for = headers.get(b"x-forwarded-for")
+        if forwarded_for:
+            # First IP in X-Forwarded-For is the original client
+            client_ip = forwarded_for.decode().split(",")[0].strip()
+        elif scope.get("client"):
+            client_ip = scope["client"][0]
+
+        if client_ip:
+            rate_ok = await check_ip_rate_limit(client_ip)
+            if not rate_ok:
+                response_body = json.dumps({
+                    "detail": f"IP rate limit exceeded: {settings.ip_rate_limit_requests} requests per minute"
+                }).encode()
+                await send({
+                    "type": "http.response.start",
+                    "status": 429,
+                    "headers": [
+                        (b"content-type", b"application/json"),
+                        (b"content-length", str(len(response_body)).encode()),
+                    ],
+                })
+                await send({
+                    "type": "http.response.body",
+                    "body": response_body,
+                })
+                return
+
+        await self.app(scope, receive, send)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan handler for startup/shutdown."""
     # Startup
-    logger.info(f"Starting Snipara Server v{__version__}")
+    logger.info(f"Starting RLM MCP Server v{__version__}")
 
     # Validate CORS configuration in production
     if not settings.debug and settings.cors_allowed_origins == "*":
@@ -183,28 +240,6 @@ async def lifespan(app: FastAPI):
         )
 
     await get_db()  # Initialize database connection
-
-    # Initialize license system (self-hosted)
-    from .license import ensure_license_table, resolve_license
-
-    await ensure_license_table()
-    license_info = await resolve_license()
-
-    if license_info.is_trial:
-        logger.info(
-            f"Trial mode: {license_info.trial_days_left} days remaining (all features enabled)"
-        )
-    elif license_info.plan == "FREE":
-        logger.warning(
-            "No valid license key. Running in FREE tier mode. "
-            "Set SNIPARA_LICENSE_KEY for full features."
-        )
-    else:
-        logger.info(
-            f"Licensed: {license_info.plan} plan "
-            f"(expires {license_info.expires_at})"
-        )
-
     yield
     # Shutdown
     await close_db()
@@ -218,7 +253,10 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Security headers middleware (applied first)
+# IP-based rate limiting middleware (applied before other middleware)
+app.add_middleware(IPRateLimitMiddleware)
+
+# Security headers middleware
 app.add_middleware(SecurityHeadersMiddleware)
 
 # CORS middleware - use configured origins instead of wildcard
@@ -312,14 +350,8 @@ async def validate_and_rate_limit(
             detail=f"Rate limit exceeded: {settings.rate_limit_requests} requests per minute",
         )
 
-    # 5. Determine plan (subscription-based or license-based for self-hosted)
-    if project.team and project.team.subscription:
-        plan = Plan(project.team.subscription.plan)
-    else:
-        from .license import resolve_license
-
-        license_info = await resolve_license()
-        plan = Plan(license_info.plan)
+    # 5. Determine plan
+    plan = Plan(project.team.subscription.plan if project.team.subscription else "FREE")
 
     # 6. Get project automation settings (from dashboard)
     project_settings = await get_project_settings(project_id)
@@ -363,13 +395,7 @@ async def validate_team_and_rate_limit(
             detail=f"Rate limit exceeded: {settings.rate_limit_requests} requests per minute",
         )
 
-    if team.subscription:
-        plan = Plan(team.subscription.plan)
-    else:
-        from .license import resolve_license
-
-        license_info = await resolve_license()
-        plan = Plan(license_info.plan)
+    plan = Plan(team.subscription.plan if team.subscription else "FREE")
 
     return api_key_info, team, plan
 
@@ -600,26 +626,10 @@ async def health_check() -> HealthResponse:
 async def root():
     """Root endpoint with API info."""
     return {
-        "name": "Snipara Server",
+        "name": "RLM MCP Server",
         "version": __version__,
         "docs": "/docs",
         "health": "/health",
-    }
-
-
-@app.get("/license", tags=["License"])
-async def license_status():
-    """Check current license status (plan, trial, expiry)."""
-    from .license import resolve_license
-
-    license_info = await resolve_license()
-    return {
-        "plan": license_info.plan,
-        "is_trial": license_info.is_trial,
-        "trial_days_left": license_info.trial_days_left,
-        "licensed_to": license_info.licensed_to,
-        "expires_at": license_info.expires_at.isoformat() if license_info.expires_at else None,
-        "features": license_info.features,
     }
 
 
@@ -839,13 +849,7 @@ async def team_mcp_transport_endpoint(
         )
         raise HTTPException(status_code=429, detail="Rate limit exceeded")
 
-    if team.subscription:
-        plan = Plan(team.subscription.plan)
-    else:
-        from .license import resolve_license
-
-        license_info = await resolve_license()
-        plan = Plan(license_info.plan)
+    plan = Plan(team.subscription.plan if team.subscription else "FREE")
 
     # Parse JSON-RPC request
     try:
