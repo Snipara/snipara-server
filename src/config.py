@@ -57,6 +57,9 @@ class Settings(BaseSettings):
         "ENTERPRISE": -1,  # unlimited
     }
 
+    # Self-hosted license key (optional)
+    snipara_license_key: str = ""
+
     # Sentry error tracking (optional)
     sentry_dsn: str = ""
 
