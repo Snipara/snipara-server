@@ -90,6 +90,35 @@ from .services.swarm_events import (
     get_recent_events,
 )
 
+# ---------------------------------------------------------------------------
+# Adaptive Hybrid Search: weight profiles & RRF constant
+# ---------------------------------------------------------------------------
+# When keyword ranking has high confidence (exact title match, specific terms),
+# boost keyword weight to prevent semantic noise from diluting precise results.
+# When query is conceptual (how/why/explain), boost semantic weight.
+_HYBRID_KEYWORD_HEAVY = (0.70, 0.30)   # factual / title-match queries
+_HYBRID_BALANCED = (0.50, 0.50)         # default
+_HYBRID_SEMANTIC_HEAVY = (0.30, 0.70)   # conceptual / how-why queries
+
+# Reciprocal Rank Fusion constant (k=60 is the standard from Cormack+ 2009).
+# Higher k reduces the influence of top-ranked outliers.
+_RRF_K = 60
+
+# Query terms that signal structured/factual content (keyword-friendly)
+_SPECIFIC_QUERY_TERMS = frozenset({
+    "pricing", "price", "cost", "tier", "plan", "stack", "version",
+    "model", "schema", "table", "endpoint", "api", "command", "config",
+    "database", "deploy", "deployment", "auth", "authentication",
+})
+
+# Conceptual query prefixes (semantic-friendly)
+_CONCEPTUAL_PREFIXES = (
+    "how does", "how do", "how is", "how are", "how can",
+    "why does", "why do", "why is", "why are",
+    "explain", "describe", "compare", "what happens when",
+    "what is the difference", "what are the tradeoffs",
+)
+
 # Plans that have access to semantic search features
 SEMANTIC_SEARCH_PLANS = {Plan.PRO, Plan.TEAM, Plan.ENTERPRISE}
 
@@ -1334,7 +1363,8 @@ class RLMEngine:
                     scored.append((section, score))
 
         elif search_mode == SearchMode.HYBRID:
-            # Combined keyword + semantic search - try pre-computed chunks first
+            # Combined keyword + semantic search via Reciprocal Rank Fusion
+            # with adaptive weights based on query characteristics.
             use_chunks = await self._has_precomputed_chunks()
 
             if use_chunks:
@@ -1344,20 +1374,45 @@ class RLMEngine:
                 semantic_scores = self._calculate_semantic_scores(query)
                 logger.info(f"Using on-the-fly embedding for hybrid search (project: {self.project_id})")
 
-            for section in self.index.sections:
-                keyword_score = keyword_scores[section.id]
-                semantic_score = semantic_scores.get(section.id, 0.0) * 100
+            # Adaptive weights: classify query to pick keyword/semantic balance
+            kw_weight, sem_weight = self._classify_query_weights(query, keyword_scores)
+            logger.info(
+                f"Hybrid adaptive weights: kw={kw_weight:.2f} sem={sem_weight:.2f} "
+                f"for query: {query[:80]}"
+            )
 
-                # Weighted combination: 40% keyword, 60% semantic
-                # This gives more weight to semantic understanding
-                combined_score = (keyword_score * 0.4) + (semantic_score * 0.6)
+            # Reciprocal Rank Fusion (rank-based, immune to score-magnitude mismatch)
+            rrf_results = self._rrf_fusion(
+                keyword_scores=keyword_scores,
+                semantic_scores=semantic_scores,
+                keyword_weight=kw_weight,
+                semantic_weight=sem_weight,
+            )
 
-                # Boost if both signals agree
-                if keyword_score > 0 and semantic_score > 20:
-                    combined_score *= 1.2
+            # Scale RRF scores to 0-100 range for consistency with other modes
+            # (downstream normalises via ``min(score / 100, 1.0)``).
+            if rrf_results:
+                max_rrf = rrf_results[0][1]
+                scale = 100.0 / max_rrf if max_rrf > 0 else 1.0
+            else:
+                scale = 1.0
 
-                if combined_score > 5:  # Minimum threshold
-                    scored.append((section, combined_score))
+            section_map = {s.id: s for s in self.index.sections}
+            for sid, rrf_score in rrf_results:
+                section = section_map.get(sid)
+                if not section:
+                    continue
+
+                scaled = rrf_score * scale
+
+                # Mild boost when both signals strongly agree
+                kw = keyword_scores.get(sid, 0)
+                sem = semantic_scores.get(sid, 0.0) * 100
+                if kw > 5 and sem > 30:
+                    scaled *= 1.15
+
+                if scaled > 3:  # ~3 % of max score
+                    scored.append((section, scaled))
 
         # Sort by score descending
         scored.sort(key=lambda x: x[1], reverse=True)
@@ -1430,6 +1485,107 @@ class RLMEngine:
         score += level_bonus if score > 0 else 0
 
         return score
+
+    # ------------------------------------------------------------------
+    # Adaptive Hybrid Search helpers
+    # ------------------------------------------------------------------
+
+    def _classify_query_weights(
+        self, query: str, keyword_scores: dict[str, float],
+    ) -> tuple[float, float]:
+        """Return (keyword_weight, semantic_weight) adapted to the query.
+
+        Heuristics (no LLM call, ~0 ms overhead):
+
+        1. **Strong keyword signal** – the top keyword score is well above the
+           median, meaning there's likely an exact or near-exact title match.
+           Combined with specific technical terms ➜ keyword-heavy (70/30).
+
+        2. **Conceptual query** – starts with "how does", "why", "explain" etc.
+           and doesn't contain structured-data terms ➜ semantic-heavy (30/70).
+
+        3. **Default** – balanced (50/50).
+        """
+        query_lower = query.lower()
+        query_words = {w for w in re.findall(r"\w+", query_lower) if len(w) > 2}
+
+        # Signal 1: strong keyword confidence
+        kw_values = [v for v in keyword_scores.values() if v > 0]
+        strong_keyword = False
+        if kw_values:
+            top_kw = max(kw_values)
+            # Top score is at least 3× the median – very confident match
+            median_kw = sorted(kw_values)[len(kw_values) // 2] if kw_values else 0
+            strong_keyword = top_kw > 15 and (median_kw == 0 or top_kw / median_kw >= 3)
+
+        # Signal 2: specific / structured-data terms in the query
+        has_specific = bool(query_words & _SPECIFIC_QUERY_TERMS)
+
+        # Signal 3: conceptual query pattern
+        is_conceptual = any(query_lower.startswith(p) for p in _CONCEPTUAL_PREFIXES)
+
+        if strong_keyword and has_specific:
+            return _HYBRID_KEYWORD_HEAVY
+        if strong_keyword:
+            return _HYBRID_KEYWORD_HEAVY
+        if is_conceptual and not has_specific:
+            return _HYBRID_SEMANTIC_HEAVY
+        return _HYBRID_BALANCED
+
+    @staticmethod
+    def _rrf_fusion(
+        keyword_scores: dict[str, float],
+        semantic_scores: dict[str, float],
+        keyword_weight: float,
+        semantic_weight: float,
+        k: int = _RRF_K,
+    ) -> list[tuple[str, float]]:
+        """Reciprocal Rank Fusion of keyword and semantic rankings.
+
+        RRF score for document *d*::
+
+            rrf(d) = w_kw / (k + rank_kw(d)) + w_sem / (k + rank_sem(d))
+
+        Unlike weighted-score averaging, RRF is **rank-based** so it is
+        robust to score-magnitude mismatches between keyword and semantic
+        signals (the root cause of the hybrid regression on ``tech_stack``
+        and ``core_value_prop``).
+
+        Sections absent from a ranking receive a pessimistic rank equal to
+        ``len(ranking) + 1``.
+        """
+        # Build keyword ranking (descending score)
+        kw_ranked = sorted(
+            ((sid, sc) for sid, sc in keyword_scores.items() if sc > 0),
+            key=lambda x: x[1], reverse=True,
+        )
+        kw_rank: dict[str, int] = {
+            sid: rank for rank, (sid, _) in enumerate(kw_ranked, start=1)
+        }
+        default_kw_rank = len(kw_ranked) + 1
+
+        # Build semantic ranking (descending similarity)
+        sem_ranked = sorted(
+            ((sid, sc) for sid, sc in semantic_scores.items() if sc > 0),
+            key=lambda x: x[1], reverse=True,
+        )
+        sem_rank: dict[str, int] = {
+            sid: rank for rank, (sid, _) in enumerate(sem_ranked, start=1)
+        }
+        default_sem_rank = len(sem_ranked) + 1
+
+        # Union of all section IDs present in either ranking
+        all_ids = set(kw_rank) | set(sem_rank)
+
+        rrf_scores: list[tuple[str, float]] = []
+        for sid in all_ids:
+            rk = kw_rank.get(sid, default_kw_rank)
+            rs = sem_rank.get(sid, default_sem_rank)
+            score = keyword_weight / (k + rk) + semantic_weight / (k + rs)
+            rrf_scores.append((sid, score))
+
+        rrf_scores.sort(key=lambda x: x[1], reverse=True)
+        return rrf_scores
 
     def _find_file_for_section(self, section: Section) -> str:
         """Find which file a section belongs to based on line numbers."""
