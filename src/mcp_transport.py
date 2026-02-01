@@ -705,12 +705,12 @@ async def validate_request(project_id_or_slug: str, api_key: str) -> tuple[dict 
     if api_key.startswith("snipara_at_"):
         auth_info = await validate_oauth_token(api_key, project_id_or_slug)
         if not auth_info:
-            return None, Plan.FREE, "Invalid or expired OAuth token", None
+            return None, Plan.FREE, "Invalid or expired OAuth token. Re-authenticate at https://snipara.com/dashboard or run /snipara:quickstart", None
     else:
         # Fall back to API key validation
         auth_info = await validate_api_key(api_key, project_id_or_slug)
         if not auth_info:
-            return None, Plan.FREE, "Invalid API key", None
+            return None, Plan.FREE, "Invalid API key. Get a free key at https://snipara.com/dashboard (100 queries/month, no credit card)", None
 
     project = await get_project_with_team(project_id_or_slug)
     if not project:
@@ -726,14 +726,7 @@ async def validate_request(project_id_or_slug: str, api_key: str) -> tuple[dict 
         )
         return None, Plan.FREE, f"Rate limit exceeded: {settings.rate_limit_requests}/min", None
 
-    if project.team and project.team.subscription:
-        plan = Plan(project.team.subscription.plan)
-    else:
-        from .license import resolve_license
-
-        license_info = await resolve_license()
-        plan = Plan(license_info.plan)
-
+    plan = Plan(project.team.subscription.plan if project.team.subscription else "FREE")
     limits = await check_usage_limits(actual_project_id, plan)
     if limits.exceeded:
         return None, plan, f"Monthly limit exceeded: {limits.current}/{limits.max}", None
@@ -768,17 +761,6 @@ async def handle_call_tool(id: Any, params: dict, project_id: str, plan: Plan) -
         tool_enum = ToolName(tool_name)
     except ValueError:
         return jsonrpc_error(id, -32602, f"Unknown tool: {tool_name}")
-
-    # License gate check (self-hosted)
-    from .license import is_tool_available, resolve_license
-
-    license_info = await resolve_license()
-    if not is_tool_available(tool_name, license_info):
-        return jsonrpc_error(
-            id, -32602,
-            f"Tool '{tool_name}' requires a license key. "
-            f"Set SNIPARA_LICENSE_KEY or purchase at snipara.com/pricing",
-        )
 
     try:
         engine = RLMEngine(project_id, plan=plan)
@@ -829,19 +811,11 @@ async def handle_request(body: dict, project_id: str, plan: Plan) -> dict | None
     if method == "initialize":
         return jsonrpc_response(id, {
             "protocolVersion": MCP_VERSION,
-            "serverInfo": {"name": "snipara", "version": "2.0.0"},
+            "serverInfo": {"name": "snipara", "version": "1.0.0"},
             "capabilities": {"tools": {}},
         })
     elif method == "tools/list":
-        # Filter tools based on license (self-hosted)
-        from .license import is_tool_available, resolve_license
-
-        license_info = await resolve_license()
-        available_tools = [
-            tool for tool in TOOL_DEFINITIONS
-            if is_tool_available(tool["name"], license_info)
-        ]
-        return jsonrpc_response(id, {"tools": available_tools})
+        return jsonrpc_response(id, {"tools": TOOL_DEFINITIONS})
     elif method == "tools/call":
         return await handle_call_tool(id, params, project_id, plan)
     elif method == "ping":
@@ -881,7 +855,16 @@ async def mcp_endpoint(
     elif authorization:
         api_key = authorization[7:] if authorization.startswith("Bearer ") else authorization
     else:
-        raise HTTPException(status_code=401, detail="Missing authentication: X-API-Key or Authorization header required")
+        raise HTTPException(
+            status_code=401,
+            detail=(
+                "Missing authentication. Get started free (100 queries/month, no credit card):\n"
+                "- Claude Code: Run /snipara:quickstart\n"
+                "- VS Code: Install 'Snipara' extension and click 'Sign in with GitHub'\n"
+                "- Manual: Get an API key at https://snipara.com/dashboard\n"
+                "Docs: https://snipara.com/docs/quickstart"
+            ),
+        )
 
     api_key_info, plan, error, actual_project_id = await validate_request(project_id, api_key)
     if error:
@@ -929,7 +912,16 @@ async def mcp_sse(
     elif authorization:
         api_key = authorization[7:] if authorization.startswith("Bearer ") else authorization
     else:
-        raise HTTPException(status_code=401, detail="Missing authentication: X-API-Key or Authorization header required")
+        raise HTTPException(
+            status_code=401,
+            detail=(
+                "Missing authentication. Get started free (100 queries/month, no credit card):\n"
+                "- Claude Code: Run /snipara:quickstart\n"
+                "- VS Code: Install 'Snipara' extension and click 'Sign in with GitHub'\n"
+                "- Manual: Get an API key at https://snipara.com/dashboard\n"
+                "Docs: https://snipara.com/docs/quickstart"
+            ),
+        )
 
     _, _, error, _ = await validate_request(project_id, api_key)
     if error:

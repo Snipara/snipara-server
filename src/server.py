@@ -313,12 +313,12 @@ async def validate_and_rate_limit(
     if api_key.startswith("snipara_at_"):
         auth_info = await validate_oauth_token(api_key, project_id)
         if not auth_info:
-            raise HTTPException(status_code=401, detail="Invalid or expired OAuth token")
+            raise HTTPException(status_code=401, detail="Invalid or expired OAuth token. Re-authenticate at https://snipara.com/dashboard or run /snipara:quickstart")
     else:
         # Fall back to API key validation
         auth_info = await validate_api_key(api_key, project_id)
         if not auth_info:
-            raise HTTPException(status_code=401, detail="Invalid API key")
+            raise HTTPException(status_code=401, detail="Invalid API key. Get a free key at https://snipara.com/dashboard (100 queries/month, no credit card)")
 
     # 2. Check for access denial (team keys with NONE access level)
     if auth_info.get("access_denied"):
@@ -825,7 +825,16 @@ async def team_mcp_transport_endpoint(
     elif authorization:
         api_key = authorization[7:] if authorization.startswith("Bearer ") else authorization
     else:
-        raise HTTPException(status_code=401, detail="Missing authentication: X-API-Key or Authorization header required")
+        raise HTTPException(
+            status_code=401,
+            detail=(
+                "Missing authentication. Get started free (100 queries/month, no credit card):\n"
+                "- Claude Code: Run /snipara:quickstart\n"
+                "- VS Code: Install 'Snipara' extension and click 'Sign in with GitHub'\n"
+                "- Manual: Get an API key at https://snipara.com/dashboard\n"
+                "Docs: https://snipara.com/docs/quickstart"
+            ),
+        )
 
     # Validate team and API key
     team = await get_team_by_slug_or_id(team_id)
