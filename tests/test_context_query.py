@@ -306,9 +306,9 @@ class TestSmartTruncation:
     def test_truncate_preserves_meaning(self, engine):
         """Test that truncation preserves as much content as possible."""
         content = "Important information here. More details follow. Even more content."
-        result = engine._smart_truncate(content, 15)
+        result = engine._smart_truncate(content, 8)
 
-        # Should contain the beginning of the content
+        # Should contain the beginning of the content and be truncated
         assert result.startswith("Important")
         assert result.endswith("...")
 

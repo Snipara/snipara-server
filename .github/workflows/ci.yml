@@ -42,4 +42,5 @@ jobs:
           python-version: "3.11"
       - run: pip install -e ".[dev]"
       - run: prisma generate
+      - run: prisma db push --skip-generate
       - run: pytest tests/ -v --tb=short
