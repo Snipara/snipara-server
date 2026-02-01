@@ -1230,22 +1230,6 @@ class RLMEngine:
         max_sections = 15
         scored_sections = scored_sections[:max_sections]
 
-        # ---- Relevance floor ----
-        # Drop sections below 65% of the top score.  This removes obvious noise
-        # while preserving moderately-relevant sections that broad queries need.
-        # Keep at least 5 sections so broad lookups still get enough context.
-        min_keep = 5
-        if scored_sections:
-            top_score = scored_sections[0][1]
-            relevance_floor = top_score * 0.65
-            above_floor = [
-                (s, sc) for s, sc in scored_sections if sc >= relevance_floor
-            ]
-            scored_sections = (
-                above_floor if len(above_floor) >= min_keep
-                else scored_sections[:max(min_keep, len(above_floor))]
-            )
-
         # ---- Title-similarity dedup ----
         # Sections with near-identical titles (e.g. "MCP Server Issues" and
         # "MCP Server (`apps/mcp-server/`)") dilute context.  Keep only the
