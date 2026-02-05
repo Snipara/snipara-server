@@ -18,6 +18,7 @@ from pydantic import ValidationError
 from . import __version__
 from .auth import (
     check_team_key_project_access,
+    get_effective_plan,
     get_project_settings,
     get_project_with_team,
     get_team_by_slug_or_id,
@@ -244,11 +245,12 @@ async def lifespan(app: FastAPI):
 
     await get_db()  # Initialize database connection
 
-    # Pre-load embedding model to avoid cold-start blocking workers
+    # Pre-load embedding models to avoid cold-start blocking workers
+    # Primary (bge-large) for pgvector + Light (bge-small) for on-the-fly fallback
     from .services.embeddings import EmbeddingsService
 
     try:
-        EmbeddingsService.preload()
+        EmbeddingsService.preload_all()
     except Exception as e:
         logger.warning(f"Embedding model preload failed (will retry on first use): {e}")
 
@@ -294,9 +296,20 @@ async def get_api_key(
     return x_api_key
 
 
+def get_client_ip(request: Request) -> str | None:
+    """Extract client IP from X-Forwarded-For header or direct connection."""
+    forwarded = request.headers.get("X-Forwarded-For")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    if request.client:
+        return request.client.host
+    return None
+
+
 async def validate_and_rate_limit(
     project_id: str,
     api_key: str,
+    client_ip: str | None = None,
 ) -> tuple[dict, any, Plan, dict | None]:
     """
     Common validation logic for all endpoints.
@@ -350,8 +363,8 @@ async def validate_and_rate_limit(
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
 
-    # 4. Check rate limit
-    rate_ok = await check_rate_limit(auth_info["id"])
+    # 4. Check rate limit (demo keys use per-IP limits)
+    rate_ok = await check_rate_limit(auth_info["id"], client_ip=client_ip)
     if not rate_ok:
         log_security_event(
             "rate_limit.exceeded", "api_key", auth_info["id"],
@@ -362,8 +375,8 @@ async def validate_and_rate_limit(
             detail=f"Rate limit exceeded: {settings.rate_limit_requests} requests per minute",
         )
 
-    # 5. Determine plan
-    plan = Plan(project.team.subscription.plan if project.team.subscription else "FREE")
+    # 5. Determine plan (considers PRO boost for FREE users)
+    plan = get_effective_plan(project.team.subscription if project.team else None)
 
     # 6. Get project automation settings (from dashboard)
     project_settings = await get_project_settings(project_id)
@@ -374,6 +387,7 @@ async def validate_and_rate_limit(
 async def validate_team_and_rate_limit(
     team_slug_or_id: str,
     api_key: str,
+    client_ip: str | None = None,
 ) -> tuple[dict, any, Plan]:
     """
     Validate team API key, resolve team, and check rate limits.
@@ -395,7 +409,7 @@ async def validate_team_and_rate_limit(
     if not api_key_info:
         raise HTTPException(status_code=401, detail="Invalid API key")
 
-    rate_ok = await check_rate_limit(api_key_info["id"])
+    rate_ok = await check_rate_limit(api_key_info["id"], client_ip=client_ip)
     if not rate_ok:
         log_security_event(
             "rate_limit.exceeded", "api_key", api_key_info["id"],
@@ -407,7 +421,7 @@ async def validate_team_and_rate_limit(
             detail=f"Rate limit exceeded: {settings.rate_limit_requests} requests per minute",
         )
 
-    plan = Plan(team.subscription.plan if team.subscription else "FREE")
+    plan = get_effective_plan(team.subscription)
 
     return api_key_info, team, plan
 
@@ -686,6 +700,7 @@ async def mcp_endpoint(
     project_id: str,
     request: MCPRequest,
     api_key: Annotated[str, Depends(get_api_key)],
+    raw_request: Request,
 ) -> MCPResponse:
     """
     Execute an RLM MCP tool.
@@ -697,6 +712,7 @@ async def mcp_endpoint(
         project_id: The project ID
         request: The MCP request with tool and parameters
         api_key: API key from X-API-Key header
+        raw_request: The raw FastAPI request (for client IP)
 
     Returns:
         MCPResponse with result or error
@@ -705,7 +721,7 @@ async def mcp_endpoint(
 
     # Validate API key, project, rate limit, and get settings
     api_key_info, project, plan, project_settings = await validate_and_rate_limit(
-        project_id, api_key
+        project_id, api_key, client_ip=get_client_ip(raw_request)
     )
 
     # Check usage limits
@@ -903,7 +919,7 @@ async def team_mcp_transport_endpoint(
         )
         raise HTTPException(status_code=429, detail="Rate limit exceeded")
 
-    plan = Plan(team.subscription.plan if team.subscription else "FREE")
+    plan = get_effective_plan(team.subscription)
 
     # Parse JSON-RPC request
     try:

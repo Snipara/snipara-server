@@ -17,6 +17,7 @@ from typing import Any
 import tiktoken
 
 from .db import get_db
+from .services.query_router import route_query
 from .models import (
     ContextQueryResult,
     ContextSection,
@@ -59,7 +60,7 @@ from .services.agent_memory import (
     store_memory,
 )
 from .services.chunker import get_chunker
-from .services.embeddings import get_embeddings_service
+from .services.embeddings import get_embeddings_service, get_light_embeddings_service
 from .services.shared_context import (
     DocumentCategory,
     allocate_shared_context_budget,
@@ -1462,6 +1463,9 @@ class RLMEngine:
         # Include system instructions (custom from project or default)
         instructions = self.settings.system_instructions or DEFAULT_SYSTEM_INSTRUCTIONS
 
+        # Smart routing: analyze query and recommend execution mode
+        routing_decision = route_query(query, context_tokens=total_tokens)
+
         result = ContextQueryResult(
             sections=all_sections,
             total_tokens=total_tokens,
@@ -1476,6 +1480,11 @@ class RLMEngine:
             shared_context_included=len(shared_context_sections) > 0,
             shared_context_tokens=shared_context_tokens,
             first_query_tips_included=is_first_query and session_context_included,
+            # Smart routing hints
+            routing_recommendation=routing_decision.mode.value,
+            routing_confidence=routing_decision.confidence,
+            routing_reason=routing_decision.reason,
+            query_complexity=routing_decision.complexity.value,
         )
 
         # Calculate actual token usage for billing
@@ -1577,12 +1586,12 @@ class RLMEngine:
                 )
             else:
                 # Pre-filter to top keyword candidates to avoid embedding all sections.
-                # This prevents 60s+ timeouts on large projects without pre-computed chunks.
+                # With bge-small (~0.2s/text), 50 candidates ≈ 2-5s on CPU.
                 top_keyword_ids = {
                     sid
                     for sid, score in sorted(
                         keyword_scores.items(), key=lambda x: x[1], reverse=True
-                    )[:20]
+                    )[:50]
                     if score > 0
                 }
                 semantic_scores = await self._calculate_semantic_scores(
@@ -1641,26 +1650,27 @@ class RLMEngine:
         self,
         query: str,
         candidate_ids: set[str] | None = None,
-        max_sections: int = 20,
+        max_sections: int = 50,
     ) -> dict[str, float]:
         """
-        Calculate semantic similarity scores for sections.
+        Calculate semantic similarity scores for sections (on-the-fly fallback path).
 
-        Uses embedding cosine similarity to find semantically similar sections.
-        To avoid timeouts on large projects without pre-computed chunks, only
-        a subset of sections is embedded (controlled by candidate_ids and max_sections).
+        Uses the *light* embedding model (bge-small-en-v1.5, 384 dims) which is ~10x
+        faster than bge-large on CPU. This path is only used when pre-computed pgvector
+        chunks are not available. Both query and section embeddings are computed fresh
+        so dimension mismatch with pgvector (1024 dims) is not an issue.
 
         Args:
             query: The search query string.
             candidate_ids: If provided, only embed these section IDs (e.g. top keyword hits).
-            max_sections: Hard cap on sections to embed (default 20). bge-large-en-v1.5
-                takes ~2s per text on CPU; 20 sections ≈ 10-15s (within 60s timeout).
+            max_sections: Hard cap on sections to embed (default 50). bge-small-en-v1.5
+                takes ~0.2s per text on CPU; 50 sections ≈ 2-5s (well within 60s timeout).
         """
         if not self.index or not self.index.sections:
             return {}
 
         try:
-            embeddings_service = get_embeddings_service()
+            embeddings_service = get_light_embeddings_service()
 
             # Filter to candidate sections if provided, otherwise use all
             if candidate_ids is not None:

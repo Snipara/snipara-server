@@ -27,9 +27,12 @@ ENV HOME="/home/appuser"
 COPY prisma ./prisma
 RUN prisma generate
 
-# Pre-download embedding model to avoid runtime network dependency
-# Model is cached in /home/appuser/.cache/huggingface/
+# Pre-download embedding models to avoid runtime network dependency
+# Models are cached in /home/appuser/.cache/huggingface/
+# Primary model: bge-large (1024 dims) — pgvector indexing, memory, chunk search
 RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('BAAI/bge-large-en-v1.5', device='cpu')"
+# Light model: bge-small (384 dims) — on-the-fly fallback path (~10x faster on CPU)
+RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('BAAI/bge-small-en-v1.5', device='cpu')"
 
 
 # ============ RUNTIME STAGE ============

@@ -1,7 +1,10 @@
 """Embeddings service for semantic search.
 
 Uses sentence-transformers with lazy model loading to avoid startup cost.
-Model: BAAI/bge-large-en-v1.5 (1024 dimensions, high quality)
+
+Dual-model architecture:
+  - bge-large-en-v1.5 (1024 dims) — primary model for pgvector indexing & memory
+  - bge-small-en-v1.5 (384 dims)  — light model for on-the-fly fallback path (~10x faster on CPU)
 """
 
 from __future__ import annotations
@@ -18,9 +21,13 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-# Model configuration
+# Primary model — used for pgvector indexing, memory embeddings, chunk search
 MODEL_NAME = "BAAI/bge-large-en-v1.5"
 EMBEDDING_DIMENSION = 1024
+
+# Light model — used for on-the-fly fallback path only (no stored vectors)
+LIGHT_MODEL_NAME = "BAAI/bge-small-en-v1.5"
+LIGHT_EMBEDDING_DIMENSION = 384
 
 # Timeout configuration (in seconds)
 # Note: First request may take longer due to model cold-start (loading into memory)
@@ -36,34 +43,53 @@ class EmbeddingsService:
 
     Uses lazy loading to avoid loading the model until first use,
     which improves startup time for requests that don't need embeddings.
+
+    Supports multiple model instances via a registry keyed by model name.
     """
 
-    _model: SentenceTransformer | None = None
-    _instance: EmbeddingsService | None = None
+    # Registry of singleton instances keyed by model name
+    _instances: dict[str, EmbeddingsService] = {}
 
-    def __init__(self) -> None:
-        """Initialize the embeddings service (model loaded lazily)."""
-        pass
-
-    @classmethod
-    def get_instance(cls) -> EmbeddingsService:
-        """Get singleton instance of the embeddings service."""
-        if cls._instance is None:
-            cls._instance = cls()
-        return cls._instance
+    def __init__(self, model_name: str = MODEL_NAME) -> None:
+        """Initialize the embeddings service for a specific model."""
+        self._model_name = model_name
+        self._model: SentenceTransformer | None = None
 
     @classmethod
-    def preload(cls) -> None:
-        """Pre-load the embedding model into memory.
+    def get_instance(cls, model_name: str = MODEL_NAME) -> EmbeddingsService:
+        """Get singleton instance for a specific model."""
+        if model_name not in cls._instances:
+            cls._instances[model_name] = cls(model_name)
+        return cls._instances[model_name]
+
+    @classmethod
+    def preload(cls, model_name: str = MODEL_NAME) -> None:
+        """Pre-load a specific embedding model into memory.
 
         Call during application startup to avoid cold-start latency
         on the first semantic query. Safe to call multiple times.
         """
-        instance = cls.get_instance()
+        instance = cls.get_instance(model_name)
         if not instance.is_loaded():
-            logger.info("Pre-loading embedding model during startup...")
+            logger.info(f"Pre-loading embedding model during startup: {model_name}")
             instance._load_model()
-            logger.info("Embedding model pre-loaded successfully")
+            logger.info(f"Embedding model pre-loaded successfully: {model_name}")
+
+    @classmethod
+    def preload_all(cls) -> None:
+        """Pre-load both primary and light embedding models.
+
+        Call during application startup. Light model failure is non-fatal
+        (on-the-fly fallback degrades gracefully).
+        """
+        # Primary model (required)
+        cls.preload(MODEL_NAME)
+
+        # Light model (best-effort)
+        try:
+            cls.preload(LIGHT_MODEL_NAME)
+        except Exception as e:
+            logger.warning(f"Light embedding model preload failed (will retry on first use): {e}")
 
     def _load_model(self) -> SentenceTransformer:
         """Load the sentence transformer model (lazy loading).
@@ -72,13 +98,13 @@ class EmbeddingsService:
             The loaded SentenceTransformer model.
         """
         if self._model is None:
-            logger.info(f"Loading embedding model: {MODEL_NAME}")
+            logger.info(f"Loading embedding model: {self._model_name}")
             # Import here to avoid loading torch at startup
             from sentence_transformers import SentenceTransformer
 
             # Explicitly load on CPU to avoid meta tensor issues on memory-constrained environments
-            self._model = SentenceTransformer(MODEL_NAME, device="cpu")
-            logger.info(f"Embedding model loaded: {MODEL_NAME} (device: cpu)")
+            self._model = SentenceTransformer(self._model_name, device="cpu")
+            logger.info(f"Embedding model loaded: {self._model_name} (device: cpu)")
         return self._model
 
     def embed_text(self, text: str) -> list[float]:
@@ -257,13 +283,15 @@ class EmbeddingsService:
 
     @property
     def dimension(self) -> int:
-        """Return the embedding dimension."""
+        """Return the embedding dimension for this model."""
+        if self._model_name == LIGHT_MODEL_NAME:
+            return LIGHT_EMBEDDING_DIMENSION
         return EMBEDDING_DIMENSION
 
     @property
     def model_name(self) -> str:
         """Return the model name."""
-        return MODEL_NAME
+        return self._model_name
 
     def is_loaded(self) -> bool:
         """Check if the model is loaded."""
@@ -271,5 +299,10 @@ class EmbeddingsService:
 
 
 def get_embeddings_service() -> EmbeddingsService:
-    """Get the singleton embeddings service instance."""
-    return EmbeddingsService.get_instance()
+    """Get the primary (large) embeddings service instance."""
+    return EmbeddingsService.get_instance(MODEL_NAME)
+
+
+def get_light_embeddings_service() -> EmbeddingsService:
+    """Get the light (small) embeddings service for on-the-fly fallback path."""
+    return EmbeddingsService.get_instance(LIGHT_MODEL_NAME)
