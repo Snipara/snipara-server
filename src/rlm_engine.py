@@ -1577,20 +1577,34 @@ class RLMEngine:
                 )
             else:
                 # Pre-filter to top keyword candidates to avoid embedding all sections.
-                # With bge-small (~0.2s/text), 50 candidates ≈ 2-5s on CPU.
-                top_keyword_ids = {
-                    sid
-                    for sid, score in sorted(
-                        keyword_scores.items(), key=lambda x: x[1], reverse=True
-                    )[:50]
-                    if score > 0
-                }
+                # Two-stage filter: (1) score drop-off threshold eliminates noise from
+                # broad queries like "search modes" where hundreds of sections match
+                # weakly, (2) hard cap of 30 as safety net.
+                sorted_kw = sorted(
+                    ((sid, sc) for sid, sc in keyword_scores.items() if sc > 0),
+                    key=lambda x: x[1],
+                    reverse=True,
+                )
+                if sorted_kw:
+                    top_score = sorted_kw[0][1]
+                    # Drop sections scoring < 10% of the top score (min threshold 2.0)
+                    threshold = max(top_score * 0.10, 2.0)
+                    top_keyword_ids = {
+                        sid for sid, sc in sorted_kw[:30] if sc >= threshold
+                    }
+                else:
+                    top_keyword_ids = set()
+
                 semantic_scores = await self._calculate_semantic_scores(
                     query, candidate_ids=top_keyword_ids if top_keyword_ids else None
                 )
                 logger.info(
                     f"Using on-the-fly embedding for hybrid search "
-                    f"({len(top_keyword_ids)} keyword candidates, project: {self.project_id})"
+                    f"({len(top_keyword_ids)} keyword candidates, "
+                    f"threshold={threshold:.1f}, project: {self.project_id})"
+                    if sorted_kw else
+                    f"Using on-the-fly embedding for hybrid search "
+                    f"(0 keyword candidates, project: {self.project_id})"
                 )
 
             # Adaptive weights: classify query to pick keyword/semantic balance
@@ -1641,7 +1655,7 @@ class RLMEngine:
         self,
         query: str,
         candidate_ids: set[str] | None = None,
-        max_sections: int = 50,
+        max_sections: int = 30,
     ) -> dict[str, float]:
         """
         Calculate semantic similarity scores for sections (on-the-fly fallback path).
@@ -1654,8 +1668,8 @@ class RLMEngine:
         Args:
             query: The search query string.
             candidate_ids: If provided, only embed these section IDs (e.g. top keyword hits).
-            max_sections: Hard cap on sections to embed (default 50). bge-small-en-v1.5
-                takes ~0.2s per text on CPU; 50 sections ≈ 2-5s (well within 60s timeout).
+            max_sections: Hard cap on sections to embed (default 30). bge-small-en-v1.5
+                takes ~0.3s per text on Railway CPU; 30 sections ≈ 3-5s.
         """
         if not self.index or not self.index.sections:
             return {}
@@ -1680,10 +1694,10 @@ class RLMEngine:
             query_embedding = await embeddings_service.embed_text_async(query)
 
             # Generate section embeddings (title + truncated content)
-            # Using 200 chars (not 500) to reduce tokenization cost on CPU.
-            # bge-large-en-v1.5 takes ~2s/text on Railway CPU at 500 chars.
+            # Using 120 chars to reduce tokenization cost on CPU.
+            # Title carries the primary semantic signal; content adds context.
             section_texts = [
-                f"{s.title}\n{s.content[:200]}"
+                f"{s.title}\n{s.content[:120]}"
                 for s in sections
             ]
             section_embeddings = await embeddings_service.embed_texts_async(section_texts)
