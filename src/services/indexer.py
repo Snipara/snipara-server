@@ -141,9 +141,9 @@ class DocumentIndexer:
         Returns:
             Dict with 'results' (list of matching chunks) and 'timing' (performance metrics).
         """
-        # Time embedding generation
+        # Time embedding generation (async to avoid blocking event loop)
         embed_start = time.perf_counter()
-        query_embedding = self.embeddings.embed_text(query)
+        query_embedding = await self.embeddings.embed_text_async(query)
         embed_ms = int((time.perf_counter() - embed_start) * 1000)
 
         embedding_str = "[" + ",".join(str(x) for x in query_embedding) + "]"

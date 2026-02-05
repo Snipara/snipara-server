@@ -1555,7 +1555,7 @@ class RLMEngine:
                     f"Using pre-computed chunks for semantic search (project: {self.project_id})"
                 )
             else:
-                semantic_scores = self._calculate_semantic_scores(query)
+                semantic_scores = await self._calculate_semantic_scores(query)
                 logger.info(
                     f"Using on-the-fly embedding (no chunks for project: {self.project_id})"
                 )
@@ -1576,7 +1576,7 @@ class RLMEngine:
                     f"Using pre-computed chunks for hybrid search (project: {self.project_id})"
                 )
             else:
-                semantic_scores = self._calculate_semantic_scores(query)
+                semantic_scores = await self._calculate_semantic_scores(query)
                 logger.info(
                     f"Using on-the-fly embedding for hybrid search (project: {self.project_id})"
                 )
@@ -1625,7 +1625,7 @@ class RLMEngine:
         scored.sort(key=lambda x: x[1], reverse=True)
         return scored
 
-    def _calculate_semantic_scores(self, query: str) -> dict[str, float]:
+    async def _calculate_semantic_scores(self, query: str) -> dict[str, float]:
         """
         Calculate semantic similarity scores for all sections.
 
@@ -1637,15 +1637,15 @@ class RLMEngine:
         try:
             embeddings_service = get_embeddings_service()
 
-            # Generate query embedding
-            query_embedding = embeddings_service.embed_text(query)
+            # Generate query embedding (async to avoid blocking event loop)
+            query_embedding = await embeddings_service.embed_text_async(query)
 
             # Generate section embeddings (could be cached in production)
             section_texts = [
                 f"{s.title}\n{s.content[:500]}"  # Use title + first 500 chars
                 for s in self.index.sections
             ]
-            section_embeddings = embeddings_service.embed_texts(section_texts)
+            section_embeddings = await embeddings_service.embed_texts_async(section_texts)
 
             # Calculate similarities
             similarities = embeddings_service.cosine_similarity(query_embedding, section_embeddings)
