@@ -17,7 +17,6 @@ from typing import Any
 import tiktoken
 
 from .db import get_db
-from .services.query_router import route_query
 from .models import (
     ContextQueryResult,
     ContextSection,
@@ -1463,9 +1462,6 @@ class RLMEngine:
         # Include system instructions (custom from project or default)
         instructions = self.settings.system_instructions or DEFAULT_SYSTEM_INSTRUCTIONS
 
-        # Smart routing: analyze query and recommend execution mode
-        routing_decision = route_query(query, context_tokens=total_tokens)
-
         result = ContextQueryResult(
             sections=all_sections,
             total_tokens=total_tokens,
@@ -1480,11 +1476,6 @@ class RLMEngine:
             shared_context_included=len(shared_context_sections) > 0,
             shared_context_tokens=shared_context_tokens,
             first_query_tips_included=is_first_query and session_context_included,
-            # Smart routing hints
-            routing_recommendation=routing_decision.mode.value,
-            routing_confidence=routing_decision.confidence,
-            routing_reason=routing_decision.reason,
-            query_complexity=routing_decision.complexity.value,
         )
 
         # Calculate actual token usage for billing
