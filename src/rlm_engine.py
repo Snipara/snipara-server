@@ -106,6 +106,48 @@ _STOP_WORDS = frozenset({
     "up", "also", "any", "many", "much",
 })
 
+
+def _stem_keyword(word: str) -> str:
+    """Basic suffix stemmer to improve keyword matching.
+
+    Strips common English suffixes to produce an approximate stem used for
+    substring matching.  A shorter stem naturally matches more morphological
+    variants, e.g. ``_stem_keyword("prices")`` → ``"pric"`` which is a
+    substring of "pricing", "price", "priced", etc.
+
+    Minimum-length guards ensure short words like "doing" (5 chars) are not
+    over-stripped into meaningless 2-char stems.
+    """
+    # Longer suffixes first — order matters.
+    if len(word) > 7 and word.endswith("tion"):
+        return word[:-4]
+    if len(word) > 7 and word.endswith("ment"):
+        return word[:-4]
+    if len(word) > 7 and word.endswith("ness"):
+        return word[:-4]
+    if len(word) > 7 and word.endswith("ible"):
+        return word[:-4]
+    if len(word) > 7 and word.endswith("able"):
+        return word[:-4]
+    if len(word) > 6 and word.endswith("ing"):
+        return word[:-3]
+    if len(word) > 6 and word.endswith("ies"):
+        return word[:-3]
+    if len(word) > 5 and word.endswith("ed") and not word.endswith("eed"):
+        return word[:-2]
+    if len(word) > 5 and word.endswith("er"):
+        return word[:-2]
+    if len(word) > 5 and word.endswith("ly"):
+        return word[:-2]
+    if len(word) > 5 and word.endswith("es"):
+        return word[:-2]
+    if len(word) > 4 and word.endswith("s") and not word.endswith("ss"):
+        return word[:-1]
+    if len(word) > 4 and word.endswith("e") and not word.endswith("ee"):
+        return word[:-1]
+    return word
+
+
 # ---------------------------------------------------------------------------
 # Adaptive Hybrid Search: weight profiles & RRF constant
 # ---------------------------------------------------------------------------
@@ -1251,7 +1293,11 @@ class RLMEngine:
                     # some relevance to the query. MANDATORY docs always included.
                     # Uses title + first 200 chars (intro) to avoid false positives
                     # from large docs that mention common keywords in code examples.
-                    query_keywords = {w for w in re.findall(r"\w+", query.lower()) if len(w) >= 3}
+                    # Stop words excluded so "what"/"are" don't create false matches.
+                    query_keywords = {
+                        w for w in re.findall(r"\w+", query.lower())
+                        if len(w) >= 3 and w not in _STOP_WORDS
+                    }
 
                     # Convert shared documents to ContextSection format
                     for doc in allocated_docs:
@@ -1260,15 +1306,20 @@ class RLMEngine:
                         except ValueError:
                             cat_enum = DocumentCategoryEnum.BEST_PRACTICES
 
-                        # MANDATORY docs always included; others need query relevance
+                        # MANDATORY docs always included; others need TITLE relevance.
+                        # Only checking the title (not body) prevents false positives
+                        # from generic keywords ("snipara") appearing in all team docs.
                         if cat_enum != DocumentCategoryEnum.MANDATORY and query_keywords:
-                            check_text = doc.title.lower() + " " + doc.content[:200].lower()
-                            hits = sum(1 for kw in query_keywords if kw in check_text)
-                            relevance = hits / len(query_keywords) if query_keywords else 0
-                            if relevance < 0.15:
+                            title_lower = doc.title.lower()
+                            hits = sum(
+                                1 for kw in query_keywords
+                                if kw in title_lower
+                                or (_stem_keyword(kw) != kw and _stem_keyword(kw) in title_lower)
+                            )
+                            if hits == 0:
                                 logger.debug(
                                     f"Skipping shared doc '{doc.title}' "
-                                    f"(relevance={relevance:.2f} < 0.15)"
+                                    f"(no title keyword match)"
                                 )
                                 continue
 
@@ -1762,14 +1813,22 @@ class RLMEngine:
             if len(keyword) < 2:  # Skip very short words
                 continue
 
+            stem = _stem_keyword(keyword)
+
             # Title matches (5x weight, not length-normalized)
             title_count = title_lower.count(keyword)
+            # Fall back to stem match for morphological variants
+            # e.g. "prices" (stem "pric") matches title containing "pricing"
+            if title_count == 0 and stem != keyword:
+                title_count = title_lower.count(stem)
             if title_count > 0:
                 title_keyword_hits += 1
             score += title_count * 5.0
 
             # Content matches (length-normalized)
             content_count = content_lower.count(keyword)
+            if content_count == 0 and stem != keyword:
+                content_count = content_lower.count(stem)
             score += content_count * length_norm
 
         # Bonus for higher-level sections (h1, h2 more important)
@@ -1819,7 +1878,11 @@ class RLMEngine:
             strong_keyword = top_kw > 15 and (median_kw == 0 or top_kw / median_kw >= 3)
 
         # Signal 2: specific / structured-data terms in the query
-        has_specific = bool(query_words & _SPECIFIC_QUERY_TERMS)
+        # Also check stemmed variants so "prices" matches "price" in the set
+        stemmed_words = {_stem_keyword(w) for w in query_words}
+        has_specific = bool(
+            (query_words | stemmed_words) & _SPECIFIC_QUERY_TERMS
+        )
 
         # Signal 3: conceptual query pattern
         is_conceptual = any(query_lower.startswith(p) for p in _CONCEPTUAL_PREFIXES)
