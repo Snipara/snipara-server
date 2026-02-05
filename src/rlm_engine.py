@@ -1576,9 +1576,21 @@ class RLMEngine:
                     f"Using pre-computed chunks for hybrid search (project: {self.project_id})"
                 )
             else:
-                semantic_scores = await self._calculate_semantic_scores(query)
+                # Pre-filter to top keyword candidates to avoid embedding all sections.
+                # This prevents 60s+ timeouts on large projects without pre-computed chunks.
+                top_keyword_ids = {
+                    sid
+                    for sid, score in sorted(
+                        keyword_scores.items(), key=lambda x: x[1], reverse=True
+                    )[:100]
+                    if score > 0
+                }
+                semantic_scores = await self._calculate_semantic_scores(
+                    query, candidate_ids=top_keyword_ids if top_keyword_ids else None
+                )
                 logger.info(
-                    f"Using on-the-fly embedding for hybrid search (project: {self.project_id})"
+                    f"Using on-the-fly embedding for hybrid search "
+                    f"({len(top_keyword_ids)} keyword candidates, project: {self.project_id})"
                 )
 
             # Adaptive weights: classify query to pick keyword/semantic balance
@@ -1625,11 +1637,24 @@ class RLMEngine:
         scored.sort(key=lambda x: x[1], reverse=True)
         return scored
 
-    async def _calculate_semantic_scores(self, query: str) -> dict[str, float]:
+    async def _calculate_semantic_scores(
+        self,
+        query: str,
+        candidate_ids: set[str] | None = None,
+        max_sections: int = 100,
+    ) -> dict[str, float]:
         """
-        Calculate semantic similarity scores for all sections.
+        Calculate semantic similarity scores for sections.
 
         Uses embedding cosine similarity to find semantically similar sections.
+        To avoid timeouts on large projects without pre-computed chunks, only
+        a subset of sections is embedded (controlled by candidate_ids and max_sections).
+
+        Args:
+            query: The search query string.
+            candidate_ids: If provided, only embed these section IDs (e.g. top keyword hits).
+            max_sections: Hard cap on sections to embed (default 100). Prevents
+                timeout when embedding on-the-fly for large projects.
         """
         if not self.index or not self.index.sections:
             return {}
@@ -1637,13 +1662,26 @@ class RLMEngine:
         try:
             embeddings_service = get_embeddings_service()
 
+            # Filter to candidate sections if provided, otherwise use all
+            if candidate_ids is not None:
+                sections = [s for s in self.index.sections if s.id in candidate_ids]
+            else:
+                sections = list(self.index.sections)
+
+            # Hard cap to prevent batch embedding timeout on large projects
+            if len(sections) > max_sections:
+                logger.info(
+                    f"Capping on-the-fly embedding from {len(sections)} to {max_sections} sections"
+                )
+                sections = sections[:max_sections]
+
             # Generate query embedding (async to avoid blocking event loop)
             query_embedding = await embeddings_service.embed_text_async(query)
 
-            # Generate section embeddings (could be cached in production)
+            # Generate section embeddings
             section_texts = [
                 f"{s.title}\n{s.content[:500]}"  # Use title + first 500 chars
-                for s in self.index.sections
+                for s in sections
             ]
             section_embeddings = await embeddings_service.embed_texts_async(section_texts)
 
@@ -1653,7 +1691,7 @@ class RLMEngine:
             # Map to section IDs
             return {
                 section.id: similarity
-                for section, similarity in zip(self.index.sections, similarities)
+                for section, similarity in zip(sections, similarities)
             }
         except Exception as e:
             logger.warning(f"Semantic search failed, falling back to empty scores: {e}")
