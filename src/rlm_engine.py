@@ -2005,12 +2005,12 @@ class RLMEngine:
 
         keywords = [w for w in re.findall(r"\w+", query.lower()) if w not in _STOP_WORDS]
 
-        # Query expansion: add synonyms and related terms for better recall
-        expanded_terms = _expand_query(query)
-        if expanded_terms:
-            logger.debug(f"Query expansion: adding {expanded_terms} to keywords")
-            # Add expanded terms with lower weight (they're secondary)
-            keywords = keywords + expanded_terms
+        # Query expansion: DISABLED - was causing precision regression
+        # TODO: Re-enable after proper tuning with weighted terms
+        # expanded_terms = _expand_query(query)
+        # if expanded_terms:
+        #     logger.debug(f"Query expansion: adding {expanded_terms} to keywords")
+        #     keywords = keywords + expanded_terms
 
         scored: list[tuple[Section, float]] = []
 
