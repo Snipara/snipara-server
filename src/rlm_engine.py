@@ -1628,10 +1628,9 @@ class RLMEngine:
         if search_mode == SearchMode.KEYWORD:
             # Pure keyword search with relevance filtering for multi-keyword queries.
             # Problem: "snipara" appears everywhere, so irrelevant sections rank highly.
-            # Solution: For 3+ keyword queries, require either:
-            #   - 2+ keywords in title (strong title match), OR
-            #   - 1 keyword in title AND good content score (>5), OR
-            #   - 0 keywords in title AND high content score (>10)
+            # Solution: For 3+ keyword queries, require at least 2 non-ubiquitous
+            # keywords in the title. Single keyword matches (often just "snipara")
+            # are not distinctive enough.
             for section in self.index.sections:
                 score = keyword_scores[section.id]
                 if score <= 0:
@@ -1647,14 +1646,12 @@ class RLMEngine:
                     )
                     if title_hits >= 2:
                         pass  # Strong title match - keep
-                    elif title_hits == 1 and score > 5:
-                        pass  # Some title relevance + good content - keep
-                    elif title_hits == 0 and score > 10:
-                        pass  # No title match but very relevant content - keep
                     else:
+                        # Single or zero title hits are not distinctive enough.
+                        # "Snipara VS Code Extension" matching just "snipara" is noise.
                         logger.debug(
                             f"Keyword search: Skipping '{section.title}' "
-                            f"(title_hits={title_hits}, kw_score={score:.1f})"
+                            f"(title_hits={title_hits} < 2, kw_score={score:.1f})"
                         )
                         continue
 
@@ -1758,12 +1755,9 @@ class RLMEngine:
                 # Filter out sections with insufficient relevance for multi-keyword queries.
                 # Problem: "snipara" appears everywhere, so sections like "VS Code Extension"
                 # rank highly for queries like "What is Snipara's value proposition?"
-                # Solution: For 3+ keyword queries, require either:
-                #   - 2+ keywords in title (strong title match), OR
-                #   - 1 keyword in title AND good content score (>5), OR
-                #   - 0 keywords in title AND high content score (>10)
-                # This keeps "Product Philosophy" (0 title hits but relevant content)
-                # while filtering "VS Code Extension" (1 generic hit, low content relevance)
+                # Solution: For 3+ keyword queries, require at least 2 non-ubiquitous
+                # keywords in the title. Single keyword matches (often just "snipara")
+                # are not distinctive enough.
                 if len(keywords) >= 3:
                     title_lower = section.title.lower()
                     title_hits = sum(
@@ -1771,16 +1765,13 @@ class RLMEngine:
                         if kw_term in title_lower
                         or (_stem_keyword(kw_term) != kw_term and _stem_keyword(kw_term) in title_lower)
                     )
-                    # kw is the keyword score from content (set above)
                     if title_hits >= 2:
                         pass  # Strong title match - keep
-                    elif title_hits == 1 and kw > 5:
-                        pass  # Some title relevance + good content - keep
-                    elif title_hits == 0 and kw > 10:
-                        pass  # No title match but very relevant content - keep
                     else:
+                        # Single or zero title hits are not distinctive enough.
+                        # "Snipara VS Code Extension" matching just "snipara" is noise.
                         logger.debug(
-                            f"Skipping '{section.title}' (title_hits={title_hits}, kw_score={kw:.1f}) "
+                            f"Skipping '{section.title}' (title_hits={title_hits} < 2, kw_score={kw:.1f}) "
                             f"- insufficient relevance for multi-keyword query"
                         )
                         continue
