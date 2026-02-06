@@ -12,7 +12,6 @@ import re
 import uuid
 from collections import deque
 from dataclasses import dataclass, field
-from enum import Enum
 from typing import Any
 
 import tiktoken
@@ -148,301 +147,6 @@ def _stem_keyword(word: str) -> str:
     if len(word) > 4 and word.endswith("e") and not word.endswith("ee"):
         return word[:-1]
     return word
-
-
-# ---------------------------------------------------------------------------
-# Query Expansion: Synonyms and related terms for better recall
-# ---------------------------------------------------------------------------
-# Maps common query terms to related terms that should also be searched.
-# This improves recall by matching conceptually similar sections.
-_QUERY_SYNONYMS: dict[str, list[str]] = {
-    # Core concepts
-    "value": ["benefit", "advantage", "proposition", "purpose"],
-    "proposition": ["value", "benefit", "offering"],
-    "benefit": ["value", "advantage", "feature"],
-    "purpose": ["goal", "objective", "reason", "why"],
-
-    # Technical terms
-    "auth": ["authentication", "authorization", "login", "oauth"],
-    "authentication": ["auth", "login", "oauth", "sso"],
-    "database": ["db", "postgres", "sql", "storage", "neon"],
-    "api": ["endpoint", "rest", "route", "server"],
-    "endpoint": ["api", "route", "url"],
-
-    # Architecture
-    "architecture": ["design", "structure", "system", "blueprint"],
-    "design": ["architecture", "pattern", "structure"],
-    "deploy": ["deployment", "hosting", "railway", "production"],
-    "deployment": ["deploy", "hosting", "railway", "production"],
-
-    # Search/retrieval
-    "search": ["query", "find", "lookup", "retrieve"],
-    "query": ["search", "question", "request"],
-    "context": ["documentation", "docs", "content"],
-
-    # Features
-    "feature": ["capability", "function", "tool"],
-    "tool": ["feature", "function", "capability"],
-    "price": ["pricing", "cost", "plan", "tier", "subscription"],
-    "pricing": ["price", "cost", "plan", "tier", "subscription"],
-    "cost": ["price", "pricing", "expense"],
-
-    # Actions
-    "configure": ["config", "setup", "settings"],
-    "config": ["configure", "configuration", "settings"],
-    "install": ["setup", "installation", "deploy"],
-    "setup": ["install", "configure", "initialization"],
-}
-
-
-def _expand_query(query: str) -> list[str]:
-    """Expand a query with synonyms and related terms.
-
-    Returns a list of additional terms to search for based on
-    synonym mappings. These terms are used to improve recall
-    in both keyword and semantic search modes.
-
-    Args:
-        query: The original search query
-
-    Returns:
-        List of additional terms to include in search
-    """
-    words = set(w.lower() for w in re.findall(r"\w+", query) if len(w) >= 3)
-    expanded: set[str] = set()
-
-    for word in words:
-        if word in _QUERY_SYNONYMS:
-            expanded.update(_QUERY_SYNONYMS[word])
-        # Also check stemmed version
-        stem = _stem_keyword(word)
-        if stem != word and stem in _QUERY_SYNONYMS:
-            expanded.update(_QUERY_SYNONYMS[stem])
-
-    # Remove original words and stop words
-    expanded -= words
-    expanded -= _STOP_WORDS
-
-    return list(expanded)
-
-
-# ---------------------------------------------------------------------------
-# Query Type Detection for search optimization
-# ---------------------------------------------------------------------------
-
-class QueryType(str, Enum):
-    """Classification of query types for search optimization."""
-    DEFINITIONAL = "definitional"  # "What is X?" - needs precise, focused results
-    NAVIGATIONAL = "navigational"  # "Where is X?" - needs file/location info
-    CONCEPTUAL = "conceptual"      # "How does X work?" - needs broader context
-    TROUBLESHOOTING = "troubleshooting"  # "Why does X fail?" - needs error/fix info
-    COMPARATIVE = "comparative"    # "X vs Y" - needs multiple perspectives
-    PROCEDURAL = "procedural"      # "How to do X?" - needs step-by-step info
-
-
-# Patterns for query type detection
-_QUERY_TYPE_PATTERNS: dict[QueryType, list[str]] = {
-    QueryType.DEFINITIONAL: [
-        r"^what\s+is\b",
-        r"^what\s+are\b",
-        r"^define\b",
-        r"^explain\s+what\b",
-        r"\bvalue\s+proposition\b",
-        r"\bmeaning\s+of\b",
-    ],
-    QueryType.NAVIGATIONAL: [
-        r"^where\s+is\b",
-        r"^where\s+are\b",
-        r"^find\b",
-        r"^locate\b",
-        r"\bfile\s+for\b",
-        r"\bpath\s+to\b",
-    ],
-    QueryType.CONCEPTUAL: [
-        r"^how\s+does\b",
-        r"^how\s+do\b",
-        r"^why\s+does\b",
-        r"^why\s+do\b",
-        r"\barchitecture\b",
-        r"\bdesign\b",
-        r"\bwork\b",
-    ],
-    QueryType.TROUBLESHOOTING: [
-        r"\berror\b",
-        r"\bfail\b",
-        r"\bfailing\b",
-        r"\bnot\s+working\b",
-        r"\bdoesn't\s+work\b",
-        r"\bfix\b",
-        r"\bsolve\b",
-        r"\bissue\b",
-        r"\bproblem\b",
-    ],
-    QueryType.COMPARATIVE: [
-        r"\bvs\.?\b",
-        r"\bversus\b",
-        r"\bcompare\b",
-        r"\bcomparison\b",
-        r"\bdifference\s+between\b",
-        r"\bor\b.*\bbetter\b",
-    ],
-    QueryType.PROCEDURAL: [
-        r"^how\s+to\b",
-        r"^steps\s+to\b",
-        r"\bguide\b",
-        r"\btutorial\b",
-        r"\binstall\b",
-        r"\bsetup\b",
-        r"\bconfigure\b",
-    ],
-}
-
-# Query type to search parameters mapping
-# NOTE: score_threshold values are intentionally low (0-15) because RLM
-# scores typically range 10-80 for matches. Higher thresholds filter too aggressively.
-_QUERY_TYPE_PARAMS: dict[QueryType, dict] = {
-    QueryType.DEFINITIONAL: {
-        "max_sections": 8,      # Focused, precise results
-        "score_threshold": 15,  # Low threshold - rely on ranking instead
-        "prefer_exact": True,   # Prefer exact keyword matches
-    },
-    QueryType.NAVIGATIONAL: {
-        "max_sections": 5,      # Very focused
-        "score_threshold": 10,
-        "prefer_exact": True,
-    },
-    QueryType.CONCEPTUAL: {
-        "max_sections": 15,     # Broader context needed
-        "score_threshold": 5,   # Very low - include more context
-        "prefer_exact": False,  # Allow semantic matches
-    },
-    QueryType.TROUBLESHOOTING: {
-        "max_sections": 12,
-        "score_threshold": 5,
-        "prefer_exact": False,
-    },
-    QueryType.COMPARATIVE: {
-        "max_sections": 15,     # Need multiple perspectives
-        "score_threshold": 5,
-        "prefer_exact": False,
-    },
-    QueryType.PROCEDURAL: {
-        "max_sections": 10,
-        "score_threshold": 10,
-        "prefer_exact": True,
-    },
-}
-
-
-def _detect_query_type(query: str) -> QueryType:
-    """Detect the type of query to optimize search parameters.
-
-    Args:
-        query: The search query
-
-    Returns:
-        The detected QueryType
-    """
-    query_lower = query.lower().strip()
-
-    # Check patterns in priority order
-    for query_type, patterns in _QUERY_TYPE_PATTERNS.items():
-        for pattern in patterns:
-            if re.search(pattern, query_lower, re.IGNORECASE):
-                return query_type
-
-    # Default to conceptual for general questions
-    return QueryType.CONCEPTUAL
-
-
-def _compute_result_confidence(scored_sections: list[tuple], top_k: int = 3) -> float:
-    """Compute confidence score based on top results.
-
-    High confidence (> 0.7): Top results have high scores, clear best matches
-    Medium confidence (0.4-0.7): Moderate scores, some uncertainty
-    Low confidence (< 0.4): Low scores, query may need more context
-
-    Args:
-        scored_sections: List of (section, score) tuples, already sorted by score
-        top_k: Number of top results to consider
-
-    Returns:
-        Confidence score between 0.0 and 1.0
-    """
-    if not scored_sections:
-        return 0.0
-
-    top_scores = [score for _, score in scored_sections[:top_k]]
-
-    # Factors for confidence:
-    # 1. Average of top scores (normalized to 0-1)
-    avg_score = sum(top_scores) / len(top_scores) / 100.0
-
-    # 2. Score gap between #1 and #2 (higher gap = more confident)
-    if len(top_scores) >= 2:
-        score_gap = (top_scores[0] - top_scores[1]) / 100.0
-    else:
-        score_gap = 0.0
-
-    # 3. Minimum score among top results (floor)
-    min_top_score = min(top_scores) / 100.0
-
-    # Weighted combination
-    confidence = (
-        avg_score * 0.5 +         # Average matters most
-        min_top_score * 0.3 +     # Floor prevents false confidence
-        min(score_gap, 0.3) * 0.2 # Gap bonus (capped)
-    )
-
-    return min(confidence, 1.0)
-
-
-def _adjust_budget_by_confidence(
-    max_tokens: int,
-    confidence: float,
-    query_type: QueryType,
-) -> tuple[int, int]:
-    """Adjust token budget and max sections based on confidence.
-
-    Low confidence queries get expanded budgets to include more context.
-    High confidence queries use tighter budgets for precision.
-
-    Args:
-        max_tokens: Original token budget
-        confidence: Result confidence (0.0-1.0)
-        query_type: Detected query type
-
-    Returns:
-        Tuple of (adjusted_budget, adjusted_max_sections)
-    """
-    base_params = _QUERY_TYPE_PARAMS.get(query_type, _QUERY_TYPE_PARAMS[QueryType.CONCEPTUAL])
-    base_max_sections = base_params["max_sections"]
-
-    if confidence < 0.3:
-        # Low confidence: expand significantly
-        budget_multiplier = 1.5
-        section_multiplier = 1.8
-    elif confidence < 0.5:
-        # Medium-low: moderate expansion
-        budget_multiplier = 1.25
-        section_multiplier = 1.4
-    elif confidence < 0.7:
-        # Medium: slight expansion
-        budget_multiplier = 1.1
-        section_multiplier = 1.2
-    else:
-        # High confidence: use base or slightly reduce
-        budget_multiplier = 1.0
-        section_multiplier = 1.0
-
-    adjusted_budget = int(max_tokens * budget_multiplier)
-    adjusted_max_sections = int(base_max_sections * section_multiplier)
-
-    # Cap at reasonable limits
-    adjusted_budget = min(adjusted_budget, max_tokens * 2)  # Max 2x original
-    adjusted_max_sections = min(adjusted_max_sections, 25)  # Max 25 sections
-
-    return adjusted_budget, adjusted_max_sections
 
 
 # ---------------------------------------------------------------------------
@@ -1725,11 +1429,6 @@ class RLMEngine:
                 logger.warning(f"Failed to load shared context: {e}")
 
         # ============ LOCAL PROJECT SCOPE ============
-        # Detect query type for optimized search parameters
-        query_type = _detect_query_type(query)
-        query_type_params = _QUERY_TYPE_PARAMS.get(query_type, _QUERY_TYPE_PARAMS[QueryType.CONCEPTUAL])
-        logger.debug(f"Query type detected: {query_type.value}, params: {query_type_params}")
-
         # Score and rank sections from local project
         scored_sections = await self._score_sections(query, search_mode)
 
@@ -1741,12 +1440,6 @@ class RLMEngine:
             for section, score in scored_sections
             if count_tokens(section.content) >= min_useful_tokens
         ]
-
-        # ============ QUERY TYPE LOGGING (features disabled for now) ============
-        # NOTE: Confidence-based budget adjustment and score thresholds were causing
-        # precision/recall regression. Disabled pending further tuning.
-        # Keep query type detection for logging/debugging only.
-        logger.debug(f"Query type detected: {query_type.value}")
 
         # ---- Query specificity filter ----
         # Broad queries (e.g. "architecture") match many sections.  Compute
@@ -1841,10 +1534,6 @@ class RLMEngine:
 
             # Check if we should use a summary instead
             content_to_use = section.content
-
-            # Add parent context breadcrumb for better grounding
-            content_to_use = self._add_parent_context(section, content_to_use)
-
             used_summary = False
 
             if prefer_summaries and file_path in summaries_by_path:
@@ -2004,14 +1693,6 @@ class RLMEngine:
             return []
 
         keywords = [w for w in re.findall(r"\w+", query.lower()) if w not in _STOP_WORDS]
-
-        # Query expansion: DISABLED - was causing precision regression
-        # TODO: Re-enable after proper tuning with weighted terms
-        # expanded_terms = _expand_query(query)
-        # if expanded_terms:
-        #     logger.debug(f"Query expansion: adding {expanded_terms} to keywords")
-        #     keywords = keywords + expanded_terms
-
         scored: list[tuple[Section, float]] = []
 
         # Calculate keyword scores for all sections (always in-memory, fast)
@@ -2481,58 +2162,6 @@ class RLMEngine:
                 return file_path
 
         return self.index.files[-1] if self.index.files else "unknown"
-
-    def _get_parent_breadcrumb(self, section: Section) -> str | None:
-        """Find the parent section's title to provide context breadcrumb.
-
-        Searches backwards through sections to find the nearest section with
-        a lower heading level (parent in document hierarchy).
-
-        Args:
-            section: The section to find a parent for
-
-        Returns:
-            Parent section title if found, None otherwise
-        """
-        if not self.index or section.level <= 1:
-            return None
-
-        # Find section index in the list
-        section_idx = -1
-        for i, s in enumerate(self.index.sections):
-            if s.id == section.id:
-                section_idx = i
-                break
-
-        if section_idx <= 0:
-            return None
-
-        # Search backwards for a parent (lower level)
-        for i in range(section_idx - 1, -1, -1):
-            parent = self.index.sections[i]
-            if parent.level < section.level:
-                return parent.title
-
-        return None
-
-    def _add_parent_context(self, section: Section, content: str) -> str:
-        """Add parent breadcrumb to content for better grounding.
-
-        Prepends the parent section title to help the LLM understand
-        the hierarchical context of this section.
-
-        Args:
-            section: The section being processed
-            content: The section content
-
-        Returns:
-            Content with optional parent breadcrumb prepended
-        """
-        parent_title = self._get_parent_breadcrumb(section)
-        if parent_title:
-            # Add subtle breadcrumb that doesn't inflate tokens much
-            return f"[Parent: {parent_title}]\n\n{content}"
-        return content
 
     def _smart_truncate(self, content: str, max_tokens: int) -> str:
         """
