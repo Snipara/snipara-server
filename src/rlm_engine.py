@@ -155,13 +155,14 @@ def _stem_keyword(word: str) -> str:
 # When keyword ranking has high confidence (exact title match, specific terms),
 # boost keyword weight to prevent semantic noise from diluting precise results.
 # When query is conceptual (how/why/explain), boost semantic weight.
-_HYBRID_KEYWORD_HEAVY = (0.70, 0.30)  # factual / title-match queries
-_HYBRID_BALANCED = (0.50, 0.50)  # default
-_HYBRID_SEMANTIC_HEAVY = (0.30, 0.70)  # conceptual / how-why queries
+_HYBRID_KEYWORD_HEAVY = (0.60, 0.40)  # factual / title-match queries (was 0.70/0.30)
+_HYBRID_BALANCED = (0.40, 0.60)  # default - favor semantic for better recall (was 0.50/0.50)
+_HYBRID_SEMANTIC_HEAVY = (0.25, 0.75)  # conceptual / how-why queries (was 0.30/0.70)
 
 # Reciprocal Rank Fusion constant (k=60 is the standard from Cormack+ 2009).
-# Higher k reduces the influence of top-ranked outliers.
-_RRF_K = 60
+# Lower k gives more weight to top-ranked results, improving precision.
+# Higher k smooths rankings, improving recall.
+_RRF_K = 45  # Reduced from 60 for better precision while keeping good recall
 
 # Query terms that signal structured/factual content (keyword-friendly)
 _SPECIFIC_QUERY_TERMS = frozenset(
@@ -2105,7 +2106,7 @@ class RLMEngine:
         return rrf_scores
 
     def _normalize_scores_graded(
-        self, scores: list[tuple[str, float]], decay_factor: float = 0.92
+        self, scores: list[tuple[str, float]], decay_factor: float = 0.94
     ) -> list[tuple[str, float]]:
         """Normalize scores to 0-100 with clear rank separation.
 
@@ -2116,11 +2117,11 @@ class RLMEngine:
 
         This produces clearer separation than raw score normalization:
         - Raw: [0.05, 0.048, 0.045, 0.042] → [100, 96, 90, 84] (too similar)
-        - Graded: [0.05, 0.048, 0.045, 0.042] → [100, 92, 85, 78] (clear hierarchy)
+        - Graded: [0.05, 0.048, 0.045, 0.042] → [100, 94, 88, 83] (clear hierarchy)
 
         Args:
             scores: List of (id, raw_score) tuples, already sorted descending
-            decay_factor: Base decay per rank (default 0.92 = ~8% drop per rank)
+            decay_factor: Base decay per rank (default 0.94 = ~6% drop per rank for better recall)
 
         Returns:
             List of (id, graded_score) with clear separation
@@ -2134,14 +2135,14 @@ class RLMEngine:
 
         for i, (sid, raw) in enumerate(scores[1:], start=1):
             # Combine rank-based decay with score-ratio decay
-            # rank_factor: exponential decay based on position (0.92^rank)
+            # rank_factor: exponential decay based on position (0.94^rank)
             # score_factor: how close is this score to the top? (raw/top)
             rank_factor = decay_factor ** i
             score_factor = raw / top_score if top_score > 0 else 0
 
-            # Weighted combination: 50% rank-based, 50% score-based
-            # Balanced approach preserves raw relevance while maintaining rank separation
-            graded = 100 * (0.5 * rank_factor + 0.5 * score_factor)
+            # Weighted combination: 40% rank-based, 60% score-based (favor raw scores for better recall)
+            # Higher score_weight keeps more relevant sections that may have lower ranks
+            graded = 100 * (0.4 * rank_factor + 0.6 * score_factor)
 
             # Floor at 1 (never 0 unless truly irrelevant)
             result.append((sid, max(round(graded, 1), 1.0)))
