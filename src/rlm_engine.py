@@ -500,6 +500,10 @@ class RLMEngine:
         """Load and index project documents from database."""
         db = await get_db()
 
+        # Get project info for slug (used for ubiquitous keyword detection)
+        project = await db.project.find_unique(where={"id": self.project_id})
+        project_slug = project.slug if project else None
+
         documents = await db.document.find_many(
             where={"projectId": self.project_id},
             order={"path": "asc"},
@@ -523,7 +527,7 @@ class RLMEngine:
             self._parse_sections(doc_lines, line_offset, doc.path)
 
         # Compute ubiquitous keywords after all sections are indexed
-        self._compute_ubiquitous_keywords()
+        self._compute_ubiquitous_keywords(project_slug)
 
     def _parse_sections(self, lines: list[str], offset: int, file_path: str) -> None:
         """Parse markdown sections from lines.
@@ -601,15 +605,15 @@ class RLMEngine:
         clean = clean.upper()[:20]
         return f"[{clean}]"
 
-    def _compute_ubiquitous_keywords(self) -> None:
+    def _compute_ubiquitous_keywords(self, project_slug: str | None = None) -> None:
         """Compute ubiquitous keywords from section titles.
 
-        Ubiquitous keywords are terms that appear in >70% of section titles.
-        These are typically project names or common terms that provide no
-        discriminative value for relevance filtering.
+        Ubiquitous keywords are terms that appear in >40% of section titles,
+        plus the project name/slug itself (which is always ubiquitous).
+        These are excluded from distinctive keyword matching to avoid false relevance.
 
         Example: In a project called "snipara", the term "snipara" might appear
-        in 80% of section titles, so it shouldn't count toward relevance.
+        in many titles, so it shouldn't count toward relevance.
         """
         if self.index is None or not self.index.sections:
             return
@@ -636,8 +640,9 @@ class RLMEngine:
             for kw in title_keywords:
                 keyword_section_count[kw] = keyword_section_count.get(kw, 0) + 1
 
-        # Mark keywords appearing in >70% of sections as ubiquitous
-        threshold = 0.70
+        # Mark keywords appearing in >40% of sections as ubiquitous
+        # Lower threshold (was 70%) because project names often appear in 30-60% of titles
+        threshold = 0.40
         ubiquitous = set()
         for kw, count in keyword_section_count.items():
             frequency = count / total_sections
@@ -647,6 +652,16 @@ class RLMEngine:
                     f"Ubiquitous keyword detected: '{kw}' appears in {count}/{total_sections} "
                     f"({frequency:.1%}) section titles"
                 )
+
+        # Always add the project slug as ubiquitous (project name appears everywhere)
+        if project_slug:
+            # Split slug on common separators to get individual words
+            slug_words = re.sub(r"[-_]", " ", project_slug.lower()).split()
+            for word in slug_words:
+                if len(word) > 2 and word not in stop_words:
+                    if word not in ubiquitous:
+                        logger.debug(f"Adding project slug word as ubiquitous: '{word}'")
+                    ubiquitous.add(word)
 
         self.index.ubiquitous_keywords = ubiquitous
 
