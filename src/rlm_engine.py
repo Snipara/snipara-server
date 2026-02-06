@@ -60,6 +60,7 @@ from .services.agent_memory import (
 )
 from .services.chunker import get_chunker
 from .services.embeddings import get_light_embeddings_service
+from .services.query_router import route_query
 from .services.shared_context import (
     DocumentCategory,
     allocate_shared_context_budget,
@@ -1534,6 +1535,9 @@ class RLMEngine:
         # Include system instructions (custom from project or default)
         instructions = self.settings.system_instructions or DEFAULT_SYSTEM_INSTRUCTIONS
 
+        # Smart routing: analyze query and recommend execution mode
+        routing_decision = route_query(query, context_tokens=total_tokens)
+
         result = ContextQueryResult(
             sections=all_sections,
             total_tokens=total_tokens,
@@ -1548,6 +1552,11 @@ class RLMEngine:
             shared_context_included=len(shared_context_sections) > 0,
             shared_context_tokens=shared_context_tokens,
             first_query_tips_included=is_first_query and session_context_included,
+            # Smart routing hints
+            routing_recommendation=routing_decision.mode.value,
+            routing_confidence=routing_decision.confidence,
+            routing_reason=routing_decision.reason,
+            query_complexity=routing_decision.complexity.value,
         )
 
         # Calculate actual token usage for billing
@@ -1694,30 +1703,26 @@ class RLMEngine:
                 semantic_weight=sem_weight,
             )
 
-            # Scale RRF scores to 0-100 range for consistency with other modes
-            # (downstream normalises via ``min(score / 100, 1.0)``).
-            if rrf_results:
-                max_rrf = rrf_results[0][1]
-                scale = 100.0 / max_rrf if max_rrf > 0 else 1.0
-            else:
-                scale = 1.0
+            # Apply graded normalization for clear rank separation
+            # Top = 100, then exponential decay (100, 88, 77, 68, 60...)
+            # This creates clearer "ground truth" distinction vs similar raw scores
+            graded_results = self._normalize_scores_graded(rrf_results)
 
             section_map = {s.id: s for s in self.index.sections}
-            for sid, rrf_score in rrf_results:
+            for sid, graded_score in graded_results:
                 section = section_map.get(sid)
                 if not section:
                     continue
 
-                scaled = rrf_score * scale
-
                 # Mild boost when both signals strongly agree
+                final_score = graded_score
                 kw = keyword_scores.get(sid, 0)
                 sem = semantic_scores.get(sid, 0.0) * 100
                 if kw > 5 and sem > 30:
-                    scaled *= 1.15
+                    final_score *= 1.10  # Smaller boost since graded already separates
 
-                if scaled > 3:  # ~3 % of max score
-                    scored.append((section, scaled))
+                if final_score > 3:  # ~3 % of max score
+                    scored.append((section, final_score))
 
         # Sort by score descending
         scored.sort(key=lambda x: x[1], reverse=True)
@@ -1947,6 +1952,50 @@ class RLMEngine:
 
         rrf_scores.sort(key=lambda x: x[1], reverse=True)
         return rrf_scores
+
+    def _normalize_scores_graded(
+        self, scores: list[tuple[str, float]], decay_factor: float = 0.92
+    ) -> list[tuple[str, float]]:
+        """Normalize scores to 0-100 with clear rank separation.
+
+        Creates a graded scoring where:
+        - Rank 1 (ground truth) = 100
+        - Each subsequent rank decays by decay_factor
+        - But also considers actual score gaps
+
+        This produces clearer separation than raw score normalization:
+        - Raw: [0.05, 0.048, 0.045, 0.042] → [100, 96, 90, 84] (too similar)
+        - Graded: [0.05, 0.048, 0.045, 0.042] → [100, 92, 85, 78] (clear hierarchy)
+
+        Args:
+            scores: List of (id, raw_score) tuples, already sorted descending
+            decay_factor: Base decay per rank (default 0.92 = ~8% drop per rank)
+
+        Returns:
+            List of (id, graded_score) with clear separation
+        """
+        if not scores:
+            return []
+
+        # Top score gets 100
+        top_score = scores[0][1] if scores[0][1] > 0 else 1.0
+        result = [(scores[0][0], 100.0)]
+
+        for i, (sid, raw) in enumerate(scores[1:], start=1):
+            # Combine rank-based decay with score-ratio decay
+            # rank_factor: exponential decay based on position (0.92^rank)
+            # score_factor: how close is this score to the top? (raw/top)
+            rank_factor = decay_factor ** i
+            score_factor = raw / top_score if top_score > 0 else 0
+
+            # Weighted combination: 50% rank-based, 50% score-based
+            # Balanced approach preserves raw relevance while maintaining rank separation
+            graded = 100 * (0.5 * rank_factor + 0.5 * score_factor)
+
+            # Floor at 1 (never 0 unless truly irrelevant)
+            result.append((sid, max(round(graded, 1), 1.0)))
+
+        return result
 
     def _find_file_for_section(self, section: Section) -> str:
         """Find which file a section belongs to based on line numbers."""
