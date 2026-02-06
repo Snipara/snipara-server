@@ -1,7 +1,7 @@
 """Pydantic models for RLM MCP Server request/response schemas."""
 
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field
@@ -9,7 +9,7 @@ from pydantic import BaseModel, Field
 # ============ ENUMS ============
 
 
-class ToolName(str, Enum):
+class ToolName(StrEnum):
     """Available RLM tools."""
 
     RLM_ASK = "rlm_ask"
@@ -66,7 +66,7 @@ class ToolName(str, Enum):
     RLM_REPL_CONTEXT = "rlm_repl_context"
 
 
-class SearchMode(str, Enum):
+class SearchMode(StrEnum):
     """Search mode for context queries."""
 
     KEYWORD = "keyword"
@@ -74,7 +74,7 @@ class SearchMode(str, Enum):
     HYBRID = "hybrid"  # Future: keyword + semantic
 
 
-class Plan(str, Enum):
+class Plan(StrEnum):
     """Subscription plans."""
 
     FREE = "FREE"
@@ -335,7 +335,7 @@ class ContextQueryResult(BaseModel):
 # ============ RECURSIVE CONTEXT MODELS (Phase 4.5) ============
 
 
-class DecomposeStrategy(str, Enum):
+class DecomposeStrategy(StrEnum):
     """Strategy for query decomposition."""
 
     AUTO = "auto"  # Let the engine decide
@@ -343,7 +343,7 @@ class DecomposeStrategy(str, Enum):
     STRUCTURAL = "structural"  # Follow document structure
 
 
-class PlanStrategy(str, Enum):
+class PlanStrategy(StrEnum):
     """Strategy for execution planning."""
 
     BREADTH_FIRST = "breadth_first"
@@ -468,7 +468,7 @@ class PlanResult(BaseModel):
 # ============ SUMMARY STORAGE MODELS (Phase 4.6) ============
 
 
-class SummaryType(str, Enum):
+class SummaryType(StrEnum):
     """Type of summary stored."""
 
     CONCISE = "concise"  # Brief 1-2 sentence summary
@@ -563,7 +563,7 @@ class DeleteSummaryResult(BaseModel):
 # ============ SHARED CONTEXT MODELS (Phase 7) ============
 
 
-class DocumentCategoryEnum(str, Enum):
+class DocumentCategoryEnum(StrEnum):
     """Document category for token budget allocation."""
 
     MANDATORY = "MANDATORY"
@@ -676,7 +676,7 @@ class GetTemplateResult(BaseModel):
 # ============ AGENT MEMORY MODELS (Phase 8.2) ============
 
 
-class AgentMemoryType(str, Enum):
+class AgentMemoryType(StrEnum):
     """Type of agent memory."""
 
     FACT = "fact"  # Objective information
@@ -687,7 +687,7 @@ class AgentMemoryType(str, Enum):
     CONTEXT = "context"  # General session context
 
 
-class AgentMemoryScope(str, Enum):
+class AgentMemoryScope(StrEnum):
     """Scope of agent memory visibility."""
 
     AGENT = "agent"  # Specific to one agent/session

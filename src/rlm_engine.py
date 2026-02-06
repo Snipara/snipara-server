@@ -59,7 +59,7 @@ from .services.agent_memory import (
     store_memory,
 )
 from .services.chunker import get_chunker
-from .services.embeddings import get_embeddings_service, get_light_embeddings_service
+from .services.embeddings import get_light_embeddings_service
 from .services.shared_context import (
     DocumentCategory,
     allocate_shared_context_budget,
