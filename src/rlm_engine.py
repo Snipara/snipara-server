@@ -1628,9 +1628,11 @@ class RLMEngine:
         if search_mode == SearchMode.KEYWORD:
             # Pure keyword search with relevance filtering for multi-keyword queries.
             # Problem: "snipara" appears everywhere, so irrelevant sections rank highly.
-            # Solution: For 3+ keyword queries, require at least 2 non-ubiquitous
-            # keywords in the title. Single keyword matches (often just "snipara")
-            # are not distinctive enough.
+            # Solution: For 3+ keyword queries, require either:
+            #   - 1+ NON-ubiquitous keyword in title (distinctive match), OR
+            #   - High content score (>50) indicating strong relevance
+            # Ubiquitous keywords (project name, common terms) don't count for title matching.
+            ubiquitous_keywords = {"snipara", "rlm", "mcp"}  # Project-specific common terms
             for section in self.index.sections:
                 score = keyword_scores[section.id]
                 if score <= 0:
@@ -1639,19 +1641,23 @@ class RLMEngine:
                 # Apply title relevance filter for multi-keyword queries
                 if len(keywords) >= 3:
                     title_lower = section.title.lower()
-                    title_hits = sum(
+                    # Count only non-ubiquitous keywords in title
+                    distinctive_title_hits = sum(
                         1 for kw in keywords
-                        if kw in title_lower
-                        or (_stem_keyword(kw) != kw and _stem_keyword(kw) in title_lower)
+                        if kw not in ubiquitous_keywords and (
+                            kw in title_lower
+                            or (_stem_keyword(kw) != kw and _stem_keyword(kw) in title_lower)
+                        )
                     )
-                    if title_hits >= 2:
-                        pass  # Strong title match - keep
+                    if distinctive_title_hits >= 1:
+                        pass  # Has distinctive keyword in title - keep
+                    elif score > 50:
+                        pass  # High content relevance - keep
                     else:
-                        # Single or zero title hits are not distinctive enough.
-                        # "Snipara VS Code Extension" matching just "snipara" is noise.
+                        # No distinctive title match and low content score - skip
                         logger.debug(
                             f"Keyword search: Skipping '{section.title}' "
-                            f"(title_hits={title_hits} < 2, kw_score={score:.1f})"
+                            f"(distinctive_title_hits={distinctive_title_hits}, kw_score={score:.1f})"
                         )
                         continue
 
@@ -1755,24 +1761,27 @@ class RLMEngine:
                 # Filter out sections with insufficient relevance for multi-keyword queries.
                 # Problem: "snipara" appears everywhere, so sections like "VS Code Extension"
                 # rank highly for queries like "What is Snipara's value proposition?"
-                # Solution: For 3+ keyword queries, require at least 2 non-ubiquitous
-                # keywords in the title. Single keyword matches (often just "snipara")
-                # are not distinctive enough.
+                # Solution: For 3+ keyword queries, require either:
+                #   - 1+ NON-ubiquitous keyword in title (distinctive match), OR
+                #   - High keyword score (>50) OR high semantic score (>40)
+                ubiquitous_keywords = {"snipara", "rlm", "mcp"}
                 if len(keywords) >= 3:
                     title_lower = section.title.lower()
-                    title_hits = sum(
+                    distinctive_title_hits = sum(
                         1 for kw_term in keywords
-                        if kw_term in title_lower
-                        or (_stem_keyword(kw_term) != kw_term and _stem_keyword(kw_term) in title_lower)
+                        if kw_term not in ubiquitous_keywords and (
+                            kw_term in title_lower
+                            or (_stem_keyword(kw_term) != kw_term and _stem_keyword(kw_term) in title_lower)
+                        )
                     )
-                    if title_hits >= 2:
-                        pass  # Strong title match - keep
+                    if distinctive_title_hits >= 1:
+                        pass  # Has distinctive keyword in title - keep
+                    elif kw > 50 or sem > 40:
+                        pass  # High relevance score - keep
                     else:
-                        # Single or zero title hits are not distinctive enough.
-                        # "Snipara VS Code Extension" matching just "snipara" is noise.
                         logger.debug(
-                            f"Skipping '{section.title}' (title_hits={title_hits} < 2, kw_score={kw:.1f}) "
-                            f"- insufficient relevance for multi-keyword query"
+                            f"Skipping '{section.title}' (distinctive_hits={distinctive_title_hits}, "
+                            f"kw={kw:.1f}, sem={sem:.1f}) - insufficient relevance"
                         )
                         continue
 
