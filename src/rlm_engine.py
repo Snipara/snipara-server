@@ -1742,34 +1742,11 @@ class RLMEngine:
             if count_tokens(section.content) >= min_useful_tokens
         ]
 
-        # ============ CONFIDENCE-BASED BUDGET ADJUSTMENT ============
-        # Compute confidence from top results and adjust budget accordingly
-        result_confidence = _compute_result_confidence(scored_sections, top_k=3)
-        adjusted_budget, adjusted_max_sections = _adjust_budget_by_confidence(
-            remaining_budget, result_confidence, query_type
-        )
-
-        # Apply query-type specific score threshold
-        score_threshold = query_type_params.get("score_threshold", 0)
-        if score_threshold > 0 and scored_sections:
-            before_threshold = len(scored_sections)
-            scored_sections = [
-                (s, sc) for s, sc in scored_sections if sc >= score_threshold
-            ]
-            if before_threshold != len(scored_sections):
-                logger.debug(
-                    f"Score threshold filter ({score_threshold}): "
-                    f"{before_threshold} → {len(scored_sections)} sections"
-                )
-
-        logger.info(
-            f"Confidence: {result_confidence:.2f}, query_type: {query_type.value}, "
-            f"budget: {remaining_budget} → {adjusted_budget}, "
-            f"max_sections: {query_type_params['max_sections']} → {adjusted_max_sections}"
-        )
-
-        # Update remaining budget with adjusted value
-        remaining_budget = min(adjusted_budget, max_tokens * 2)  # Safety cap
+        # ============ QUERY TYPE LOGGING (features disabled for now) ============
+        # NOTE: Confidence-based budget adjustment and score thresholds were causing
+        # precision/recall regression. Disabled pending further tuning.
+        # Keep query type detection for logging/debugging only.
+        logger.debug(f"Query type detected: {query_type.value}")
 
         # ---- Query specificity filter ----
         # Broad queries (e.g. "architecture") match many sections.  Compute
@@ -1795,8 +1772,7 @@ class RLMEngine:
 
         # Cap results to top-N sections.  Returning too many dilutes signal-to-noise
         # for the downstream LLM (e.g., 35 sections for a simple definition query).
-        # Use adjusted_max_sections from confidence-based adjustment
-        max_sections = adjusted_max_sections
+        max_sections = 15
         scored_sections = scored_sections[:max_sections]
 
         # ---- Title + content dedup ----
