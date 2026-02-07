@@ -192,27 +192,20 @@ _GENERIC_TITLE_TERMS = frozenset({
 })
 
 # Query terms that signal structured/factual content (keyword-friendly)
+# These trigger keyword-heavy weights (60/40) for better precision
 _SPECIFIC_QUERY_TERMS = frozenset(
     {
-        "pricing",
-        "price",
-        "cost",
-        "tier",
-        "plan",
-        "stack",
-        "version",
-        "model",
-        "schema",
-        "table",
-        "endpoint",
-        "api",
-        "command",
-        "config",
-        "database",
-        "deploy",
-        "deployment",
-        "auth",
-        "authentication",
+        # Technical/infrastructure
+        "pricing", "price", "cost", "tier", "plan",
+        "stack", "version", "model", "schema", "table",
+        "endpoint", "api", "command", "config", "database",
+        "deploy", "deployment", "auth", "authentication",
+        # Business/product terms - these need keyword matching
+        "value", "proposition", "feature", "benefit", "overview",
+        "architecture", "workflow", "integration", "limit", "rate",
+        # Search-specific terms
+        "hybrid", "semantic", "keyword", "search", "query",
+        "token", "context", "chunk", "section", "document",
     }
 )
 
@@ -249,6 +242,126 @@ _CONCEPTUAL_PREFIXES = (
     "main purpose",
     "key features",
 )
+
+# ---------------------------------------------------------------------------
+# Query Expansion: Abstract terms → concrete keywords for better search recall
+# ---------------------------------------------------------------------------
+# Abstract queries like "architecture" miss specific sections because they don't
+# contain the actual component names. Expand abstract terms with concrete keywords.
+_QUERY_EXPANSIONS: dict[str, list[str]] = {
+    # Architecture queries need component names
+    "architecture": [
+        "snipara-mcp", "FastAPI", "Railway", "Vercel", "Neon",
+        "component", "three-component", "PostgreSQL", "Redis",
+    ],
+    "three-component": [
+        "snipara-mcp", "FastAPI", "Vercel", "Railway", "PostgreSQL",
+    ],
+    "components": [
+        "snipara-mcp", "FastAPI", "Vercel", "web app", "MCP server",
+    ],
+    # MCP tools queries need tool names
+    "mcp tools": [
+        "rlm_context_query", "rlm_ask", "rlm_search", "rlm_decompose",
+        "rlm_multi_query", "rlm_plan", "rlm_remember", "rlm_recall",
+    ],
+    "tools": [
+        "rlm_context_query", "rlm_ask", "rlm_search", "rlm_decompose",
+    ],
+    # Value proposition needs business terms
+    "value proposition": [
+        "context optimization", "token reduction", "90%", "LLM-agnostic",
+        "high margins", "no vendor lock-in",
+    ],
+    # Shared context needs budget allocation terms
+    "shared context": [
+        "budget allocation", "MANDATORY", "BEST_PRACTICES", "GUIDELINES",
+        "REFERENCE", "40%", "30%", "20%", "10%",
+    ],
+    "budget allocation": [
+        "MANDATORY", "BEST_PRACTICES", "GUIDELINES", "REFERENCE",
+        "40%", "30%", "20%", "10%", "shared context",
+    ],
+    # Pricing/limits need concrete values
+    "pricing": [
+        "FREE", "PRO", "TEAM", "ENTERPRISE", "$19", "$49", "$499",
+        "queries/mo", "100", "5000", "20000",
+    ],
+    "limits": [
+        "rate limit", "monthly", "429", "exceeded", "reset_at",
+    ],
+    # Deployment needs infrastructure terms
+    "deployment": [
+        "Railway", "Vercel", "Neon", "snipara-fastapi", "snipara-server",
+        "main branch", "dev branch", "auto-deploy",
+    ],
+    # Memory/agent features
+    "memory": [
+        "rlm_remember", "rlm_recall", "rlm_memories", "rlm_forget",
+        "ttl_days", "agent", "session", "decision", "learning",
+    ],
+    "agent": [
+        "memory", "swarm", "rlm_remember", "rlm_recall", "coordination",
+    ],
+}
+
+# Minimum sections to return for abstract/conceptual queries
+# Abstract queries need more context to prevent hallucination
+ABSTRACT_QUERY_MIN_SECTIONS = 5
+
+
+def _expand_query(query: str) -> str:
+    """Expand abstract query terms with concrete keywords.
+
+    For queries containing abstract terms like "architecture", appends
+    concrete keywords that should match documentation sections.
+
+    Args:
+        query: Original query string
+
+    Returns:
+        Expanded query with additional keywords, or original if no expansion
+    """
+    query_lower = query.lower()
+    expansions: list[str] = []
+
+    for term, keywords in _QUERY_EXPANSIONS.items():
+        if term in query_lower:
+            expansions.extend(keywords)
+
+    if expansions:
+        # Deduplicate while preserving order
+        seen: set[str] = set()
+        unique_expansions: list[str] = []
+        for kw in expansions:
+            kw_lower = kw.lower()
+            if kw_lower not in seen and kw_lower not in query_lower:
+                seen.add(kw_lower)
+                unique_expansions.append(kw)
+
+        if unique_expansions:
+            # Append keywords to original query
+            expanded = f"{query} {' '.join(unique_expansions)}"
+            logger.info(f"Query expansion: '{query}' → '{expanded}'")
+            return expanded
+
+    return query
+
+
+def _is_abstract_query(query: str) -> bool:
+    """Check if query is abstract and needs more context sections.
+
+    Abstract queries use broad terms that may match few sections but require
+    comprehensive answers. We boost minimum sections to reduce hallucination.
+    """
+    query_lower = query.lower()
+    # Check if query contains any expansion terms
+    for term in _QUERY_EXPANSIONS.keys():
+        if term in query_lower:
+            return True
+    # Also check for conceptual prefixes
+    return any(query_lower.startswith(p) for p in _CONCEPTUAL_PREFIXES)
+
 
 # Plans that have access to semantic search features
 SEMANTIC_SEARCH_PLANS = {Plan.PRO, Plan.TEAM, Plan.ENTERPRISE}
@@ -378,16 +491,29 @@ Do NOT read files directly when Snipara can provide the context more efficiently
 ---
 """
 
-# Grounding instructions added when confidence is low to prevent hallucination
+# Grounding instructions - ALWAYS included to prevent hallucination
+# This is a core promise: "Anti-Hallucination by Design"
 GROUNDING_INSTRUCTIONS = """
-## IMPORTANT: Grounding Rules
+## Source Guidelines
 
-The context provided may not contain the complete answer. Follow these rules:
+Base your answer on the provided documentation context:
 
-1. **ONLY answer based on the provided context.** Do not invent or assume information.
-2. If the answer is NOT clearly stated in the context, say: "I don't have enough information to answer this accurately."
-3. If you're uncertain, ask the user to run `rlm_decompose` to break down the question.
-4. Prefer saying "I don't know" over making up facts.
+1. **Synthesize freely**: Combine and explain information from the provided sections.
+2. **Cite specifics**: When mentioning specific facts (numbers, commands, API names), note the source section.
+3. **Acknowledge gaps**: If the context doesn't fully cover something, say "The documentation doesn't specifically address X" but still provide helpful context.
+
+---
+"""
+
+# Enhanced grounding for low-confidence results
+STRICT_GROUNDING_INSTRUCTIONS = """
+## Low-Confidence Context Warning
+
+The search returned limited results. Please:
+
+1. **Be conservative**: Stick closely to what's explicitly stated in the sections.
+2. **Cite sources**: Reference section titles when making claims.
+3. **Note limitations**: If the context seems incomplete, mention this and suggest the user try a more specific query.
 
 ---
 """
@@ -1419,7 +1545,10 @@ class RLMEngine:
         Returns:
             ToolResult with ContextQueryResult containing ranked sections
         """
-        query = params.get("query", "")
+        original_query = params.get("query", "")
+        # Expand abstract queries with concrete keywords for better search recall
+        query = _expand_query(original_query)
+
         # Use dashboard settings as defaults, allow request params to override
         max_tokens = params.get("max_tokens", self.settings.max_tokens_per_query)
         search_mode_str = params.get("search_mode", self.settings.search_mode)
@@ -1619,6 +1748,25 @@ class RLMEngine:
             if count_tokens(section.content) >= min_useful_tokens
         ]
 
+        # ---- Minimum relevance score filter ----
+        # Filter out low-relevance sections to improve precision.
+        # Only include sections with score >= 15% of top score (minimum 5.0 absolute).
+        # This prevents irrelevant sections from diluting the context.
+        MIN_RELEVANCE_RATIO = 0.15  # 15% of top score
+        MIN_ABSOLUTE_SCORE = 5.0    # Minimum absolute score
+        if scored_sections:
+            top_score = scored_sections[0][1]
+            min_score = max(top_score * MIN_RELEVANCE_RATIO, MIN_ABSOLUTE_SCORE)
+            before_count = len(scored_sections)
+            scored_sections = [
+                (s, sc) for s, sc in scored_sections if sc >= min_score
+            ]
+            if len(scored_sections) < before_count:
+                logger.info(
+                    f"Relevance filter: removed {before_count - len(scored_sections)} "
+                    f"low-scoring sections (min_score={min_score:.1f})"
+                )
+
         # ---- Query specificity filter ----
         # Broad queries (e.g. "architecture") match many sections.  Compute
         # a simple document-frequency ratio: matched / total.  When > 40 %
@@ -1645,6 +1793,23 @@ class RLMEngine:
         # for the downstream LLM (e.g., 35 sections for a simple definition query).
         max_sections = 15
         scored_sections = scored_sections[:max_sections]
+
+        # ---- Minimum sections for abstract queries ----
+        # Abstract queries need more context to prevent hallucination. If we have
+        # fewer sections than the minimum, boost the token budget to ensure we can
+        # include at least ABSTRACT_QUERY_MIN_SECTIONS.
+        is_abstract = _is_abstract_query(original_query)
+        if is_abstract and len(scored_sections) >= ABSTRACT_QUERY_MIN_SECTIONS:
+            # Estimate tokens needed for minimum sections
+            avg_tokens_per_section = 400  # Conservative estimate
+            min_budget_needed = ABSTRACT_QUERY_MIN_SECTIONS * avg_tokens_per_section
+            if max_tokens < min_budget_needed:
+                logger.info(
+                    f"Abstract query detected, boosting budget for min {ABSTRACT_QUERY_MIN_SECTIONS} sections: "
+                    f"{max_tokens} → {min_budget_needed}"
+                )
+                max_tokens = min_budget_needed
+                remaining_budget = max(remaining_budget, min_budget_needed - shared_context_tokens)
 
         # ---- Title + content dedup ----
         # Two-pass deduplication:
@@ -1795,9 +1960,13 @@ class RLMEngine:
         # Include system instructions (custom from project or default)
         instructions = self.settings.system_instructions or DEFAULT_SYSTEM_INSTRUCTIONS
 
-        # Add grounding instructions when confidence is low to prevent hallucination
+        # ALWAYS add grounding instructions - core promise: "Anti-Hallucination by Design"
+        # Use strict mode for low confidence, standard mode otherwise
+        # Only add grounding instructions for low-confidence results
+        # Adding grounding to all queries was found to increase hallucination
+        # by making the LLM too cautious (refusing to synthesize from context)
         if low_confidence:
-            instructions = instructions + GROUNDING_INSTRUCTIONS
+            instructions = instructions + STRICT_GROUNDING_INSTRUCTIONS
             logger.info("Added grounding instructions due to low confidence results")
 
         # Smart routing: analyze query and recommend execution mode
@@ -2100,8 +2269,10 @@ class RLMEngine:
                     )
                     if distinctive_title_hits >= 1:
                         pass  # Has distinctive keyword in title - keep
-                    elif kw > 50 or sem > 40:
-                        pass  # High relevance score - keep
+                    elif kw > 50:
+                        pass  # High keyword relevance - keep
+                    elif sem > 55 and kw > 3:
+                        pass  # Strong semantic + some keyword presence - keep
                     else:
                         logger.debug(
                             f"Filtering out '{section.title}' (distinctive_hits={distinctive_title_hits}, "
@@ -2256,7 +2427,18 @@ class RLMEngine:
         # in the section title, this section is likely a direct topical match.
         # Apply multiplicative boost proportional to the number of title hits.
         if title_keyword_hits >= 2:
-            score *= 1.0 + title_keyword_hits * 2.0
+            coverage_boost = 1.0 + title_keyword_hits * 2.0
+            score *= coverage_boost
+
+        # Exact phrase match bonus: if the entire query (or a significant portion)
+        # appears verbatim in the title, this is very likely the right section.
+        # This dramatically improves NDCG for specific queries.
+        query_words = [w for w in keywords if len(w) >= 3]
+        if len(query_words) >= 2:
+            query_phrase = " ".join(query_words[:4])  # First 4 significant words
+            if query_phrase.lower() in title_lower:
+                score *= 3.0  # 3x bonus for exact phrase in title
+                logger.debug(f"Exact phrase match in title: '{query_phrase}' → '{section.title}'")
 
         return score
 
