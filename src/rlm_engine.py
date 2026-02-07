@@ -194,6 +194,7 @@ _GENERIC_TITLE_TERMS = frozenset({
 # Query terms that signal structured/factual content (keyword-friendly)
 _SPECIFIC_QUERY_TERMS = frozenset(
     {
+        # Technical/infrastructure
         "pricing",
         "price",
         "cost",
@@ -213,6 +214,28 @@ _SPECIFIC_QUERY_TERMS = frozenset(
         "deployment",
         "auth",
         "authentication",
+        # Business/product terms - these need keyword matching
+        "value",
+        "proposition",
+        "feature",
+        "benefit",
+        "overview",
+        "architecture",
+        "workflow",
+        "integration",
+        "limit",
+        "rate",
+        # Search-specific terms
+        "hybrid",
+        "semantic",
+        "keyword",
+        "search",
+        "query",
+        "token",
+        "context",
+        "chunk",
+        "section",
+        "document",
     }
 )
 
@@ -2100,8 +2123,10 @@ class RLMEngine:
                     )
                     if distinctive_title_hits >= 1:
                         pass  # Has distinctive keyword in title - keep
-                    elif kw > 50 or sem > 40:
-                        pass  # High relevance score - keep
+                    elif kw > 50:
+                        pass  # High keyword relevance - keep
+                    elif sem > 55 and kw > 3:
+                        pass  # Strong semantic + some keyword presence - keep
                     else:
                         logger.debug(
                             f"Filtering out '{section.title}' (distinctive_hits={distinctive_title_hits}, "
