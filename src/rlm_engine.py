@@ -374,6 +374,27 @@ Do NOT read files directly when Snipara can provide the context more efficiently
 ---
 """
 
+# Grounding instructions added when confidence is low to prevent hallucination
+GROUNDING_INSTRUCTIONS = """
+## IMPORTANT: Grounding Rules
+
+The context provided may not contain the complete answer. Follow these rules:
+
+1. **ONLY answer based on the provided context.** Do not invent or assume information.
+2. If the answer is NOT clearly stated in the context, say: "I don't have enough information to answer this accurately."
+3. If you're uncertain, ask the user to run `rlm_decompose` to break down the question.
+4. Prefer saying "I don't know" over making up facts.
+
+---
+"""
+
+# Minimum token budget for conceptual queries (to reduce hallucination)
+CONCEPTUAL_QUERY_MIN_TOKENS = 4000
+# Score threshold below which we consider results "low confidence"
+LOW_CONFIDENCE_SCORE_THRESHOLD = 15.0
+# Token budget expansion factor when confidence is low
+LOW_CONFIDENCE_TOKEN_MULTIPLIER = 1.5
+
 # First-query tool tips - injected only on the first query of a session
 # This helps users understand all available tools without wasting tokens on every query
 # Tips are plan-filtered: users only see tools available to their plan
@@ -1321,6 +1342,16 @@ class RLMEngine:
         include_shared_context = params.get("include_shared_context", True)
         shared_context_budget_percent = params.get("shared_context_budget_percent", 30)
 
+        # Detect conceptual queries and boost token budget to reduce hallucination
+        query_lower = query.lower()
+        is_conceptual_query = any(query_lower.startswith(p) for p in _CONCEPTUAL_PREFIXES)
+        if is_conceptual_query and max_tokens < CONCEPTUAL_QUERY_MIN_TOKENS:
+            logger.info(
+                f"Conceptual query detected, boosting token budget: "
+                f"{max_tokens} → {CONCEPTUAL_QUERY_MIN_TOKENS}"
+            )
+            max_tokens = CONCEPTUAL_QUERY_MIN_TOKENS
+
         # Parse search mode
         try:
             search_mode = SearchMode(search_mode_str)
@@ -1471,6 +1502,25 @@ class RLMEngine:
         # ============ LOCAL PROJECT SCOPE ============
         # Score and rank sections from local project
         scored_sections = await self._score_sections(query, search_mode)
+
+        # ============ CONFIDENCE-BASED EXPANSION ============
+        # If top results have low scores, expand token budget and add grounding.
+        # This reduces hallucination by providing more context when uncertain.
+        low_confidence = False
+        if scored_sections:
+            top_score = scored_sections[0][1] if scored_sections else 0
+            if top_score < LOW_CONFIDENCE_SCORE_THRESHOLD:
+                low_confidence = True
+                # Expand budget to get more context
+                expanded_budget = int(max_tokens * LOW_CONFIDENCE_TOKEN_MULTIPLIER)
+                # Also expand remaining_budget proportionally
+                expansion_ratio = expanded_budget / max_tokens
+                remaining_budget = int(remaining_budget * expansion_ratio)
+                logger.info(
+                    f"Low confidence detected (top_score={top_score:.1f} < {LOW_CONFIDENCE_SCORE_THRESHOLD}), "
+                    f"expanding token budget: {max_tokens} → {expanded_budget}"
+                )
+                max_tokens = expanded_budget
 
         # Filter out shallow sections (just headings with < 30 tokens of content).
         # These waste context budget slots without contributing useful information.
@@ -1656,6 +1706,11 @@ class RLMEngine:
 
         # Include system instructions (custom from project or default)
         instructions = self.settings.system_instructions or DEFAULT_SYSTEM_INSTRUCTIONS
+
+        # Add grounding instructions when confidence is low to prevent hallucination
+        if low_confidence:
+            instructions = instructions + GROUNDING_INSTRUCTIONS
+            logger.info("Added grounding instructions due to low confidence results")
 
         # Smart routing: analyze query and recommend execution mode
         routing_decision = route_query(query, context_tokens=total_tokens)
