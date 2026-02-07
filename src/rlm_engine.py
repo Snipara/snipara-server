@@ -491,16 +491,35 @@ Do NOT read files directly when Snipara can provide the context more efficiently
 ---
 """
 
-# Grounding instructions added when confidence is low to prevent hallucination
+# Grounding instructions - ALWAYS included to prevent hallucination
+# This is a core promise: "Anti-Hallucination by Design"
 GROUNDING_INSTRUCTIONS = """
-## IMPORTANT: Grounding Rules
+## CRITICAL: Anti-Hallucination Rules
 
-The context provided may not contain the complete answer. Follow these rules:
+You MUST follow these rules to prevent hallucination:
 
-1. **ONLY answer based on the provided context.** Do not invent or assume information.
-2. If the answer is NOT clearly stated in the context, say: "I don't have enough information to answer this accurately."
-3. If you're uncertain, ask the user to run `rlm_decompose` to break down the question.
-4. Prefer saying "I don't know" over making up facts.
+1. **ONLY use information from the provided context sections.** Never invent facts.
+2. **Cite sources**: Reference the section title when making claims. Example: "According to [Three-Component Architecture], ..."
+3. **If not in context, say so**: If information is NOT in the provided sections, respond with:
+   "This information is not available in the documentation. The provided context covers: [list section titles]"
+4. **Never guess**: If uncertain, say "I don't have enough context to answer this accurately" rather than guessing.
+5. **No external knowledge**: Do not use knowledge from your training data - only the provided sections.
+
+---
+"""
+
+# Enhanced grounding for strict anti-hallucination mode
+STRICT_GROUNDING_INSTRUCTIONS = """
+## STRICT: Zero-Hallucination Mode
+
+CRITICAL RULES - Any violation is a failure:
+
+1. **ABSOLUTE GROUNDING**: Every factual claim MUST be traceable to a specific section in the context.
+2. **MANDATORY CITATIONS**: Format: "According to [Section Title]: <exact or paraphrased content>"
+3. **NOT FOUND = SAY SO**: If the answer is not in the context, respond ONLY with:
+   "❌ Not found in documentation. Available sections: [list titles]. Try a more specific query."
+4. **NO GUESSING**: Zero tolerance for invented details, numbers, or names not in context.
+5. **PARTIAL = ACKNOWLEDGE**: If context has partial info, state what IS available and what's MISSING.
 
 ---
 """
@@ -1735,6 +1754,25 @@ class RLMEngine:
             if count_tokens(section.content) >= min_useful_tokens
         ]
 
+        # ---- Minimum relevance score filter ----
+        # Filter out low-relevance sections to improve precision.
+        # Only include sections with score >= 15% of top score (minimum 5.0 absolute).
+        # This prevents irrelevant sections from diluting the context.
+        MIN_RELEVANCE_RATIO = 0.15  # 15% of top score
+        MIN_ABSOLUTE_SCORE = 5.0    # Minimum absolute score
+        if scored_sections:
+            top_score = scored_sections[0][1]
+            min_score = max(top_score * MIN_RELEVANCE_RATIO, MIN_ABSOLUTE_SCORE)
+            before_count = len(scored_sections)
+            scored_sections = [
+                (s, sc) for s, sc in scored_sections if sc >= min_score
+            ]
+            if len(scored_sections) < before_count:
+                logger.info(
+                    f"Relevance filter: removed {before_count - len(scored_sections)} "
+                    f"low-scoring sections (min_score={min_score:.1f})"
+                )
+
         # ---- Query specificity filter ----
         # Broad queries (e.g. "architecture") match many sections.  Compute
         # a simple document-frequency ratio: matched / total.  When > 40 %
@@ -1928,10 +1966,14 @@ class RLMEngine:
         # Include system instructions (custom from project or default)
         instructions = self.settings.system_instructions or DEFAULT_SYSTEM_INSTRUCTIONS
 
-        # Add grounding instructions when confidence is low to prevent hallucination
+        # ALWAYS add grounding instructions - core promise: "Anti-Hallucination by Design"
+        # Use strict mode for low confidence, standard mode otherwise
         if low_confidence:
+            instructions = instructions + STRICT_GROUNDING_INSTRUCTIONS
+            logger.info("Added STRICT grounding instructions due to low confidence results")
+        else:
             instructions = instructions + GROUNDING_INSTRUCTIONS
-            logger.info("Added grounding instructions due to low confidence results")
+            logger.info("Added standard grounding instructions")
 
         # Smart routing: analyze query and recommend execution mode
         routing_decision = route_query(query, context_tokens=total_tokens)
@@ -2391,7 +2433,18 @@ class RLMEngine:
         # in the section title, this section is likely a direct topical match.
         # Apply multiplicative boost proportional to the number of title hits.
         if title_keyword_hits >= 2:
-            score *= 1.0 + title_keyword_hits * 2.0
+            coverage_boost = 1.0 + title_keyword_hits * 2.0
+            score *= coverage_boost
+
+        # Exact phrase match bonus: if the entire query (or a significant portion)
+        # appears verbatim in the title, this is very likely the right section.
+        # This dramatically improves NDCG for specific queries.
+        query_words = [w for w in keywords if len(w) >= 3]
+        if len(query_words) >= 2:
+            query_phrase = " ".join(query_words[:4])  # First 4 significant words
+            if query_phrase.lower() in title_lower:
+                score *= 3.0  # 3x bonus for exact phrase in title
+                logger.debug(f"Exact phrase match in title: '{query_phrase}' → '{section.title}'")
 
         return score
 
