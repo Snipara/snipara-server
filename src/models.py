@@ -1,7 +1,7 @@
 """Pydantic models for RLM MCP Server request/response schemas."""
 
 from datetime import datetime
-from enum import StrEnum
+from enum import Enum
 from typing import Any
 
 from pydantic import BaseModel, Field
@@ -9,7 +9,7 @@ from pydantic import BaseModel, Field
 # ============ ENUMS ============
 
 
-class ToolName(StrEnum):
+class ToolName(str, Enum):
     """Available RLM tools."""
 
     RLM_ASK = "rlm_ask"
@@ -64,9 +64,11 @@ class ToolName(StrEnum):
     RLM_ORCHESTRATE = "rlm_orchestrate"
     # Phase 13: REPL Context Bridge
     RLM_REPL_CONTEXT = "rlm_repl_context"
+    # Phase 14: Pass-by-Reference (reduce hallucination)
+    RLM_GET_CHUNK = "rlm_get_chunk"
 
 
-class SearchMode(StrEnum):
+class SearchMode(str, Enum):
     """Search mode for context queries."""
 
     KEYWORD = "keyword"
@@ -74,7 +76,7 @@ class SearchMode(StrEnum):
     HYBRID = "hybrid"  # Future: keyword + semantic
 
 
-class Plan(StrEnum):
+class Plan(str, Enum):
     """Subscription plans."""
 
     FREE = "FREE"
@@ -141,6 +143,12 @@ class ContextQueryParams(BaseModel):
     prefer_summaries: bool = Field(
         default=False,
         description="Prefer stored summaries over full document content when available",
+    )
+    return_references: bool = Field(
+        default=False,
+        description="Return chunk references (IDs + previews) instead of full content. "
+        "Use rlm_get_chunk to retrieve full content by ID. Reduces hallucination by "
+        "maintaining clear source attribution.",
     )
 
 
@@ -283,13 +291,53 @@ class ContextSection(BaseModel):
     )
 
 
+class ContextSectionRef(BaseModel):
+    """A chunk reference returned when return_references=True.
+
+    Pass-by-reference architecture: returns chunk IDs + previews instead of full content.
+    Use rlm_get_chunk(chunk_id) to retrieve full content when needed.
+    This reduces hallucination by maintaining clear source attribution.
+    """
+
+    chunk_id: str = Field(..., description="Unique chunk identifier for retrieval via rlm_get_chunk")
+    title: str = Field(..., description="Section title/heading")
+    preview: str = Field(..., description="First ~100 characters of content for context")
+    file: str = Field(..., description="Source file path")
+    lines: tuple[int, int] = Field(..., description="Start and end line numbers")
+    relevance_score: float = Field(..., ge=0.0, le=1.0, description="Relevance score (0-1)")
+    token_count: int = Field(..., ge=0, description="Full content token count (for budget planning)")
+    keyword_score: float = Field(default=0.0, description="Keyword match score (for debugging)")
+    semantic_score: float = Field(default=0.0, description="Semantic similarity score (for debugging)")
+
+
+class GetChunkResult(BaseModel):
+    """Result of rlm_get_chunk tool - retrieves full content by chunk ID."""
+
+    chunk_id: str = Field(..., description="The chunk ID that was requested")
+    title: str = Field(..., description="Section title/heading")
+    content: str = Field(..., description="Full section content")
+    file: str = Field(..., description="Source file path")
+    lines: tuple[int, int] = Field(..., description="Start and end line numbers")
+    token_count: int = Field(..., ge=0, description="Token count for this section")
+    found: bool = Field(default=True, description="Whether the chunk was found")
+
+
 class ContextQueryResult(BaseModel):
     """Result of rlm_context_query tool - optimized context for the client's LLM."""
 
     sections: list[ContextSection] = Field(
-        default_factory=list, description="Ranked list of relevant sections"
+        default_factory=list, description="Ranked list of relevant sections (when return_references=False)"
     )
-    total_tokens: int = Field(..., ge=0, description="Total tokens returned")
+    section_refs: list[ContextSectionRef] = Field(
+        default_factory=list,
+        description="Chunk references with IDs + previews (when return_references=True). "
+        "Use rlm_get_chunk(chunk_id) to retrieve full content.",
+    )
+    references_mode: bool = Field(
+        default=False,
+        description="True if returning references instead of full content",
+    )
+    total_tokens: int = Field(..., ge=0, description="Total tokens returned (preview tokens if references_mode)")
     max_tokens: int = Field(..., description="Token budget that was requested")
     query: str = Field(..., description="Original query")
     search_mode: SearchMode = Field(..., description="Search mode used")
@@ -330,12 +378,31 @@ class ContextQueryResult(BaseModel):
         default=False,
         description="Whether first-query tool tips were included (shown only on first query)",
     )
+    # Smart Routing Hints (helps clients decide when to use RLM-Runtime)
+    routing_recommendation: str | None = Field(
+        default=None,
+        description="Recommended execution mode: 'direct' (use context as-is) or 'rlm_runtime' (use RLM for complex reasoning)",
+    )
+    routing_confidence: float | None = Field(
+        default=None,
+        ge=0.0,
+        le=1.0,
+        description="Confidence score (0-1) for the routing recommendation",
+    )
+    routing_reason: str | None = Field(
+        default=None,
+        description="Human-readable explanation for routing recommendation",
+    )
+    query_complexity: str | None = Field(
+        default=None,
+        description="Assessed query complexity: 'simple', 'moderate', or 'complex'",
+    )
 
 
 # ============ RECURSIVE CONTEXT MODELS (Phase 4.5) ============
 
 
-class DecomposeStrategy(StrEnum):
+class DecomposeStrategy(str, Enum):
     """Strategy for query decomposition."""
 
     AUTO = "auto"  # Let the engine decide
@@ -343,7 +410,7 @@ class DecomposeStrategy(StrEnum):
     STRUCTURAL = "structural"  # Follow document structure
 
 
-class PlanStrategy(StrEnum):
+class PlanStrategy(str, Enum):
     """Strategy for execution planning."""
 
     BREADTH_FIRST = "breadth_first"
@@ -468,7 +535,7 @@ class PlanResult(BaseModel):
 # ============ SUMMARY STORAGE MODELS (Phase 4.6) ============
 
 
-class SummaryType(StrEnum):
+class SummaryType(str, Enum):
     """Type of summary stored."""
 
     CONCISE = "concise"  # Brief 1-2 sentence summary
@@ -563,7 +630,7 @@ class DeleteSummaryResult(BaseModel):
 # ============ SHARED CONTEXT MODELS (Phase 7) ============
 
 
-class DocumentCategoryEnum(StrEnum):
+class DocumentCategoryEnum(str, Enum):
     """Document category for token budget allocation."""
 
     MANDATORY = "MANDATORY"
@@ -676,7 +743,7 @@ class GetTemplateResult(BaseModel):
 # ============ AGENT MEMORY MODELS (Phase 8.2) ============
 
 
-class AgentMemoryType(StrEnum):
+class AgentMemoryType(str, Enum):
     """Type of agent memory."""
 
     FACT = "fact"  # Objective information
@@ -687,7 +754,7 @@ class AgentMemoryType(StrEnum):
     CONTEXT = "context"  # General session context
 
 
-class AgentMemoryScope(StrEnum):
+class AgentMemoryScope(str, Enum):
     """Scope of agent memory visibility."""
 
     AGENT = "agent"  # Specific to one agent/session
