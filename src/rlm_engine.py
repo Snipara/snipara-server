@@ -494,32 +494,26 @@ Do NOT read files directly when Snipara can provide the context more efficiently
 # Grounding instructions - ALWAYS included to prevent hallucination
 # This is a core promise: "Anti-Hallucination by Design"
 GROUNDING_INSTRUCTIONS = """
-## CRITICAL: Anti-Hallucination Rules
+## Source Guidelines
 
-You MUST follow these rules to prevent hallucination:
+Base your answer on the provided documentation context:
 
-1. **ONLY use information from the provided context sections.** Never invent facts.
-2. **Cite sources**: Reference the section title when making claims. Example: "According to [Three-Component Architecture], ..."
-3. **If not in context, say so**: If information is NOT in the provided sections, respond with:
-   "This information is not available in the documentation. The provided context covers: [list section titles]"
-4. **Never guess**: If uncertain, say "I don't have enough context to answer this accurately" rather than guessing.
-5. **No external knowledge**: Do not use knowledge from your training data - only the provided sections.
+1. **Synthesize freely**: Combine and explain information from the provided sections.
+2. **Cite specifics**: When mentioning specific facts (numbers, commands, API names), note the source section.
+3. **Acknowledge gaps**: If the context doesn't fully cover something, say "The documentation doesn't specifically address X" but still provide helpful context.
 
 ---
 """
 
-# Enhanced grounding for strict anti-hallucination mode
+# Enhanced grounding for low-confidence results
 STRICT_GROUNDING_INSTRUCTIONS = """
-## STRICT: Zero-Hallucination Mode
+## Low-Confidence Context Warning
 
-CRITICAL RULES - Any violation is a failure:
+The search returned limited results. Please:
 
-1. **ABSOLUTE GROUNDING**: Every factual claim MUST be traceable to a specific section in the context.
-2. **MANDATORY CITATIONS**: Format: "According to [Section Title]: <exact or paraphrased content>"
-3. **NOT FOUND = SAY SO**: If the answer is not in the context, respond ONLY with:
-   "❌ Not found in documentation. Available sections: [list titles]. Try a more specific query."
-4. **NO GUESSING**: Zero tolerance for invented details, numbers, or names not in context.
-5. **PARTIAL = ACKNOWLEDGE**: If context has partial info, state what IS available and what's MISSING.
+1. **Be conservative**: Stick closely to what's explicitly stated in the sections.
+2. **Cite sources**: Reference section titles when making claims.
+3. **Note limitations**: If the context seems incomplete, mention this and suggest the user try a more specific query.
 
 ---
 """
