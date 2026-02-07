@@ -243,6 +243,126 @@ _CONCEPTUAL_PREFIXES = (
     "key features",
 )
 
+# ---------------------------------------------------------------------------
+# Query Expansion: Abstract terms → concrete keywords for better search recall
+# ---------------------------------------------------------------------------
+# Abstract queries like "architecture" miss specific sections because they don't
+# contain the actual component names. Expand abstract terms with concrete keywords.
+_QUERY_EXPANSIONS: dict[str, list[str]] = {
+    # Architecture queries need component names
+    "architecture": [
+        "snipara-mcp", "FastAPI", "Railway", "Vercel", "Neon",
+        "component", "three-component", "PostgreSQL", "Redis",
+    ],
+    "three-component": [
+        "snipara-mcp", "FastAPI", "Vercel", "Railway", "PostgreSQL",
+    ],
+    "components": [
+        "snipara-mcp", "FastAPI", "Vercel", "web app", "MCP server",
+    ],
+    # MCP tools queries need tool names
+    "mcp tools": [
+        "rlm_context_query", "rlm_ask", "rlm_search", "rlm_decompose",
+        "rlm_multi_query", "rlm_plan", "rlm_remember", "rlm_recall",
+    ],
+    "tools": [
+        "rlm_context_query", "rlm_ask", "rlm_search", "rlm_decompose",
+    ],
+    # Value proposition needs business terms
+    "value proposition": [
+        "context optimization", "token reduction", "90%", "LLM-agnostic",
+        "high margins", "no vendor lock-in",
+    ],
+    # Shared context needs budget allocation terms
+    "shared context": [
+        "budget allocation", "MANDATORY", "BEST_PRACTICES", "GUIDELINES",
+        "REFERENCE", "40%", "30%", "20%", "10%",
+    ],
+    "budget allocation": [
+        "MANDATORY", "BEST_PRACTICES", "GUIDELINES", "REFERENCE",
+        "40%", "30%", "20%", "10%", "shared context",
+    ],
+    # Pricing/limits need concrete values
+    "pricing": [
+        "FREE", "PRO", "TEAM", "ENTERPRISE", "$19", "$49", "$499",
+        "queries/mo", "100", "5000", "20000",
+    ],
+    "limits": [
+        "rate limit", "monthly", "429", "exceeded", "reset_at",
+    ],
+    # Deployment needs infrastructure terms
+    "deployment": [
+        "Railway", "Vercel", "Neon", "snipara-fastapi", "snipara-server",
+        "main branch", "dev branch", "auto-deploy",
+    ],
+    # Memory/agent features
+    "memory": [
+        "rlm_remember", "rlm_recall", "rlm_memories", "rlm_forget",
+        "ttl_days", "agent", "session", "decision", "learning",
+    ],
+    "agent": [
+        "memory", "swarm", "rlm_remember", "rlm_recall", "coordination",
+    ],
+}
+
+# Minimum sections to return for abstract/conceptual queries
+# Abstract queries need more context to prevent hallucination
+ABSTRACT_QUERY_MIN_SECTIONS = 5
+
+
+def _expand_query(query: str) -> str:
+    """Expand abstract query terms with concrete keywords.
+
+    For queries containing abstract terms like "architecture", appends
+    concrete keywords that should match documentation sections.
+
+    Args:
+        query: Original query string
+
+    Returns:
+        Expanded query with additional keywords, or original if no expansion
+    """
+    query_lower = query.lower()
+    expansions: list[str] = []
+
+    for term, keywords in _QUERY_EXPANSIONS.items():
+        if term in query_lower:
+            expansions.extend(keywords)
+
+    if expansions:
+        # Deduplicate while preserving order
+        seen: set[str] = set()
+        unique_expansions: list[str] = []
+        for kw in expansions:
+            kw_lower = kw.lower()
+            if kw_lower not in seen and kw_lower not in query_lower:
+                seen.add(kw_lower)
+                unique_expansions.append(kw)
+
+        if unique_expansions:
+            # Append keywords to original query
+            expanded = f"{query} {' '.join(unique_expansions)}"
+            logger.info(f"Query expansion: '{query}' → '{expanded}'")
+            return expanded
+
+    return query
+
+
+def _is_abstract_query(query: str) -> bool:
+    """Check if query is abstract and needs more context sections.
+
+    Abstract queries use broad terms that may match few sections but require
+    comprehensive answers. We boost minimum sections to reduce hallucination.
+    """
+    query_lower = query.lower()
+    # Check if query contains any expansion terms
+    for term in _QUERY_EXPANSIONS.keys():
+        if term in query_lower:
+            return True
+    # Also check for conceptual prefixes
+    return any(query_lower.startswith(p) for p in _CONCEPTUAL_PREFIXES)
+
+
 # Plans that have access to semantic search features
 SEMANTIC_SEARCH_PLANS = {Plan.PRO, Plan.TEAM, Plan.ENTERPRISE}
 
