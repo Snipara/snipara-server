@@ -1962,12 +1962,12 @@ class RLMEngine:
 
         # ALWAYS add grounding instructions - core promise: "Anti-Hallucination by Design"
         # Use strict mode for low confidence, standard mode otherwise
+        # Only add grounding instructions for low-confidence results
+        # Adding grounding to all queries was found to increase hallucination
+        # by making the LLM too cautious (refusing to synthesize from context)
         if low_confidence:
             instructions = instructions + STRICT_GROUNDING_INSTRUCTIONS
-            logger.info("Added STRICT grounding instructions due to low confidence results")
-        else:
-            instructions = instructions + GROUNDING_INSTRUCTIONS
-            logger.info("Added standard grounding instructions")
+            logger.info("Added grounding instructions due to low confidence results")
 
         # Smart routing: analyze query and recommend execution mode
         routing_decision = route_query(query, context_tokens=total_tokens)
