@@ -42,6 +42,7 @@ from .models import (
 )
 from .rlm_engine import RLMEngine, count_tokens
 from .services.agent_memory import semantic_recall, store_memory
+from .services.indexer import get_indexer
 from .usage import (
     check_ip_rate_limit,
     check_rate_limit,
@@ -1066,6 +1067,72 @@ async def get_stats(
 
     stats = await get_usage_stats(project_id, days)
     return {"project_id": project_id, **stats}
+
+
+@app.post("/v1/{project_id}/reindex", tags=["MCP"])
+async def reindex_project(
+    project_id: str,
+    x_api_key: Annotated[str | None, Header(alias="X-API-Key")] = None,
+    x_internal_secret: Annotated[str | None, Header(alias="X-Internal-Secret")] = None,
+):
+    """
+    Trigger re-indexing of all documents in a project.
+
+    This creates or updates document chunks with embeddings for
+    semantic search. Call this after syncing documents from GitHub
+    or bulk uploading documents.
+
+    Supports two authentication methods:
+    1. X-API-Key header (normal API key authentication)
+    2. X-Internal-Secret header (server-to-server authentication)
+
+    Args:
+        project_id: The project ID or slug
+        x_api_key: API key from X-API-Key header (optional)
+        x_internal_secret: Internal secret for server-to-server calls (optional)
+
+    Returns:
+        Results with document paths and chunk counts
+    """
+    db = await get_db()
+
+    # Check authentication - either API key or internal secret
+    if x_internal_secret:
+        # Internal server-to-server authentication
+        if not settings.internal_api_secret:
+            raise HTTPException(status_code=500, detail="Internal API secret not configured")
+        if x_internal_secret != settings.internal_api_secret:
+            raise HTTPException(status_code=401, detail="Invalid internal secret")
+
+        # Look up project directly (no user context needed for internal calls)
+        project = await db.project.find_first(where={"id": project_id})
+        if not project:
+            # Try by slug
+            project = await db.project.find_first(where={"slug": project_id})
+        if not project:
+            raise HTTPException(status_code=404, detail="Project not found")
+    elif x_api_key:
+        # Normal API key authentication
+        _, project, _, _ = await validate_and_rate_limit(project_id, x_api_key)
+    else:
+        raise HTTPException(
+            status_code=401,
+            detail="Authentication required: X-API-Key or X-Internal-Secret header"
+        )
+
+    # Get indexer and run indexing
+    indexer = await get_indexer(db)
+    results = await indexer.index_project(project.id)
+
+    total_chunks = sum(results.values())
+    logger.info(f"Reindexed project {project.id}: {len(results)} docs, {total_chunks} chunks")
+
+    return {
+        "project_id": project.id,
+        "documents_indexed": len(results),
+        "total_chunks": total_chunks,
+        "results": results,
+    }
 
 
 # ============ MEMORY REST API (Automation Hooks) ============

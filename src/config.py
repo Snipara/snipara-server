@@ -65,6 +65,10 @@ class Settings(BaseSettings):
     # Self-hosted license key (optional)
     snipara_license_key: str = ""
 
+    # Internal API secret for server-to-server calls (e.g., web app → MCP server)
+    # Used by reindex endpoint and other internal operations
+    internal_api_secret: str = ""
+
     # Sentry error tracking (optional)
     sentry_dsn: str = ""
 
