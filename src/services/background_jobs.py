@@ -93,17 +93,18 @@ async def _claim_next_job(db: Prisma) -> IndexJob | None:
 
     # Try to claim a pending job or a stale running job
     # Using raw SQL for atomic update with RETURNING
+    # Note: Convert datetime to ISO string for Prisma query_raw compatibility
     result = await db.query_raw(
-        '''
+        """
         UPDATE index_jobs
         SET status = 'RUNNING',
             "workerId" = $1,
-            "startedAt" = CASE WHEN "startedAt" IS NULL THEN $2 ELSE "startedAt" END,
-            "updatedAt" = $2
+            "startedAt" = CASE WHEN "startedAt" IS NULL THEN $2::timestamp ELSE "startedAt" END,
+            "updatedAt" = $2::timestamp
         WHERE id = (
             SELECT id FROM index_jobs
             WHERE (status = 'PENDING')
-               OR (status = 'RUNNING' AND "updatedAt" < $3 AND "retryCount" < "maxRetries")
+               OR (status = 'RUNNING' AND "updatedAt" < $3::timestamp AND "retryCount" < "maxRetries")
             ORDER BY
                 CASE WHEN status = 'PENDING' THEN 0 ELSE 1 END,
                 "createdAt" ASC
@@ -114,10 +115,10 @@ async def _claim_next_job(db: Prisma) -> IndexJob | None:
                   "chunksCreated", "retryCount", "maxRetries", "errorMessage",
                   "createdAt", "startedAt", "completedAt", "updatedAt",
                   "triggeredBy", "triggeredVia", "workerId", results
-        ''',
+        """,
         _worker_id,
-        now,
-        stale_cutoff,
+        now.isoformat(),
+        stale_cutoff.isoformat(),
     )
 
     if not result:
@@ -129,11 +130,11 @@ async def _claim_next_job(db: Prisma) -> IndexJob | None:
     # If this was a stale job, increment retry count
     if row.get("retryCount", 0) > 0 or row.get("errorMessage"):
         await db.execute_raw(
-            '''
+            """
             UPDATE index_jobs
             SET "retryCount" = "retryCount" + 1, "errorMessage" = NULL
             WHERE id = $1
-            ''',
+            """,
             row["id"],
         )
 
@@ -174,11 +175,11 @@ async def _process_index_job(db: Prisma, job: dict) -> None:
 
     # Update total count
     await db.execute_raw(
-        '''
+        """
         UPDATE index_jobs
         SET "documentsTotal" = $1, "updatedAt" = NOW()
         WHERE id = $2
-        ''',
+        """,
         total_docs,
         job_id,
     )
@@ -215,14 +216,14 @@ async def _update_progress(
 ) -> None:
     """Update job progress."""
     await db.execute_raw(
-        '''
+        """
         UPDATE index_jobs
         SET progress = $1,
             "documentsProcessed" = $2,
             "chunksCreated" = $3,
             "updatedAt" = NOW()
         WHERE id = $4 AND "workerId" = $5
-        ''',
+        """,
         progress,
         docs_processed,
         chunks_created,
@@ -238,7 +239,7 @@ async def _complete_job(
     import json
 
     await db.execute_raw(
-        '''
+        """
         UPDATE index_jobs
         SET status = 'COMPLETED',
             progress = 100,
@@ -248,7 +249,7 @@ async def _complete_job(
             "updatedAt" = NOW(),
             results = $3::jsonb
         WHERE id = $4 AND "workerId" = $5
-        ''',
+        """,
         docs_indexed,
         chunks_created,
         json.dumps(results),
@@ -262,11 +263,11 @@ async def _fail_job(db: Prisma, job_id: str, error_message: str) -> None:
     """Mark a job as failed."""
     # Check if we should retry
     result = await db.query_raw(
-        '''
+        """
         SELECT "retryCount", "maxRetries"
         FROM index_jobs
         WHERE id = $1
-        ''',
+        """,
         job_id,
     )
 
@@ -278,14 +279,14 @@ async def _fail_job(db: Prisma, job_id: str, error_message: str) -> None:
         if retry_count < max_retries:
             # Reset to PENDING for retry
             await db.execute_raw(
-                '''
+                """
                 UPDATE index_jobs
                 SET status = 'PENDING',
                     "errorMessage" = $1,
                     "workerId" = NULL,
                     "updatedAt" = NOW()
                 WHERE id = $2
-                ''',
+                """,
                 error_message,
                 job_id,
             )
@@ -293,14 +294,14 @@ async def _fail_job(db: Prisma, job_id: str, error_message: str) -> None:
         else:
             # Max retries exceeded, mark as failed
             await db.execute_raw(
-                '''
+                """
                 UPDATE index_jobs
                 SET status = 'FAILED',
                     "errorMessage" = $1,
                     "completedAt" = NOW(),
                     "updatedAt" = NOW()
                 WHERE id = $2
-                ''',
+                """,
                 error_message,
                 job_id,
             )
@@ -320,13 +321,13 @@ async def create_index_job(
     """
     # Check if there's already a pending/running job for this project
     existing = await db.query_raw(
-        '''
+        """
         SELECT id, status, progress, "createdAt"
         FROM index_jobs
         WHERE "projectId" = $1 AND status IN ('PENDING', 'RUNNING')
         ORDER BY "createdAt" DESC
         LIMIT 1
-        ''',
+        """,
         project_id,
     )
 
@@ -344,11 +345,11 @@ async def create_index_job(
 
     # Create new job
     result = await db.query_raw(
-        '''
+        """
         INSERT INTO index_jobs (id, "projectId", status, progress, "createdAt", "updatedAt", "triggeredBy", "triggeredVia")
         VALUES (gen_random_uuid()::text, $1, 'PENDING', 0, NOW(), NOW(), $2, $3)
         RETURNING id, "projectId", status, progress, "createdAt"
-        ''',
+        """,
         project_id,
         triggered_by,
         triggered_via,
@@ -370,7 +371,7 @@ async def create_index_job(
 async def get_job_status(db: Prisma, project_id: str, job_id: str) -> dict | None:
     """Get the status of an index job."""
     result = await db.query_raw(
-        '''
+        """
         SELECT id, "projectId", status, progress, "errorMessage",
                "documentsTotal", "documentsProcessed", "chunksCreated",
                "retryCount", "maxRetries", "workerId",
@@ -378,7 +379,7 @@ async def get_job_status(db: Prisma, project_id: str, job_id: str) -> dict | Non
                "triggeredBy", "triggeredVia", results
         FROM index_jobs
         WHERE id = $1 AND "projectId" = $2
-        ''',
+        """,
         job_id,
         project_id,
     )
@@ -412,13 +413,13 @@ async def get_job_status(db: Prisma, project_id: str, job_id: str) -> dict | Non
 async def cancel_job(db: Prisma, project_id: str, job_id: str) -> bool:
     """Cancel a pending or running job."""
     result = await db.execute_raw(
-        '''
+        """
         UPDATE index_jobs
         SET status = 'CANCELLED',
             "completedAt" = NOW(),
             "updatedAt" = NOW()
         WHERE id = $1 AND "projectId" = $2 AND status IN ('PENDING', 'RUNNING')
-        ''',
+        """,
         job_id,
         project_id,
     )
