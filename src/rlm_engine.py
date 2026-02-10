@@ -17,6 +17,51 @@ from typing import Any
 import tiktoken
 
 from .db import get_db
+
+# Phase 2 Refactor: Import from extracted scoring module
+from .engine.scoring import (
+    STOP_WORDS,
+)
+from .engine.scoring import (
+    stem_keyword as _stem_keyword,
+)
+from .engine.scoring.constants import (
+    CONCEPTUAL_PREFIXES as _CONCEPTUAL_PREFIXES,
+)
+from .engine.scoring.constants import (
+    GENERIC_TITLE_TERMS as _GENERIC_TITLE_TERMS,
+)
+from .engine.scoring.constants import (
+    HYBRID_BALANCED as _HYBRID_BALANCED,
+)
+from .engine.scoring.constants import (
+    HYBRID_KEYWORD_HEAVY as _HYBRID_KEYWORD_HEAVY,
+)
+from .engine.scoring.constants import (
+    HYBRID_SEMANTIC_HEAVY as _HYBRID_SEMANTIC_HEAVY,
+)
+from .engine.scoring.constants import (
+    LIST_QUERY_PATTERNS as _LIST_QUERY_PATTERNS,
+)
+from .engine.scoring.constants import (
+    NUMBERED_SECTION_PATTERNS as _NUMBERED_SECTION_PATTERNS,
+)
+from .engine.scoring.constants import (
+    PLANNED_CONTENT_MARKERS as _PLANNED_CONTENT_MARKERS,
+)
+
+# Phase 2 Refactor: Import from extracted scoring module
+# Note: _stem_keyword, _HYBRID_* weights, _RRF_K, _GENERIC_TITLE_TERMS,
+# _SPECIFIC_QUERY_TERMS, _CONCEPTUAL_PREFIXES, _LIST_QUERY_PATTERNS,
+# _NUMBERED_SECTION_PATTERNS, _PLANNED_CONTENT_MARKERS are now imported
+# from engine.scoring module (see imports at top of file).
+from .engine.scoring.constants import QUERY_EXPANSIONS as _QUERY_EXPANSIONS
+from .engine.scoring.constants import (
+    RRF_K as _RRF_K,
+)
+from .engine.scoring.constants import (
+    SPECIFIC_QUERY_TERMS as _SPECIFIC_QUERY_TERMS,
+)
 from .models import (
     ContextQueryResult,
     ContextSection,
@@ -35,6 +80,7 @@ from .models import (
     PlanResult,
     PlanStep,
     PlanStrategy,
+    ProjectSettings,
     PromptTemplateInfo,
     RequestAccessResult,
     SearchMode,
@@ -48,6 +94,7 @@ from .models import (
     SummaryType,
     SyncDocumentsResult,
     ToolName,
+    ToolResult,
     UploadDocumentResult,
 )
 from .services.agent_limits import (
@@ -88,354 +135,44 @@ from .services.swarm_events import (
     broadcast_event,
 )
 
-# ---------------------------------------------------------------------------
-# Stop words — excluded from keyword scoring to prevent false title matches.
-# Without this, "what are prices?" ranks "What Happens When Limits Are Exceeded"
-# above actual pricing content because "what" and "are" get 5x title weight.
-# ---------------------------------------------------------------------------
-_STOP_WORDS = frozenset({
-    # Articles, auxiliaries, modals
-    "a", "an", "the", "is", "are", "was", "were", "be", "been", "being",
-    "have", "has", "had", "do", "does", "did", "will", "would", "could",
-    "should", "may", "might", "shall", "can", "need",
-    # Prepositions
-    "to", "of", "in", "for", "on", "with", "at", "by", "from", "as",
-    "into", "through", "during", "before", "after", "above", "below",
-    "between", "out", "off", "over", "under", "again", "further",
-    # Adverbs and conjunctions
-    "then", "once", "here", "there", "when", "where", "why", "how",
-    "all", "both", "each", "few", "more", "most", "other", "some",
-    "such", "no", "nor", "not", "only", "own", "same", "so", "than",
-    "too", "very", "just", "because", "but", "and", "or", "if",
-    # Pronouns and determiners
-    "what", "which", "who", "whom", "this", "that", "these", "those",
-    "it", "its", "my", "your", "his", "her", "our", "their", "about",
-    "up", "also", "any", "many", "much",
-    # Generic nouns that appear in many queries but aren't distinctive
-    "value", "proposition", "core", "main", "key", "primary",
-    "work", "works", "working", "feature", "features",
-    "thing", "things", "something", "everything",
-    # Common verbs that don't add search value
-    "use", "used", "using", "get", "gets", "getting",
-    "make", "makes", "making", "see", "sees", "seeing",
-    "know", "knows", "knowing", "think", "thinks",
-    "want", "wants", "wanting", "like", "likes",
-})
-
-
-def _stem_keyword(word: str) -> str:
-    """Basic suffix stemmer to improve keyword matching.
-
-    Strips common English suffixes to produce an approximate stem used for
-    substring matching.  A shorter stem naturally matches more morphological
-    variants, e.g. ``_stem_keyword("prices")`` → ``"pric"`` which is a
-    substring of "pricing", "price", "priced", etc.
-
-    Minimum-length guards ensure short words like "doing" (5 chars) are not
-    over-stripped into meaningless 2-char stems.
-    """
-    # Longer suffixes first — order matters.
-    if len(word) > 7 and word.endswith("tion"):
-        return word[:-4]
-    if len(word) > 7 and word.endswith("ment"):
-        return word[:-4]
-    if len(word) > 7 and word.endswith("ness"):
-        return word[:-4]
-    if len(word) > 7 and word.endswith("ible"):
-        return word[:-4]
-    if len(word) > 7 and word.endswith("able"):
-        return word[:-4]
-    if len(word) > 6 and word.endswith("ing"):
-        return word[:-3]
-    if len(word) > 6 and word.endswith("ies"):
-        return word[:-3]
-    if len(word) > 5 and word.endswith("ed") and not word.endswith("eed"):
-        return word[:-2]
-    if len(word) > 5 and word.endswith("er"):
-        return word[:-2]
-    if len(word) > 5 and word.endswith("ly"):
-        return word[:-2]
-    if len(word) > 5 and word.endswith("es"):
-        return word[:-2]
-    if len(word) > 4 and word.endswith("s") and not word.endswith("ss"):
-        return word[:-1]
-    if len(word) > 4 and word.endswith("e") and not word.endswith("ee"):
-        return word[:-1]
-    return word
-
-
-# ---------------------------------------------------------------------------
-# Adaptive Hybrid Search: weight profiles & RRF constant
-# ---------------------------------------------------------------------------
-# When keyword ranking has high confidence (exact title match, specific terms),
-# boost keyword weight to prevent semantic noise from diluting precise results.
-# When query is conceptual (how/why/explain), boost semantic weight.
-_HYBRID_KEYWORD_HEAVY = (0.60, 0.40)  # factual / title-match queries (was 0.70/0.30)
-_HYBRID_BALANCED = (0.40, 0.60)  # default - favor semantic for better recall (was 0.50/0.50)
-_HYBRID_SEMANTIC_HEAVY = (0.25, 0.75)  # conceptual / how-why queries
-
-# Reciprocal Rank Fusion constant (k=60 is the standard from Cormack+ 2009).
-# Lower k gives more weight to top-ranked results, improving precision.
-# Higher k smooths rankings, improving recall.
-_RRF_K = 45  # Reduced from 60 for better precision while keeping good recall
-
-# Generic title terms — these get reduced title weight (1.5x instead of 5x)
-# because they appear in many unrelated sections and cause false matches.
-# E.g., "Snipara tools not available" ranks highly for "What tools does Snipara expose?"
-# because "snipara" + "tools" match the title even though it's a debugging section.
-_GENERIC_TITLE_TERMS = frozenset({
-    "snipara", "rlm", "mcp",  # Project-specific but ubiquitous
-    "tools", "tool", "guide", "reference", "overview", "docs",  # Generic doc terms
-    "how", "what", "when", "where", "why",  # Question words (shouldn't boost titles)
-    "using", "use", "get", "set", "run", "make",  # Common verbs
-    "available", "not", "error", "issue", "troubleshoot",  # Debugging terms
-})
-
-# Query terms that signal structured/factual content (keyword-friendly)
-# These trigger keyword-heavy weights (60/40) for better precision
-_SPECIFIC_QUERY_TERMS = frozenset(
-    {
-        # Technical/infrastructure
-        "pricing", "price", "cost", "tier", "plan",
-        "stack", "version", "model", "schema", "table",
-        "endpoint", "api", "command", "config", "database",
-        "deploy", "deployment", "auth", "authentication",
-        # Business/product terms - these need keyword matching
-        "value", "proposition", "feature", "benefit", "overview",
-        "architecture", "workflow", "integration", "limit", "rate",
-        # Search-specific terms
-        "hybrid", "semantic", "keyword", "search", "query",
-        "token", "context", "chunk", "section", "document",
-    }
+# Phase 3 Refactor: Import extracted handlers
+# These are available for integration - handlers are extracted but methods
+# below still use original implementations for backward compatibility.
+# Full migration will replace _handle_* methods with calls to these functions.
+from .engine.handlers import (
+    HandlerContext,
+    count_tokens,
 )
 
-# Conceptual query prefixes (semantic-friendly)
-# These trigger semantic-heavy weights (25/75) for better conceptual matching
-_CONCEPTUAL_PREFIXES = (
-    # How/Why questions
-    "how does",
-    "how do",
-    "how is",
-    "how are",
-    "how can",
-    "why does",
-    "why do",
-    "why is",
-    "why are",
-    # What questions (conceptual, not factual lookups)
-    "what is",
-    "what are",
-    "what does",
-    "what do",
-    # Explanation requests
-    "explain",
-    "describe",
-    "compare",
-    "tell me about",
-    "overview of",
-    # Specific conceptual patterns
-    "what happens when",
-    "what is the difference",
-    "what are the tradeoffs",
-    "value proposition",
-    "core value",
-    "main purpose",
-    "key features",
+# Phase 4 Refactor: Import from extracted core module
+from .engine.core import (
+    ABSTRACT_QUERY_MIN_SECTIONS,
+    INTERNAL_PATH_PENALTY,
+    INTERNAL_PATH_PATTERNS,
+    DocumentationIndex,
+    Section,
+    count_tokens,
+    expand_query,
+    get_encoder,
+    get_first_query_tips,
+    has_planned_content_markers,
+    is_abstract_query,
+    is_internal_path,
+    is_list_query,
+    is_numbered_section,
 )
 
-# ---------------------------------------------------------------------------
-# List/Enumeration Query Detection
-# ---------------------------------------------------------------------------
-# Queries asking for lists of items (articles, tasks, features) should boost
-# sections with numbered patterns like "### Article #1", "1. First item", etc.
-# This improves ranking for "what are the next articles to write" type queries.
-_LIST_QUERY_PATTERNS = frozenset({
-    "what are the",
-    "list the",
-    "list all",
-    "which",
-    "what to write",
-    "what to do",
-    "next articles",
-    "next tasks",
-    "next steps",
-    "upcoming",
-    "planned",
-    "todo",
-    "to-do",
-    "roadmap",
-})
-
-# Patterns in section titles/content that indicate enumerated list items
-# These get boosted when a list query is detected
-_NUMBERED_SECTION_PATTERNS = (
-    r"^#+\s*(?:article|task|step|item|feature|issue|bug|story)\s*#?\d+",  # ### Article #1
-    r"^#+\s*\d+[\.\):]",  # ## 1. or ## 1) or ## 1:
-    r"^\d+[\.\)]",  # 1. or 1) at start
-    r"#\d+\b",  # #1, #2, etc.
-)
-
-# Terms indicating planned/unpublished/future content
-# Boost sections containing these when query asks about "next" or "planned" items
-_PLANNED_CONTENT_MARKERS = frozenset({
-    "📝", "unpublished", "planned", "draft", "todo", "upcoming",
-    "next:", "status:", "wip", "in progress", "pending",
-})
-
-# ---------------------------------------------------------------------------
-# Query Expansion: Abstract terms → concrete keywords for better search recall
-# ---------------------------------------------------------------------------
-# Abstract queries like "architecture" miss specific sections because they don't
-# contain the actual component names. Expand abstract terms with concrete keywords.
-_QUERY_EXPANSIONS: dict[str, list[str]] = {
-    # Architecture queries need component names
-    "architecture": [
-        "snipara-mcp", "FastAPI", "Railway", "Vercel", "Neon",
-        "component", "three-component", "PostgreSQL", "Redis",
-    ],
-    "three-component": [
-        "snipara-mcp", "FastAPI", "Vercel", "Railway", "PostgreSQL",
-    ],
-    "components": [
-        "snipara-mcp", "FastAPI", "Vercel", "web app", "MCP server",
-    ],
-    # MCP tools queries need tool names
-    "mcp tools": [
-        "rlm_context_query", "rlm_ask", "rlm_search", "rlm_decompose",
-        "rlm_multi_query", "rlm_plan", "rlm_remember", "rlm_recall",
-    ],
-    "tools": [
-        "rlm_context_query", "rlm_ask", "rlm_search", "rlm_decompose",
-    ],
-    # Value proposition needs business terms
-    "value proposition": [
-        "context optimization", "token reduction", "90%", "LLM-agnostic",
-        "high margins", "no vendor lock-in",
-    ],
-    # Shared context needs budget allocation terms
-    "shared context": [
-        "budget allocation", "MANDATORY", "BEST_PRACTICES", "GUIDELINES",
-        "REFERENCE", "40%", "30%", "20%", "10%",
-    ],
-    "budget allocation": [
-        "MANDATORY", "BEST_PRACTICES", "GUIDELINES", "REFERENCE",
-        "40%", "30%", "20%", "10%", "shared context",
-    ],
-    # Pricing/limits need concrete values
-    "pricing": [
-        "FREE", "PRO", "TEAM", "ENTERPRISE", "$19", "$49", "$499",
-        "queries/mo", "100", "5000", "20000",
-    ],
-    "limits": [
-        "rate limit", "monthly", "429", "exceeded", "reset_at",
-    ],
-    # Deployment needs infrastructure terms
-    "deployment": [
-        "Railway", "Vercel", "Neon", "snipara-fastapi", "snipara-server",
-        "main branch", "dev branch", "auto-deploy",
-    ],
-    # Memory/agent features
-    "memory": [
-        "rlm_remember", "rlm_recall", "rlm_memories", "rlm_forget",
-        "ttl_days", "agent", "session", "decision", "learning",
-    ],
-    "agent": [
-        "memory", "swarm", "rlm_remember", "rlm_recall", "coordination",
-    ],
-}
-
-# Minimum sections to return for abstract/conceptual queries
-# Abstract queries need more context to prevent hallucination
-ABSTRACT_QUERY_MIN_SECTIONS = 5
-
-
-def _expand_query(query: str) -> str:
-    """Expand abstract query terms with concrete keywords.
-
-    For queries containing abstract terms like "architecture", appends
-    concrete keywords that should match documentation sections.
-
-    Args:
-        query: Original query string
-
-    Returns:
-        Expanded query with additional keywords, or original if no expansion
-    """
-    query_lower = query.lower()
-    expansions: list[str] = []
-
-    for term, keywords in _QUERY_EXPANSIONS.items():
-        if term in query_lower:
-            expansions.extend(keywords)
-
-    if expansions:
-        # Deduplicate while preserving order
-        seen: set[str] = set()
-        unique_expansions: list[str] = []
-        for kw in expansions:
-            kw_lower = kw.lower()
-            if kw_lower not in seen and kw_lower not in query_lower:
-                seen.add(kw_lower)
-                unique_expansions.append(kw)
-
-        if unique_expansions:
-            # Append keywords to original query
-            expanded = f"{query} {' '.join(unique_expansions)}"
-            logger.info(f"Query expansion: '{query}' → '{expanded}'")
-            return expanded
-
-    return query
-
-
-def _is_abstract_query(query: str) -> bool:
-    """Check if query is abstract and needs more context sections.
-
-    Abstract queries use broad terms that may match few sections but require
-    comprehensive answers. We boost minimum sections to reduce hallucination.
-    """
-    query_lower = query.lower()
-    # Check if query contains any expansion terms
-    for term in _QUERY_EXPANSIONS.keys():
-        if term in query_lower:
-            return True
-    # Also check for conceptual prefixes
-    return any(query_lower.startswith(p) for p in _CONCEPTUAL_PREFIXES)
-
-
-def _is_list_query(query: str) -> bool:
-    """Check if query is asking for a list/enumeration of items.
-
-    List queries like "what are the next articles to write" should boost
-    sections with numbered patterns (Article #1, 1. First item, etc.)
-    over prose/template sections that happen to contain matching keywords.
-    """
-    query_lower = query.lower()
-    return any(pattern in query_lower for pattern in _LIST_QUERY_PATTERNS)
-
-
-def _is_numbered_section(title: str, content: str) -> bool:
-    """Check if section title matches numbered/enumerated patterns.
-
-    Returns True for sections like:
-    - "### Article #1: Title"
-    - "## 1. First Item"
-    - "### Step 3: Implementation"
-    """
-    title_lower = title.lower()
-    for pattern in _NUMBERED_SECTION_PATTERNS:
-        if re.search(pattern, title_lower, re.IGNORECASE):
-            return True
-    return False
-
-
-def _has_planned_content_markers(content: str) -> bool:
-    """Check if content contains markers indicating planned/unpublished status.
-
-    Matches sections with 📝, "Status: Unpublished", "Draft", etc.
-    """
-    content_lower = content.lower()
-    return any(marker in content_lower for marker in _PLANNED_CONTENT_MARKERS)
-
+# Backward compatibility aliases
+# Backward compatibility aliases for imports
+_STOP_WORDS = STOP_WORDS
+_expand_query = expand_query
+_is_abstract_query = is_abstract_query
+_is_list_query = is_list_query
+_is_numbered_section = is_numbered_section
+_has_planned_content_markers = has_planned_content_markers
+_is_internal_path = is_internal_path
+_INTERNAL_PATH_PATTERNS = INTERNAL_PATH_PATTERNS
+_INTERNAL_PATH_PENALTY = INTERNAL_PATH_PENALTY
 
 # Plans that have access to semantic search features
 SEMANTIC_SEARCH_PLANS = {Plan.PRO, Plan.TEAM, Plan.ENTERPRISE}
@@ -624,155 +361,11 @@ _MULTI_HOP_PATTERNS = (
     "sequence of",
 )
 
-# Internal/debug path patterns - sections from these paths get score penalties
-# because they contain project internals, debug logs, and session data that
-# shouldn't rank above actual documentation.
-_INTERNAL_PATH_PATTERNS = (
-    ".claude/",       # Claude session files, commands, debug logs
-    ".github/",       # GitHub-specific config files
-    ".git/",          # Git internals
-    ".vscode/",       # VS Code settings
-    "node_modules/",  # Dependencies
-    "__pycache__/",   # Python cache
-    "debug",          # Files containing "debug" in path
-    "session",        # Session logs
-)
-# Score multiplier for sections from internal paths (0.1 = 90% penalty)
-_INTERNAL_PATH_PENALTY = 0.1
-
-
-def _is_internal_path(file_path: str) -> bool:
-    """Check if a file path matches internal/debug patterns that should be deprioritized.
-
-    Internal files like .claude/commands/debug.md contain session logs and debugging
-    info that can pollute search results when they match common query terms.
-    """
-    if not file_path:
-        return False
-    path_lower = file_path.lower()
-    return any(pattern in path_lower for pattern in _INTERNAL_PATH_PATTERNS)
-
-
-# First-query tool tips - injected only on the first query of a session
-# This helps users understand all available tools without wasting tokens on every query
-# Tips are plan-filtered: users only see tools available to their plan
-
-
-def get_first_query_tips(plan: "Plan") -> str:
-    """Generate plan-filtered tool tips for first query.
-
-    Args:
-        plan: User's current plan (FREE, PRO, TEAM, ENTERPRISE)
-
-    Returns:
-        Tool tips string with only tools available to this plan
-    """
-    tips = ["## Snipara Tool Guide (First Query Tips)", ""]
-
-    # Primary tools - available to all plans
-    tips.append("**Primary Tools:**")
-    tips.append("- `rlm_context_query` - Full documentation query with token budgeting")
-    tips.append("- `rlm_ask` - Quick, simple query (~2500 tokens, no config needed)")
-    tips.append("- `rlm_search` - Regex pattern search across documentation")
-    tips.append("")
-
-    # Pro+ tools - semantic search, decompose, multi-query
-    if plan in SEMANTIC_SEARCH_PLANS:
-        tips.append("**Power User Tools (Pro+):**")
-        tips.append("- `rlm_multi_query` - Batch multiple queries in parallel")
-        tips.append("- `rlm_decompose` - Break complex queries into sub-queries")
-        tips.append("- `rlm_shared_context` - Get team coding standards/best practices")
-        tips.append("- `rlm_load_document` - Load raw document content by file path")
-        tips.append("")
-
-    # Team+ tools - multi-project, plan, templates, orchestration
-    if plan in PLAN_FEATURE_PLANS:
-        tips.append("**Team Tools (Team+):**")
-        tips.append("- `rlm_multi_project_query` - Search across ALL your projects")
-        tips.append("- `rlm_plan` - Generate execution plan for complex questions")
-        tips.append("- `rlm_list_templates` / `rlm_get_template` - Use prompt templates")
-        tips.append("- `rlm_load_project` - Load full project structure with content")
-        tips.append("- `rlm_orchestrate` - Multi-round context exploration (search + raw load)")
-        tips.append("")
-
-    # Utility tools - available to all
-    tips.append("**Utility Tools:**")
-    tips.append("- `rlm_inject` / `rlm_context` / `rlm_clear_context` - Session context")
-    tips.append("- `rlm_stats` / `rlm_sections` - Browse documentation structure")
-    tips.append("")
-
-    tips.append("**Tip:** Use `rlm_ask` for quick answers, `rlm_context_query` for full control.")
-    tips.append("")
-    tips.append("---")
-
-    return "\n".join(tips)
-
+# Phase 4 Refactor: Internal path patterns, tips, encoder, count_tokens, Section,
+# and DocumentationIndex are now imported from engine.core module.
+# Local definitions removed - see src/engine/core/*.py
 
 logger = logging.getLogger(__name__)
-
-# Initialize tiktoken encoder (using cl100k_base for GPT-4/Claude compatibility)
-_encoding: tiktoken.Encoding | None = None
-
-
-def get_encoder() -> tiktoken.Encoding:
-    """Get or create the tiktoken encoder (lazy initialization)."""
-    global _encoding
-    if _encoding is None:
-        _encoding = tiktoken.get_encoding("cl100k_base")
-    return _encoding
-
-
-def count_tokens(text: str) -> int:
-    """Count tokens in text using tiktoken."""
-    return len(get_encoder().encode(text))
-
-
-@dataclass
-class Section:
-    """A documentation section."""
-
-    id: str
-    title: str
-    content: str
-    start_line: int
-    end_line: int
-    level: int  # Header level (1-6)
-
-
-@dataclass
-class DocumentationIndex:
-    """Index of loaded documentation."""
-
-    files: list[str] = field(default_factory=list)
-    lines: list[str] = field(default_factory=list)
-    sections: list[Section] = field(default_factory=list)
-    total_chars: int = 0
-    # File boundary tracking: maps file path → (start_line_0indexed, end_line_0indexed_exclusive)
-    file_boundaries: dict[str, tuple[int, int]] = field(default_factory=dict)
-    # Auto-detected ubiquitous keywords (terms appearing in >70% of section titles)
-    # These are excluded from distinctive keyword matching to avoid false relevance
-    ubiquitous_keywords: set[str] = field(default_factory=set)
-
-
-@dataclass
-class ToolResult:
-    """Result from executing an RLM tool."""
-
-    data: Any
-    input_tokens: int = 0
-    output_tokens: int = 0
-
-
-@dataclass
-class ProjectSettings:
-    """Project automation settings from dashboard."""
-
-    max_tokens_per_query: int = 4000
-    search_mode: str = "hybrid"
-    include_summaries: bool = True
-    enrich_prompts: bool = False
-    auto_inject_context: bool = False
-    system_instructions: str | None = None  # Custom instructions to prepend to responses
 
 
 class RLMEngine:
@@ -2210,13 +1803,13 @@ class RLMEngine:
         # Phase 8.3.1: Server-side shallow section filtering
         # Filter out sections with <20 tokens - they waste context budget without
         # providing enough content to answer questions (often just headings).
-        MIN_SECTION_TOKENS = 20
+        min_section_tokens = 20
         sections_to_score = [
-            s for s in self.index.sections if count_tokens(s.content) >= MIN_SECTION_TOKENS
+            s for s in self.index.sections if count_tokens(s.content) >= min_section_tokens
         ]
         filtered_count = len(self.index.sections) - len(sections_to_score)
         if filtered_count > 0:
-            logger.debug(f"Filtered {filtered_count} shallow sections (<{MIN_SECTION_TOKENS} tokens)")
+            logger.debug(f"Filtered {filtered_count} shallow sections (<{min_section_tokens} tokens)")
 
         keywords = [w for w in re.findall(r"\w+", query.lower()) if w not in _STOP_WORDS]
         scored: list[tuple[Section, float]] = []

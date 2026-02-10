@@ -1,6 +1,5 @@
 """FastAPI MCP Server for RLM SaaS."""
 
-import asyncio
 import json
 import logging
 import time
@@ -8,49 +7,48 @@ from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from datetime import datetime
 from typing import Annotated
-from uuid import uuid4
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
-from pydantic import ValidationError
 
 from . import __version__
+from .api.deps import (
+    execute_multi_project_query,
+    get_api_key,
+    get_client_ip,
+    sanitize_error_message,
+    validate_and_rate_limit,
+    validate_team_and_rate_limit,
+)
 from .auth import (
-    check_team_key_project_access,
     get_effective_plan,
-    get_project_settings,
-    get_project_with_team,
     get_team_by_slug_or_id,
-    validate_api_key,
-    validate_oauth_token,
     validate_team_api_key,
 )
 from .config import settings
 from .db import close_db, get_db
+from .mcp import jsonrpc_error, jsonrpc_response
 from .mcp_transport import router as mcp_router
+from .middleware import IPRateLimitMiddleware, SecurityHeadersMiddleware
 from .models import (
     HealthResponse,
     LimitsInfo,
     MCPRequest,
     MCPResponse,
-    MultiProjectQueryParams,
     Plan,
     ReadyResponse,
     ToolName,
     UsageInfo,
 )
-from .rlm_engine import RLMEngine, count_tokens
+from .rlm_engine import RLMEngine
 from .services.agent_memory import semantic_recall, store_memory
 from .usage import (
-    check_ip_rate_limit,
     check_rate_limit,
     check_usage_limits,
     close_redis,
     get_usage_stats,
-    is_scan_blocked,
     log_security_event,
-    record_access_denial,
     track_usage,
 )
 
@@ -91,143 +89,6 @@ if settings.sentry_dsn:
         logger.warning("Sentry DSN configured but sentry-sdk not installed")
 else:
     logger.debug("Sentry DSN not configured - error tracking disabled")
-
-
-# ============ SECURITY HELPERS ============
-
-
-def sanitize_error_message(error: Exception) -> str:
-    """
-    Sanitize error messages to prevent information disclosure.
-
-    Returns a generic message for unexpected errors while preserving
-    useful information for known error types.
-    """
-    error_str = str(error)
-
-    # Known safe error patterns that can be returned to client
-    safe_patterns = [
-        "Invalid API key",
-        "Project not found",
-        "Rate limit exceeded",
-        "Monthly usage limit exceeded",
-        "Invalid tool name",
-        "Invalid regex pattern",
-        "No documentation loaded",
-        "Unknown tool",
-        "Invalid parameter",
-        "Token budget",
-        "Plan does not support",
-    ]
-
-    for pattern in safe_patterns:
-        if pattern.lower() in error_str.lower():
-            return error_str
-
-    # Log the actual error for debugging
-    logger.error(f"Tool execution error: {error}", exc_info=True)
-
-    # Return generic message for unknown errors
-    return "An error occurred processing your request. Please try again."
-
-
-# ============ SECURITY MIDDLEWARE ============
-
-
-class SecurityHeadersMiddleware:
-    """
-    Add security headers to all responses.
-
-    Uses pure ASGI middleware pattern instead of BaseHTTPMiddleware
-    to avoid Content-Length mismatch issues with streaming responses.
-    """
-
-    def __init__(self, app):
-        self.app = app
-
-    async def __call__(self, scope, receive, send):
-        if scope["type"] != "http":
-            await self.app(scope, receive, send)
-            return
-
-        # Generate request ID for tracing
-        request_id = str(uuid4())
-
-        async def send_with_headers(message):
-            if message["type"] == "http.response.start":
-                headers = list(message.get("headers", []))
-                # Add security headers
-                headers.append((b"x-request-id", request_id.encode()))
-                headers.append((b"x-content-type-options", b"nosniff"))
-                headers.append((b"x-frame-options", b"DENY"))
-                headers.append((b"x-xss-protection", b"1; mode=block"))
-
-                # Add HSTS in production (non-debug mode)
-                if not settings.debug:
-                    headers.append(
-                        (b"strict-transport-security", b"max-age=31536000; includeSubDomains")
-                    )
-
-                message = {**message, "headers": headers}
-            await send(message)
-
-        await self.app(scope, receive, send_with_headers)
-
-
-class IPRateLimitMiddleware:
-    """
-    Secondary rate limiting layer by client IP address.
-
-    Applies to all HTTP requests before reaching endpoint handlers.
-    Uses X-Forwarded-For header (behind reverse proxy) or direct client address.
-    Skips health check endpoint to avoid blocking monitoring.
-    """
-
-    def __init__(self, app):
-        self.app = app
-
-    async def __call__(self, scope, receive, send):
-        if scope["type"] != "http":
-            await self.app(scope, receive, send)
-            return
-
-        # Skip health/readiness check endpoints
-        path = scope.get("path", "")
-        if path in ("/health", "/ready"):
-            await self.app(scope, receive, send)
-            return
-
-        # Extract client IP from X-Forwarded-For (behind proxy) or direct connection
-        client_ip = None
-        headers = dict(scope.get("headers", []))
-        forwarded_for = headers.get(b"x-forwarded-for")
-        if forwarded_for:
-            # First IP in X-Forwarded-For is the original client
-            client_ip = forwarded_for.decode().split(",")[0].strip()
-        elif scope.get("client"):
-            client_ip = scope["client"][0]
-
-        if client_ip:
-            rate_ok = await check_ip_rate_limit(client_ip)
-            if not rate_ok:
-                response_body = json.dumps({
-                    "detail": f"IP rate limit exceeded: {settings.ip_rate_limit_requests} requests per minute"
-                }).encode()
-                await send({
-                    "type": "http.response.start",
-                    "status": 429,
-                    "headers": [
-                        (b"content-type", b"application/json"),
-                        (b"content-length", str(len(response_body)).encode()),
-                    ],
-                })
-                await send({
-                    "type": "http.response.body",
-                    "body": response_body,
-                })
-                return
-
-        await self.app(scope, receive, send)
 
 
 @asynccontextmanager
@@ -291,325 +152,6 @@ app.add_middleware(
 
 # Mount MCP Streamable HTTP transport
 app.include_router(mcp_router)
-
-
-# ============ DEPENDENCY INJECTION ============
-
-
-async def get_api_key(
-    x_api_key: Annotated[str, Header(alias="X-API-Key")],
-) -> str:
-    """Extract API key from header."""
-    return x_api_key
-
-
-def get_client_ip(request: Request) -> str | None:
-    """Extract client IP from X-Forwarded-For header or direct connection."""
-    forwarded = request.headers.get("X-Forwarded-For")
-    if forwarded:
-        return forwarded.split(",")[0].strip()
-    if request.client:
-        return request.client.host
-    return None
-
-
-async def validate_and_rate_limit(
-    project_id: str,
-    api_key: str,
-    client_ip: str | None = None,
-) -> tuple[dict, any, Plan, dict | None]:
-    """
-    Common validation logic for all endpoints.
-    Validates API key or OAuth token, gets project, checks rate limit, and fetches settings.
-
-    Supports both:
-    - OAuth tokens (snipara_at_...)
-    - API keys (rlm_...)
-
-    Returns:
-        Tuple of (auth_info, project, plan, project_settings)
-
-    Raises:
-        HTTPException on validation failure
-    """
-    # 0. Anti-scan: check if this key prefix is blocked
-    key_prefix = api_key[:12]
-    if await is_scan_blocked(key_prefix):
-        log_security_event("scan.blocked", "api_key", key_prefix, key_prefix)
-        raise HTTPException(status_code=429, detail="Too many failed requests. Try again later.")
-
-    # 1. Validate auth (OAuth token or API key)
-    auth_info = None
-
-    # Check if it's an OAuth token
-    if api_key.startswith("snipara_at_"):
-        auth_info = await validate_oauth_token(api_key, project_id)
-        if not auth_info:
-            raise HTTPException(status_code=401, detail="Invalid or expired OAuth token. Re-authenticate at https://snipara.com/dashboard or run /snipara:quickstart")
-    else:
-        # Fall back to API key validation
-        auth_info = await validate_api_key(api_key, project_id)
-        if not auth_info:
-            raise HTTPException(status_code=401, detail="Invalid API key. Get a free key at https://snipara.com/dashboard (100 queries/month, no credit card)")
-
-    # 2. Check for access denial (team keys with NONE access level)
-    if auth_info.get("access_denied"):
-        await record_access_denial(key_prefix, project_id)
-        log_security_event(
-            "access.denied", "project", project_id,
-            auth_info.get("id", key_prefix),
-            details={"reason": "team_key_no_access"},
-        )
-        raise HTTPException(
-            status_code=403,
-            detail="Access denied to this project. Use rlm_request_access tool to request access.",
-        )
-
-    # 3. Get project with team subscription
-    project = await get_project_with_team(project_id)
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
-
-    # 4. Check rate limit (demo keys use per-IP limits)
-    rate_ok = await check_rate_limit(auth_info["id"], client_ip=client_ip)
-    if not rate_ok:
-        log_security_event(
-            "rate_limit.exceeded", "api_key", auth_info["id"],
-            auth_info.get("user_id", auth_info["id"]),
-        )
-        raise HTTPException(
-            status_code=429,
-            detail=f"Rate limit exceeded: {settings.rate_limit_requests} requests per minute",
-        )
-
-    # 5. Determine plan (considers PRO boost for FREE users)
-    plan = get_effective_plan(project.team.subscription if project.team else None)
-
-    # 6. Get project automation settings (from dashboard)
-    project_settings = await get_project_settings(project_id)
-
-    return auth_info, project, plan, project_settings
-
-
-async def validate_team_and_rate_limit(
-    team_slug_or_id: str,
-    api_key: str,
-    client_ip: str | None = None,
-) -> tuple[dict, any, Plan]:
-    """
-    Validate team API key, resolve team, and check rate limits.
-
-    Returns:
-        Tuple of (api_key_info, team, plan)
-    """
-    # Anti-scan check
-    key_prefix = api_key[:12]
-    if await is_scan_blocked(key_prefix):
-        log_security_event("scan.blocked", "api_key", key_prefix, key_prefix)
-        raise HTTPException(status_code=429, detail="Too many failed requests. Try again later.")
-
-    team = await get_team_by_slug_or_id(team_slug_or_id)
-    if not team:
-        raise HTTPException(status_code=404, detail="Team not found")
-
-    api_key_info = await validate_team_api_key(api_key, team.id)
-    if not api_key_info:
-        raise HTTPException(status_code=401, detail="Invalid API key")
-
-    rate_ok = await check_rate_limit(api_key_info["id"], client_ip=client_ip)
-    if not rate_ok:
-        log_security_event(
-            "rate_limit.exceeded", "api_key", api_key_info["id"],
-            api_key_info.get("user_id", api_key_info["id"]),
-            team_id=team.id,
-        )
-        raise HTTPException(
-            status_code=429,
-            detail=f"Rate limit exceeded: {settings.rate_limit_requests} requests per minute",
-        )
-
-    plan = get_effective_plan(team.subscription)
-
-    return api_key_info, team, plan
-
-
-async def execute_multi_project_query(
-    team: any,
-    plan: Plan,
-    params: dict,
-    user_id: str | None = None,
-) -> tuple[dict, int, int]:
-    """
-    Execute a multi-project query for a team.
-
-    Args:
-        team: Team object with projects
-        plan: Subscription plan
-        params: Query parameters
-        user_id: Optional user ID for per-project ACL checks
-
-    Returns:
-        Tuple of (result_payload, total_input_tokens, total_output_tokens)
-    """
-    try:
-        parsed = MultiProjectQueryParams.model_validate(params)
-    except ValidationError as exc:
-        raise HTTPException(status_code=400, detail=str(exc)) from exc
-
-    projects = list(team.projects or [])
-    include_ids = set(parsed.project_ids)
-    exclude_ids = set(parsed.exclude_project_ids)
-
-    if include_ids:
-        projects = [
-            project
-            for project in projects
-            if project.id in include_ids or project.slug in include_ids
-        ]
-
-    if exclude_ids:
-        projects = [
-            project
-            for project in projects
-            if project.id not in exclude_ids and project.slug not in exclude_ids
-        ]
-
-    if not projects:
-        empty_result = {
-            "query": parsed.query,
-            "max_tokens": parsed.max_tokens,
-            "per_project_limit": parsed.per_project_limit,
-            "search_mode": parsed.search_mode.value,
-            "projects_queried": 0,
-            "projects_skipped": 0,
-            "results": [],
-        }
-        return empty_result, count_tokens(parsed.query), 0
-
-    per_project_budget = max(1, parsed.max_tokens // len(projects))
-
-    async def execute_project(project: any) -> dict:
-        # Per-project ACL check (when user_id is available)
-        project_access_level = "EDITOR"
-        if user_id:
-            try:
-                access_level_result, _ = await check_team_key_project_access(
-                    user_id, project.id, team.id
-                )
-                if access_level_result == "NONE":
-                    log_security_event(
-                        "multi_project.access_denied", "project", project.id,
-                        user_id, team_id=team.id,
-                        details={"project_slug": project.slug},
-                    )
-                    return {
-                        "project_id": project.id,
-                        "project_slug": project.slug,
-                        "success": False,
-                        "skipped": True,
-                        "error": "Access denied to this project",
-                        "input_tokens": 0,
-                        "output_tokens": 0,
-                    }
-                project_access_level = access_level_result
-            except Exception as e:
-                logger.debug(f"ACL check failed for {project.slug}, defaulting to EDITOR: {e}")
-
-        limits = await check_usage_limits(project.id, plan)
-        if limits.exceeded:
-            return {
-                "project_id": project.id,
-                "project_slug": project.slug,
-                "success": False,
-                "skipped": True,
-                "error": f"Monthly usage limit exceeded: {limits.current}/{limits.max}",
-                "input_tokens": 0,
-                "output_tokens": 0,
-            }
-
-        project_settings = await get_project_settings(project.id)
-        tool_params = {
-            "query": parsed.query,
-            "max_tokens": per_project_budget,
-            "search_mode": parsed.search_mode.value,
-            "include_metadata": parsed.include_metadata,
-            "prefer_summaries": parsed.prefer_summaries,
-        }
-
-        start_time = time.perf_counter()
-
-        try:
-            engine = RLMEngine(
-                project.id, plan=plan, settings=project_settings,
-                user_id=user_id, access_level=project_access_level,
-            )
-            result = await engine.execute(ToolName.RLM_CONTEXT_QUERY, tool_params)
-
-            latency_ms = int((time.perf_counter() - start_time) * 1000)
-            await track_usage(
-                project_id=project.id,
-                tool=ToolName.RLM_MULTI_PROJECT_QUERY.value,
-                input_tokens=result.input_tokens,
-                output_tokens=result.output_tokens,
-                latency_ms=latency_ms,
-                success=True,
-            )
-
-            result_data = result.data
-            if isinstance(result_data, dict) and "sections" in result_data:
-                result_data["sections"] = result_data["sections"][: parsed.per_project_limit]
-
-            return {
-                "project_id": project.id,
-                "project_slug": project.slug,
-                "success": True,
-                "skipped": False,
-                "result": result_data,
-                "input_tokens": result.input_tokens,
-                "output_tokens": result.output_tokens,
-            }
-        except Exception as e:
-            latency_ms = int((time.perf_counter() - start_time) * 1000)
-            await track_usage(
-                project_id=project.id,
-                tool=ToolName.RLM_MULTI_PROJECT_QUERY.value,
-                input_tokens=0,
-                output_tokens=0,
-                latency_ms=latency_ms,
-                success=False,
-                error=str(e),
-            )
-            return {
-                "project_id": project.id,
-                "project_slug": project.slug,
-                "success": False,
-                "skipped": False,
-                "error": sanitize_error_message(e),
-                "input_tokens": 0,
-                "output_tokens": 0,
-            }
-
-    results = await asyncio.gather(*[execute_project(project) for project in projects])
-
-    total_input_tokens = sum(item["input_tokens"] for item in results)
-    total_output_tokens = sum(item["output_tokens"] for item in results)
-    projects_queried = sum(1 for item in results if item["success"])
-    projects_skipped = sum(1 for item in results if item.get("skipped"))
-
-    payload = {
-        "query": parsed.query,
-        "max_tokens": parsed.max_tokens,
-        "per_project_limit": parsed.per_project_limit,
-        "search_mode": parsed.search_mode.value,
-        "projects_queried": projects_queried,
-        "projects_skipped": projects_skipped,
-        "results": [
-            {k: v for k, v in item.items() if k not in {"input_tokens", "output_tokens"}}
-            for item in results
-        ],
-    }
-
-    return payload, total_input_tokens, total_output_tokens
 
 
 # ============ EXCEPTION HANDLERS ============
@@ -840,17 +382,6 @@ async def team_mcp_endpoint(
 
 # ============ TEAM MCP TRANSPORT (JSON-RPC) ============
 
-
-def _jsonrpc_response(id: any, result: dict) -> dict:
-    """Create a JSON-RPC 2.0 response."""
-    return {"jsonrpc": "2.0", "id": id, "result": result}
-
-
-def _jsonrpc_error(id: any, code: int, message: str) -> dict:
-    """Create a JSON-RPC 2.0 error response."""
-    return {"jsonrpc": "2.0", "id": id, "error": {"code": code, "message": message}}
-
-
 # Tool definition for team endpoint (only rlm_multi_project_query)
 TEAM_TOOL_DEFINITION = {
     "name": "rlm_multi_project_query",
@@ -932,7 +463,7 @@ async def team_mcp_transport_endpoint(
     try:
         body = await request.json()
     except Exception:
-        return JSONResponse(_jsonrpc_error(None, -32700, "Parse error"), status_code=400)
+        return JSONResponse(jsonrpc_error(None, -32700, "Parse error"), status_code=400)
 
     # Extract user_id for ACL checks
     team_user_id = api_key_info.get("user_id")
@@ -961,19 +492,19 @@ async def _handle_team_request(body: dict, team: any, plan: Plan, user_id: str |
         return None
 
     if method == "initialize":
-        return _jsonrpc_response(id, {
+        return jsonrpc_response(id, {
             "protocolVersion": "2024-11-05",
             "serverInfo": {"name": "snipara-team", "version": "1.0.0"},
             "capabilities": {"tools": {}},
         })
     elif method == "tools/list":
-        return _jsonrpc_response(id, {"tools": [TEAM_TOOL_DEFINITION]})
+        return jsonrpc_response(id, {"tools": [TEAM_TOOL_DEFINITION]})
     elif method == "tools/call":
         return await _handle_team_call_tool(id, params, team, plan, user_id=user_id)
     elif method == "ping":
-        return _jsonrpc_response(id, {})
+        return jsonrpc_response(id, {})
     else:
-        return _jsonrpc_error(id, -32601, f"Method not found: {method}")
+        return jsonrpc_error(id, -32601, f"Method not found: {method}")
 
 
 async def _handle_team_call_tool(id: any, params: dict, team: any, plan: Plan, user_id: str | None = None) -> dict:
@@ -982,20 +513,20 @@ async def _handle_team_call_tool(id: any, params: dict, team: any, plan: Plan, u
     arguments = params.get("arguments", {})
 
     if tool_name != "rlm_multi_project_query":
-        return _jsonrpc_error(id, -32602, f"Tool not available on team endpoint: {tool_name}. Only rlm_multi_project_query is supported.")
+        return jsonrpc_error(id, -32602, f"Tool not available on team endpoint: {tool_name}. Only rlm_multi_project_query is supported.")
 
     try:
         result_payload, input_tokens, output_tokens = await execute_multi_project_query(
             team, plan, arguments, user_id=user_id,
         )
 
-        return _jsonrpc_response(id, {
+        return jsonrpc_response(id, {
             "content": [{"type": "text", "text": json.dumps(result_payload, indent=2, default=str)}],
         })
     except HTTPException as e:
-        return _jsonrpc_error(id, -32000, e.detail)
+        return jsonrpc_error(id, -32000, e.detail)
     except Exception as e:
-        return _jsonrpc_error(id, -32000, str(e))
+        return jsonrpc_error(id, -32000, str(e))
 
 
 @app.get("/v1/{project_id}/context", tags=["MCP"])
