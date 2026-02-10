@@ -839,7 +839,7 @@ TOOL_DEFINITIONS = [
     },
     {
         "name": "rlm_repl_context",
-        "description": "Package project context for REPL consumption. Returns a structured dict of files and sections plus Python helper code (peek, grep, sections, files) ready for injection into an rlm-runtime REPL session via set_repl_context + execute_python. Optionally filter by a relevance query.",
+        "description": "Package project context for REPL consumption. Returns a structured dict of files and sections plus Python helper code (peek, grep, sections, files, get_file, search, trim) ready for injection into an rlm-runtime REPL session via set_repl_context + execute_python. Optionally filter by a relevance query.",
         "inputSchema": {
             "type": "object",
             "properties": {
@@ -855,7 +855,7 @@ TOOL_DEFINITIONS = [
                 "include_helpers": {
                     "type": "boolean",
                     "default": True,
-                    "description": "Include Python helper code (peek, grep, sections, files) in setup_code",
+                    "description": "Include Python helper code (peek, grep, sections, files, get_file, search, trim) in setup_code",
                 },
                 "search_mode": {
                     "type": "string",

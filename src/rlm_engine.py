@@ -1862,11 +1862,11 @@ class RLMEngine:
         # Filter out low-relevance sections to improve precision.
         # Only include sections with score >= 15% of top score (minimum 5.0 absolute).
         # This prevents irrelevant sections from diluting the context.
-        MIN_RELEVANCE_RATIO = 0.15  # 15% of top score
-        MIN_ABSOLUTE_SCORE = 5.0    # Minimum absolute score
+        min_relevance_ratio = 0.15  # 15% of top score
+        min_absolute_score = 5.0    # Minimum absolute score
         if scored_sections:
             top_score = scored_sections[0][1]
-            min_score = max(top_score * MIN_RELEVANCE_RATIO, MIN_ABSOLUTE_SCORE)
+            min_score = max(top_score * min_relevance_ratio, min_absolute_score)
             before_count = len(scored_sections)
             scored_sections = [
                 (s, sc) for s, sc in scored_sections if sc >= min_score
@@ -2207,6 +2207,17 @@ class RLMEngine:
         if not self.index:
             return []
 
+        # Phase 8.3.1: Server-side shallow section filtering
+        # Filter out sections with <20 tokens - they waste context budget without
+        # providing enough content to answer questions (often just headings).
+        MIN_SECTION_TOKENS = 20
+        sections_to_score = [
+            s for s in self.index.sections if count_tokens(s.content) >= MIN_SECTION_TOKENS
+        ]
+        filtered_count = len(self.index.sections) - len(sections_to_score)
+        if filtered_count > 0:
+            logger.debug(f"Filtered {filtered_count} shallow sections (<{MIN_SECTION_TOKENS} tokens)")
+
         keywords = [w for w in re.findall(r"\w+", query.lower()) if w not in _STOP_WORDS]
         scored: list[tuple[Section, float]] = []
 
@@ -2220,7 +2231,7 @@ class RLMEngine:
 
         # Calculate keyword scores for all sections (always in-memory, fast)
         keyword_scores: dict[str, float] = {}
-        for section in self.index.sections:
+        for section in sections_to_score:
             base_score = self._calculate_keyword_score(section, keywords)
 
             # Boost numbered sections for list queries (Fix #1: Query-intent detection)
@@ -2251,8 +2262,8 @@ class RLMEngine:
             logger.debug(
                 f"Keyword search: ubiquitous_keywords={sorted(ubiquitous_keywords) if ubiquitous_keywords else '(empty)'}"
             )
-            for section in self.index.sections:
-                score = keyword_scores[section.id]
+            for section in sections_to_score:
+                score = keyword_scores.get(section.id, 0)
                 if score <= 0:
                     continue
 
@@ -2296,7 +2307,7 @@ class RLMEngine:
                     f"Using on-the-fly embedding (no chunks for project: {self.project_id})"
                 )
 
-            for section in self.index.sections:
+            for section in sections_to_score:
                 score = semantic_scores.get(section.id, 0.0) * 100  # Scale to 0-100
                 if score > 10:  # Minimum similarity threshold
                     scored.append((section, score))
@@ -2371,7 +2382,7 @@ class RLMEngine:
             # This creates clearer "ground truth" distinction vs similar raw scores
             graded_results = self._normalize_scores_graded(rrf_results)
 
-            section_map = {s.id: s for s in self.index.sections}
+            section_map = {s.id: s for s in sections_to_score}
             for sid, graded_score in graded_results:
                 section = section_map.get(sid)
                 if not section:
@@ -2867,7 +2878,16 @@ class RLMEngine:
         # instead of bare single-word terms to avoid catastrophic keyword ambiguity.
         query_lower = query.lower()
         sub_queries: list[SubQuery] = []
-        for i, (term, sections) in enumerate(term_sections.items(), start=1):
+        seen_phrases: set[str] = set()
+
+        # Prioritize bigram terms (multi-word) over single words
+        sorted_terms = sorted(
+            term_sections.keys(),
+            key=lambda t: (0 if " " in t else 1, -len(term_sections.get(t, []))),
+        )
+
+        for term in sorted_terms:
+            sections = term_sections[term]
             # Estimate tokens based on section content
             estimated_tokens = sum(min(count_tokens(s.content), 1500) for s in sections[:3])
 
@@ -2875,15 +2895,25 @@ class RLMEngine:
             # the original query so the downstream search has enough context.
             phrase = self._build_phrase_query(term, query_lower, unique_terms)
 
+            # Skip if we've already generated a very similar phrase
+            phrase_key = " ".join(sorted(phrase.lower().split()))
+            if phrase_key in seen_phrases:
+                continue
+            seen_phrases.add(phrase_key)
+
             sub_queries.append(
                 SubQuery(
-                    id=i,
+                    id=len(sub_queries) + 1,
                     query=phrase,
-                    priority=i,  # Earlier terms have higher priority
+                    priority=len(sub_queries) + 1,
                     estimated_tokens=estimated_tokens,
-                    key_terms=[term],
+                    key_terms=[term] if " " not in term else term.split(),
                 )
             )
+
+            # Limit to 5 sub-queries to avoid redundancy
+            if len(sub_queries) >= 5:
+                break
 
         # Analyze dependencies based on document links
         dependencies = self._analyze_document_links(term_sections)
@@ -3234,25 +3264,67 @@ class RLMEngine:
 
         Instead of returning bare single-word terms like ``"prometheus"`` which
         cause catastrophic keyword ambiguity, this returns phrases like
-        ``"prometheus monitoring metrics"`` by including neighbouring terms
-        from the original query.
+        ``"prometheus monitoring metrics"`` by extracting a contiguous phrase
+        from the original query centered on the term.
+
+        Key insight: Preserve word order from original query to maintain semantic meaning.
         """
         # If the term is already a bigram+, use it directly
         if " " in term:
             return term
 
-        # Find neighbouring terms from the original query to add context
-        context_terms = [term]
-        for other in all_terms:
-            if other == term or other in term or term in other:
-                continue
-            # Include if the other term also appears in the original query
-            if other in query_lower:
-                context_terms.append(other)
-            if len(context_terms) >= 3:
+        # Tokenize the original query to find the term's position and neighbors
+        import re
+
+        words = re.findall(r"\b[a-zA-Z][a-zA-Z0-9_-]*\b", query_lower)
+        if not words:
+            return term
+
+        # Find the term's position in the original query
+        term_lower = term.lower()
+        term_idx = -1
+        for i, w in enumerate(words):
+            if w == term_lower or term_lower in w or w in term_lower:
+                term_idx = i
                 break
 
-        return " ".join(context_terms)
+        if term_idx == -1:
+            # Term not found in query words, fall back to joining with other terms
+            context_terms = [term]
+            for other in all_terms[:2]:
+                if other != term and other not in term and term not in other:
+                    context_terms.append(other)
+            return " ".join(context_terms)
+
+        # Extract a contiguous phrase (up to 4 words) centered on the term
+        # preserving the original word order
+        start = max(0, term_idx - 1)
+        end = min(len(words), term_idx + 3)
+
+        # Build phrase from contiguous words in original order
+        phrase_words = words[start:end]
+
+        # Filter stop words from phrase but keep at least the term
+        stop_words = {
+            "the", "a", "an", "and", "or", "but", "in", "on", "at", "to", "for",
+            "of", "with", "by", "from", "is", "are", "was", "were", "be", "been",
+            "being", "have", "has", "had", "do", "does", "did", "will", "would",
+            "could", "should", "may", "might", "can", "this", "that", "these",
+            "those", "it", "its", "what", "how", "when", "where", "why", "which",
+        }
+        filtered = [w for w in phrase_words if w not in stop_words or w == term_lower]
+
+        if len(filtered) < 2:
+            # Not enough words, extend the window
+            start = max(0, term_idx - 2)
+            end = min(len(words), term_idx + 4)
+            phrase_words = words[start:end]
+            filtered = [w for w in phrase_words if w not in stop_words or w == term_lower]
+
+        # Return at least 2 words, max 4
+        if len(filtered) >= 2:
+            return " ".join(filtered[:4])
+        return term
 
     def _find_sections_for_term(self, term: str) -> list[Section]:
         """Find sections that match a search term."""
@@ -5478,6 +5550,39 @@ def files():
     """List loaded files with token counts."""
     return {fp: {"tokens": f["tokens"], "truncated": f.get("truncated", False)}
             for fp, f in context.get("files", {}).items()}
+
+def get_file(path):
+    """Get full content of a file."""
+    f = context.get("files", {}).get(path)
+    if not f:
+        return f"Not found: {path}"
+    return f["content"]
+
+def search(query, top_k=5):
+    """Keyword search with scoring. Returns [(file, score, preview)]."""
+    terms = query.lower().split()
+    scored = []
+    for fp, fdata in context.get("files", {}).items():
+        content = fdata.get("content", "")
+        score = sum(content.lower().count(t) for t in terms)
+        if score > 0:
+            scored.append((fp, score, content[:200]))
+    return sorted(scored, key=lambda x: -x[1])[:top_k]
+
+def trim(max_chars=50000):
+    """Trim context to fit budget. Modifies files in place."""
+    total = 0
+    for fp in list(context.get("files", {}).keys()):
+        fdata = context["files"][fp]
+        content = fdata.get("content", "")
+        if total + len(content) > max_chars:
+            fdata["content"] = content[:max(0, max_chars - total)]
+            fdata["truncated"] = True
+            break
+        total += len(content)
+    return f"Trimmed to {sum(len(f.get('content', '')) for f in context.get('files', {}).values())} chars"
+
+print(f"[Snipara] {len(context.get('files', {}))} files loaded. Helpers: peek, grep, sections, files, get_file, search, trim")
 '''
 
         response = {
