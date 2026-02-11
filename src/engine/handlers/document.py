@@ -8,7 +8,8 @@ Handles:
 """
 
 import hashlib
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 from ...db import get_db
 from ...models import (

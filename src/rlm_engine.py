@@ -11,13 +11,33 @@ import logging
 import re
 import uuid
 from collections import deque
-from dataclasses import dataclass, field
 from typing import Any
-
-import tiktoken
 
 from .db import get_db
 
+# Phase 4 Refactor: Import from extracted core module
+from .engine.core import (
+    ABSTRACT_QUERY_MIN_SECTIONS,
+    INTERNAL_PATH_PATTERNS,
+    INTERNAL_PATH_PENALTY,
+    DocumentationIndex,
+    Section,
+    count_tokens,
+    expand_query,
+    get_encoder,
+    get_first_query_tips,
+    has_planned_content_markers,
+    is_abstract_query,
+    is_internal_path,
+    is_list_query,
+    is_numbered_section,
+)
+
+# Phase 3 Refactor: Import extracted handlers
+# These are available for integration - handlers are extracted but methods
+# below still use original implementations for backward compatibility.
+# Full migration will replace _handle_* methods with calls to these functions.
+# Note: count_tokens is already imported from .engine.core above
 # Phase 2 Refactor: Import from extracted scoring module
 from .engine.scoring import (
     STOP_WORDS,
@@ -40,22 +60,12 @@ from .engine.scoring.constants import (
 from .engine.scoring.constants import (
     HYBRID_SEMANTIC_HEAVY as _HYBRID_SEMANTIC_HEAVY,
 )
-from .engine.scoring.constants import (
-    LIST_QUERY_PATTERNS as _LIST_QUERY_PATTERNS,
-)
-from .engine.scoring.constants import (
-    NUMBERED_SECTION_PATTERNS as _NUMBERED_SECTION_PATTERNS,
-)
-from .engine.scoring.constants import (
-    PLANNED_CONTENT_MARKERS as _PLANNED_CONTENT_MARKERS,
-)
 
 # Phase 2 Refactor: Import from extracted scoring module
 # Note: _stem_keyword, _HYBRID_* weights, _RRF_K, _GENERIC_TITLE_TERMS,
 # _SPECIFIC_QUERY_TERMS, _CONCEPTUAL_PREFIXES, _LIST_QUERY_PATTERNS,
 # _NUMBERED_SECTION_PATTERNS, _PLANNED_CONTENT_MARKERS are now imported
 # from engine.scoring module (see imports at top of file).
-from .engine.scoring.constants import QUERY_EXPANSIONS as _QUERY_EXPANSIONS
 from .engine.scoring.constants import (
     RRF_K as _RRF_K,
 )
@@ -133,33 +143,6 @@ from .services.swarm_coordinator import (
 )
 from .services.swarm_events import (
     broadcast_event,
-)
-
-# Phase 3 Refactor: Import extracted handlers
-# These are available for integration - handlers are extracted but methods
-# below still use original implementations for backward compatibility.
-# Full migration will replace _handle_* methods with calls to these functions.
-from .engine.handlers import (
-    HandlerContext,
-    count_tokens,
-)
-
-# Phase 4 Refactor: Import from extracted core module
-from .engine.core import (
-    ABSTRACT_QUERY_MIN_SECTIONS,
-    INTERNAL_PATH_PENALTY,
-    INTERNAL_PATH_PATTERNS,
-    DocumentationIndex,
-    Section,
-    count_tokens,
-    expand_query,
-    get_encoder,
-    get_first_query_tips,
-    has_planned_content_markers,
-    is_abstract_query,
-    is_internal_path,
-    is_list_query,
-    is_numbered_section,
 )
 
 # Backward compatibility aliases

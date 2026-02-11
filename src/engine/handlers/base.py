@@ -4,8 +4,9 @@ This module provides the common types and utilities used by all handler modules.
 Each handler receives a HandlerContext with shared state and returns a ToolResult.
 """
 
+from collections.abc import Callable, Coroutine
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Callable, Coroutine
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from ...models import Plan, ProjectSettings, ToolResult
