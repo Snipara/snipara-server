@@ -44,11 +44,14 @@ from .models import (
 from .rlm_engine import RLMEngine
 from .services.agent_memory import semantic_recall, store_memory
 from .usage import (
+    _is_demo_key,
     check_rate_limit,
     check_usage_limits,
     close_redis,
+    get_demo_analytics,
     get_usage_stats,
     log_security_event,
+    track_demo_query,
     track_usage,
 )
 
@@ -269,9 +272,14 @@ async def mcp_endpoint(
     start_time = time.perf_counter()
 
     # Validate API key, project, rate limit, and get settings
+    client_ip = get_client_ip(raw_request)
     api_key_info, project, plan, project_settings = await validate_and_rate_limit(
-        project_id, api_key, client_ip=get_client_ip(raw_request)
+        project_id, api_key, client_ip=client_ip
     )
+
+    # Track demo queries for analytics (fire-and-forget)
+    if _is_demo_key(api_key_info.get("id", "")):
+        await track_demo_query(client_ip, request.tool.value)
 
     # Check usage limits
     limits = await check_usage_limits(project.id, plan)
@@ -604,6 +612,37 @@ async def get_stats(
 
     stats = await get_usage_stats(project_id, days)
     return {"project_id": project_id, **stats}
+
+
+@app.get("/v1/admin/demo-analytics", tags=["Admin"])
+async def demo_analytics(
+    x_internal_secret: Annotated[str | None, Header(alias="X-Internal-Secret")] = None,
+):
+    """
+    Get demo usage analytics (internal endpoint).
+
+    Tracks unique IPs, query counts, tool usage breakdown, and daily trends
+    for queries made with the demo API key.
+
+    Requires X-Internal-Secret header for authentication.
+
+    Returns:
+        Demo analytics data including:
+        - unique_ips: Total unique IP addresses
+        - total_queries: Total demo queries
+        - today_unique_ips: Unique IPs today
+        - tools_breakdown: Queries by tool type
+        - daily_stats: Daily query counts (last 7 days)
+        - top_users: Top 10 IPs by query count (masked for privacy)
+    """
+    # Require internal secret
+    if not settings.internal_api_secret:
+        raise HTTPException(status_code=500, detail="Internal API secret not configured")
+    if not x_internal_secret or x_internal_secret != settings.internal_api_secret:
+        raise HTTPException(status_code=401, detail="Invalid or missing internal secret")
+
+    analytics = await get_demo_analytics()
+    return {"success": True, "data": analytics}
 
 
 @app.post("/v1/{project_id}/reindex", tags=["MCP"])

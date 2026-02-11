@@ -500,3 +500,144 @@ async def is_scan_blocked(identifier: str) -> bool:
         # Expired - clean up
         _scan_blocks.pop(identifier, None)
     return False
+
+
+# ============ DEMO USAGE TRACKING ============
+
+DEMO_ANALYTICS_TTL = 30 * 24 * 60 * 60  # 30 days in seconds
+
+
+async def track_demo_query(client_ip: str, tool: str) -> None:
+    """
+    Track a demo query for analytics.
+
+    Stores unique IPs and query counts in Redis with 30-day retention.
+
+    Args:
+        client_ip: The client IP address
+        tool: The tool that was called
+    """
+    if not client_ip:
+        return
+
+    r = await get_redis()
+    if r is None:
+        return
+
+    try:
+        now = int(time.time())
+        today = datetime.utcnow().strftime("%Y-%m-%d")
+
+        # Track unique IPs (set with TTL)
+        ip_key = "demo_analytics:unique_ips"
+        await r.sadd(ip_key, client_ip)
+        await r.expire(ip_key, DEMO_ANALYTICS_TTL)
+
+        # Track IP first seen timestamp (hash)
+        first_seen_key = "demo_analytics:ip_first_seen"
+        if not await r.hexists(first_seen_key, client_ip):
+            await r.hset(first_seen_key, client_ip, str(now))
+        await r.expire(first_seen_key, DEMO_ANALYTICS_TTL)
+
+        # Track IP last seen timestamp (hash)
+        last_seen_key = "demo_analytics:ip_last_seen"
+        await r.hset(last_seen_key, client_ip, str(now))
+        await r.expire(last_seen_key, DEMO_ANALYTICS_TTL)
+
+        # Track total queries per IP (hash)
+        queries_key = "demo_analytics:ip_queries"
+        await r.hincrby(queries_key, client_ip, 1)
+        await r.expire(queries_key, DEMO_ANALYTICS_TTL)
+
+        # Track queries by tool (hash)
+        tool_key = "demo_analytics:tools"
+        await r.hincrby(tool_key, tool, 1)
+        await r.expire(tool_key, DEMO_ANALYTICS_TTL)
+
+        # Track daily queries (sorted set by date)
+        daily_key = "demo_analytics:daily"
+        await r.zincrby(daily_key, 1, today)
+        await r.expire(daily_key, DEMO_ANALYTICS_TTL)
+
+        # Track daily unique IPs (set per day)
+        daily_ip_key = f"demo_analytics:daily_ips:{today}"
+        await r.sadd(daily_ip_key, client_ip)
+        await r.expire(daily_ip_key, DEMO_ANALYTICS_TTL)
+
+    except Exception as e:
+        logger.debug(f"Demo analytics tracking failed (non-fatal): {e}")
+
+
+async def get_demo_analytics() -> dict:
+    """
+    Get demo usage analytics.
+
+    Returns:
+        Dictionary with demo analytics data
+    """
+    r = await get_redis()
+    if r is None:
+        return {"error": "Redis not available", "unique_ips": 0, "total_queries": 0}
+
+    try:
+        today = datetime.utcnow().strftime("%Y-%m-%d")
+
+        # Get unique IPs count
+        unique_ips = await r.scard("demo_analytics:unique_ips")
+
+        # Get total queries
+        queries_data = await r.hgetall("demo_analytics:ip_queries")
+        total_queries = sum(int(v) for v in queries_data.values()) if queries_data else 0
+
+        # Get queries by tool
+        tools_data = await r.hgetall("demo_analytics:tools")
+        tools_breakdown = {k: int(v) for k, v in tools_data.items()} if tools_data else {}
+
+        # Get daily stats (last 7 days)
+        daily_data = await r.zrevrange("demo_analytics:daily", 0, 6, withscores=True)
+        daily_stats = [{"date": d, "queries": int(c)} for d, c in daily_data] if daily_data else []
+
+        # Get today's unique IPs
+        today_unique_ips = await r.scard(f"demo_analytics:daily_ips:{today}")
+
+        # Get top IPs by query count (top 10)
+        if queries_data:
+            sorted_ips = sorted(queries_data.items(), key=lambda x: int(x[1]), reverse=True)[:10]
+            # Get first/last seen for top IPs
+            first_seen_data = await r.hgetall("demo_analytics:ip_first_seen")
+            last_seen_data = await r.hgetall("demo_analytics:ip_last_seen")
+
+            top_ips = []
+            for ip, count in sorted_ips:
+                first_seen = int(first_seen_data.get(ip, 0))
+                last_seen = int(last_seen_data.get(ip, 0))
+                top_ips.append({
+                    "ip": _mask_ip(ip),
+                    "queries": int(count),
+                    "first_seen": datetime.fromtimestamp(first_seen).isoformat() if first_seen else None,
+                    "last_seen": datetime.fromtimestamp(last_seen).isoformat() if last_seen else None,
+                })
+        else:
+            top_ips = []
+
+        return {
+            "unique_ips": unique_ips,
+            "total_queries": total_queries,
+            "today_unique_ips": today_unique_ips,
+            "tools_breakdown": tools_breakdown,
+            "daily_stats": daily_stats,
+            "top_users": top_ips,
+        }
+
+    except Exception as e:
+        logger.error(f"Failed to get demo analytics: {e}")
+        return {"error": str(e), "unique_ips": 0, "total_queries": 0}
+
+
+def _mask_ip(ip: str) -> str:
+    """Mask an IP address for privacy (show first two octets only)."""
+    parts = ip.split(".")
+    if len(parts) == 4:
+        return f"{parts[0]}.{parts[1]}.*.*"
+    # IPv6 or other format - just show first part
+    return ip.split(":")[0] + ":****"
