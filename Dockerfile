@@ -19,9 +19,12 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# Create appuser home directory structure for Prisma cache
-RUN mkdir -p /home/appuser/.cache
+# Create appuser home directory structure for Prisma and HuggingFace cache
+RUN mkdir -p /home/appuser/.cache/huggingface
 ENV HOME="/home/appuser"
+ENV HF_HOME="/home/appuser/.cache/huggingface"
+ENV TRANSFORMERS_CACHE="/home/appuser/.cache/huggingface"
+ENV SENTENCE_TRANSFORMERS_HOME="/home/appuser/.cache/huggingface"
 
 # Generate Prisma client (with HOME set so binaries go to /home/appuser/.cache)
 COPY prisma ./prisma
@@ -30,7 +33,8 @@ RUN prisma generate
 # Pre-download embedding models to avoid runtime network dependency
 # Models are cached in /home/appuser/.cache/huggingface/
 # Primary model: bge-large (1024 dims) — pgvector indexing, memory, chunk search
-RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('BAAI/bge-large-en-v1.5', device='cpu')"
+RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('BAAI/bge-large-en-v1.5', device='cpu')" && \
+    ls -la /home/appuser/.cache/huggingface/
 # Light model: bge-small (384 dims) — on-the-fly fallback path (~10x faster on CPU)
 RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('BAAI/bge-small-en-v1.5', device='cpu')"
 
@@ -53,12 +57,15 @@ RUN groupadd --gid 1000 appgroup && \
 COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Copy Prisma binaries cache from builder (already at /home/appuser/.cache)
+# Copy Prisma binaries and HuggingFace model cache from builder
 COPY --from=builder /home/appuser/.cache /home/appuser/.cache
 RUN chown -R appuser:appgroup /home/appuser
 
-# Set HOME for appuser (must match build stage HOME)
+# Set HOME and HuggingFace cache variables (must match build stage)
 ENV HOME="/home/appuser"
+ENV HF_HOME="/home/appuser/.cache/huggingface"
+ENV TRANSFORMERS_CACHE="/home/appuser/.cache/huggingface"
+ENV SENTENCE_TRANSFORMERS_HOME="/home/appuser/.cache/huggingface"
 
 # Copy application code
 COPY src ./src
