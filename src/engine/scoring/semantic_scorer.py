@@ -6,6 +6,8 @@ Two paths are supported:
 2. On-the-fly embeddings (fallback when chunks not available)
 """
 
+from __future__ import annotations
+
 import logging
 from typing import TYPE_CHECKING, Protocol
 
