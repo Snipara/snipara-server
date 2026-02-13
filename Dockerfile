@@ -19,12 +19,12 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# Create appuser home directory structure for Prisma and HuggingFace cache
-RUN mkdir -p /home/appuser/.cache/huggingface
+# Create appuser home directory structure for Prisma and model caches
+RUN mkdir -p /home/appuser/.cache/huggingface /home/appuser/.cache/torch/sentence_transformers
 ENV HOME="/home/appuser"
 ENV HF_HOME="/home/appuser/.cache/huggingface"
 ENV TRANSFORMERS_CACHE="/home/appuser/.cache/huggingface"
-ENV SENTENCE_TRANSFORMERS_HOME="/home/appuser/.cache/huggingface"
+ENV SENTENCE_TRANSFORMERS_HOME="/home/appuser/.cache/torch/sentence_transformers"
 
 # Generate Prisma client (with HOME set so binaries go to /home/appuser/.cache)
 COPY prisma ./prisma
@@ -34,7 +34,7 @@ RUN prisma generate
 # Models are cached in /home/appuser/.cache/huggingface/
 # Primary model: bge-large (1024 dims) — pgvector indexing, memory, chunk search
 RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('BAAI/bge-large-en-v1.5', device='cpu')" && \
-    ls -la /home/appuser/.cache/huggingface/
+    ls -la /home/appuser/.cache/torch/sentence_transformers/
 # Light model: bge-small (384 dims) — on-the-fly fallback path (~10x faster on CPU)
 RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('BAAI/bge-small-en-v1.5', device='cpu')"
 
@@ -61,11 +61,11 @@ ENV PATH="/opt/venv/bin:$PATH"
 COPY --from=builder /home/appuser/.cache /home/appuser/.cache
 RUN chown -R appuser:appgroup /home/appuser
 
-# Set HOME and HuggingFace cache variables (must match build stage)
+# Set HOME and cache variables (must match build stage)
 ENV HOME="/home/appuser"
 ENV HF_HOME="/home/appuser/.cache/huggingface"
 ENV TRANSFORMERS_CACHE="/home/appuser/.cache/huggingface"
-ENV SENTENCE_TRANSFORMERS_HOME="/home/appuser/.cache/huggingface"
+ENV SENTENCE_TRANSFORMERS_HOME="/home/appuser/.cache/torch/sentence_transformers"
 
 # Copy application code
 COPY src ./src
