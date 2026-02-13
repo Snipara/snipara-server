@@ -894,7 +894,7 @@ class RLMEngine:
             ToolResult with error if access denied, None if access allowed
         """
         try:
-            allowed, error, warning = await validate_agents_access(self.project_id)
+            allowed, error, warning = await validate_agents_access(self.project_id, self.user_id)
 
             if not allowed:
                 return ToolResult(
@@ -3770,7 +3770,7 @@ class RLMEngine:
             )
 
         # Check memory limits
-        allowed, error = await check_memory_limits(self.project_id)
+        allowed, error = await check_memory_limits(self.project_id, self.user_id)
         if not allowed:
             return ToolResult(
                 data={"error": error, "upgrade_url": "/billing/upgrade"},
@@ -3956,6 +3956,7 @@ class RLMEngine:
             description=description,
             max_agents=max_agents,
             config=config,
+            user_id=self.user_id,
         )
 
         return ToolResult(
