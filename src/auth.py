@@ -88,13 +88,16 @@ async def validate_api_key(api_key: str, project_id_or_slug: str) -> dict | None
             data={"lastUsedAt": datetime.now(UTC)},
         )
 
+        # Use access level from API key record (defaults to EDITOR in DB)
+        access_level = api_key_record.accessLevel if api_key_record.accessLevel else "EDITOR"
+
         return {
             "id": api_key_record.id,
             "name": api_key_record.name,
             "user_id": api_key_record.userId,
             "project_id": api_key_record.projectId,
             "project": api_key_record.project,
-            "access_level": "EDITOR",  # Project API keys have full project access
+            "access_level": access_level,
             "access_denied": False,
         }
 

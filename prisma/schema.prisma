@@ -428,6 +428,11 @@ enum IndexJobStatus {
   CANCELLED
 }
 
+enum IndexJobMode {
+  FULL        // Re-index all documents (delete existing chunks first)
+  INCREMENTAL // Only index documents without existing chunks
+}
+
 model IndexJob {
   id                 String         @id @default(cuid())
   projectId          String
@@ -436,6 +441,8 @@ model IndexJob {
   status             IndexJobStatus @default(PENDING)
   progress           Int            @default(0) // 0-100
   errorMessage       String?
+
+  indexMode          IndexJobMode   @default(INCREMENTAL)
 
   documentsTotal     Int            @default(0)
   documentsProcessed Int            @default(0)
@@ -558,6 +565,9 @@ model ApiKey {
   expiresAt  DateTime?
   createdAt  DateTime  @default(now())
   revokedAt  DateTime?
+
+  // Access level for MCP tools (VIEWER, EDITOR, ADMIN)
+  accessLevel ProjectAccessLevel @default(EDITOR)
 
   // Relations
   userId    String
