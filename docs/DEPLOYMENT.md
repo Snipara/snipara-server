@@ -298,8 +298,10 @@ railway up
 **After code changes to MCP server:**
 
 1. Copy files: `cp apps/mcp-server/src/*.py /Users/alopez/Devs/snipara-fastapi/src/`
-2. Commit: `cd snipara-fastapi && git add . && git commit -m "message"`
-3. **Deploy: `railway up`** (don't rely on git push)
+2. **Pull first**: `cd snipara-fastapi && git pull origin main`
+3. Commit: `git add . && git commit -m "message"`
+4. Push: `git push origin main`
+5. **Deploy: `railway up`** (don't rely on git push auto-deploy)
 
 ---
 
