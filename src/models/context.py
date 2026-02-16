@@ -138,6 +138,15 @@ class ContextQueryResult(BaseModel):
         default=None,
         description="Assessed query complexity: 'simple', 'moderate', or 'complex'",
     )
+    # Auto-decompose metadata (Pro+ feature)
+    decomposed: bool = Field(
+        default=False,
+        description="Whether the query was auto-decomposed into sub-queries",
+    )
+    sub_queries: list[str] = Field(
+        default_factory=list,
+        description="Sub-queries used when decomposed=True",
+    )
 
 
 # ============ RECURSIVE CONTEXT MODELS (Phase 4.5) ============
@@ -169,6 +178,9 @@ class DecomposeResult(BaseModel):
         default=0, ge=0, description="Total estimated tokens for all sub-queries"
     )
     strategy_used: DecomposeStrategy = Field(..., description="Strategy that was used")
+    diagnostic_message: str | None = Field(
+        default=None, description="Diagnostic info if decompose failed or returned empty"
+    )
 
 
 class MultiQueryResultItem(BaseModel):

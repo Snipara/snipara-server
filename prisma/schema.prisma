@@ -56,6 +56,9 @@ model User {
   bannedAt      DateTime?
   bannedReason  String?
 
+  // Beta tester status (excluded from revenue calculations)
+  isBetaTester  Boolean   @default(false)
+
   // Admin audit log relations
   adminActions  AdminAuditLog[] @relation("AdminActions")
   adminTargets  AdminAuditLog[] @relation("AdminTargets")
@@ -428,6 +431,11 @@ enum IndexJobStatus {
   CANCELLED
 }
 
+enum IndexJobMode {
+  FULL        // Re-index all documents (delete existing chunks first)
+  INCREMENTAL // Only index documents without existing chunks
+}
+
 model IndexJob {
   id                 String         @id @default(cuid())
   projectId          String
@@ -436,6 +444,8 @@ model IndexJob {
   status             IndexJobStatus @default(PENDING)
   progress           Int            @default(0) // 0-100
   errorMessage       String?
+
+  indexMode          IndexJobMode   @default(INCREMENTAL)
 
   documentsTotal     Int            @default(0)
   documentsProcessed Int            @default(0)
@@ -558,6 +568,9 @@ model ApiKey {
   expiresAt  DateTime?
   createdAt  DateTime  @default(now())
   revokedAt  DateTime?
+
+  // Access level for MCP tools (VIEWER, EDITOR, ADMIN)
+  accessLevel ProjectAccessLevel @default(EDITOR)
 
   // Relations
   userId    String
@@ -1275,22 +1288,26 @@ model ResourceClaim {
 }
 
 model SharedState {
-  id            String   @id @default(cuid())
+  id            String    @id @default(cuid())
   swarmId       String
 
   key           String
   value         Json
 
   // Versioning for conflict detection
-  version       Int      @default(1)
+  version       Int       @default(1)
 
-  updatedBy     String?  // agentId
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  // TTL support
+  expiresAt     DateTime? // Optional expiration time
+
+  updatedBy     String?   // agentId
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   swarm         AgentSwarm @relation(fields: [swarmId], references: [id], onDelete: Cascade)
 
   @@unique([swarmId, key])
+  @@index([expiresAt])
   @@map("shared_state")
 }
 
@@ -1320,6 +1337,7 @@ model SwarmTask {
   title         String
   description   String?    @db.Text
   priority      Int        @default(0)  // Higher = more urgent
+  dueAt         DateTime?  // Optional deadline
 
   // Dependencies
   dependsOn     String[]   // Task IDs that must complete first

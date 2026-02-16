@@ -16,7 +16,87 @@ Tool Categories:
     - Document Sync: rlm_upload_document, rlm_sync_documents
     - RLM Orchestration: rlm_load_document, rlm_load_project, rlm_orchestrate, rlm_repl_context
     - Pass-by-Reference: rlm_get_chunk
+
+Tool Tiers:
+    - PRIMARY (🟢): Essential tools for all users - start here
+    - POWER_USER (🔵): Advanced features for intermediate users
+    - TEAM (🟡): Team collaboration and multi-project features
+    - UTILITY (⚪): Session and project management utilities
+    - ADVANCED (🔴): Multi-agent swarms and expert orchestration
 """
+
+from enum import Enum
+
+
+class ToolTier(str, Enum):
+    """Tool tier classification for user guidance."""
+
+    PRIMARY = "primary"  # Essential tools for all users
+    POWER_USER = "power_user"  # Advanced features for intermediate users
+    TEAM = "team"  # Team collaboration and multi-project
+    UTILITY = "utility"  # Session management and utilities
+    ADVANCED = "advanced"  # Multi-agent swarms and orchestration
+
+
+# Mapping of tool name -> tier for discovery and filtering
+TOOL_TIERS: dict[str, ToolTier] = {
+    # PRIMARY (🟢) - Essential tools, start here
+    "rlm_context_query": ToolTier.PRIMARY,
+    "rlm_ask": ToolTier.PRIMARY,
+    "rlm_search": ToolTier.PRIMARY,
+    "rlm_read": ToolTier.PRIMARY,
+    "rlm_recall": ToolTier.PRIMARY,
+    "rlm_stats": ToolTier.PRIMARY,
+    "rlm_help": ToolTier.PRIMARY,
+    # POWER_USER (🔵) - Advanced features
+    "rlm_multi_query": ToolTier.POWER_USER,
+    "rlm_decompose": ToolTier.POWER_USER,
+    "rlm_plan": ToolTier.POWER_USER,
+    "rlm_remember": ToolTier.POWER_USER,
+    "rlm_remember_bulk": ToolTier.POWER_USER,
+    "rlm_store_summary": ToolTier.POWER_USER,
+    "rlm_get_summaries": ToolTier.POWER_USER,
+    "rlm_load_document": ToolTier.POWER_USER,
+    "rlm_memories": ToolTier.POWER_USER,
+    # TEAM (🟡) - Team collaboration
+    "rlm_multi_project_query": ToolTier.TEAM,
+    "rlm_shared_context": ToolTier.TEAM,
+    "rlm_list_templates": ToolTier.TEAM,
+    "rlm_get_template": ToolTier.TEAM,
+    "rlm_upload_shared_document": ToolTier.TEAM,
+    "rlm_list_collections": ToolTier.TEAM,
+    "rlm_load_project": ToolTier.TEAM,
+    # UTILITY (⚪) - Session management
+    "rlm_inject": ToolTier.UTILITY,
+    "rlm_context": ToolTier.UTILITY,
+    "rlm_clear_context": ToolTier.UTILITY,
+    "rlm_sections": ToolTier.UTILITY,
+    "rlm_settings": ToolTier.UTILITY,
+    "rlm_forget": ToolTier.UTILITY,
+    "rlm_delete_summary": ToolTier.UTILITY,
+    "rlm_get_chunk": ToolTier.UTILITY,
+    # ADVANCED (🔴) - Multi-agent and orchestration
+    "rlm_orchestrate": ToolTier.ADVANCED,
+    "rlm_repl_context": ToolTier.ADVANCED,
+    "rlm_upload_document": ToolTier.ADVANCED,
+    "rlm_sync_documents": ToolTier.ADVANCED,
+    "rlm_swarm_create": ToolTier.ADVANCED,
+    "rlm_swarm_join": ToolTier.ADVANCED,
+    "rlm_claim": ToolTier.ADVANCED,
+    "rlm_release": ToolTier.ADVANCED,
+    "rlm_state_get": ToolTier.ADVANCED,
+    "rlm_state_set": ToolTier.ADVANCED,
+    "rlm_broadcast": ToolTier.ADVANCED,
+    "rlm_task_create": ToolTier.ADVANCED,
+    "rlm_task_claim": ToolTier.ADVANCED,
+    "rlm_task_complete": ToolTier.ADVANCED,
+}
+
+
+def get_tool_tier(tool_name: str) -> ToolTier:
+    """Get tier for a tool (defaults to UTILITY if not mapped)."""
+    return TOOL_TIERS.get(tool_name, ToolTier.UTILITY)
+
 
 TOOL_DEFINITIONS: list[dict] = [
     # ============ Context Retrieval Tools ============
@@ -45,6 +125,11 @@ TOOL_DEFINITIONS: list[dict] = [
                     "default": False,
                     "description": "Return chunk references (IDs + previews) instead of full content. Use rlm_get_chunk to retrieve full content by ID. Reduces hallucination by maintaining clear source attribution.",
                 },
+                "auto_decompose": {
+                    "type": "boolean",
+                    "default": True,
+                    "description": "Auto-decompose complex queries into sub-queries (Pro+ only). Complex queries (50+ words, multiple questions, comparisons) are automatically broken down and results merged. Set to False to disable.",
+                },
             },
             "required": ["query"],
         },
@@ -54,8 +139,8 @@ TOOL_DEFINITIONS: list[dict] = [
         "description": "Query documentation with a question (basic). Use rlm_context_query for better results.",
         "inputSchema": {
             "type": "object",
-            "properties": {"question": {"type": "string"}},
-            "required": ["question"],
+            "properties": {"query": {"type": "string", "description": "The question to ask"}},
+            "required": ["query"],
         },
     },
     {
@@ -241,6 +326,36 @@ TOOL_DEFINITIONS: list[dict] = [
             "required": [],
         },
     },
+    {
+        "name": "rlm_help",
+        "description": "Get intelligent tool recommendations based on what you want to do. Helps discover the right tool for your task.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "query": {
+                    "type": "string",
+                    "description": "Describe what you want to do (e.g., 'search across all team projects', 'remember a decision')",
+                },
+                "tool": {
+                    "type": "string",
+                    "description": "Get detailed info about a specific tool (e.g., 'rlm_context_query')",
+                },
+                "tier": {
+                    "type": "string",
+                    "enum": ["primary", "power_user", "team", "utility", "advanced"],
+                    "description": "List all tools in a specific tier",
+                },
+                "limit": {
+                    "type": "integer",
+                    "default": 5,
+                    "minimum": 1,
+                    "maximum": 20,
+                    "description": "Maximum recommendations to return",
+                },
+            },
+            "required": [],
+        },
+    },
     # ============ Summary Tools ============
     {
         "name": "rlm_store_summary",
@@ -396,7 +511,11 @@ TOOL_DEFINITIONS: list[dict] = [
         "inputSchema": {
             "type": "object",
             "properties": {
-                "content": {"type": "string", "description": "The memory content to store"},
+                "text": {"type": "string", "description": "The memory text to store"},
+                "content": {
+                    "type": "string",
+                    "description": "DEPRECATED: Use 'text' instead. The memory content to store.",
+                },
                 "type": {
                     "type": "string",
                     "enum": ["fact", "decision", "learning", "preference", "todo", "context"],
@@ -423,7 +542,51 @@ TOOL_DEFINITIONS: list[dict] = [
                     "description": "Referenced document paths",
                 },
             },
-            "required": ["content"],
+            "required": [],
+        },
+    },
+    {
+        "name": "rlm_remember_bulk",
+        "description": "Store multiple memories in a single call. Batch embedding for efficiency. Max 50 memories per call.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "memories": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "text": {"type": "string", "description": "Memory text to store"},
+                            "type": {
+                                "type": "string",
+                                "enum": [
+                                    "fact",
+                                    "decision",
+                                    "learning",
+                                    "preference",
+                                    "todo",
+                                    "context",
+                                ],
+                                "default": "fact",
+                            },
+                            "scope": {
+                                "type": "string",
+                                "enum": ["agent", "project", "team", "user"],
+                                "default": "project",
+                            },
+                            "category": {"type": "string"},
+                            "ttl_days": {"type": "integer"},
+                            "related_to": {"type": "array", "items": {"type": "string"}},
+                            "document_refs": {"type": "array", "items": {"type": "string"}},
+                        },
+                        "required": ["text"],
+                    },
+                    "minItems": 1,
+                    "maxItems": 50,
+                    "description": "Array of memories to store (max 50)",
+                },
+            },
+            "required": ["memories"],
         },
     },
     {
@@ -455,7 +618,7 @@ TOOL_DEFINITIONS: list[dict] = [
     },
     {
         "name": "rlm_memories",
-        "description": "List memories with optional filters.",
+        "description": "List memories with optional filters and sorting.",
         "inputSchema": {
             "type": "object",
             "properties": {
@@ -468,6 +631,18 @@ TOOL_DEFINITIONS: list[dict] = [
                 "search": {"type": "string", "description": "Text search in content"},
                 "limit": {"type": "integer", "default": 20},
                 "offset": {"type": "integer", "default": 0},
+                "sort_by": {
+                    "type": "string",
+                    "enum": ["created_at", "confidence", "access_count", "last_accessed", "expires_at"],
+                    "default": "created_at",
+                    "description": "Field to sort by",
+                },
+                "sort_order": {
+                    "type": "string",
+                    "enum": ["asc", "desc"],
+                    "default": "desc",
+                    "description": "Sort direction",
+                },
             },
             "required": [],
         },
@@ -575,7 +750,7 @@ TOOL_DEFINITIONS: list[dict] = [
     },
     {
         "name": "rlm_state_set",
-        "description": "Write shared swarm state with optimistic locking.",
+        "description": "Write shared swarm state with optimistic locking and optional TTL.",
         "inputSchema": {
             "type": "object",
             "properties": {
@@ -587,8 +762,34 @@ TOOL_DEFINITIONS: list[dict] = [
                     "type": "integer",
                     "description": "Expected version for optimistic locking",
                 },
+                "ttl_seconds": {
+                    "type": "integer",
+                    "description": "Time to live in seconds (optional, state expires after this)",
+                },
             },
             "required": ["swarm_id", "agent_id", "key", "value"],
+        },
+    },
+    {
+        "name": "rlm_state_poll",
+        "description": "Poll for state changes across multiple keys. Returns only keys that changed since last_versions. Use for efficient multi-key monitoring without individual get calls.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "swarm_id": {"type": "string", "description": "Swarm ID"},
+                "keys": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "List of state keys to monitor",
+                },
+                "last_versions": {
+                    "type": "object",
+                    "additionalProperties": {"type": "integer"},
+                    "description": "Map of key -> last known version. Only keys with newer versions are returned.",
+                    "default": {},
+                },
+            },
+            "required": ["swarm_id", "keys"],
         },
     },
     {
@@ -606,6 +807,35 @@ TOOL_DEFINITIONS: list[dict] = [
         },
     },
     {
+        "name": "rlm_swarm_events",
+        "description": "Query and filter broadcast events in a swarm.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "swarm_id": {"type": "string"},
+                "event_type": {
+                    "type": "string",
+                    "description": "Filter by event type",
+                },
+                "agent_id": {
+                    "type": "string",
+                    "description": "Filter by sending agent",
+                },
+                "since": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Only events after this timestamp (ISO 8601)",
+                },
+                "limit": {
+                    "type": "integer",
+                    "default": 50,
+                    "description": "Maximum events to return",
+                },
+            },
+            "required": ["swarm_id"],
+        },
+    },
+    {
         "name": "rlm_task_create",
         "description": "Create a task in the swarm's distributed task queue.",
         "inputSchema": {
@@ -620,6 +850,11 @@ TOOL_DEFINITIONS: list[dict] = [
                     "default": 0,
                     "description": "Higher = more urgent",
                 },
+                "deadline": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Optional deadline (ISO 8601 format)",
+                },
                 "depends_on": {
                     "type": "array",
                     "items": {"type": "string"},
@@ -628,6 +863,47 @@ TOOL_DEFINITIONS: list[dict] = [
                 "metadata": {"type": "object"},
             },
             "required": ["swarm_id", "agent_id", "title"],
+        },
+    },
+    {
+        "name": "rlm_task_bulk_create",
+        "description": "Create multiple tasks in a single call. Max 50 tasks per call.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "swarm_id": {"type": "string"},
+                "agent_id": {"type": "string"},
+                "tasks": {
+                    "type": "array",
+                    "description": "Array of task objects (max 50)",
+                    "maxItems": 50,
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "title": {"type": "string"},
+                            "description": {"type": "string"},
+                            "priority": {
+                                "type": "integer",
+                                "default": 0,
+                                "description": "Higher = more urgent",
+                            },
+                            "deadline": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "Optional deadline (ISO 8601 format)",
+                            },
+                            "depends_on": {
+                                "type": "array",
+                                "items": {"type": "string"},
+                                "description": "Task IDs this depends on",
+                            },
+                            "metadata": {"type": "object"},
+                        },
+                        "required": ["title"],
+                    },
+                },
+            },
+            "required": ["swarm_id", "agent_id", "tasks"],
         },
     },
     {
@@ -764,7 +1040,24 @@ TOOL_DEFINITIONS: list[dict] = [
     },
     {
         "name": "rlm_repl_context",
-        "description": "Package project context for REPL consumption. Returns a structured dict of files and sections plus Python helper code (peek, grep, sections, files, get_file, search, trim) ready for injection into an rlm-runtime REPL session via set_repl_context + execute_python. Optionally filter by a relevance query.",
+        "description": """Bridge between Snipara's context optimization and RLM-Runtime's code execution.
+
+PURPOSE: Package project documentation into a Python-ready format that can be injected into an rlm-runtime REPL session for context-aware code execution.
+
+WORKFLOW:
+1. Call rlm_repl_context to get context_data + setup_code
+2. Use set_repl_context(key='context', value=context_data) to inject data
+3. Use execute_python(setup_code) to load helper functions
+4. Use helpers (peek, grep, find_function, etc.) to explore context
+5. Execute code with full documentation context available
+
+USE CASES:
+- Implement features with documentation awareness
+- Debug code with access to related docs
+- Write tests referencing specifications
+- Refactor with architecture docs available
+
+Returns context_data (files + sections), setup_code (helper functions), and usage hints.""",
         "inputSchema": {
             "type": "object",
             "properties": {
@@ -780,7 +1073,7 @@ TOOL_DEFINITIONS: list[dict] = [
                 "include_helpers": {
                     "type": "boolean",
                     "default": True,
-                    "description": "Include Python helper code (peek, grep, sections, files, get_file, search, trim) in setup_code",
+                    "description": "Include Python helper functions: peek(), grep(), sections(), files(), get_file(), search(), trim(), find_function(), list_imports(), context_summary()",
                 },
                 "search_mode": {
                     "type": "string",

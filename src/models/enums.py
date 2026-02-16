@@ -12,6 +12,7 @@ class ToolName(StrEnum):
     RLM_CONTEXT = "rlm_context"
     RLM_CLEAR_CONTEXT = "rlm_clear_context"
     RLM_STATS = "rlm_stats"
+    RLM_HELP = "rlm_help"
     RLM_SECTIONS = "rlm_sections"
     RLM_READ = "rlm_read"
     RLM_CONTEXT_QUERY = "rlm_context_query"
@@ -32,6 +33,7 @@ class ToolName(StrEnum):
     RLM_UPLOAD_SHARED_DOCUMENT = "rlm_upload_shared_document"
     # Phase 8.2: Agent Memory Tools
     RLM_REMEMBER = "rlm_remember"
+    RLM_REMEMBER_BULK = "rlm_remember_bulk"
     RLM_RECALL = "rlm_recall"
     RLM_MEMORIES = "rlm_memories"
     RLM_FORGET = "rlm_forget"
@@ -42,8 +44,11 @@ class ToolName(StrEnum):
     RLM_RELEASE = "rlm_release"
     RLM_STATE_GET = "rlm_state_get"
     RLM_STATE_SET = "rlm_state_set"
+    RLM_STATE_POLL = "rlm_state_poll"
     RLM_BROADCAST = "rlm_broadcast"
+    RLM_SWARM_EVENTS = "rlm_swarm_events"
     RLM_TASK_CREATE = "rlm_task_create"
+    RLM_TASK_BULK_CREATE = "rlm_task_bulk_create"
     RLM_TASK_CLAIM = "rlm_task_claim"
     RLM_TASK_COMPLETE = "rlm_task_complete"
     # Phase 10: Document Sync Tools

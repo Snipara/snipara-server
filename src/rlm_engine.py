@@ -9,14 +9,36 @@ import asyncio
 import hashlib
 import logging
 import re
+import time
 import uuid
 from collections import deque
-from dataclasses import dataclass, field
 from typing import Any
 
-import tiktoken
-
 from .db import get_db
+
+# Phase 4 Refactor: Import from extracted core module
+from .engine.core import (
+    ABSTRACT_QUERY_MIN_SECTIONS,
+    INTERNAL_PATH_PATTERNS,
+    INTERNAL_PATH_PENALTY,
+    DocumentationIndex,
+    Section,
+    count_tokens,
+    expand_query,
+    get_encoder,
+    get_first_query_tips,
+    has_planned_content_markers,
+    is_abstract_query,
+    is_internal_path,
+    is_list_query,
+    is_numbered_section,
+)
+
+# Phase 3 Refactor: Import extracted handlers
+# These are available for integration - handlers are extracted but methods
+# below still use original implementations for backward compatibility.
+# Full migration will replace _handle_* methods with calls to these functions.
+from .engine.middleware import maybe_auto_remember
 
 # Phase 2 Refactor: Import from extracted scoring module
 from .engine.scoring import (
@@ -40,22 +62,12 @@ from .engine.scoring.constants import (
 from .engine.scoring.constants import (
     HYBRID_SEMANTIC_HEAVY as _HYBRID_SEMANTIC_HEAVY,
 )
-from .engine.scoring.constants import (
-    LIST_QUERY_PATTERNS as _LIST_QUERY_PATTERNS,
-)
-from .engine.scoring.constants import (
-    NUMBERED_SECTION_PATTERNS as _NUMBERED_SECTION_PATTERNS,
-)
-from .engine.scoring.constants import (
-    PLANNED_CONTENT_MARKERS as _PLANNED_CONTENT_MARKERS,
-)
 
 # Phase 2 Refactor: Import from extracted scoring module
 # Note: _stem_keyword, _HYBRID_* weights, _RRF_K, _GENERIC_TITLE_TERMS,
 # _SPECIFIC_QUERY_TERMS, _CONCEPTUAL_PREFIXES, _LIST_QUERY_PATTERNS,
 # _NUMBERED_SECTION_PATTERNS, _PLANNED_CONTENT_MARKERS are now imported
 # from engine.scoring module (see imports at top of file).
-from .engine.scoring.constants import QUERY_EXPANSIONS as _QUERY_EXPANSIONS
 from .engine.scoring.constants import (
     RRF_K as _RRF_K,
 )
@@ -105,9 +117,9 @@ from .services.agent_memory import (
     delete_memories,
     list_memories,
     semantic_recall,
+    store_memories_bulk,
     store_memory,
 )
-from .engine.middleware import maybe_auto_remember
 from .services.chunker import get_chunker
 from .services.embeddings import get_light_embeddings_service
 from .services.query_router import route_query
@@ -127,40 +139,24 @@ from .services.swarm_coordinator import (
     complete_task,
     create_swarm,
     create_task,
+    create_tasks_bulk,
     get_state,
     join_swarm,
+    poll_state,
     release_claim,
     set_state,
 )
 from .services.swarm_events import (
     broadcast_event,
+    get_recent_events,
 )
-
-# Phase 3 Refactor: Import extracted handlers
-# These are available for integration - handlers are extracted but methods
-# below still use original implementations for backward compatibility.
-# Full migration will replace _handle_* methods with calls to these functions.
-from .engine.handlers import (
-    HandlerContext,
-    count_tokens,
+from .services.tool_recommender import (
+    ToolTier as RecommenderToolTier,
 )
-
-# Phase 4 Refactor: Import from extracted core module
-from .engine.core import (
-    ABSTRACT_QUERY_MIN_SECTIONS,
-    INTERNAL_PATH_PENALTY,
-    INTERNAL_PATH_PATTERNS,
-    DocumentationIndex,
-    Section,
-    count_tokens,
-    expand_query,
-    get_encoder,
-    get_first_query_tips,
-    has_planned_content_markers,
-    is_abstract_query,
-    is_internal_path,
-    is_list_query,
-    is_numbered_section,
+from .services.tool_recommender import (
+    get_tool_info,
+    list_tools_by_tier,
+    recommend_tools,
 )
 
 # Backward compatibility aliases
@@ -201,6 +197,53 @@ REPL_CONTEXT_PLANS = {Plan.PRO, Plan.TEAM, Plan.ENTERPRISE}
 
 # Plans that have access to orchestration features (rlm_load_project, rlm_orchestrate)
 ORCHESTRATION_PLANS = {Plan.TEAM, Plan.ENTERPRISE}
+
+# Plans that have access to auto-decompose feature
+AUTO_DECOMPOSE_PLANS = {Plan.PRO, Plan.TEAM, Plan.ENTERPRISE}
+
+# Auto-decompose detection heuristics
+AUTO_DECOMPOSE_MIN_WORDS = 50  # Queries longer than this may be decomposed
+AUTO_DECOMPOSE_COMPARISON_KEYWORDS = {"vs", "versus", "compare", "comparison", "difference", "differences", "between"}
+AUTO_DECOMPOSE_CONJUNCTION_PATTERNS = [
+    r"\band\b.*\band\b",  # Multiple "and" conjunctions
+    r"\bor\b.*\bor\b",  # Multiple "or" conjunctions
+]
+
+
+def _should_auto_decompose(query: str) -> bool:
+    """Detect if a query is complex enough to benefit from auto-decomposition.
+
+    Heuristics:
+    - Query has 50+ words
+    - Multiple question marks (asking multiple questions)
+    - Contains comparison keywords (vs, compare, difference)
+    - Contains multiple conjunctions joining distinct concepts
+
+    Returns:
+        True if the query should be auto-decomposed
+    """
+    query_lower = query.lower()
+    words = query_lower.split()
+
+    # Check word count
+    if len(words) >= AUTO_DECOMPOSE_MIN_WORDS:
+        return True
+
+    # Check multiple question marks
+    if query.count("?") > 1:
+        return True
+
+    # Check comparison keywords
+    if any(kw in words for kw in AUTO_DECOMPOSE_COMPARISON_KEYWORDS):
+        return True
+
+    # Check for multiple conjunctions joining concepts
+    for pattern in AUTO_DECOMPOSE_CONJUNCTION_PATTERNS:
+        if re.search(pattern, query_lower):
+            return True
+
+    return False
+
 
 # Tool access level categories for per-project access control
 # READ_TOOLS: Available to VIEWER and above
@@ -256,6 +299,7 @@ ADMIN_TOOLS = {
     ToolName.RLM_CLAIM,
     ToolName.RLM_RELEASE,
     ToolName.RLM_TASK_CREATE,
+    ToolName.RLM_TASK_BULK_CREATE,
     ToolName.RLM_MULTI_PROJECT_QUERY,
 }
 
@@ -269,6 +313,7 @@ NONE_ALLOWED_TOOLS = {
 AGENT_TOOLS = {
     # Memory tools
     ToolName.RLM_REMEMBER,
+    ToolName.RLM_REMEMBER_BULK,
     ToolName.RLM_RECALL,
     ToolName.RLM_MEMORIES,
     ToolName.RLM_FORGET,
@@ -279,8 +324,11 @@ AGENT_TOOLS = {
     ToolName.RLM_RELEASE,
     ToolName.RLM_STATE_GET,
     ToolName.RLM_STATE_SET,
+    ToolName.RLM_STATE_POLL,
     ToolName.RLM_BROADCAST,
+    ToolName.RLM_SWARM_EVENTS,
     ToolName.RLM_TASK_CREATE,
+    ToolName.RLM_TASK_BULK_CREATE,
     ToolName.RLM_TASK_CLAIM,
     ToolName.RLM_TASK_COMPLETE,
 }
@@ -410,9 +458,7 @@ class RLMEngine:
                 enrich_prompts=settings.get("enrich_prompts", False),
                 auto_inject_context=settings.get("auto_inject_context", False),
                 memory_save_on_commit=settings.get("memory_save_on_commit", False),
-                memory_inject_types=settings.get(
-                    "memory_inject_types", ["DECISION", "LEARNING"]
-                ),
+                memory_inject_types=settings.get("memory_inject_types", ["DECISION", "LEARNING"]),
             )
         else:
             self.settings = ProjectSettings()
@@ -588,11 +634,52 @@ class RLMEngine:
 
         # Common stop words to always exclude
         stop_words = {
-            "the", "a", "an", "of", "in", "to", "for", "and", "or", "is", "are",
-            "with", "from", "by", "on", "at", "as", "be", "this", "that", "it",
-            "not", "but", "what", "all", "were", "we", "when", "your", "can",
-            "had", "have", "was", "one", "our", "out", "you", "her", "has",
-            "how", "use", "using", "used", "overview", "introduction", "guide",
+            "the",
+            "a",
+            "an",
+            "of",
+            "in",
+            "to",
+            "for",
+            "and",
+            "or",
+            "is",
+            "are",
+            "with",
+            "from",
+            "by",
+            "on",
+            "at",
+            "as",
+            "be",
+            "this",
+            "that",
+            "it",
+            "not",
+            "but",
+            "what",
+            "all",
+            "were",
+            "we",
+            "when",
+            "your",
+            "can",
+            "had",
+            "have",
+            "was",
+            "one",
+            "our",
+            "out",
+            "you",
+            "her",
+            "has",
+            "how",
+            "use",
+            "using",
+            "used",
+            "overview",
+            "introduction",
+            "guide",
         }
 
         # Count keyword occurrences across all section titles
@@ -762,6 +849,7 @@ class RLMEngine:
             ToolName.RLM_CONTEXT: self._handle_context,
             ToolName.RLM_CLEAR_CONTEXT: self._handle_clear_context,
             ToolName.RLM_STATS: self._handle_stats,
+            ToolName.RLM_HELP: self._handle_help,
             ToolName.RLM_SECTIONS: self._handle_sections,
             ToolName.RLM_READ: self._handle_read,
             ToolName.RLM_CONTEXT_QUERY: self._handle_context_query,
@@ -782,6 +870,7 @@ class RLMEngine:
             ToolName.RLM_UPLOAD_SHARED_DOCUMENT: self._handle_upload_shared_document,
             # Phase 8.2: Agent Memory Tools
             ToolName.RLM_REMEMBER: self._handle_remember,
+            ToolName.RLM_REMEMBER_BULK: self._handle_remember_bulk,
             ToolName.RLM_RECALL: self._handle_recall,
             ToolName.RLM_MEMORIES: self._handle_memories,
             ToolName.RLM_FORGET: self._handle_forget,
@@ -792,8 +881,11 @@ class RLMEngine:
             ToolName.RLM_RELEASE: self._handle_release,
             ToolName.RLM_STATE_GET: self._handle_state_get,
             ToolName.RLM_STATE_SET: self._handle_state_set,
+            ToolName.RLM_STATE_POLL: self._handle_state_poll,
             ToolName.RLM_BROADCAST: self._handle_broadcast,
+            ToolName.RLM_SWARM_EVENTS: self._handle_swarm_events,
             ToolName.RLM_TASK_CREATE: self._handle_task_create,
+            ToolName.RLM_TASK_BULK_CREATE: self._handle_task_bulk_create,
             ToolName.RLM_TASK_CLAIM: self._handle_task_claim,
             ToolName.RLM_TASK_COMPLETE: self._handle_task_complete,
             # Phase 10: Document Sync Tools
@@ -945,13 +1037,27 @@ class RLMEngine:
 
     async def _handle_ask(self, params: dict[str, Any]) -> ToolResult:
         """Handle rlm_ask - query documentation with natural language."""
-        question = params.get("question", "")
+        # Accept both "query" and "question" as parameter names for better DX
+        query = params.get("query") or params.get("question") or ""
+
+        # Validate query is not empty
+        if not query.strip():
+            return ToolResult(
+                data={
+                    "error": "Missing required parameter 'query'",
+                    "hint": "Provide a question about your documentation",
+                    "example": {"query": "How does authentication work?"},
+                    "recommendation": "For better results, use rlm_context_query instead of rlm_ask",
+                },
+                input_tokens=0,
+                output_tokens=0,
+            )
 
         if not self.index:
             return ToolResult(data="No documentation loaded", input_tokens=0, output_tokens=0)
 
-        # Search for relevant sections based on question keywords
-        keywords = re.findall(r"\w+", question.lower())
+        # Search for relevant sections based on query keywords
+        keywords = re.findall(r"\w+", query.lower())
         relevant_sections: list[tuple[Section, int]] = []
 
         for section in self.index.sections:
@@ -969,9 +1075,17 @@ class RLMEngine:
 
         # Build response
         if not top_sections:
-            response = f"No relevant documentation found for: {question}"
+            # Provide helpful guidance when keyword matching fails
+            response = (
+                f"No relevant documentation found for: \"{query}\"\n\n"
+                "**Tips:**\n"
+                "- `rlm_ask` uses simple keyword matching\n"
+                "- Try `rlm_context_query` for semantic search (recommended)\n"
+                "- Check indexed docs with `rlm_stats`\n"
+                "- Use `rlm_search` for regex patterns"
+            )
         else:
-            response_parts = [f"**Relevant Documentation for:** {question}\n"]
+            response_parts = [f"**Relevant Documentation for:** {query}\n"]
 
             if self.session_context:
                 response_parts.append(f"**Session Context:**\n{self.session_context}\n")
@@ -991,7 +1105,7 @@ class RLMEngine:
             response = "\n".join(response_parts)
 
         # Estimate tokens (rough: 4 chars per token)
-        input_tokens = len(question) // 4
+        input_tokens = len(query) // 4
         output_tokens = len(response) // 4
 
         return ToolResult(data=response, input_tokens=input_tokens, output_tokens=output_tokens)
@@ -1159,6 +1273,87 @@ class RLMEngine:
 
         return ToolResult(data=response, input_tokens=0, output_tokens=50)
 
+    async def _handle_help(self, params: dict[str, Any]) -> ToolResult:
+        """Handle rlm_help - get tool recommendations based on user query.
+
+        Three modes:
+        1. Query mode: Describe what you want to do → get recommendations
+        2. Tool mode: Get detailed info about a specific tool
+        3. Tier mode: List all tools in a specific tier
+
+        Args:
+            params: Dict containing:
+                - query: Natural language query (e.g., "search across team projects")
+                - tool: Specific tool name for details (e.g., "rlm_context_query")
+                - tier: List tools in tier (primary, power_user, team, utility, advanced)
+                - limit: Max recommendations (default 5)
+
+        Returns:
+            ToolResult with recommendations or tool info
+        """
+        query = params.get("query", "")
+        tool_name = params.get("tool", "")
+        tier = params.get("tier", "")
+        limit = params.get("limit", 5)
+
+        # Mode 1: Get info about specific tool
+        if tool_name:
+            info = get_tool_info(tool_name)
+            if not info:
+                return ToolResult(
+                    data={"error": f"Unknown tool: {tool_name}"},
+                    input_tokens=count_tokens(tool_name),
+                    output_tokens=0,
+                )
+            return ToolResult(
+                data=info,
+                input_tokens=count_tokens(tool_name),
+                output_tokens=count_tokens(str(info)),
+            )
+
+        # Mode 2: List tools by tier
+        if tier:
+            try:
+                tier_enum = RecommenderToolTier(tier.lower())
+            except ValueError:
+                valid_tiers = [t.value for t in RecommenderToolTier]
+                return ToolResult(
+                    data={"error": f"Invalid tier: {tier}. Valid: {valid_tiers}"},
+                    input_tokens=count_tokens(tier),
+                    output_tokens=0,
+                )
+            tools = list_tools_by_tier(tier_enum)
+            return ToolResult(
+                data={"tier": tier, "tools": tools, "count": len(tools)},
+                input_tokens=count_tokens(tier),
+                output_tokens=count_tokens(str(tools)),
+            )
+
+        # Mode 3: Recommend tools based on query
+        # Include team/admin tools based on license
+        include_team = self.license.plan in ["TEAM", "ENTERPRISE"]
+        include_admin = self.license.access_level == "ADMIN"
+
+        recommendations = recommend_tools(
+            query=query,
+            limit=limit,
+            include_team=include_team,
+            include_admin=include_admin,
+        )
+
+        response = {
+            "query": query if query else "(no query - showing primary tools)",
+            "recommendations": recommendations,
+            "count": len(recommendations),
+            "tip": "Use rlm_help(tool='tool_name') for detailed info about a specific tool",
+        }
+
+        return ToolResult(
+            data=response,
+            input_tokens=count_tokens(query),
+            output_tokens=count_tokens(str(response)),
+        )
+
     async def _handle_sections(self, params: dict[str, Any]) -> ToolResult:
         """Handle rlm_sections - list documentation sections with pagination."""
         if not self.index:
@@ -1266,6 +1461,92 @@ class RLMEngine:
         # Pass-by-reference mode: return chunk IDs + previews instead of full content
         # This reduces hallucination by maintaining clear source attribution
         return_references = params.get("return_references", False)
+
+        # Auto-decompose: automatically break complex queries into sub-queries
+        # Disable by setting auto_decompose=False in params
+        auto_decompose = params.get("auto_decompose", True)
+
+        # Check if we should auto-decompose this query (Pro+ only)
+        decomposed = False
+        sub_queries_used: list[str] = []
+
+        if (
+            auto_decompose
+            and self.plan in AUTO_DECOMPOSE_PLANS
+            and self.index
+            and _should_auto_decompose(query)
+        ):
+            # Generate sub-queries using decomposition logic
+            logger.info(f"Auto-decomposing complex query: {query[:100]}...")
+
+            decompose_result = await self._handle_decompose({
+                "query": query,
+                "max_depth": 2,
+            })
+
+            decompose_data = decompose_result.data
+            if (
+                isinstance(decompose_data, dict)
+                and decompose_data.get("sub_queries")
+                and len(decompose_data["sub_queries"]) > 1
+            ):
+                # We have meaningful sub-queries - execute them and merge results
+                sub_queries_raw = decompose_data["sub_queries"]
+                sub_queries_used = [sq.get("query", "") for sq in sub_queries_raw if sq.get("query")]
+
+                if sub_queries_used:
+                    # Execute sub-queries and collect results
+                    all_sections: list[ContextSection] = []
+                    seen_titles: set[str] = set()
+                    per_query_budget = max_tokens // len(sub_queries_used)
+
+                    for sub_q in sub_queries_used:
+                        # Execute sub-query with reduced budget
+                        sub_result = await self._execute_single_context_query(
+                            query=sub_q,
+                            max_tokens=per_query_budget,
+                            search_mode=SearchMode(search_mode_str) if search_mode_str else SearchMode.KEYWORD,
+                            prefer_summaries=prefer_summaries,
+                            return_references=return_references,
+                        )
+
+                        # Deduplicate by title
+                        for section in sub_result:
+                            if section.title not in seen_titles:
+                                seen_titles.add(section.title)
+                                all_sections.append(section)
+
+                    if all_sections:
+                        # Sort by relevance and apply token budget
+                        all_sections.sort(key=lambda s: s.relevance_score, reverse=True)
+                        decomposed = True
+
+                        # Build final result with merged sections
+                        total_tokens = sum(s.tokens for s in all_sections)
+                        sections_within_budget: list[ContextSection] = []
+                        budget_used = 0
+
+                        for section in all_sections:
+                            if budget_used + section.tokens <= max_tokens:
+                                sections_within_budget.append(section)
+                                budget_used += section.tokens
+
+                        # Return decomposed result
+                        result = ContextQueryResult(
+                            sections=sections_within_budget,
+                            total_tokens=budget_used,
+                            max_tokens=max_tokens,
+                            query=query,
+                            search_mode=SearchMode(search_mode_str) if search_mode_str else SearchMode.KEYWORD,
+                            decomposed=True,
+                            sub_queries=sub_queries_used,
+                        )
+
+                        return ToolResult(
+                            data=result.model_dump(),
+                            input_tokens=count_tokens(query),
+                            output_tokens=budget_used,
+                        )
 
         # Detect complex queries and boost token budget to reduce hallucination
         query_lower = query.lower()
@@ -1379,7 +1660,8 @@ class RLMEngine:
                     # from large docs that mention common keywords in code examples.
                     # Stop words excluded so "what"/"are" don't create false matches.
                     query_keywords = {
-                        w for w in re.findall(r"\w+", query.lower())
+                        w
+                        for w in re.findall(r"\w+", query.lower())
                         if len(w) >= 3 and w not in _STOP_WORDS
                     }
 
@@ -1396,7 +1678,8 @@ class RLMEngine:
                         if cat_enum != DocumentCategoryEnum.MANDATORY and query_keywords:
                             title_lower = doc.title.lower()
                             hits = sum(
-                                1 for kw in query_keywords
+                                1
+                                for kw in query_keywords
                                 if kw in title_lower
                                 or (_stem_keyword(kw) != kw and _stem_keyword(kw) in title_lower)
                             )
@@ -1472,14 +1755,12 @@ class RLMEngine:
         # Only include sections with score >= 15% of top score (minimum 5.0 absolute).
         # This prevents irrelevant sections from diluting the context.
         min_relevance_ratio = 0.15  # 15% of top score
-        min_absolute_score = 5.0    # Minimum absolute score
+        min_absolute_score = 5.0  # Minimum absolute score
         if scored_sections:
             top_score = scored_sections[0][1]
             min_score = max(top_score * min_relevance_ratio, min_absolute_score)
             before_count = len(scored_sections)
-            scored_sections = [
-                (s, sc) for s, sc in scored_sections if sc >= min_score
-            ]
+            scored_sections = [(s, sc) for s, sc in scored_sections if sc >= min_score]
             if len(scored_sections) < before_count:
                 logger.info(
                     f"Relevance filter: removed {before_count - len(scored_sections)} "
@@ -1497,11 +1778,11 @@ class RLMEngine:
             # Broad query detected — keep only top 30 % of scored sections
             # by raising the minimum score to the 70th-percentile score.
             cutoff_idx = max(1, int(len(scored_sections) * 0.30))
-            cutoff_score = scored_sections[cutoff_idx - 1][1] if cutoff_idx <= len(scored_sections) else 0
+            cutoff_score = (
+                scored_sections[cutoff_idx - 1][1] if cutoff_idx <= len(scored_sections) else 0
+            )
             before_count = len(scored_sections)
-            scored_sections = [
-                (s, sc) for s, sc in scored_sections if sc >= cutoff_score
-            ]
+            scored_sections = [(s, sc) for s, sc in scored_sections if sc >= cutoff_score]
             logger.info(
                 f"Broad query filter: {match_ratio:.0%} sections matched, "
                 f"trimmed {before_count} → {len(scored_sections)} "
@@ -1724,17 +2005,19 @@ class RLMEngine:
                     semantic_score=0.0,
                 )
 
-                section_refs.append(ContextSectionRef(
-                    chunk_id=chunk_id,
-                    title=section.title,
-                    preview=preview,
-                    file=section.file,
-                    lines=section.lines,
-                    relevance_score=section.relevance_score,
-                    token_count=section.token_count,
-                    keyword_score=0.0,
-                    semantic_score=0.0,
-                ))
+                section_refs.append(
+                    ContextSectionRef(
+                        chunk_id=chunk_id,
+                        title=section.title,
+                        preview=preview,
+                        file=section.file,
+                        lines=section.lines,
+                        relevance_score=section.relevance_score,
+                        token_count=section.token_count,
+                        keyword_score=0.0,
+                        semantic_score=0.0,
+                    )
+                )
                 preview_tokens += count_tokens(preview)
 
             logger.info(
@@ -1799,6 +2082,76 @@ class RLMEngine:
 
         return result
 
+    async def _execute_single_context_query(
+        self,
+        query: str,
+        max_tokens: int,
+        search_mode: SearchMode,
+        prefer_summaries: bool = False,
+        return_references: bool = False,
+    ) -> list[ContextSection]:
+        """Execute a single context query without auto-decomposition.
+
+        This is used internally by auto-decompose to execute sub-queries.
+        Returns a list of ContextSection objects without wrapping in ToolResult.
+
+        Args:
+            query: The search query
+            max_tokens: Token budget for results
+            search_mode: Search mode to use
+            prefer_summaries: Use summaries instead of full content
+            return_references: Return references instead of content
+
+        Returns:
+            List of ContextSection objects
+        """
+        if not self.index:
+            return []
+
+        # Score sections
+        scored_sections = await self._score_sections(query, search_mode)
+
+        # Build result sections within budget
+        sections: list[ContextSection] = []
+        total_tokens = 0
+
+        for section, score in scored_sections:
+            if total_tokens >= max_tokens:
+                break
+
+            content = section.content
+            tokens = count_tokens(content)
+
+            if total_tokens + tokens > max_tokens:
+                # Truncate to fit
+                remaining = max_tokens - total_tokens
+                if remaining < 50:  # Not worth adding
+                    break
+                content = content[: remaining * 4]  # Rough char estimate
+                tokens = count_tokens(content)
+
+            # Find file path for this section
+            file_path = None
+            for fp, (start, end) in self.index.file_boundaries.items():
+                if section.start_line >= start + 1 and section.end_line <= end:
+                    file_path = fp
+                    break
+
+            sections.append(
+                ContextSection(
+                    title=section.title,
+                    content=content,
+                    relevance_score=round(score, 4),
+                    file=file_path,
+                    start_line=section.start_line,
+                    end_line=section.end_line,
+                    tokens=tokens,
+                )
+            )
+            total_tokens += tokens
+
+        return sections
+
     async def _score_sections(
         self, query: str, search_mode: SearchMode
     ) -> list[tuple[Section, float]]:
@@ -1825,7 +2178,9 @@ class RLMEngine:
         ]
         filtered_count = len(self.index.sections) - len(sections_to_score)
         if filtered_count > 0:
-            logger.debug(f"Filtered {filtered_count} shallow sections (<{min_section_tokens} tokens)")
+            logger.debug(
+                f"Filtered {filtered_count} shallow sections (<{min_section_tokens} tokens)"
+            )
 
         keywords = [w for w in re.findall(r"\w+", query.lower()) if w not in _STOP_WORDS]
         scored: list[tuple[Section, float]] = []
@@ -1881,8 +2236,10 @@ class RLMEngine:
                     title_lower = section.title.lower()
                     # Count only non-ubiquitous keywords in title
                     distinctive_title_hits = sum(
-                        1 for kw in keywords
-                        if kw not in ubiquitous_keywords and (
+                        1
+                        for kw in keywords
+                        if kw not in ubiquitous_keywords
+                        and (
                             kw in title_lower
                             or (_stem_keyword(kw) != kw and _stem_keyword(kw) in title_lower)
                         )
@@ -1953,9 +2310,7 @@ class RLMEngine:
                     top_score = sorted_kw[0][1]
                     # Drop sections scoring < 10% of the top score (min threshold 2.0)
                     threshold = max(top_score * 0.10, 2.0)
-                    top_keyword_ids = {
-                        sid for sid, sc in sorted_kw[:30] if sc >= threshold
-                    }
+                    top_keyword_ids = {sid for sid, sc in sorted_kw[:30] if sc >= threshold}
                 else:
                     top_keyword_ids = set()
 
@@ -1966,8 +2321,8 @@ class RLMEngine:
                     f"Using on-the-fly embedding for hybrid search "
                     f"({len(top_keyword_ids)} keyword candidates, "
                     f"threshold={threshold:.1f}, project: {self.project_id})"
-                    if sorted_kw else
-                    f"Using on-the-fly embedding for hybrid search "
+                    if sorted_kw
+                    else f"Using on-the-fly embedding for hybrid search "
                     f"(0 keyword candidates, project: {self.project_id})"
                 )
 
@@ -2015,10 +2370,15 @@ class RLMEngine:
                 if len(keywords) >= 3:
                     title_lower = section.title.lower()
                     distinctive_title_hits = sum(
-                        1 for kw_term in keywords
-                        if kw_term not in ubiquitous_keywords and (
+                        1
+                        for kw_term in keywords
+                        if kw_term not in ubiquitous_keywords
+                        and (
                             kw_term in title_lower
-                            or (_stem_keyword(kw_term) != kw_term and _stem_keyword(kw_term) in title_lower)
+                            or (
+                                _stem_keyword(kw_term) != kw_term
+                                and _stem_keyword(kw_term) in title_lower
+                            )
                         )
                     )
                     if distinctive_title_hits >= 1:
@@ -2104,20 +2464,14 @@ class RLMEngine:
             # Generate section embeddings (title + truncated content)
             # Using 120 chars to reduce tokenization cost on CPU.
             # Title carries the primary semantic signal; content adds context.
-            section_texts = [
-                f"{s.title}\n{s.content[:120]}"
-                for s in sections
-            ]
+            section_texts = [f"{s.title}\n{s.content[:120]}" for s in sections]
             section_embeddings = await embeddings_service.embed_texts_async(section_texts)
 
             # Calculate similarities
             similarities = embeddings_service.cosine_similarity(query_embedding, section_embeddings)
 
             # Map to section IDs
-            return {
-                section.id: similarity
-                for section, similarity in zip(sections, similarities)
-            }
+            return {section.id: similarity for section, similarity in zip(sections, similarities)}
         except Exception as e:
             logger.warning(f"Semantic search failed, falling back to empty scores: {e}")
             return {}
@@ -2233,9 +2587,7 @@ class RLMEngine:
         # Signal 2: specific / structured-data terms in the query
         # Also check stemmed variants so "prices" matches "price" in the set
         stemmed_words = {_stem_keyword(w) for w in query_words}
-        has_specific = bool(
-            (query_words | stemmed_words) & _SPECIFIC_QUERY_TERMS
-        )
+        has_specific = bool((query_words | stemmed_words) & _SPECIFIC_QUERY_TERMS)
 
         # Signal 3: conceptual query pattern
         is_conceptual = any(query_lower.startswith(p) for p in _CONCEPTUAL_PREFIXES)
@@ -2334,7 +2686,7 @@ class RLMEngine:
             # Combine rank-based decay with score-ratio decay
             # rank_factor: exponential decay based on position (0.94^rank)
             # score_factor: how close is this score to the top? (raw/top)
-            rank_factor = decay_factor ** i
+            rank_factor = decay_factor**i
             score_factor = raw / top_score if top_score > 0 else 0
 
             # Weighted combination: 40% rank-based, 60% score-based (favor raw scores for better recall)
@@ -2421,10 +2773,23 @@ class RLMEngine:
         Returns:
             ToolResult with DecomposeResult containing sub-queries and dependencies
         """
-        query = params.get("query", "")
+        # Accept both "query" and "question" as parameter names for better DX
+        query = params.get("query") or params.get("question") or ""
         _max_depth = params.get("max_depth", 2)  # noqa: F841 — reserved for future use
         strategy_str = params.get("strategy", "auto")
         hints = params.get("hints", [])
+
+        # Validate query is not empty
+        if not query.strip():
+            return ToolResult(
+                data={
+                    "error": "Missing required parameter 'query'",
+                    "hint": "Provide a complex question to decompose into sub-queries",
+                    "example": {"query": "How does authentication work and what security measures are in place?"},
+                },
+                input_tokens=0,
+                output_tokens=0,
+            )
 
         # Plan gating
         if self.plan not in RECURSIVE_CONTEXT_PLANS:
@@ -2452,6 +2817,7 @@ class RLMEngine:
                     suggested_sequence=[],
                     total_estimated_tokens=0,
                     strategy_used=strategy,
+                    diagnostic_message="No documentation indexed. Run rlm_stats to check project status.",
                 ).model_dump(),
                 input_tokens=count_tokens(query),
                 output_tokens=0,
@@ -2533,6 +2899,23 @@ class RLMEngine:
         # Calculate total estimated tokens
         total_estimated = sum(sq.estimated_tokens for sq in sub_queries)
 
+        # Add diagnostic if no sub-queries generated
+        diagnostic_message = None
+        if not sub_queries:
+            if not unique_terms:
+                diagnostic_message = (
+                    "No meaningful terms extracted from query. Try a more specific query."
+                )
+            elif not term_sections:
+                diagnostic_message = (
+                    f"Extracted {len(unique_terms)} terms but none matched indexed sections. "
+                    "Check if relevant documents are indexed with rlm_stats."
+                )
+            else:
+                diagnostic_message = (
+                    "No unique sub-queries could be generated from matching sections."
+                )
+
         result = DecomposeResult(
             original_query=query,
             sub_queries=sub_queries,
@@ -2540,6 +2923,7 @@ class RLMEngine:
             suggested_sequence=suggested_sequence,
             total_estimated_tokens=total_estimated,
             strategy_used=strategy,
+            diagnostic_message=diagnostic_message,
         )
 
         input_tokens = count_tokens(query)
@@ -2915,11 +3299,53 @@ class RLMEngine:
 
         # Filter stop words from phrase but keep at least the term
         stop_words = {
-            "the", "a", "an", "and", "or", "but", "in", "on", "at", "to", "for",
-            "of", "with", "by", "from", "is", "are", "was", "were", "be", "been",
-            "being", "have", "has", "had", "do", "does", "did", "will", "would",
-            "could", "should", "may", "might", "can", "this", "that", "these",
-            "those", "it", "its", "what", "how", "when", "where", "why", "which",
+            "the",
+            "a",
+            "an",
+            "and",
+            "or",
+            "but",
+            "in",
+            "on",
+            "at",
+            "to",
+            "for",
+            "of",
+            "with",
+            "by",
+            "from",
+            "is",
+            "are",
+            "was",
+            "were",
+            "be",
+            "been",
+            "being",
+            "have",
+            "has",
+            "had",
+            "do",
+            "does",
+            "did",
+            "will",
+            "would",
+            "could",
+            "should",
+            "may",
+            "might",
+            "can",
+            "this",
+            "that",
+            "these",
+            "those",
+            "it",
+            "its",
+            "what",
+            "how",
+            "when",
+            "where",
+            "why",
+            "which",
         }
         filtered = [w for w in phrase_words if w not in stop_words or w == term_lower]
 
@@ -3770,7 +4196,8 @@ class RLMEngine:
         Returns:
             ToolResult with memory ID and confirmation
         """
-        content = params.get("content", "")
+        # Accept both 'text' (new) and 'content' (legacy), text takes precedence
+        content = params.get("text") or params.get("content", "")
         memory_type = params.get("type", "fact")
         scope = params.get("scope", "project")
         category = params.get("category")
@@ -3780,7 +4207,7 @@ class RLMEngine:
 
         if not content:
             return ToolResult(
-                data={"error": "content is required"},
+                data={"error": "rlm_remember: missing required parameter 'text' (or 'content')"},
                 input_tokens=0,
                 output_tokens=0,
             )
@@ -3810,6 +4237,68 @@ class RLMEngine:
             data=result,
             input_tokens=count_tokens(content),
             output_tokens=count_tokens(str(result)),
+        )
+
+    async def _handle_remember_bulk(self, params: dict[str, Any]) -> ToolResult:
+        """
+        Handle rlm_remember_bulk - store multiple memories in bulk.
+
+        Args:
+            params: Dict containing:
+                - memories: Array of memory objects (max 50), each with:
+                    - text: Memory text to store
+                    - type: Memory type (default: fact)
+                    - scope: Visibility scope (default: project)
+                    - category: Optional grouping category
+                    - ttl_days: Days until expiration
+                    - related_to: IDs of related memories
+                    - document_refs: Referenced document paths
+
+        Returns:
+            ToolResult with created memory IDs and stats
+        """
+        memories = params.get("memories", [])
+
+        if not memories:
+            return ToolResult(
+                data={"error": "rlm_remember_bulk: 'memories' array is required"},
+                input_tokens=0,
+                output_tokens=0,
+            )
+
+        if len(memories) > 50:
+            return ToolResult(
+                data={"error": "rlm_remember_bulk: max 50 memories per call"},
+                input_tokens=0,
+                output_tokens=0,
+            )
+
+        # Check memory limits (aggregate count)
+        allowed, error = await check_memory_limits(
+            self.project_id, self.user_id, count=len(memories)
+        )
+        if not allowed:
+            total_tokens = sum(count_tokens(m.get("text", "")) for m in memories)
+            return ToolResult(
+                data={"error": error, "upgrade_url": "/billing/upgrade"},
+                input_tokens=total_tokens,
+                output_tokens=0,
+            )
+
+        # Store memories in bulk
+        result = await store_memories_bulk(
+            project_id=self.project_id,
+            memories=memories,
+            source="mcp",
+        )
+
+        input_tokens = sum(count_tokens(m.get("text", "")) for m in memories)
+        output_tokens = count_tokens(str(result))
+
+        return ToolResult(
+            data=result,
+            input_tokens=input_tokens,
+            output_tokens=output_tokens,
         )
 
     async def _handle_recall(self, params: dict[str, Any]) -> ToolResult:
@@ -3860,7 +4349,7 @@ class RLMEngine:
 
     async def _handle_memories(self, params: dict[str, Any]) -> ToolResult:
         """
-        Handle rlm_memories - list memories with filters.
+        Handle rlm_memories - list memories with filters and sorting.
 
         Args:
             params: Dict containing:
@@ -3870,6 +4359,8 @@ class RLMEngine:
                 - search: Text search in content
                 - limit: Maximum memories to return
                 - offset: Pagination offset
+                - sort_by: Field to sort by (created_at, confidence, access_count, last_accessed, expires_at)
+                - sort_order: Sort direction (asc, desc)
 
         Returns:
             ToolResult with memories list and pagination info
@@ -3880,6 +4371,8 @@ class RLMEngine:
         search = params.get("search")
         limit = params.get("limit", 20)
         offset = params.get("offset", 0)
+        sort_by = params.get("sort_by", "created_at")
+        sort_order = params.get("sort_order", "desc")
 
         result = await list_memories(
             project_id=self.project_id,
@@ -3889,6 +4382,8 @@ class RLMEngine:
             search=search,
             limit=limit,
             offset=offset,
+            sort_by=sort_by,
+            sort_order=sort_order,
         )
 
         return ToolResult(
@@ -4145,6 +4640,7 @@ class RLMEngine:
                 - key: State key
                 - value: Value to set
                 - expected_version: For optimistic locking
+                - ttl_seconds: Optional TTL in seconds
 
         Returns:
             ToolResult with new version
@@ -4154,6 +4650,7 @@ class RLMEngine:
         key = params.get("key", "")
         value = params.get("value")
         expected_version = params.get("expected_version")
+        ttl_seconds = params.get("ttl_seconds")
 
         if not swarm_id or not agent_id or not key:
             return ToolResult(
@@ -4175,11 +4672,66 @@ class RLMEngine:
             key=key,
             value=value,
             expected_version=expected_version,
+            ttl_seconds=ttl_seconds,
         )
 
         return ToolResult(
             data=result,
             input_tokens=count_tokens(str(value)),
+            output_tokens=count_tokens(str(result)),
+        )
+
+    async def _handle_state_poll(self, params: dict[str, Any]) -> ToolResult:
+        """
+        Handle rlm_state_poll - poll for state changes across multiple keys.
+
+        Efficiently monitors multiple keys and returns only those that have
+        changed since their last known versions.
+
+        Args:
+            params: Dict containing:
+                - swarm_id: Swarm ID
+                - keys: List of state keys to monitor
+                - last_versions: Optional dict of key -> last known version
+
+        Returns:
+            ToolResult with changed keys and their values
+        """
+        swarm_id = params.get("swarm_id", "")
+        keys = params.get("keys", [])
+        last_versions = params.get("last_versions", {})
+
+        if not swarm_id:
+            return ToolResult(
+                data={"error": "swarm_id is required"},
+                input_tokens=0,
+                output_tokens=0,
+            )
+
+        if not keys:
+            return ToolResult(
+                data={"error": "keys array is required and cannot be empty"},
+                input_tokens=0,
+                output_tokens=0,
+            )
+
+        # Parse last_versions if it's a string (from MCP)
+        if isinstance(last_versions, str):
+            try:
+                import json
+                last_versions = json.loads(last_versions)
+            except json.JSONDecodeError:
+                last_versions = {}
+
+        result = await poll_state(
+            swarm_id=swarm_id,
+            keys=keys,
+            last_versions=last_versions,
+        )
+
+        return ToolResult(
+            data=result,
+            input_tokens=count_tokens(str(keys)),
             output_tokens=count_tokens(str(result)),
         )
 
@@ -4222,6 +4774,49 @@ class RLMEngine:
             output_tokens=count_tokens(str(result)),
         )
 
+    async def _handle_swarm_events(self, params: dict[str, Any]) -> ToolResult:
+        """
+        Handle rlm_swarm_events - query and filter broadcast events in a swarm.
+
+        Args:
+            params: Dict containing:
+                - swarm_id: Swarm ID (required)
+                - event_type: Filter by event type
+                - agent_id: Filter by sending agent
+                - since: Only events after this timestamp (ISO 8601)
+                - limit: Maximum events to return (default 50)
+
+        Returns:
+            ToolResult with events list
+        """
+        swarm_id = params.get("swarm_id", "")
+
+        if not swarm_id:
+            return ToolResult(
+                data={"error": "rlm_swarm_events: swarm_id is required"},
+                input_tokens=0,
+                output_tokens=0,
+            )
+
+        event_type = params.get("event_type")
+        agent_id = params.get("agent_id")
+        since = params.get("since")
+        limit = params.get("limit", 50)
+
+        result = await get_recent_events(
+            swarm_id=swarm_id,
+            event_type=event_type,
+            agent_id=agent_id,
+            since=since,
+            limit=limit,
+        )
+
+        return ToolResult(
+            data=result,
+            input_tokens=0,
+            output_tokens=count_tokens(str(result)),
+        )
+
     async def _handle_task_create(self, params: dict[str, Any]) -> ToolResult:
         """
         Handle rlm_task_create - create a task in the swarm's queue.
@@ -4233,6 +4828,7 @@ class RLMEngine:
                 - title: Task title
                 - description: Task description
                 - priority: Priority level
+                - deadline: Optional deadline (ISO 8601 format)
                 - depends_on: Task IDs this depends on
                 - metadata: Additional task data
 
@@ -4244,6 +4840,7 @@ class RLMEngine:
         title = params.get("title", "")
         description = params.get("description")
         priority = params.get("priority", 0)
+        deadline = params.get("deadline")
         depends_on = params.get("depends_on")
         metadata = params.get("metadata")
 
@@ -4260,6 +4857,7 @@ class RLMEngine:
             title=title,
             description=description,
             priority=priority,
+            deadline=deadline,
             depends_on=depends_on,
             metadata=metadata,
         )
@@ -4267,6 +4865,65 @@ class RLMEngine:
         return ToolResult(
             data=result,
             input_tokens=count_tokens(title + (description or "")),
+            output_tokens=count_tokens(str(result)),
+        )
+
+    async def _handle_task_bulk_create(self, params: dict[str, Any]) -> ToolResult:
+        """
+        Handle rlm_task_bulk_create - create multiple tasks in bulk.
+
+        Args:
+            params: Dict containing:
+                - swarm_id: Swarm ID
+                - agent_id: Creating agent
+                - tasks: Array of task objects (max 50), each with:
+                    - title: Task title (required)
+                    - description: Task description
+                    - priority: Priority level
+                    - depends_on: Task IDs this depends on
+                    - metadata: Additional task data
+
+        Returns:
+            ToolResult with created task IDs and stats
+        """
+        swarm_id = params.get("swarm_id", "")
+        agent_id = params.get("agent_id", "")
+        tasks = params.get("tasks", [])
+
+        if not swarm_id or not agent_id:
+            return ToolResult(
+                data={"error": "rlm_task_bulk_create: swarm_id and agent_id are required"},
+                input_tokens=0,
+                output_tokens=0,
+            )
+
+        if not tasks:
+            return ToolResult(
+                data={"error": "rlm_task_bulk_create: 'tasks' array is required"},
+                input_tokens=0,
+                output_tokens=0,
+            )
+
+        if len(tasks) > 50:
+            return ToolResult(
+                data={"error": "rlm_task_bulk_create: max 50 tasks per call"},
+                input_tokens=0,
+                output_tokens=0,
+            )
+
+        result = await create_tasks_bulk(
+            swarm_id=swarm_id,
+            agent_id=agent_id,
+            tasks=tasks,
+        )
+
+        input_tokens = sum(
+            count_tokens(t.get("title", "") + (t.get("description") or ""))
+            for t in tasks
+        )
+        return ToolResult(
+            data=result,
+            input_tokens=input_tokens,
             output_tokens=count_tokens(str(result)),
         )
 
@@ -4893,7 +5550,11 @@ class RLMEngine:
                 output_tokens=0,
             )
 
+        # Start total timing
+        total_start = time.perf_counter()
+
         # Round 1: Section scan (lightweight structure overview)
+        round1_start = time.perf_counter()
         all_sections = [
             {
                 "id": s.id,
@@ -4903,8 +5564,10 @@ class RLMEngine:
             }
             for s in self.index.sections
         ]
+        round1_ms = int((time.perf_counter() - round1_start) * 1000)
 
         # Round 2: Ranked search (reuse scoring logic from context_query)
+        round2_start = time.perf_counter()
         scored_sections = await self._score_sections(query, search_mode)
 
         # Take top-k sections
@@ -4922,8 +5585,10 @@ class RLMEngine:
 
         # Sort files by highest score
         ranked_files = sorted(file_hits.items(), key=lambda x: x[1], reverse=True)
+        round2_ms = int((time.perf_counter() - round2_start) * 1000)
 
         # Round 3: Load raw content for top files within budget
+        round3_start = time.perf_counter()
         loaded_files: list[dict[str, Any]] = []
         total_tokens = 0
         remaining_budget = max_tokens
@@ -4965,6 +5630,8 @@ class RLMEngine:
                 break
             else:
                 break
+        round3_ms = int((time.perf_counter() - round3_start) * 1000)
+        total_ms = int((time.perf_counter() - total_start) * 1000)
 
         # Build ranked section summaries (Round 2 results without full content)
         ranked_summaries = [
@@ -4979,6 +5646,18 @@ class RLMEngine:
 
         response = {
             "query": query,
+            "timing": {
+                "sections_scan_ms": round1_ms,
+                "ranked_search_ms": round2_ms,
+                "raw_load_ms": round3_ms,
+                "total_ms": total_ms,
+            },
+            "metrics": {
+                "sections_scanned": len(all_sections),
+                "candidates_scored": len(scored_sections),
+                "files_loaded": len(loaded_files),
+                "tokens_used": total_tokens,
+            },
             "rounds": {
                 "sections_scan": {
                     "total_sections": len(all_sections),
@@ -5006,11 +5685,30 @@ class RLMEngine:
     # ============ Phase 13: REPL Context Bridge ============
 
     async def _handle_repl_context(self, params: dict[str, Any]) -> ToolResult:
-        """Handle rlm_repl_context - package project context for REPL consumption.
+        """Handle rlm_repl_context - bridge Snipara context to RLM-Runtime REPL.
 
-        Returns project context as a structured Python-ready dict plus helper
-        code that can be injected into an rlm-runtime REPL session via
-        set_repl_context. Optionally filters by a relevance query.
+        This tool packages project documentation into a Python-ready format for
+        injection into an rlm-runtime REPL session. It enables context-aware code
+        execution where the LLM can reference documentation while writing code.
+
+        Workflow:
+        1. Call rlm_repl_context to get context_data + setup_code
+        2. Use set_repl_context(key='context', value=context_data)
+        3. Use execute_python(setup_code) to load helpers
+        4. Use helpers to explore: peek(), grep(), find_function(), etc.
+        5. Execute code with full documentation context
+
+        Available helpers:
+        - peek(path, start, end): View file or line range
+        - grep(pattern, path): Search files with regex
+        - sections(path): List documentation sections
+        - files(): List loaded files with tokens
+        - get_file(path): Get full file content
+        - search(query, top_k): Keyword search with scoring
+        - trim(max_chars): Trim context to budget
+        - find_function(name, exact): Find function definitions
+        - list_imports(path): List import statements
+        - context_summary(): Get overview of loaded context
 
         Plan-gating: PRO+
         """
@@ -5192,7 +5890,100 @@ def trim(max_chars=50000):
         total += len(content)
     return f"Trimmed to {sum(len(f.get('content', '')) for f in context.get('files', {}).values())} chars"
 
-print(f"[Snipara] {len(context.get('files', {}))} files loaded. Helpers: peek, grep, sections, files, get_file, search, trim")
+def find_function(name, exact=False):
+    """Find function/method definitions matching name.
+
+    Args:
+        name: Function name or pattern to search
+        exact: If True, require exact match; if False, partial match
+
+    Returns:
+        List of {file, line, signature, preview} dicts
+    """
+    results = []
+    # Patterns for common function definitions
+    patterns = [
+        r'^\\s*(async\\s+)?def\\s+' + (f'{name}\\s*\\(' if exact else f'\\w*{name}\\w*\\s*\\('),
+        r'^\\s*(async\\s+)?function\\s+' + (f'{name}\\s*\\(' if exact else f'\\w*{name}\\w*\\s*\\('),
+        r'^\\s*(const|let|var)\\s+' + (f'{name}\\s*=' if exact else f'\\w*{name}\\w*\\s*=') + r'\\s*(async\\s+)?\\([^)]*\\)\\s*=>',
+        r'^\\s*(export\\s+)?(const|let|var)\\s+' + (f'{name}\\s*=' if exact else f'\\w*{name}\\w*\\s*='),
+    ]
+    for fp, fdata in context.get("files", {}).items():
+        for i, line in enumerate(fdata["content"].split("\\n"), 1):
+            for pattern in patterns:
+                if _re.search(pattern, line, _re.IGNORECASE):
+                    results.append({
+                        "file": fp,
+                        "line": i,
+                        "signature": line.strip()[:100],
+                        "preview": line.strip()
+                    })
+                    break
+    return results
+
+def list_imports(path=None):
+    """List imports/requires from loaded files.
+
+    Args:
+        path: Optional file path to filter to
+
+    Returns:
+        Dict of {file: [imports]}
+    """
+    results = {}
+    patterns = [
+        r'^\\s*import\\s+.+\\s+from\\s+[\'"].+[\'"]',  # ES6 import
+        r'^\\s*import\\s+[\'"].+[\'"]',  # ES6 import (side-effect)
+        r'^\\s*from\\s+[\\w.]+\\s+import',  # Python import
+        r'^\\s*import\\s+[\\w.]+',  # Python import
+        r'^\\s*(const|let|var)\\s+.+\\s*=\\s*require\\(',  # CommonJS
+    ]
+    files = context.get("files", {})
+    targets = {path: files[path]} if path and path in files else files
+    for fp, fdata in targets.items():
+        imports = []
+        for i, line in enumerate(fdata["content"].split("\\n"), 1):
+            for pattern in patterns:
+                if _re.search(pattern, line):
+                    imports.append({"line": i, "statement": line.strip()})
+                    break
+        if imports:
+            results[fp] = imports
+    return results
+
+def context_summary():
+    """Get a summary of loaded context.
+
+    Returns:
+        Dict with overview of files, sections, tokens, and key stats
+    """
+    files = context.get("files", {})
+    secs = context.get("sections", [])
+
+    total_tokens = sum(f.get("tokens", 0) for f in files.values())
+    total_chars = sum(len(f.get("content", "")) for f in files.values())
+    truncated = sum(1 for f in files.values() if f.get("truncated"))
+
+    # Group sections by file
+    sections_by_file = {}
+    for s in secs:
+        fp = s.get("file", "unknown")
+        if fp not in sections_by_file:
+            sections_by_file[fp] = []
+        sections_by_file[fp].append(s.get("title", "untitled"))
+
+    return {
+        "total_files": len(files),
+        "total_sections": len(secs),
+        "total_tokens": total_tokens,
+        "total_chars": total_chars,
+        "truncated_files": truncated,
+        "files": list(files.keys()),
+        "sections_by_file": sections_by_file,
+        "available_helpers": ["peek", "grep", "sections", "files", "get_file", "search", "trim", "find_function", "list_imports", "context_summary"]
+    }
+
+print(f"[Snipara] {len(context.get('files', {}))} files loaded. Helpers: peek, grep, sections, files, get_file, search, trim, find_function, list_imports, context_summary")
 '''
 
         response = {
@@ -5205,9 +5996,10 @@ print(f"[Snipara] {len(context.get('files', {}))} files loaded. Helpers: peek, g
             "setup_code": helpers_code,
             "total_tokens": total_tokens,
             "usage_hint": (
-                "Inject into REPL: call set_repl_context(key='context', "
-                "value=<context_data>), then execute_python with setup_code, "
-                "then use peek(), grep(), sections(), files() helpers."
+                "1. Call set_repl_context(key='context', value=<context_data>) "
+                "2. Call execute_python(setup_code) to load helpers "
+                "3. Use helpers: peek(), grep(), find_function(), list_imports(), "
+                "sections(), files(), get_file(), search(), trim(), context_summary()"
             ),
         }
 
