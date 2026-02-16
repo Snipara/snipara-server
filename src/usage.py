@@ -125,6 +125,9 @@ async def check_rate_limit(api_key_id: str, client_ip: str | None = None) -> boo
 
         # Increment counter
         await r.incr(key)
+        # Safeguard: ensure TTL is set (fixes stuck keys from migration/failover)
+        if await r.ttl(key) < 0:
+            await r.expire(key, window)
         return True
     except Exception as e:
         # Redis error - fail-closed or fall back to in-memory
