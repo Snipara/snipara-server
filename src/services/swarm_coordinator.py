@@ -15,6 +15,7 @@ except ImportError:
     def Json(x):  # noqa: N802
         return x
 
+
 from ..db import get_db
 from .agent_limits import check_swarm_agent_limits, check_swarm_limits
 
@@ -555,18 +556,30 @@ async def get_state(
             "value": None,
         }
 
-    # Parse JSON value
-    try:
-        value = json.loads(state.value) if state.value else None
-        # Unwrap wrapper objects created by set_state for non-JSON types
-        # set_state wraps scalars as {"value": X} and strings as {"raw": X}
-        if isinstance(value, dict) and len(value) == 1:
-            if "value" in value:
-                value = value["value"]  # Unwrap scalar wrapper
-            elif "raw" in value:
-                value = value["raw"]  # Unwrap string wrapper
-    except json.JSONDecodeError:
+    # Parse JSON value - Prisma Json fields return Python objects directly, not strings
+    # So we need to handle both cases: already-deserialized dicts/lists and raw strings
+    if state.value is None:
+        value = None
+    elif isinstance(state.value, (dict, list)):
+        # Prisma already deserialized the Json field
         value = state.value
+    elif isinstance(state.value, str):
+        # Fallback: try to parse if it's somehow a string
+        try:
+            value = json.loads(state.value)
+        except json.JSONDecodeError:
+            value = state.value
+    else:
+        # Other types (int, float, bool) - use as-is
+        value = state.value
+
+    # Unwrap wrapper objects created by set_state for non-JSON types
+    # set_state wraps scalars as {"value": X} and strings as {"raw": X}
+    if isinstance(value, dict) and len(value) == 1:
+        if "value" in value:
+            value = value["value"]  # Unwrap scalar wrapper
+        elif "raw" in value:
+            value = value["raw"]  # Unwrap string wrapper
 
     return {
         "found": True,
@@ -931,9 +944,7 @@ async def list_tasks(
         where["status"] = status.upper()
 
     if assigned_to:
-        agent = await db.swarmagent.find_first(
-            where={"swarmId": swarm_id, "agentId": assigned_to}
-        )
+        agent = await db.swarmagent.find_first(where={"swarmId": swarm_id, "agentId": assigned_to})
         if agent:
             where["assignedTo"] = agent.id
 
