@@ -32,6 +32,7 @@ class ToolName(StrEnum):
     RLM_UPLOAD_SHARED_DOCUMENT = "rlm_upload_shared_document"
     # Phase 8.2: Agent Memory Tools
     RLM_REMEMBER = "rlm_remember"
+    RLM_REMEMBER_BULK = "rlm_remember_bulk"
     RLM_RECALL = "rlm_recall"
     RLM_MEMORIES = "rlm_memories"
     RLM_FORGET = "rlm_forget"
