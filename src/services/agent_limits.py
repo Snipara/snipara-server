@@ -86,7 +86,9 @@ async def get_agents_subscription(
 
     # Check if AgentsSubscription model is available in the Prisma client
     if not hasattr(db, "agentssubscription"):
-        logger.warning("AgentsSubscription model not available in Prisma client - needs regeneration")
+        logger.warning(
+            "AgentsSubscription model not available in Prisma client - needs regeneration"
+        )
         return None
 
     # Get project with team info
@@ -173,13 +175,14 @@ def get_plan_limits(plan: str) -> dict[str, Any]:
 
 
 async def check_memory_limits(
-    project_id: str, user_id: str | None = None
+    project_id: str, user_id: str | None = None, count: int = 1
 ) -> tuple[bool, str | None]:
     """Check if project can create new memories.
 
     Args:
         project_id: The project ID
         user_id: The authenticated user's ID (used for personal subscription lookup)
+        count: Number of memories to create (for bulk operations, default 1)
 
     Returns:
         Tuple of (allowed, error_message)
@@ -198,12 +201,14 @@ async def check_memory_limits(
         return True, None
 
     # Count current memories
-    current_count = await db.agentmemory.count(
-        where={"projectId": project_id}
-    )
+    current_count = await db.agentmemory.count(where={"projectId": project_id})
 
-    if current_count >= memory_limit:
-        return False, f"Memory limit reached ({current_count}/{memory_limit}). Upgrade your plan for more memories."
+    # Check if adding 'count' memories would exceed limit
+    if current_count + count > memory_limit:
+        return (
+            False,
+            f"Memory limit exceeded ({current_count}+{count}/{memory_limit}). Upgrade your plan for more memories.",
+        )
 
     return True, None
 
@@ -242,7 +247,10 @@ async def check_swarm_limits(
     )
 
     if current_count >= swarm_limit:
-        return False, f"Swarm limit reached ({current_count}/{swarm_limit}). Upgrade your plan for more swarms."
+        return (
+            False,
+            f"Swarm limit reached ({current_count}/{swarm_limit}). Upgrade your plan for more swarms.",
+        )
 
     return True, None
 
@@ -288,7 +296,10 @@ async def check_swarm_agent_limits(swarm_id: str) -> tuple[bool, str | None]:
     )
 
     if current_count >= effective_limit:
-        return False, f"Agent limit reached ({current_count}/{effective_limit}). Upgrade your plan or increase swarm capacity."
+        return (
+            False,
+            f"Agent limit reached ({current_count}/{effective_limit}). Upgrade your plan or increase swarm capacity.",
+        )
 
     return True, None
 
@@ -362,9 +373,7 @@ async def get_usage_stats(project_id: str) -> dict[str, Any]:
 
     # Get current counts
     memory_count = await db.agentmemory.count(where={"projectId": project_id})
-    swarm_count = await db.agentswarm.count(
-        where={"projectId": project_id, "isActive": True}
-    )
+    swarm_count = await db.agentswarm.count(where={"projectId": project_id, "isActive": True})
 
     # Get limits
     if subscription:
@@ -426,12 +435,13 @@ async def validate_agents_context_plan(
         return False, f"Agents {agents_plan} requires a team subscription context."
 
     # Get team's Context subscription
-    context_sub = await db.subscription.find_first(
-        where={"teamId": team_id}
-    )
+    context_sub = await db.subscription.find_first(where={"teamId": team_id})
 
     if not context_sub:
-        return False, f"Agents {agents_plan} requires Context {required_context} plan. No Context subscription found."
+        return (
+            False,
+            f"Agents {agents_plan} requires Context {required_context} plan. No Context subscription found.",
+        )
 
     context_plan = context_sub.plan
 
