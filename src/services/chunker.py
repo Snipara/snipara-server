@@ -382,19 +382,24 @@ class DocumentChunker:
         for bigram in bigrams:
             bigram_counts[bigram] = bigram_counts.get(bigram, 0) + 1
 
-        # Combine and sort by frequency
-        all_terms = list(term_counts.items()) + list(bigram_counts.items())
-        all_terms.sort(key=lambda x: x[1], reverse=True)
+        # PRIORITIZE bigrams over single words for better concept extraction
+        # This prevents "each", "one" from outranking meaningful phrases like "context query"
+        result: list[str] = []
+        seen: set[str] = set()
 
-        # Return top terms (deduplicated)
-        seen = set()
-        result = []
-        for term, _ in all_terms:
-            if term not in seen:
+        # First: add bigrams sorted by frequency (multi-word = more semantic meaning)
+        sorted_bigrams = sorted(bigram_counts.items(), key=lambda x: x[1], reverse=True)
+        for term, _ in sorted_bigrams:
+            if term not in seen and len(result) < 20:
                 result.append(term)
                 seen.add(term)
-            if len(result) >= 20:
-                break
+
+        # Then: add single words sorted by frequency
+        sorted_terms = sorted(term_counts.items(), key=lambda x: x[1], reverse=True)
+        for term, _ in sorted_terms:
+            if term not in seen and len(result) < 20:
+                result.append(term)
+                seen.add(term)
 
         return result
 

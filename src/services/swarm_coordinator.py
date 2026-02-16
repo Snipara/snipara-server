@@ -558,6 +558,13 @@ async def get_state(
     # Parse JSON value
     try:
         value = json.loads(state.value) if state.value else None
+        # Unwrap wrapper objects created by set_state for non-JSON types
+        # set_state wraps scalars as {"value": X} and strings as {"raw": X}
+        if isinstance(value, dict) and len(value) == 1:
+            if "value" in value:
+                value = value["value"]  # Unwrap scalar wrapper
+            elif "raw" in value:
+                value = value["raw"]  # Unwrap string wrapper
     except json.JSONDecodeError:
         value = state.value
 

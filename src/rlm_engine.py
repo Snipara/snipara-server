@@ -2452,6 +2452,7 @@ class RLMEngine:
                     suggested_sequence=[],
                     total_estimated_tokens=0,
                     strategy_used=strategy,
+                    diagnostic_message="No documentation indexed. Run rlm_stats to check project status.",
                 ).model_dump(),
                 input_tokens=count_tokens(query),
                 output_tokens=0,
@@ -2533,6 +2534,19 @@ class RLMEngine:
         # Calculate total estimated tokens
         total_estimated = sum(sq.estimated_tokens for sq in sub_queries)
 
+        # Add diagnostic if no sub-queries generated
+        diagnostic_message = None
+        if not sub_queries:
+            if not unique_terms:
+                diagnostic_message = "No meaningful terms extracted from query. Try a more specific query."
+            elif not term_sections:
+                diagnostic_message = (
+                    f"Extracted {len(unique_terms)} terms but none matched indexed sections. "
+                    "Check if relevant documents are indexed with rlm_stats."
+                )
+            else:
+                diagnostic_message = "No unique sub-queries could be generated from matching sections."
+
         result = DecomposeResult(
             original_query=query,
             sub_queries=sub_queries,
@@ -2540,6 +2554,7 @@ class RLMEngine:
             suggested_sequence=suggested_sequence,
             total_estimated_tokens=total_estimated,
             strategy_used=strategy,
+            diagnostic_message=diagnostic_message,
         )
 
         input_tokens = count_tokens(query)

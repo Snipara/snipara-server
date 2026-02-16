@@ -169,6 +169,9 @@ class DecomposeResult(BaseModel):
         default=0, ge=0, description="Total estimated tokens for all sub-queries"
     )
     strategy_used: DecomposeStrategy = Field(..., description="Strategy that was used")
+    diagnostic_message: str | None = Field(
+        default=None, description="Diagnostic info if decompose failed or returned empty"
+    )
 
 
 class MultiQueryResultItem(BaseModel):

@@ -409,6 +409,17 @@ async def semantic_recall(
         # Combined relevance = similarity * confidence
         relevance = similarity * decayed_confidence
 
+        # Boost for high term overlap (near-exact matches)
+        # This fixes low scores (0.54) for quasi-exact query matches
+        query_terms = set(query.lower().split())
+        content_terms = set(memory.content.lower().split())
+        if query_terms:
+            term_overlap = len(query_terms & content_terms) / len(query_terms)
+            if term_overlap > 0.7:  # 70%+ terms match
+                # Boost factor: 1.0 at 70% overlap, up to 1.15 at 100% overlap
+                boost = 1.0 + (term_overlap - 0.7) * 0.5
+                relevance = min(relevance * boost, 1.0)
+
         if relevance >= min_relevance:
             results.append({
                 "memory_id": memory.id,
