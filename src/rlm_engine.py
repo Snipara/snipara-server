@@ -116,6 +116,7 @@ from .services.agent_memory import (
     delete_memories,
     list_memories,
     semantic_recall,
+    store_memories_bulk,
     store_memory,
 )
 from .services.chunker import get_chunker
@@ -144,6 +145,14 @@ from .services.swarm_coordinator import (
 )
 from .services.swarm_events import (
     broadcast_event,
+)
+from .services.tool_recommender import (
+    ToolTier as RecommenderToolTier,
+)
+from .services.tool_recommender import (
+    get_tool_info,
+    list_tools_by_tier,
+    recommend_tools,
 )
 
 # Backward compatibility aliases
@@ -252,6 +261,7 @@ NONE_ALLOWED_TOOLS = {
 AGENT_TOOLS = {
     # Memory tools
     ToolName.RLM_REMEMBER,
+    ToolName.RLM_REMEMBER_BULK,
     ToolName.RLM_RECALL,
     ToolName.RLM_MEMORIES,
     ToolName.RLM_FORGET,
@@ -784,6 +794,7 @@ class RLMEngine:
             ToolName.RLM_CONTEXT: self._handle_context,
             ToolName.RLM_CLEAR_CONTEXT: self._handle_clear_context,
             ToolName.RLM_STATS: self._handle_stats,
+            ToolName.RLM_HELP: self._handle_help,
             ToolName.RLM_SECTIONS: self._handle_sections,
             ToolName.RLM_READ: self._handle_read,
             ToolName.RLM_CONTEXT_QUERY: self._handle_context_query,
@@ -1181,6 +1192,87 @@ class RLMEngine:
         }
 
         return ToolResult(data=response, input_tokens=0, output_tokens=50)
+
+    async def _handle_help(self, params: dict[str, Any]) -> ToolResult:
+        """Handle rlm_help - get tool recommendations based on user query.
+
+        Three modes:
+        1. Query mode: Describe what you want to do → get recommendations
+        2. Tool mode: Get detailed info about a specific tool
+        3. Tier mode: List all tools in a specific tier
+
+        Args:
+            params: Dict containing:
+                - query: Natural language query (e.g., "search across team projects")
+                - tool: Specific tool name for details (e.g., "rlm_context_query")
+                - tier: List tools in tier (primary, power_user, team, utility, advanced)
+                - limit: Max recommendations (default 5)
+
+        Returns:
+            ToolResult with recommendations or tool info
+        """
+        query = params.get("query", "")
+        tool_name = params.get("tool", "")
+        tier = params.get("tier", "")
+        limit = params.get("limit", 5)
+
+        # Mode 1: Get info about specific tool
+        if tool_name:
+            info = get_tool_info(tool_name)
+            if not info:
+                return ToolResult(
+                    data={"error": f"Unknown tool: {tool_name}"},
+                    input_tokens=count_tokens(tool_name),
+                    output_tokens=0,
+                )
+            return ToolResult(
+                data=info,
+                input_tokens=count_tokens(tool_name),
+                output_tokens=count_tokens(str(info)),
+            )
+
+        # Mode 2: List tools by tier
+        if tier:
+            try:
+                tier_enum = RecommenderToolTier(tier.lower())
+            except ValueError:
+                valid_tiers = [t.value for t in RecommenderToolTier]
+                return ToolResult(
+                    data={"error": f"Invalid tier: {tier}. Valid: {valid_tiers}"},
+                    input_tokens=count_tokens(tier),
+                    output_tokens=0,
+                )
+            tools = list_tools_by_tier(tier_enum)
+            return ToolResult(
+                data={"tier": tier, "tools": tools, "count": len(tools)},
+                input_tokens=count_tokens(tier),
+                output_tokens=count_tokens(str(tools)),
+            )
+
+        # Mode 3: Recommend tools based on query
+        # Include team/admin tools based on license
+        include_team = self.license.plan in ["TEAM", "ENTERPRISE"]
+        include_admin = self.license.access_level == "ADMIN"
+
+        recommendations = recommend_tools(
+            query=query,
+            limit=limit,
+            include_team=include_team,
+            include_admin=include_admin,
+        )
+
+        response = {
+            "query": query if query else "(no query - showing primary tools)",
+            "recommendations": recommendations,
+            "count": len(recommendations),
+            "tip": "Use rlm_help(tool='tool_name') for detailed info about a specific tool",
+        }
+
+        return ToolResult(
+            data=response,
+            input_tokens=count_tokens(query),
+            output_tokens=count_tokens(str(response)),
+        )
 
     async def _handle_sections(self, params: dict[str, Any]) -> ToolResult:
         """Handle rlm_sections - list documentation sections with pagination."""
@@ -3896,6 +3988,68 @@ class RLMEngine:
             data=result,
             input_tokens=count_tokens(content),
             output_tokens=count_tokens(str(result)),
+        )
+
+    async def _handle_remember_bulk(self, params: dict[str, Any]) -> ToolResult:
+        """
+        Handle rlm_remember_bulk - store multiple memories in bulk.
+
+        Args:
+            params: Dict containing:
+                - memories: Array of memory objects (max 50), each with:
+                    - text: Memory text to store
+                    - type: Memory type (default: fact)
+                    - scope: Visibility scope (default: project)
+                    - category: Optional grouping category
+                    - ttl_days: Days until expiration
+                    - related_to: IDs of related memories
+                    - document_refs: Referenced document paths
+
+        Returns:
+            ToolResult with created memory IDs and stats
+        """
+        memories = params.get("memories", [])
+
+        if not memories:
+            return ToolResult(
+                data={"error": "rlm_remember_bulk: 'memories' array is required"},
+                input_tokens=0,
+                output_tokens=0,
+            )
+
+        if len(memories) > 50:
+            return ToolResult(
+                data={"error": "rlm_remember_bulk: max 50 memories per call"},
+                input_tokens=0,
+                output_tokens=0,
+            )
+
+        # Check memory limits (aggregate count)
+        allowed, error = await check_memory_limits(
+            self.project_id, self.user_id, count=len(memories)
+        )
+        if not allowed:
+            total_tokens = sum(count_tokens(m.get("text", "")) for m in memories)
+            return ToolResult(
+                data={"error": error, "upgrade_url": "/billing/upgrade"},
+                input_tokens=total_tokens,
+                output_tokens=0,
+            )
+
+        # Store memories in bulk
+        result = await store_memories_bulk(
+            project_id=self.project_id,
+            memories=memories,
+            source="mcp",
+        )
+
+        input_tokens = sum(count_tokens(m.get("text", "")) for m in memories)
+        output_tokens = count_tokens(str(result))
+
+        return ToolResult(
+            data=result,
+            input_tokens=input_tokens,
+            output_tokens=output_tokens,
         )
 
     async def _handle_recall(self, params: dict[str, Any]) -> ToolResult:
