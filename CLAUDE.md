@@ -33,7 +33,7 @@ Snipara MCP Server is a **Context Optimization as a Service** backend. It indexe
 └─────────────────────┬───────────────────────────────────────────┘
                       │
 ┌─────────────────────▼───────────────────────────────────────────┐
-│  PostgreSQL (Neon) + Redis                                      │
+│  PostgreSQL (Vaultbrix) + Redis                                 │
 │  - Documents, Embeddings, Sessions, Usage Tracking              │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -202,7 +202,7 @@ railway up      # Deploy current code
 
 | Variable | Description | Required |
 |----------|-------------|----------|
-| `DATABASE_URL` | PostgreSQL (Neon) connection | Yes |
+| `DATABASE_URL` | PostgreSQL (Vaultbrix) connection | Yes |
 | `REDIS_URL` | Redis for caching | Optional |
 | `OPENAI_API_KEY` | For embeddings | Pro+ plans |
 | `LOG_LEVEL` | Logging level | No |
