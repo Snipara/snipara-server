@@ -9,6 +9,7 @@ import asyncio
 import hashlib
 import logging
 import re
+import time
 import uuid
 from collections import deque
 from typing import Any
@@ -138,13 +139,16 @@ from .services.swarm_coordinator import (
     complete_task,
     create_swarm,
     create_task,
+    create_tasks_bulk,
     get_state,
     join_swarm,
+    poll_state,
     release_claim,
     set_state,
 )
 from .services.swarm_events import (
     broadcast_event,
+    get_recent_events,
 )
 from .services.tool_recommender import (
     ToolTier as RecommenderToolTier,
@@ -193,6 +197,53 @@ REPL_CONTEXT_PLANS = {Plan.PRO, Plan.TEAM, Plan.ENTERPRISE}
 
 # Plans that have access to orchestration features (rlm_load_project, rlm_orchestrate)
 ORCHESTRATION_PLANS = {Plan.TEAM, Plan.ENTERPRISE}
+
+# Plans that have access to auto-decompose feature
+AUTO_DECOMPOSE_PLANS = {Plan.PRO, Plan.TEAM, Plan.ENTERPRISE}
+
+# Auto-decompose detection heuristics
+AUTO_DECOMPOSE_MIN_WORDS = 50  # Queries longer than this may be decomposed
+AUTO_DECOMPOSE_COMPARISON_KEYWORDS = {"vs", "versus", "compare", "comparison", "difference", "differences", "between"}
+AUTO_DECOMPOSE_CONJUNCTION_PATTERNS = [
+    r"\band\b.*\band\b",  # Multiple "and" conjunctions
+    r"\bor\b.*\bor\b",  # Multiple "or" conjunctions
+]
+
+
+def _should_auto_decompose(query: str) -> bool:
+    """Detect if a query is complex enough to benefit from auto-decomposition.
+
+    Heuristics:
+    - Query has 50+ words
+    - Multiple question marks (asking multiple questions)
+    - Contains comparison keywords (vs, compare, difference)
+    - Contains multiple conjunctions joining distinct concepts
+
+    Returns:
+        True if the query should be auto-decomposed
+    """
+    query_lower = query.lower()
+    words = query_lower.split()
+
+    # Check word count
+    if len(words) >= AUTO_DECOMPOSE_MIN_WORDS:
+        return True
+
+    # Check multiple question marks
+    if query.count("?") > 1:
+        return True
+
+    # Check comparison keywords
+    if any(kw in words for kw in AUTO_DECOMPOSE_COMPARISON_KEYWORDS):
+        return True
+
+    # Check for multiple conjunctions joining concepts
+    for pattern in AUTO_DECOMPOSE_CONJUNCTION_PATTERNS:
+        if re.search(pattern, query_lower):
+            return True
+
+    return False
+
 
 # Tool access level categories for per-project access control
 # READ_TOOLS: Available to VIEWER and above
@@ -248,6 +299,7 @@ ADMIN_TOOLS = {
     ToolName.RLM_CLAIM,
     ToolName.RLM_RELEASE,
     ToolName.RLM_TASK_CREATE,
+    ToolName.RLM_TASK_BULK_CREATE,
     ToolName.RLM_MULTI_PROJECT_QUERY,
 }
 
@@ -272,8 +324,11 @@ AGENT_TOOLS = {
     ToolName.RLM_RELEASE,
     ToolName.RLM_STATE_GET,
     ToolName.RLM_STATE_SET,
+    ToolName.RLM_STATE_POLL,
     ToolName.RLM_BROADCAST,
+    ToolName.RLM_SWARM_EVENTS,
     ToolName.RLM_TASK_CREATE,
+    ToolName.RLM_TASK_BULK_CREATE,
     ToolName.RLM_TASK_CLAIM,
     ToolName.RLM_TASK_COMPLETE,
 }
@@ -826,8 +881,11 @@ class RLMEngine:
             ToolName.RLM_RELEASE: self._handle_release,
             ToolName.RLM_STATE_GET: self._handle_state_get,
             ToolName.RLM_STATE_SET: self._handle_state_set,
+            ToolName.RLM_STATE_POLL: self._handle_state_poll,
             ToolName.RLM_BROADCAST: self._handle_broadcast,
+            ToolName.RLM_SWARM_EVENTS: self._handle_swarm_events,
             ToolName.RLM_TASK_CREATE: self._handle_task_create,
+            ToolName.RLM_TASK_BULK_CREATE: self._handle_task_bulk_create,
             ToolName.RLM_TASK_CLAIM: self._handle_task_claim,
             ToolName.RLM_TASK_COMPLETE: self._handle_task_complete,
             # Phase 10: Document Sync Tools
@@ -1404,6 +1462,92 @@ class RLMEngine:
         # This reduces hallucination by maintaining clear source attribution
         return_references = params.get("return_references", False)
 
+        # Auto-decompose: automatically break complex queries into sub-queries
+        # Disable by setting auto_decompose=False in params
+        auto_decompose = params.get("auto_decompose", True)
+
+        # Check if we should auto-decompose this query (Pro+ only)
+        decomposed = False
+        sub_queries_used: list[str] = []
+
+        if (
+            auto_decompose
+            and self.plan in AUTO_DECOMPOSE_PLANS
+            and self.index
+            and _should_auto_decompose(query)
+        ):
+            # Generate sub-queries using decomposition logic
+            logger.info(f"Auto-decomposing complex query: {query[:100]}...")
+
+            decompose_result = await self._handle_decompose({
+                "query": query,
+                "max_depth": 2,
+            })
+
+            decompose_data = decompose_result.data
+            if (
+                isinstance(decompose_data, dict)
+                and decompose_data.get("sub_queries")
+                and len(decompose_data["sub_queries"]) > 1
+            ):
+                # We have meaningful sub-queries - execute them and merge results
+                sub_queries_raw = decompose_data["sub_queries"]
+                sub_queries_used = [sq.get("query", "") for sq in sub_queries_raw if sq.get("query")]
+
+                if sub_queries_used:
+                    # Execute sub-queries and collect results
+                    all_sections: list[ContextSection] = []
+                    seen_titles: set[str] = set()
+                    per_query_budget = max_tokens // len(sub_queries_used)
+
+                    for sub_q in sub_queries_used:
+                        # Execute sub-query with reduced budget
+                        sub_result = await self._execute_single_context_query(
+                            query=sub_q,
+                            max_tokens=per_query_budget,
+                            search_mode=SearchMode(search_mode_str) if search_mode_str else SearchMode.KEYWORD,
+                            prefer_summaries=prefer_summaries,
+                            return_references=return_references,
+                        )
+
+                        # Deduplicate by title
+                        for section in sub_result:
+                            if section.title not in seen_titles:
+                                seen_titles.add(section.title)
+                                all_sections.append(section)
+
+                    if all_sections:
+                        # Sort by relevance and apply token budget
+                        all_sections.sort(key=lambda s: s.relevance_score, reverse=True)
+                        decomposed = True
+
+                        # Build final result with merged sections
+                        total_tokens = sum(s.tokens for s in all_sections)
+                        sections_within_budget: list[ContextSection] = []
+                        budget_used = 0
+
+                        for section in all_sections:
+                            if budget_used + section.tokens <= max_tokens:
+                                sections_within_budget.append(section)
+                                budget_used += section.tokens
+
+                        # Return decomposed result
+                        result = ContextQueryResult(
+                            sections=sections_within_budget,
+                            total_tokens=budget_used,
+                            max_tokens=max_tokens,
+                            query=query,
+                            search_mode=SearchMode(search_mode_str) if search_mode_str else SearchMode.KEYWORD,
+                            decomposed=True,
+                            sub_queries=sub_queries_used,
+                        )
+
+                        return ToolResult(
+                            data=result.model_dump(),
+                            input_tokens=count_tokens(query),
+                            output_tokens=budget_used,
+                        )
+
         # Detect complex queries and boost token budget to reduce hallucination
         query_lower = query.lower()
 
@@ -1937,6 +2081,76 @@ class RLMEngine:
                 result[path][s.summaryType] = s.summary
 
         return result
+
+    async def _execute_single_context_query(
+        self,
+        query: str,
+        max_tokens: int,
+        search_mode: SearchMode,
+        prefer_summaries: bool = False,
+        return_references: bool = False,
+    ) -> list[ContextSection]:
+        """Execute a single context query without auto-decomposition.
+
+        This is used internally by auto-decompose to execute sub-queries.
+        Returns a list of ContextSection objects without wrapping in ToolResult.
+
+        Args:
+            query: The search query
+            max_tokens: Token budget for results
+            search_mode: Search mode to use
+            prefer_summaries: Use summaries instead of full content
+            return_references: Return references instead of content
+
+        Returns:
+            List of ContextSection objects
+        """
+        if not self.index:
+            return []
+
+        # Score sections
+        scored_sections = await self._score_sections(query, search_mode)
+
+        # Build result sections within budget
+        sections: list[ContextSection] = []
+        total_tokens = 0
+
+        for section, score in scored_sections:
+            if total_tokens >= max_tokens:
+                break
+
+            content = section.content
+            tokens = count_tokens(content)
+
+            if total_tokens + tokens > max_tokens:
+                # Truncate to fit
+                remaining = max_tokens - total_tokens
+                if remaining < 50:  # Not worth adding
+                    break
+                content = content[: remaining * 4]  # Rough char estimate
+                tokens = count_tokens(content)
+
+            # Find file path for this section
+            file_path = None
+            for fp, (start, end) in self.index.file_boundaries.items():
+                if section.start_line >= start + 1 and section.end_line <= end:
+                    file_path = fp
+                    break
+
+            sections.append(
+                ContextSection(
+                    title=section.title,
+                    content=content,
+                    relevance_score=round(score, 4),
+                    file=file_path,
+                    start_line=section.start_line,
+                    end_line=section.end_line,
+                    tokens=tokens,
+                )
+            )
+            total_tokens += tokens
+
+        return sections
 
     async def _score_sections(
         self, query: str, search_mode: SearchMode
@@ -4135,7 +4349,7 @@ class RLMEngine:
 
     async def _handle_memories(self, params: dict[str, Any]) -> ToolResult:
         """
-        Handle rlm_memories - list memories with filters.
+        Handle rlm_memories - list memories with filters and sorting.
 
         Args:
             params: Dict containing:
@@ -4145,6 +4359,8 @@ class RLMEngine:
                 - search: Text search in content
                 - limit: Maximum memories to return
                 - offset: Pagination offset
+                - sort_by: Field to sort by (created_at, confidence, access_count, last_accessed, expires_at)
+                - sort_order: Sort direction (asc, desc)
 
         Returns:
             ToolResult with memories list and pagination info
@@ -4155,6 +4371,8 @@ class RLMEngine:
         search = params.get("search")
         limit = params.get("limit", 20)
         offset = params.get("offset", 0)
+        sort_by = params.get("sort_by", "created_at")
+        sort_order = params.get("sort_order", "desc")
 
         result = await list_memories(
             project_id=self.project_id,
@@ -4164,6 +4382,8 @@ class RLMEngine:
             search=search,
             limit=limit,
             offset=offset,
+            sort_by=sort_by,
+            sort_order=sort_order,
         )
 
         return ToolResult(
@@ -4420,6 +4640,7 @@ class RLMEngine:
                 - key: State key
                 - value: Value to set
                 - expected_version: For optimistic locking
+                - ttl_seconds: Optional TTL in seconds
 
         Returns:
             ToolResult with new version
@@ -4429,6 +4650,7 @@ class RLMEngine:
         key = params.get("key", "")
         value = params.get("value")
         expected_version = params.get("expected_version")
+        ttl_seconds = params.get("ttl_seconds")
 
         if not swarm_id or not agent_id or not key:
             return ToolResult(
@@ -4450,11 +4672,66 @@ class RLMEngine:
             key=key,
             value=value,
             expected_version=expected_version,
+            ttl_seconds=ttl_seconds,
         )
 
         return ToolResult(
             data=result,
             input_tokens=count_tokens(str(value)),
+            output_tokens=count_tokens(str(result)),
+        )
+
+    async def _handle_state_poll(self, params: dict[str, Any]) -> ToolResult:
+        """
+        Handle rlm_state_poll - poll for state changes across multiple keys.
+
+        Efficiently monitors multiple keys and returns only those that have
+        changed since their last known versions.
+
+        Args:
+            params: Dict containing:
+                - swarm_id: Swarm ID
+                - keys: List of state keys to monitor
+                - last_versions: Optional dict of key -> last known version
+
+        Returns:
+            ToolResult with changed keys and their values
+        """
+        swarm_id = params.get("swarm_id", "")
+        keys = params.get("keys", [])
+        last_versions = params.get("last_versions", {})
+
+        if not swarm_id:
+            return ToolResult(
+                data={"error": "swarm_id is required"},
+                input_tokens=0,
+                output_tokens=0,
+            )
+
+        if not keys:
+            return ToolResult(
+                data={"error": "keys array is required and cannot be empty"},
+                input_tokens=0,
+                output_tokens=0,
+            )
+
+        # Parse last_versions if it's a string (from MCP)
+        if isinstance(last_versions, str):
+            try:
+                import json
+                last_versions = json.loads(last_versions)
+            except json.JSONDecodeError:
+                last_versions = {}
+
+        result = await poll_state(
+            swarm_id=swarm_id,
+            keys=keys,
+            last_versions=last_versions,
+        )
+
+        return ToolResult(
+            data=result,
+            input_tokens=count_tokens(str(keys)),
             output_tokens=count_tokens(str(result)),
         )
 
@@ -4497,6 +4774,49 @@ class RLMEngine:
             output_tokens=count_tokens(str(result)),
         )
 
+    async def _handle_swarm_events(self, params: dict[str, Any]) -> ToolResult:
+        """
+        Handle rlm_swarm_events - query and filter broadcast events in a swarm.
+
+        Args:
+            params: Dict containing:
+                - swarm_id: Swarm ID (required)
+                - event_type: Filter by event type
+                - agent_id: Filter by sending agent
+                - since: Only events after this timestamp (ISO 8601)
+                - limit: Maximum events to return (default 50)
+
+        Returns:
+            ToolResult with events list
+        """
+        swarm_id = params.get("swarm_id", "")
+
+        if not swarm_id:
+            return ToolResult(
+                data={"error": "rlm_swarm_events: swarm_id is required"},
+                input_tokens=0,
+                output_tokens=0,
+            )
+
+        event_type = params.get("event_type")
+        agent_id = params.get("agent_id")
+        since = params.get("since")
+        limit = params.get("limit", 50)
+
+        result = await get_recent_events(
+            swarm_id=swarm_id,
+            event_type=event_type,
+            agent_id=agent_id,
+            since=since,
+            limit=limit,
+        )
+
+        return ToolResult(
+            data=result,
+            input_tokens=0,
+            output_tokens=count_tokens(str(result)),
+        )
+
     async def _handle_task_create(self, params: dict[str, Any]) -> ToolResult:
         """
         Handle rlm_task_create - create a task in the swarm's queue.
@@ -4508,6 +4828,7 @@ class RLMEngine:
                 - title: Task title
                 - description: Task description
                 - priority: Priority level
+                - deadline: Optional deadline (ISO 8601 format)
                 - depends_on: Task IDs this depends on
                 - metadata: Additional task data
 
@@ -4519,6 +4840,7 @@ class RLMEngine:
         title = params.get("title", "")
         description = params.get("description")
         priority = params.get("priority", 0)
+        deadline = params.get("deadline")
         depends_on = params.get("depends_on")
         metadata = params.get("metadata")
 
@@ -4535,6 +4857,7 @@ class RLMEngine:
             title=title,
             description=description,
             priority=priority,
+            deadline=deadline,
             depends_on=depends_on,
             metadata=metadata,
         )
@@ -4542,6 +4865,65 @@ class RLMEngine:
         return ToolResult(
             data=result,
             input_tokens=count_tokens(title + (description or "")),
+            output_tokens=count_tokens(str(result)),
+        )
+
+    async def _handle_task_bulk_create(self, params: dict[str, Any]) -> ToolResult:
+        """
+        Handle rlm_task_bulk_create - create multiple tasks in bulk.
+
+        Args:
+            params: Dict containing:
+                - swarm_id: Swarm ID
+                - agent_id: Creating agent
+                - tasks: Array of task objects (max 50), each with:
+                    - title: Task title (required)
+                    - description: Task description
+                    - priority: Priority level
+                    - depends_on: Task IDs this depends on
+                    - metadata: Additional task data
+
+        Returns:
+            ToolResult with created task IDs and stats
+        """
+        swarm_id = params.get("swarm_id", "")
+        agent_id = params.get("agent_id", "")
+        tasks = params.get("tasks", [])
+
+        if not swarm_id or not agent_id:
+            return ToolResult(
+                data={"error": "rlm_task_bulk_create: swarm_id and agent_id are required"},
+                input_tokens=0,
+                output_tokens=0,
+            )
+
+        if not tasks:
+            return ToolResult(
+                data={"error": "rlm_task_bulk_create: 'tasks' array is required"},
+                input_tokens=0,
+                output_tokens=0,
+            )
+
+        if len(tasks) > 50:
+            return ToolResult(
+                data={"error": "rlm_task_bulk_create: max 50 tasks per call"},
+                input_tokens=0,
+                output_tokens=0,
+            )
+
+        result = await create_tasks_bulk(
+            swarm_id=swarm_id,
+            agent_id=agent_id,
+            tasks=tasks,
+        )
+
+        input_tokens = sum(
+            count_tokens(t.get("title", "") + (t.get("description") or ""))
+            for t in tasks
+        )
+        return ToolResult(
+            data=result,
+            input_tokens=input_tokens,
             output_tokens=count_tokens(str(result)),
         )
 
@@ -5168,7 +5550,11 @@ class RLMEngine:
                 output_tokens=0,
             )
 
+        # Start total timing
+        total_start = time.perf_counter()
+
         # Round 1: Section scan (lightweight structure overview)
+        round1_start = time.perf_counter()
         all_sections = [
             {
                 "id": s.id,
@@ -5178,8 +5564,10 @@ class RLMEngine:
             }
             for s in self.index.sections
         ]
+        round1_ms = int((time.perf_counter() - round1_start) * 1000)
 
         # Round 2: Ranked search (reuse scoring logic from context_query)
+        round2_start = time.perf_counter()
         scored_sections = await self._score_sections(query, search_mode)
 
         # Take top-k sections
@@ -5197,8 +5585,10 @@ class RLMEngine:
 
         # Sort files by highest score
         ranked_files = sorted(file_hits.items(), key=lambda x: x[1], reverse=True)
+        round2_ms = int((time.perf_counter() - round2_start) * 1000)
 
         # Round 3: Load raw content for top files within budget
+        round3_start = time.perf_counter()
         loaded_files: list[dict[str, Any]] = []
         total_tokens = 0
         remaining_budget = max_tokens
@@ -5240,6 +5630,8 @@ class RLMEngine:
                 break
             else:
                 break
+        round3_ms = int((time.perf_counter() - round3_start) * 1000)
+        total_ms = int((time.perf_counter() - total_start) * 1000)
 
         # Build ranked section summaries (Round 2 results without full content)
         ranked_summaries = [
@@ -5254,6 +5646,18 @@ class RLMEngine:
 
         response = {
             "query": query,
+            "timing": {
+                "sections_scan_ms": round1_ms,
+                "ranked_search_ms": round2_ms,
+                "raw_load_ms": round3_ms,
+                "total_ms": total_ms,
+            },
+            "metrics": {
+                "sections_scanned": len(all_sections),
+                "candidates_scored": len(scored_sections),
+                "files_loaded": len(loaded_files),
+                "tokens_used": total_tokens,
+            },
             "rounds": {
                 "sections_scan": {
                     "total_sections": len(all_sections),
@@ -5281,11 +5685,30 @@ class RLMEngine:
     # ============ Phase 13: REPL Context Bridge ============
 
     async def _handle_repl_context(self, params: dict[str, Any]) -> ToolResult:
-        """Handle rlm_repl_context - package project context for REPL consumption.
+        """Handle rlm_repl_context - bridge Snipara context to RLM-Runtime REPL.
 
-        Returns project context as a structured Python-ready dict plus helper
-        code that can be injected into an rlm-runtime REPL session via
-        set_repl_context. Optionally filters by a relevance query.
+        This tool packages project documentation into a Python-ready format for
+        injection into an rlm-runtime REPL session. It enables context-aware code
+        execution where the LLM can reference documentation while writing code.
+
+        Workflow:
+        1. Call rlm_repl_context to get context_data + setup_code
+        2. Use set_repl_context(key='context', value=context_data)
+        3. Use execute_python(setup_code) to load helpers
+        4. Use helpers to explore: peek(), grep(), find_function(), etc.
+        5. Execute code with full documentation context
+
+        Available helpers:
+        - peek(path, start, end): View file or line range
+        - grep(pattern, path): Search files with regex
+        - sections(path): List documentation sections
+        - files(): List loaded files with tokens
+        - get_file(path): Get full file content
+        - search(query, top_k): Keyword search with scoring
+        - trim(max_chars): Trim context to budget
+        - find_function(name, exact): Find function definitions
+        - list_imports(path): List import statements
+        - context_summary(): Get overview of loaded context
 
         Plan-gating: PRO+
         """
@@ -5467,7 +5890,100 @@ def trim(max_chars=50000):
         total += len(content)
     return f"Trimmed to {sum(len(f.get('content', '')) for f in context.get('files', {}).values())} chars"
 
-print(f"[Snipara] {len(context.get('files', {}))} files loaded. Helpers: peek, grep, sections, files, get_file, search, trim")
+def find_function(name, exact=False):
+    """Find function/method definitions matching name.
+
+    Args:
+        name: Function name or pattern to search
+        exact: If True, require exact match; if False, partial match
+
+    Returns:
+        List of {file, line, signature, preview} dicts
+    """
+    results = []
+    # Patterns for common function definitions
+    patterns = [
+        r'^\\s*(async\\s+)?def\\s+' + (f'{name}\\s*\\(' if exact else f'\\w*{name}\\w*\\s*\\('),
+        r'^\\s*(async\\s+)?function\\s+' + (f'{name}\\s*\\(' if exact else f'\\w*{name}\\w*\\s*\\('),
+        r'^\\s*(const|let|var)\\s+' + (f'{name}\\s*=' if exact else f'\\w*{name}\\w*\\s*=') + r'\\s*(async\\s+)?\\([^)]*\\)\\s*=>',
+        r'^\\s*(export\\s+)?(const|let|var)\\s+' + (f'{name}\\s*=' if exact else f'\\w*{name}\\w*\\s*='),
+    ]
+    for fp, fdata in context.get("files", {}).items():
+        for i, line in enumerate(fdata["content"].split("\\n"), 1):
+            for pattern in patterns:
+                if _re.search(pattern, line, _re.IGNORECASE):
+                    results.append({
+                        "file": fp,
+                        "line": i,
+                        "signature": line.strip()[:100],
+                        "preview": line.strip()
+                    })
+                    break
+    return results
+
+def list_imports(path=None):
+    """List imports/requires from loaded files.
+
+    Args:
+        path: Optional file path to filter to
+
+    Returns:
+        Dict of {file: [imports]}
+    """
+    results = {}
+    patterns = [
+        r'^\\s*import\\s+.+\\s+from\\s+[\'"].+[\'"]',  # ES6 import
+        r'^\\s*import\\s+[\'"].+[\'"]',  # ES6 import (side-effect)
+        r'^\\s*from\\s+[\\w.]+\\s+import',  # Python import
+        r'^\\s*import\\s+[\\w.]+',  # Python import
+        r'^\\s*(const|let|var)\\s+.+\\s*=\\s*require\\(',  # CommonJS
+    ]
+    files = context.get("files", {})
+    targets = {path: files[path]} if path and path in files else files
+    for fp, fdata in targets.items():
+        imports = []
+        for i, line in enumerate(fdata["content"].split("\\n"), 1):
+            for pattern in patterns:
+                if _re.search(pattern, line):
+                    imports.append({"line": i, "statement": line.strip()})
+                    break
+        if imports:
+            results[fp] = imports
+    return results
+
+def context_summary():
+    """Get a summary of loaded context.
+
+    Returns:
+        Dict with overview of files, sections, tokens, and key stats
+    """
+    files = context.get("files", {})
+    secs = context.get("sections", [])
+
+    total_tokens = sum(f.get("tokens", 0) for f in files.values())
+    total_chars = sum(len(f.get("content", "")) for f in files.values())
+    truncated = sum(1 for f in files.values() if f.get("truncated"))
+
+    # Group sections by file
+    sections_by_file = {}
+    for s in secs:
+        fp = s.get("file", "unknown")
+        if fp not in sections_by_file:
+            sections_by_file[fp] = []
+        sections_by_file[fp].append(s.get("title", "untitled"))
+
+    return {
+        "total_files": len(files),
+        "total_sections": len(secs),
+        "total_tokens": total_tokens,
+        "total_chars": total_chars,
+        "truncated_files": truncated,
+        "files": list(files.keys()),
+        "sections_by_file": sections_by_file,
+        "available_helpers": ["peek", "grep", "sections", "files", "get_file", "search", "trim", "find_function", "list_imports", "context_summary"]
+    }
+
+print(f"[Snipara] {len(context.get('files', {}))} files loaded. Helpers: peek, grep, sections, files, get_file, search, trim, find_function, list_imports, context_summary")
 '''
 
         response = {
@@ -5480,9 +5996,10 @@ print(f"[Snipara] {len(context.get('files', {}))} files loaded. Helpers: peek, g
             "setup_code": helpers_code,
             "total_tokens": total_tokens,
             "usage_hint": (
-                "Inject into REPL: call set_repl_context(key='context', "
-                "value=<context_data>), then execute_python with setup_code, "
-                "then use peek(), grep(), sections(), files() helpers."
+                "1. Call set_repl_context(key='context', value=<context_data>) "
+                "2. Call execute_python(setup_code) to load helpers "
+                "3. Use helpers: peek(), grep(), find_function(), list_imports(), "
+                "sections(), files(), get_file(), search(), trim(), context_summary()"
             ),
         }
 

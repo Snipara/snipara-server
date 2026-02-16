@@ -591,12 +591,88 @@ async def get_state(
     }
 
 
+async def poll_state(
+    swarm_id: str,
+    keys: list[str],
+    last_versions: dict[str, int] | None = None,
+) -> dict[str, Any]:
+    """Poll for state changes across multiple keys.
+
+    Returns only keys that have changed since their last_versions.
+    Efficient for monitoring multiple keys without individual get calls.
+
+    Args:
+        swarm_id: The swarm ID
+        keys: List of state keys to monitor
+        last_versions: Map of key -> last known version. Only keys with
+                      newer versions are returned. Default {} means return all.
+
+    Returns:
+        Dict with changed keys and their current values/versions
+    """
+    db = await get_db()
+
+    if last_versions is None:
+        last_versions = {}
+
+    # Fetch all requested keys in one query
+    states = await db.sharedstate.find_many(
+        where={
+            "swarmId": swarm_id,
+            "key": {"in": keys},
+        }
+    )
+
+    # Build result with only changed keys
+    changed: dict[str, dict[str, Any]] = {}
+    unchanged_keys: list[str] = []
+    missing_keys: list[str] = []
+
+    # Track which keys were found
+    found_keys = {s.key for s in states}
+
+    for key in keys:
+        if key not in found_keys:
+            missing_keys.append(key)
+
+    for state in states:
+        last_ver = last_versions.get(state.key, 0)
+
+        if state.version > last_ver:
+            # Parse value (same logic as get_state)
+            value = state.value
+            if isinstance(value, dict) and len(value) == 1:
+                if "value" in value:
+                    value = value["value"]
+                elif "raw" in value:
+                    value = value["raw"]
+
+            changed[state.key] = {
+                "value": value,
+                "version": state.version,
+                "updated_at": state.updatedAt.isoformat() if state.updatedAt else None,
+                "updated_by": state.updatedBy,
+            }
+        else:
+            unchanged_keys.append(state.key)
+
+    return {
+        "swarm_id": swarm_id,
+        "changed": changed,
+        "unchanged_count": len(unchanged_keys),
+        "missing_keys": missing_keys,
+        "total_polled": len(keys),
+        "has_changes": len(changed) > 0,
+    }
+
+
 async def set_state(
     swarm_id: str,
     agent_id: str,
     key: str,
     value: Any,
     expected_version: int | None = None,
+    ttl_seconds: int | None = None,
 ) -> dict[str, Any]:
     """Set shared state value with optimistic locking.
 
@@ -606,11 +682,17 @@ async def set_state(
         key: State key
         value: Value to set (will be JSON serialized)
         expected_version: If provided, only update if version matches (optimistic lock)
+        ttl_seconds: If provided, state expires after this many seconds
 
     Returns:
         Dict with new version and status
     """
     db = await get_db()
+
+    # Calculate expiration time if TTL provided
+    expires_at = None
+    if ttl_seconds is not None and ttl_seconds > 0:
+        expires_at = datetime.now(UTC) + timedelta(seconds=ttl_seconds)
 
     # Ensure value is JSON-serializable - Prisma expects dict/list for Json fields
     if isinstance(value, str):
@@ -643,39 +725,51 @@ async def set_state(
 
         # Update existing
         new_version = existing.version + 1
+        update_data: dict[str, Any] = {
+            "value": Json(parsed_value),
+            "version": new_version,
+            "updatedBy": agent_id,
+        }
+        if expires_at is not None:
+            update_data["expiresAt"] = expires_at
+
         await db.sharedstate.update(
             where={"id": existing.id},
-            data={
-                "value": Json(parsed_value),
-                "version": new_version,
-                "updatedBy": agent_id,
-            },
+            data=update_data,
         )
 
-        return {
+        result: dict[str, Any] = {
             "success": True,
             "key": key,
             "version": new_version,
             "message": "State updated",
         }
+        if expires_at is not None:
+            result["expires_at"] = expires_at.isoformat()
+        return result
     else:
         # Create new state
-        await db.sharedstate.create(
-            data={
-                "swarmId": swarm_id,
-                "key": key,
-                "value": Json(parsed_value),
-                "version": 1,
-                "updatedBy": agent_id,
-            }
-        )
+        create_data: dict[str, Any] = {
+            "swarmId": swarm_id,
+            "key": key,
+            "value": Json(parsed_value),
+            "version": 1,
+            "updatedBy": agent_id,
+        }
+        if expires_at is not None:
+            create_data["expiresAt"] = expires_at
 
-        return {
+        await db.sharedstate.create(data=create_data)
+
+        result = {
             "success": True,
             "key": key,
             "version": 1,
             "message": "State created",
         }
+        if expires_at is not None:
+            result["expires_at"] = expires_at.isoformat()
+        return result
 
 
 # =============================================================================
@@ -689,6 +783,7 @@ async def create_task(
     title: str,
     description: str | None = None,
     priority: int = 0,
+    deadline: datetime | str | None = None,
     depends_on: list[str] | None = None,
     metadata: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
@@ -700,6 +795,7 @@ async def create_task(
         title: Task title
         description: Task description
         priority: Priority (higher = more urgent)
+        deadline: Optional deadline (datetime or ISO string)
         depends_on: List of task IDs this task depends on
         metadata: Additional task metadata
 
@@ -708,6 +804,14 @@ async def create_task(
     """
     db = await get_db()
 
+    # Parse deadline if string
+    due_at = None
+    if deadline:
+        if isinstance(deadline, str):
+            due_at = datetime.fromisoformat(deadline.replace("Z", "+00:00"))
+        else:
+            due_at = deadline
+
     task = await db.swarmtask.create(
         data={
             "swarm": {"connect": {"id": swarm_id}},
@@ -715,6 +819,7 @@ async def create_task(
             "description": description,
             "status": "PENDING",
             "priority": priority,
+            "dueAt": due_at,
             "dependsOn": depends_on or [],
         }
     )
@@ -726,8 +831,71 @@ async def create_task(
         "task_id": task.id,
         "title": title,
         "priority": priority,
+        "deadline": due_at.isoformat() if due_at else None,
         "depends_on": depends_on or [],
         "message": "Task created",
+    }
+
+
+async def create_tasks_bulk(
+    swarm_id: str,
+    agent_id: str,
+    tasks: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """Create multiple tasks in bulk.
+
+    Args:
+        swarm_id: The swarm ID
+        agent_id: Agent creating the tasks
+        tasks: List of task objects with title, description, priority, deadline, depends_on, metadata
+
+    Returns:
+        Dict with created task IDs and stats
+    """
+    db = await get_db()
+
+    created_ids: list[str] = []
+    failed: list[dict[str, Any]] = []
+
+    for i, task_data in enumerate(tasks):
+        title = task_data.get("title", "")
+        if not title:
+            failed.append({"index": i, "error": "title is required"})
+            continue
+
+        try:
+            # Parse deadline if provided
+            due_at = None
+            deadline = task_data.get("deadline")
+            if deadline:
+                if isinstance(deadline, str):
+                    due_at = datetime.fromisoformat(deadline.replace("Z", "+00:00"))
+                else:
+                    due_at = deadline
+
+            task = await db.swarmtask.create(
+                data={
+                    "swarm": {"connect": {"id": swarm_id}},
+                    "title": title,
+                    "description": task_data.get("description"),
+                    "status": "PENDING",
+                    "priority": task_data.get("priority", 0),
+                    "dueAt": due_at,
+                    "dependsOn": task_data.get("depends_on") or [],
+                }
+            )
+            created_ids.append(task.id)
+        except Exception as e:
+            failed.append({"index": i, "title": title, "error": str(e)})
+
+    logger.info(f"Bulk created {len(created_ids)} tasks in swarm {swarm_id}")
+
+    return {
+        "success": True,
+        "created_count": len(created_ids),
+        "task_ids": created_ids,
+        "failed_count": len(failed),
+        "failed": failed if failed else None,
     }
 
 

@@ -138,6 +138,15 @@ class ContextQueryResult(BaseModel):
         default=None,
         description="Assessed query complexity: 'simple', 'moderate', or 'complex'",
     )
+    # Auto-decompose metadata (Pro+ feature)
+    decomposed: bool = Field(
+        default=False,
+        description="Whether the query was auto-decomposed into sub-queries",
+    )
+    sub_queries: list[str] = Field(
+        default_factory=list,
+        description="Sub-queries used when decomposed=True",
+    )
 
 
 # ============ RECURSIVE CONTEXT MODELS (Phase 4.5) ============

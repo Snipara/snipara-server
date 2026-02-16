@@ -16,6 +16,7 @@ except ImportError:
     def Json(x):  # noqa: N802
         return x
 
+
 from ..db import get_db
 from .cache import get_redis
 
@@ -124,8 +125,9 @@ async def broadcast_event(
 
 async def get_recent_events(
     swarm_id: str,
-    since: datetime | None = None,
+    since: datetime | str | None = None,
     event_type: str | None = None,
+    agent_id: str | None = None,
     limit: int = 50,
 ) -> dict[str, Any]:
     """Get recent events from a swarm.
@@ -134,8 +136,9 @@ async def get_recent_events(
 
     Args:
         swarm_id: The swarm ID
-        since: Only return events after this timestamp
+        since: Only return events after this timestamp (datetime or ISO string)
         event_type: Filter by event type
+        agent_id: Filter by sending agent's external ID
         limit: Maximum events to return
 
     Returns:
@@ -145,11 +148,27 @@ async def get_recent_events(
 
     where: dict[str, Any] = {"swarmId": swarm_id}
 
+    # Parse since if string
     if since:
-        where["createdAt"] = {"gt": since}
+        if isinstance(since, str):
+            since_dt = datetime.fromisoformat(since.replace("Z", "+00:00"))
+            where["createdAt"] = {"gt": since_dt}
+        else:
+            where["createdAt"] = {"gt": since}
 
     if event_type:
         where["eventType"] = event_type
+
+    # If agent_id filter provided, need to look up the SwarmAgent first
+    if agent_id:
+        swarm_agent = await db.swarmagent.find_first(
+            where={"swarmId": swarm_id, "agentId": agent_id}
+        )
+        if swarm_agent:
+            where["agentId"] = swarm_agent.id
+        else:
+            # Agent not found, return empty results
+            return {"events": [], "total": 0, "swarm_id": swarm_id}
 
     events = await db.swarmevent.find_many(
         where=where,
@@ -157,18 +176,41 @@ async def get_recent_events(
         take=limit,
     )
 
+    # Build events list with agent lookup for external IDs
+    event_list = []
+    agent_cache: dict[str, str] = {}
+
+    for e in reversed(events):  # Return in chronological order
+        # Get external agent_id from cache or DB
+        external_agent_id = None
+        if e.agentId:
+            if e.agentId in agent_cache:
+                external_agent_id = agent_cache[e.agentId]
+            else:
+                agent = await db.swarmagent.find_first(where={"id": e.agentId})
+                if agent:
+                    external_agent_id = agent.agentId
+                    agent_cache[e.agentId] = agent.agentId
+
+        # Parse payload
+        payload_data = None
+        if e.payload:
+            try:
+                payload_data = json.loads(e.payload) if isinstance(e.payload, str) else e.payload
+            except (json.JSONDecodeError, TypeError):
+                payload_data = e.payload
+
+        event_list.append({
+            "event_id": e.id,
+            "event_type": e.eventType,
+            "agent_id": external_agent_id,
+            "payload": payload_data,
+            "timestamp": e.createdAt.isoformat() if e.createdAt else None,
+        })
+
     return {
-        "events": [
-            {
-                "event_id": e.id,
-                "event_type": e.eventType,
-                "agent_id": e.agentId,
-                "payload": json.loads(e.payload) if e.payload else None,
-                "timestamp": e.createdAt.isoformat() if e.createdAt else None,
-            }
-            for e in reversed(events)  # Return in chronological order
-        ],
-        "total": len(events),
+        "events": event_list,
+        "total": len(event_list),
         "swarm_id": swarm_id,
     }
 

@@ -44,8 +44,11 @@ class ToolName(StrEnum):
     RLM_RELEASE = "rlm_release"
     RLM_STATE_GET = "rlm_state_get"
     RLM_STATE_SET = "rlm_state_set"
+    RLM_STATE_POLL = "rlm_state_poll"
     RLM_BROADCAST = "rlm_broadcast"
+    RLM_SWARM_EVENTS = "rlm_swarm_events"
     RLM_TASK_CREATE = "rlm_task_create"
+    RLM_TASK_BULK_CREATE = "rlm_task_bulk_create"
     RLM_TASK_CLAIM = "rlm_task_claim"
     RLM_TASK_COMPLETE = "rlm_task_complete"
     # Phase 10: Document Sync Tools

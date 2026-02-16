@@ -29,36 +29,39 @@ JOB_POLL_INTERVAL = 10  # seconds between polling
 JOB_STALE_TIMEOUT = 300  # 5 min - reclaim if worker crashed
 MAX_CONCURRENT_JOBS = 2  # per worker
 AUTO_DISCOVERY_INTERVAL = 300  # 5 min - scan for unindexed documents
+STATE_CLEANUP_INTERVAL = 300  # 5 min - clean up expired shared states
 
 # Global state
 _running = False
 _processor_task: asyncio.Task | None = None
 _discovery_task: asyncio.Task | None = None
+_state_cleanup_task: asyncio.Task | None = None
 _active_jobs: set[str] = set()
 _worker_id: str = f"worker-{os.getpid()}-{uuid.uuid4().hex[:8]}"
 _last_discovery: datetime | None = None
 
 
-async def start_job_processor(db: Prisma) -> None:
+async def start_job_processor() -> None:
     """Start the background job processor loop."""
-    global _running, _processor_task, _discovery_task
+    global _running, _processor_task, _discovery_task, _state_cleanup_task
 
     if _running:
         logger.warning("Job processor already running")
         return
 
     _running = True
-    _processor_task = asyncio.create_task(_job_processor_loop(db))
-    _discovery_task = asyncio.create_task(_auto_discovery_loop(db))
+    _processor_task = asyncio.create_task(_job_processor_loop())
+    _discovery_task = asyncio.create_task(_auto_discovery_loop())
+    _state_cleanup_task = asyncio.create_task(_state_cleanup_loop())
     logger.info(f"Job processor started (worker_id={_worker_id})")
 
 
 async def stop_job_processor() -> None:
     """Stop the background job processor."""
-    global _running, _processor_task, _discovery_task
+    global _running, _processor_task, _discovery_task, _state_cleanup_task
 
     _running = False
-    for task in [_processor_task, _discovery_task]:
+    for task in [_processor_task, _discovery_task, _state_cleanup_task]:
         if task:
             task.cancel()
             try:
@@ -67,13 +70,19 @@ async def stop_job_processor() -> None:
                 pass
     _processor_task = None
     _discovery_task = None
+    _state_cleanup_task = None
     logger.info("Job processor stopped")
 
 
-async def _job_processor_loop(db: Prisma) -> None:
+async def _job_processor_loop() -> None:
     """Main loop that polls for and processes jobs."""
+    from ..db import get_db
+
     while _running:
         try:
+            # Get fresh db connection each iteration to handle reconnection
+            db = await get_db()
+
             # Only claim new jobs if we have capacity
             if len(_active_jobs) < MAX_CONCURRENT_JOBS:
                 job = await _claim_next_job(db)
@@ -86,13 +95,15 @@ async def _job_processor_loop(db: Prisma) -> None:
         await asyncio.sleep(JOB_POLL_INTERVAL)
 
 
-async def _auto_discovery_loop(db: Prisma) -> None:
+async def _auto_discovery_loop() -> None:
     """
     Periodically scan for projects with unindexed documents and create index jobs.
 
     This ensures all projects eventually get indexed, even if the webhook-based
     indexing fails (e.g., due to misconfigured MCP_INTERNAL_SECRET).
     """
+    from ..db import get_db
+
     global _last_discovery
 
     # Wait a bit before first discovery to let the server stabilize
@@ -100,6 +111,8 @@ async def _auto_discovery_loop(db: Prisma) -> None:
 
     while _running:
         try:
+            # Get fresh db connection each iteration to handle reconnection
+            db = await get_db()
             now = datetime.now(UTC)
 
             # Find projects with documents that have no chunks
@@ -181,6 +194,42 @@ async def _auto_discovery_loop(db: Prisma) -> None:
             logger.error(f"Error in auto-discovery loop: {e}")
 
         await asyncio.sleep(AUTO_DISCOVERY_INTERVAL)
+
+
+async def _state_cleanup_loop() -> None:
+    """
+    Periodically clean up expired shared states.
+
+    States with a non-null expiresAt that has passed are deleted.
+    This runs every STATE_CLEANUP_INTERVAL seconds (5 minutes by default).
+    """
+    from ..db import get_db
+
+    # Wait a bit before first cleanup to let the server stabilize
+    await asyncio.sleep(30)
+
+    while _running:
+        try:
+            db = await get_db()
+            now = datetime.now(UTC)
+
+            # Delete expired states
+            deleted = await db.sharedstate.delete_many(
+                where={
+                    "expiresAt": {
+                        "not": None,
+                        "lt": now,
+                    }
+                }
+            )
+
+            if deleted > 0:
+                logger.info(f"State cleanup: deleted {deleted} expired states")
+
+        except Exception as e:
+            logger.error(f"Error in state cleanup loop: {e}")
+
+        await asyncio.sleep(STATE_CLEANUP_INTERVAL)
 
 
 async def _claim_next_job(db: Prisma) -> IndexJob | None:
@@ -280,7 +329,7 @@ async def _process_index_job(db: Prisma, job: dict) -> None:
     if index_mode == "INCREMENTAL":
         # Get only documents without chunks
         documents = await db.query_raw(
-            '''
+            """
             SELECT d.id, d.path
             FROM documents d
             LEFT JOIN document_chunks dc ON d.id = dc."documentId"
@@ -288,7 +337,7 @@ async def _process_index_job(db: Prisma, job: dict) -> None:
             GROUP BY d.id, d.path
             HAVING COUNT(dc.id) = 0
             ORDER BY d.path
-            ''',
+            """,
             project_id,
         )
         # Convert to list of dicts with id/path
