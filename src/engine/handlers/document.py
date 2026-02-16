@@ -41,8 +41,15 @@ async def handle_upload_document(
     content = params.get("content", "")
 
     if not path or not content:
+        missing = []
+        if not path:
+            missing.append("path")
+        if not content:
+            missing.append("content")
         return ToolResult(
-            data={"error": "path and content are required"},
+            data={
+                "error": f"rlm_upload_document: missing required parameter(s): {', '.join(missing)}"
+            },
             input_tokens=0,
             output_tokens=0,
         )
@@ -135,7 +142,9 @@ async def handle_sync_documents(
 
     if not documents:
         return ToolResult(
-            data={"error": "documents list is required"},
+            data={
+                "error": "rlm_sync_documents: missing required parameter 'documents' (list of {path, content})"
+            },
             input_tokens=0,
             output_tokens=0,
         )

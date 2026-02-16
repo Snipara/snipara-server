@@ -11,12 +11,33 @@ import logging
 import re
 import uuid
 from collections import deque
-from dataclasses import dataclass, field
 from typing import Any
 
-import tiktoken
-
 from .db import get_db
+
+# Phase 4 Refactor: Import from extracted core module
+from .engine.core import (
+    ABSTRACT_QUERY_MIN_SECTIONS,
+    INTERNAL_PATH_PATTERNS,
+    INTERNAL_PATH_PENALTY,
+    DocumentationIndex,
+    Section,
+    count_tokens,
+    expand_query,
+    get_encoder,
+    get_first_query_tips,
+    has_planned_content_markers,
+    is_abstract_query,
+    is_internal_path,
+    is_list_query,
+    is_numbered_section,
+)
+
+# Phase 3 Refactor: Import extracted handlers
+# These are available for integration - handlers are extracted but methods
+# below still use original implementations for backward compatibility.
+# Full migration will replace _handle_* methods with calls to these functions.
+from .engine.middleware import maybe_auto_remember
 
 # Phase 2 Refactor: Import from extracted scoring module
 from .engine.scoring import (
@@ -40,22 +61,12 @@ from .engine.scoring.constants import (
 from .engine.scoring.constants import (
     HYBRID_SEMANTIC_HEAVY as _HYBRID_SEMANTIC_HEAVY,
 )
-from .engine.scoring.constants import (
-    LIST_QUERY_PATTERNS as _LIST_QUERY_PATTERNS,
-)
-from .engine.scoring.constants import (
-    NUMBERED_SECTION_PATTERNS as _NUMBERED_SECTION_PATTERNS,
-)
-from .engine.scoring.constants import (
-    PLANNED_CONTENT_MARKERS as _PLANNED_CONTENT_MARKERS,
-)
 
 # Phase 2 Refactor: Import from extracted scoring module
 # Note: _stem_keyword, _HYBRID_* weights, _RRF_K, _GENERIC_TITLE_TERMS,
 # _SPECIFIC_QUERY_TERMS, _CONCEPTUAL_PREFIXES, _LIST_QUERY_PATTERNS,
 # _NUMBERED_SECTION_PATTERNS, _PLANNED_CONTENT_MARKERS are now imported
 # from engine.scoring module (see imports at top of file).
-from .engine.scoring.constants import QUERY_EXPANSIONS as _QUERY_EXPANSIONS
 from .engine.scoring.constants import (
     RRF_K as _RRF_K,
 )
@@ -107,7 +118,6 @@ from .services.agent_memory import (
     semantic_recall,
     store_memory,
 )
-from .engine.middleware import maybe_auto_remember
 from .services.chunker import get_chunker
 from .services.embeddings import get_light_embeddings_service
 from .services.query_router import route_query
@@ -134,33 +144,6 @@ from .services.swarm_coordinator import (
 )
 from .services.swarm_events import (
     broadcast_event,
-)
-
-# Phase 3 Refactor: Import extracted handlers
-# These are available for integration - handlers are extracted but methods
-# below still use original implementations for backward compatibility.
-# Full migration will replace _handle_* methods with calls to these functions.
-from .engine.handlers import (
-    HandlerContext,
-    count_tokens,
-)
-
-# Phase 4 Refactor: Import from extracted core module
-from .engine.core import (
-    ABSTRACT_QUERY_MIN_SECTIONS,
-    INTERNAL_PATH_PENALTY,
-    INTERNAL_PATH_PATTERNS,
-    DocumentationIndex,
-    Section,
-    count_tokens,
-    expand_query,
-    get_encoder,
-    get_first_query_tips,
-    has_planned_content_markers,
-    is_abstract_query,
-    is_internal_path,
-    is_list_query,
-    is_numbered_section,
 )
 
 # Backward compatibility aliases
@@ -410,9 +393,7 @@ class RLMEngine:
                 enrich_prompts=settings.get("enrich_prompts", False),
                 auto_inject_context=settings.get("auto_inject_context", False),
                 memory_save_on_commit=settings.get("memory_save_on_commit", False),
-                memory_inject_types=settings.get(
-                    "memory_inject_types", ["DECISION", "LEARNING"]
-                ),
+                memory_inject_types=settings.get("memory_inject_types", ["DECISION", "LEARNING"]),
             )
         else:
             self.settings = ProjectSettings()
@@ -588,11 +569,52 @@ class RLMEngine:
 
         # Common stop words to always exclude
         stop_words = {
-            "the", "a", "an", "of", "in", "to", "for", "and", "or", "is", "are",
-            "with", "from", "by", "on", "at", "as", "be", "this", "that", "it",
-            "not", "but", "what", "all", "were", "we", "when", "your", "can",
-            "had", "have", "was", "one", "our", "out", "you", "her", "has",
-            "how", "use", "using", "used", "overview", "introduction", "guide",
+            "the",
+            "a",
+            "an",
+            "of",
+            "in",
+            "to",
+            "for",
+            "and",
+            "or",
+            "is",
+            "are",
+            "with",
+            "from",
+            "by",
+            "on",
+            "at",
+            "as",
+            "be",
+            "this",
+            "that",
+            "it",
+            "not",
+            "but",
+            "what",
+            "all",
+            "were",
+            "we",
+            "when",
+            "your",
+            "can",
+            "had",
+            "have",
+            "was",
+            "one",
+            "our",
+            "out",
+            "you",
+            "her",
+            "has",
+            "how",
+            "use",
+            "using",
+            "used",
+            "overview",
+            "introduction",
+            "guide",
         }
 
         # Count keyword occurrences across all section titles
@@ -782,6 +804,7 @@ class RLMEngine:
             ToolName.RLM_UPLOAD_SHARED_DOCUMENT: self._handle_upload_shared_document,
             # Phase 8.2: Agent Memory Tools
             ToolName.RLM_REMEMBER: self._handle_remember,
+            ToolName.RLM_REMEMBER_BULK: self._handle_remember_bulk,
             ToolName.RLM_RECALL: self._handle_recall,
             ToolName.RLM_MEMORIES: self._handle_memories,
             ToolName.RLM_FORGET: self._handle_forget,
@@ -945,13 +968,13 @@ class RLMEngine:
 
     async def _handle_ask(self, params: dict[str, Any]) -> ToolResult:
         """Handle rlm_ask - query documentation with natural language."""
-        question = params.get("question", "")
+        query = params.get("query", "")
 
         if not self.index:
             return ToolResult(data="No documentation loaded", input_tokens=0, output_tokens=0)
 
-        # Search for relevant sections based on question keywords
-        keywords = re.findall(r"\w+", question.lower())
+        # Search for relevant sections based on query keywords
+        keywords = re.findall(r"\w+", query.lower())
         relevant_sections: list[tuple[Section, int]] = []
 
         for section in self.index.sections:
@@ -969,9 +992,9 @@ class RLMEngine:
 
         # Build response
         if not top_sections:
-            response = f"No relevant documentation found for: {question}"
+            response = f"No relevant documentation found for: {query}"
         else:
-            response_parts = [f"**Relevant Documentation for:** {question}\n"]
+            response_parts = [f"**Relevant Documentation for:** {query}\n"]
 
             if self.session_context:
                 response_parts.append(f"**Session Context:**\n{self.session_context}\n")
@@ -991,7 +1014,7 @@ class RLMEngine:
             response = "\n".join(response_parts)
 
         # Estimate tokens (rough: 4 chars per token)
-        input_tokens = len(question) // 4
+        input_tokens = len(query) // 4
         output_tokens = len(response) // 4
 
         return ToolResult(data=response, input_tokens=input_tokens, output_tokens=output_tokens)
@@ -1379,7 +1402,8 @@ class RLMEngine:
                     # from large docs that mention common keywords in code examples.
                     # Stop words excluded so "what"/"are" don't create false matches.
                     query_keywords = {
-                        w for w in re.findall(r"\w+", query.lower())
+                        w
+                        for w in re.findall(r"\w+", query.lower())
                         if len(w) >= 3 and w not in _STOP_WORDS
                     }
 
@@ -1396,7 +1420,8 @@ class RLMEngine:
                         if cat_enum != DocumentCategoryEnum.MANDATORY and query_keywords:
                             title_lower = doc.title.lower()
                             hits = sum(
-                                1 for kw in query_keywords
+                                1
+                                for kw in query_keywords
                                 if kw in title_lower
                                 or (_stem_keyword(kw) != kw and _stem_keyword(kw) in title_lower)
                             )
@@ -1472,14 +1497,12 @@ class RLMEngine:
         # Only include sections with score >= 15% of top score (minimum 5.0 absolute).
         # This prevents irrelevant sections from diluting the context.
         min_relevance_ratio = 0.15  # 15% of top score
-        min_absolute_score = 5.0    # Minimum absolute score
+        min_absolute_score = 5.0  # Minimum absolute score
         if scored_sections:
             top_score = scored_sections[0][1]
             min_score = max(top_score * min_relevance_ratio, min_absolute_score)
             before_count = len(scored_sections)
-            scored_sections = [
-                (s, sc) for s, sc in scored_sections if sc >= min_score
-            ]
+            scored_sections = [(s, sc) for s, sc in scored_sections if sc >= min_score]
             if len(scored_sections) < before_count:
                 logger.info(
                     f"Relevance filter: removed {before_count - len(scored_sections)} "
@@ -1497,11 +1520,11 @@ class RLMEngine:
             # Broad query detected — keep only top 30 % of scored sections
             # by raising the minimum score to the 70th-percentile score.
             cutoff_idx = max(1, int(len(scored_sections) * 0.30))
-            cutoff_score = scored_sections[cutoff_idx - 1][1] if cutoff_idx <= len(scored_sections) else 0
+            cutoff_score = (
+                scored_sections[cutoff_idx - 1][1] if cutoff_idx <= len(scored_sections) else 0
+            )
             before_count = len(scored_sections)
-            scored_sections = [
-                (s, sc) for s, sc in scored_sections if sc >= cutoff_score
-            ]
+            scored_sections = [(s, sc) for s, sc in scored_sections if sc >= cutoff_score]
             logger.info(
                 f"Broad query filter: {match_ratio:.0%} sections matched, "
                 f"trimmed {before_count} → {len(scored_sections)} "
@@ -1724,17 +1747,19 @@ class RLMEngine:
                     semantic_score=0.0,
                 )
 
-                section_refs.append(ContextSectionRef(
-                    chunk_id=chunk_id,
-                    title=section.title,
-                    preview=preview,
-                    file=section.file,
-                    lines=section.lines,
-                    relevance_score=section.relevance_score,
-                    token_count=section.token_count,
-                    keyword_score=0.0,
-                    semantic_score=0.0,
-                ))
+                section_refs.append(
+                    ContextSectionRef(
+                        chunk_id=chunk_id,
+                        title=section.title,
+                        preview=preview,
+                        file=section.file,
+                        lines=section.lines,
+                        relevance_score=section.relevance_score,
+                        token_count=section.token_count,
+                        keyword_score=0.0,
+                        semantic_score=0.0,
+                    )
+                )
                 preview_tokens += count_tokens(preview)
 
             logger.info(
@@ -1825,7 +1850,9 @@ class RLMEngine:
         ]
         filtered_count = len(self.index.sections) - len(sections_to_score)
         if filtered_count > 0:
-            logger.debug(f"Filtered {filtered_count} shallow sections (<{min_section_tokens} tokens)")
+            logger.debug(
+                f"Filtered {filtered_count} shallow sections (<{min_section_tokens} tokens)"
+            )
 
         keywords = [w for w in re.findall(r"\w+", query.lower()) if w not in _STOP_WORDS]
         scored: list[tuple[Section, float]] = []
@@ -1881,8 +1908,10 @@ class RLMEngine:
                     title_lower = section.title.lower()
                     # Count only non-ubiquitous keywords in title
                     distinctive_title_hits = sum(
-                        1 for kw in keywords
-                        if kw not in ubiquitous_keywords and (
+                        1
+                        for kw in keywords
+                        if kw not in ubiquitous_keywords
+                        and (
                             kw in title_lower
                             or (_stem_keyword(kw) != kw and _stem_keyword(kw) in title_lower)
                         )
@@ -1953,9 +1982,7 @@ class RLMEngine:
                     top_score = sorted_kw[0][1]
                     # Drop sections scoring < 10% of the top score (min threshold 2.0)
                     threshold = max(top_score * 0.10, 2.0)
-                    top_keyword_ids = {
-                        sid for sid, sc in sorted_kw[:30] if sc >= threshold
-                    }
+                    top_keyword_ids = {sid for sid, sc in sorted_kw[:30] if sc >= threshold}
                 else:
                     top_keyword_ids = set()
 
@@ -1966,8 +1993,8 @@ class RLMEngine:
                     f"Using on-the-fly embedding for hybrid search "
                     f"({len(top_keyword_ids)} keyword candidates, "
                     f"threshold={threshold:.1f}, project: {self.project_id})"
-                    if sorted_kw else
-                    f"Using on-the-fly embedding for hybrid search "
+                    if sorted_kw
+                    else f"Using on-the-fly embedding for hybrid search "
                     f"(0 keyword candidates, project: {self.project_id})"
                 )
 
@@ -2015,10 +2042,15 @@ class RLMEngine:
                 if len(keywords) >= 3:
                     title_lower = section.title.lower()
                     distinctive_title_hits = sum(
-                        1 for kw_term in keywords
-                        if kw_term not in ubiquitous_keywords and (
+                        1
+                        for kw_term in keywords
+                        if kw_term not in ubiquitous_keywords
+                        and (
                             kw_term in title_lower
-                            or (_stem_keyword(kw_term) != kw_term and _stem_keyword(kw_term) in title_lower)
+                            or (
+                                _stem_keyword(kw_term) != kw_term
+                                and _stem_keyword(kw_term) in title_lower
+                            )
                         )
                     )
                     if distinctive_title_hits >= 1:
@@ -2104,20 +2136,14 @@ class RLMEngine:
             # Generate section embeddings (title + truncated content)
             # Using 120 chars to reduce tokenization cost on CPU.
             # Title carries the primary semantic signal; content adds context.
-            section_texts = [
-                f"{s.title}\n{s.content[:120]}"
-                for s in sections
-            ]
+            section_texts = [f"{s.title}\n{s.content[:120]}" for s in sections]
             section_embeddings = await embeddings_service.embed_texts_async(section_texts)
 
             # Calculate similarities
             similarities = embeddings_service.cosine_similarity(query_embedding, section_embeddings)
 
             # Map to section IDs
-            return {
-                section.id: similarity
-                for section, similarity in zip(sections, similarities)
-            }
+            return {section.id: similarity for section, similarity in zip(sections, similarities)}
         except Exception as e:
             logger.warning(f"Semantic search failed, falling back to empty scores: {e}")
             return {}
@@ -2233,9 +2259,7 @@ class RLMEngine:
         # Signal 2: specific / structured-data terms in the query
         # Also check stemmed variants so "prices" matches "price" in the set
         stemmed_words = {_stem_keyword(w) for w in query_words}
-        has_specific = bool(
-            (query_words | stemmed_words) & _SPECIFIC_QUERY_TERMS
-        )
+        has_specific = bool((query_words | stemmed_words) & _SPECIFIC_QUERY_TERMS)
 
         # Signal 3: conceptual query pattern
         is_conceptual = any(query_lower.startswith(p) for p in _CONCEPTUAL_PREFIXES)
@@ -2334,7 +2358,7 @@ class RLMEngine:
             # Combine rank-based decay with score-ratio decay
             # rank_factor: exponential decay based on position (0.94^rank)
             # score_factor: how close is this score to the top? (raw/top)
-            rank_factor = decay_factor ** i
+            rank_factor = decay_factor**i
             score_factor = raw / top_score if top_score > 0 else 0
 
             # Weighted combination: 40% rank-based, 60% score-based (favor raw scores for better recall)
@@ -2538,14 +2562,18 @@ class RLMEngine:
         diagnostic_message = None
         if not sub_queries:
             if not unique_terms:
-                diagnostic_message = "No meaningful terms extracted from query. Try a more specific query."
+                diagnostic_message = (
+                    "No meaningful terms extracted from query. Try a more specific query."
+                )
             elif not term_sections:
                 diagnostic_message = (
                     f"Extracted {len(unique_terms)} terms but none matched indexed sections. "
                     "Check if relevant documents are indexed with rlm_stats."
                 )
             else:
-                diagnostic_message = "No unique sub-queries could be generated from matching sections."
+                diagnostic_message = (
+                    "No unique sub-queries could be generated from matching sections."
+                )
 
         result = DecomposeResult(
             original_query=query,
@@ -2930,11 +2958,53 @@ class RLMEngine:
 
         # Filter stop words from phrase but keep at least the term
         stop_words = {
-            "the", "a", "an", "and", "or", "but", "in", "on", "at", "to", "for",
-            "of", "with", "by", "from", "is", "are", "was", "were", "be", "been",
-            "being", "have", "has", "had", "do", "does", "did", "will", "would",
-            "could", "should", "may", "might", "can", "this", "that", "these",
-            "those", "it", "its", "what", "how", "when", "where", "why", "which",
+            "the",
+            "a",
+            "an",
+            "and",
+            "or",
+            "but",
+            "in",
+            "on",
+            "at",
+            "to",
+            "for",
+            "of",
+            "with",
+            "by",
+            "from",
+            "is",
+            "are",
+            "was",
+            "were",
+            "be",
+            "been",
+            "being",
+            "have",
+            "has",
+            "had",
+            "do",
+            "does",
+            "did",
+            "will",
+            "would",
+            "could",
+            "should",
+            "may",
+            "might",
+            "can",
+            "this",
+            "that",
+            "these",
+            "those",
+            "it",
+            "its",
+            "what",
+            "how",
+            "when",
+            "where",
+            "why",
+            "which",
         }
         filtered = [w for w in phrase_words if w not in stop_words or w == term_lower]
 
@@ -3785,7 +3855,8 @@ class RLMEngine:
         Returns:
             ToolResult with memory ID and confirmation
         """
-        content = params.get("content", "")
+        # Accept both 'text' (new) and 'content' (legacy), text takes precedence
+        content = params.get("text") or params.get("content", "")
         memory_type = params.get("type", "fact")
         scope = params.get("scope", "project")
         category = params.get("category")
@@ -3795,7 +3866,7 @@ class RLMEngine:
 
         if not content:
             return ToolResult(
-                data={"error": "content is required"},
+                data={"error": "rlm_remember: missing required parameter 'text' (or 'content')"},
                 input_tokens=0,
                 output_tokens=0,
             )

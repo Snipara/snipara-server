@@ -28,7 +28,7 @@ class MCPRequest(BaseModel):
 class AskParams(BaseModel):
     """Parameters for rlm_ask tool."""
 
-    question: str = Field(..., description="The question to ask about the documentation")
+    query: str = Field(..., description="The question to ask about the documentation")
 
 
 class SearchParams(BaseModel):
@@ -340,8 +340,11 @@ class ClaimParams(BaseModel):
         ..., description="Resource type: 'file', 'function', 'module', 'custom'"
     )
     resource_id: str = Field(..., description="Resource identifier (e.g., 'src/auth.ts')")
-    ttl_seconds: int | None = Field(
-        default=None, ge=60, le=7200, description="Custom TTL (uses swarm default if null)"
+    timeout_seconds: int | None = Field(
+        default=None,
+        ge=60,
+        le=7200,
+        description="Claim timeout in seconds (uses swarm default if null)",
     )
 
 

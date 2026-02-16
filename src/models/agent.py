@@ -99,7 +99,7 @@ class SwarmJoinResult(BaseModel):
 
     swarm_id: str = Field(..., description="Swarm ID")
     agent_id: str = Field(..., description="Agent ID")
-    swarm_name: str = Field(..., description="Swarm name")
+    name: str = Field(..., description="Swarm name")
     current_agents: int = Field(..., ge=0, description="Current number of agents")
     max_agents: int = Field(..., description="Maximum agents allowed")
     message: str = Field(..., description="Human-readable status message")

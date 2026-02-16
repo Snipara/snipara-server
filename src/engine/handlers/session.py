@@ -32,7 +32,7 @@ async def handle_inject(
 
     if not context:
         return ToolResult(
-            data={"error": "context is required"},
+            data={"error": "rlm_inject: missing required parameter 'context'"},
             input_tokens=0,
             output_tokens=0,
         )

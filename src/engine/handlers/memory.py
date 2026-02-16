@@ -28,7 +28,8 @@ async def handle_remember(
 
     Args:
         params: Dict containing:
-            - content: Memory content to store
+            - text: Memory text to store (preferred)
+            - content: DEPRECATED - use 'text' instead (backward compat)
             - type: Memory type (fact, decision, learning, preference, todo, context)
             - scope: Visibility scope (agent, project, team, user)
             - category: Optional grouping category
@@ -39,7 +40,8 @@ async def handle_remember(
     Returns:
         ToolResult with memory ID and confirmation
     """
-    content = params.get("content", "")
+    # Accept both 'text' (new) and 'content' (legacy), text takes precedence
+    content = params.get("text") or params.get("content", "")
     memory_type = params.get("type", "fact")
     scope = params.get("scope", "project")
     category = params.get("category")
@@ -49,7 +51,7 @@ async def handle_remember(
 
     if not content:
         return ToolResult(
-            data={"error": "content is required"},
+            data={"error": "rlm_remember: missing required parameter 'text' (or 'content')"},
             input_tokens=0,
             output_tokens=0,
         )
@@ -82,6 +84,71 @@ async def handle_remember(
     )
 
 
+async def handle_remember_bulk(
+    params: dict[str, Any],
+    ctx: HandlerContext,
+) -> ToolResult:
+    """Store multiple memories in bulk.
+
+    Args:
+        params: Dict containing:
+            - memories: Array of memory objects (max 50), each with:
+                - text: Memory text to store
+                - type: Memory type (default: fact)
+                - scope: Visibility scope (default: project)
+                - category: Optional grouping category
+                - ttl_days: Days until expiration
+                - related_to: IDs of related memories
+                - document_refs: Referenced document paths
+
+    Returns:
+        ToolResult with created memory IDs and stats
+    """
+    from ...services.agent_memory import store_memories_bulk
+
+    memories = params.get("memories", [])
+
+    if not memories:
+        return ToolResult(
+            data={"error": "rlm_remember_bulk: 'memories' array is required"},
+            input_tokens=0,
+            output_tokens=0,
+        )
+
+    if len(memories) > 50:
+        return ToolResult(
+            data={"error": "rlm_remember_bulk: max 50 memories per call"},
+            input_tokens=0,
+            output_tokens=0,
+        )
+
+    # Check memory limits (aggregate count)
+    allowed, error = await check_memory_limits(ctx.project_id, ctx.user_id, count=len(memories))
+    if not allowed:
+        total_tokens = sum(count_tokens(m.get("text", "")) for m in memories)
+        return ToolResult(
+            data={"error": error, "upgrade_url": "/billing/upgrade"},
+            input_tokens=total_tokens,
+            output_tokens=0,
+        )
+
+    # Store memories in bulk
+    result = await store_memories_bulk(
+        project_id=ctx.project_id,
+        memories=memories,
+        source="mcp",
+    )
+
+    input_tokens = sum(count_tokens(m.get("text", "")) for m in memories)
+    output_tokens = count_tokens(str(result))
+
+    return ToolResult(
+        data=result,
+        input_tokens=input_tokens,
+        output_tokens=output_tokens,
+    )
+
+
 async def handle_recall(
     params: dict[str, Any],
     ctx: HandlerContext,
@@ -109,7 +176,7 @@ async def handle_recall(
 
     if not query:
         return ToolResult(
-            data={"error": "query is required"},
+            data={"error": "rlm_recall: missing required parameter 'query'"},
             input_tokens=0,
             output_tokens=0,
         )
@@ -197,7 +264,9 @@ async def handle_forget(
     # Require at least one filter
     if not any([memory_id, memory_type, category, older_than_days]):
         return ToolResult(
-            data={"error": "At least one filter is required: memory_id, type, category, or older_than_days"},
+            data={
+                "error": "rlm_forget: at least one filter is required (memory_id, type, category, or older_than_days)"
+            },
             input_tokens=0,
             output_tokens=0,
         )

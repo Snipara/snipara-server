@@ -16,7 +16,86 @@ Tool Categories:
     - Document Sync: rlm_upload_document, rlm_sync_documents
     - RLM Orchestration: rlm_load_document, rlm_load_project, rlm_orchestrate, rlm_repl_context
     - Pass-by-Reference: rlm_get_chunk
+
+Tool Tiers:
+    - PRIMARY (🟢): Essential tools for all users - start here
+    - POWER_USER (🔵): Advanced features for intermediate users
+    - TEAM (🟡): Team collaboration and multi-project features
+    - UTILITY (⚪): Session and project management utilities
+    - ADVANCED (🔴): Multi-agent swarms and expert orchestration
 """
+
+from enum import Enum
+
+
+class ToolTier(str, Enum):
+    """Tool tier classification for user guidance."""
+
+    PRIMARY = "primary"  # Essential tools for all users
+    POWER_USER = "power_user"  # Advanced features for intermediate users
+    TEAM = "team"  # Team collaboration and multi-project
+    UTILITY = "utility"  # Session management and utilities
+    ADVANCED = "advanced"  # Multi-agent swarms and orchestration
+
+
+# Mapping of tool name -> tier for discovery and filtering
+TOOL_TIERS: dict[str, ToolTier] = {
+    # PRIMARY (🟢) - Essential tools, start here
+    "rlm_context_query": ToolTier.PRIMARY,
+    "rlm_ask": ToolTier.PRIMARY,
+    "rlm_search": ToolTier.PRIMARY,
+    "rlm_read": ToolTier.PRIMARY,
+    "rlm_recall": ToolTier.PRIMARY,
+    "rlm_stats": ToolTier.PRIMARY,
+    # POWER_USER (🔵) - Advanced features
+    "rlm_multi_query": ToolTier.POWER_USER,
+    "rlm_decompose": ToolTier.POWER_USER,
+    "rlm_plan": ToolTier.POWER_USER,
+    "rlm_remember": ToolTier.POWER_USER,
+    "rlm_remember_bulk": ToolTier.POWER_USER,
+    "rlm_store_summary": ToolTier.POWER_USER,
+    "rlm_get_summaries": ToolTier.POWER_USER,
+    "rlm_load_document": ToolTier.POWER_USER,
+    "rlm_memories": ToolTier.POWER_USER,
+    # TEAM (🟡) - Team collaboration
+    "rlm_multi_project_query": ToolTier.TEAM,
+    "rlm_shared_context": ToolTier.TEAM,
+    "rlm_list_templates": ToolTier.TEAM,
+    "rlm_get_template": ToolTier.TEAM,
+    "rlm_upload_shared_document": ToolTier.TEAM,
+    "rlm_list_collections": ToolTier.TEAM,
+    "rlm_load_project": ToolTier.TEAM,
+    # UTILITY (⚪) - Session management
+    "rlm_inject": ToolTier.UTILITY,
+    "rlm_context": ToolTier.UTILITY,
+    "rlm_clear_context": ToolTier.UTILITY,
+    "rlm_sections": ToolTier.UTILITY,
+    "rlm_settings": ToolTier.UTILITY,
+    "rlm_forget": ToolTier.UTILITY,
+    "rlm_delete_summary": ToolTier.UTILITY,
+    "rlm_get_chunk": ToolTier.UTILITY,
+    # ADVANCED (🔴) - Multi-agent and orchestration
+    "rlm_orchestrate": ToolTier.ADVANCED,
+    "rlm_repl_context": ToolTier.ADVANCED,
+    "rlm_upload_document": ToolTier.ADVANCED,
+    "rlm_sync_documents": ToolTier.ADVANCED,
+    "rlm_swarm_create": ToolTier.ADVANCED,
+    "rlm_swarm_join": ToolTier.ADVANCED,
+    "rlm_claim": ToolTier.ADVANCED,
+    "rlm_release": ToolTier.ADVANCED,
+    "rlm_state_get": ToolTier.ADVANCED,
+    "rlm_state_set": ToolTier.ADVANCED,
+    "rlm_broadcast": ToolTier.ADVANCED,
+    "rlm_task_create": ToolTier.ADVANCED,
+    "rlm_task_claim": ToolTier.ADVANCED,
+    "rlm_task_complete": ToolTier.ADVANCED,
+}
+
+
+def get_tool_tier(tool_name: str) -> ToolTier:
+    """Get tier for a tool (defaults to UTILITY if not mapped)."""
+    return TOOL_TIERS.get(tool_name, ToolTier.UTILITY)
+
 
 TOOL_DEFINITIONS: list[dict] = [
     # ============ Context Retrieval Tools ============
@@ -54,8 +133,8 @@ TOOL_DEFINITIONS: list[dict] = [
         "description": "Query documentation with a question (basic). Use rlm_context_query for better results.",
         "inputSchema": {
             "type": "object",
-            "properties": {"question": {"type": "string"}},
-            "required": ["question"],
+            "properties": {"query": {"type": "string", "description": "The question to ask"}},
+            "required": ["query"],
         },
     },
     {
@@ -396,7 +475,11 @@ TOOL_DEFINITIONS: list[dict] = [
         "inputSchema": {
             "type": "object",
             "properties": {
-                "content": {"type": "string", "description": "The memory content to store"},
+                "text": {"type": "string", "description": "The memory text to store"},
+                "content": {
+                    "type": "string",
+                    "description": "DEPRECATED: Use 'text' instead. The memory content to store.",
+                },
                 "type": {
                     "type": "string",
                     "enum": ["fact", "decision", "learning", "preference", "todo", "context"],
@@ -423,7 +506,51 @@ TOOL_DEFINITIONS: list[dict] = [
                     "description": "Referenced document paths",
                 },
             },
-            "required": ["content"],
+            "required": [],
+        },
+    },
+    {
+        "name": "rlm_remember_bulk",
+        "description": "Store multiple memories in a single call. Batch embedding for efficiency. Max 50 memories per call.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "memories": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "text": {"type": "string", "description": "Memory text to store"},
+                            "type": {
+                                "type": "string",
+                                "enum": [
+                                    "fact",
+                                    "decision",
+                                    "learning",
+                                    "preference",
+                                    "todo",
+                                    "context",
+                                ],
+                                "default": "fact",
+                            },
+                            "scope": {
+                                "type": "string",
+                                "enum": ["agent", "project", "team", "user"],
+                                "default": "project",
+                            },
+                            "category": {"type": "string"},
+                            "ttl_days": {"type": "integer"},
+                            "related_to": {"type": "array", "items": {"type": "string"}},
+                            "document_refs": {"type": "array", "items": {"type": "string"}},
+                        },
+                        "required": ["text"],
+                    },
+                    "minItems": 1,
+                    "maxItems": 50,
+                    "description": "Array of memories to store (max 50)",
+                },
+            },
+            "required": ["memories"],
         },
     },
     {

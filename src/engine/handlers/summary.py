@@ -66,16 +66,16 @@ async def handle_store_summary(
         )
 
     # Validate inputs
-    if not document_path:
+    if not document_path or not summary:
+        missing = []
+        if not document_path:
+            missing.append("document_path")
+        if not summary:
+            missing.append("summary")
         return ToolResult(
-            data={"error": "document_path is required"},
-            input_tokens=0,
-            output_tokens=0,
-        )
-
-    if not summary:
-        return ToolResult(
-            data={"error": "summary text is required"},
+            data={
+                "error": f"rlm_store_summary: missing required parameter(s): {', '.join(missing)}"
+            },
             input_tokens=0,
             output_tokens=0,
         )
@@ -314,7 +314,7 @@ async def handle_delete_summary(
     if not summary_id and not document_path and not summary_type_str:
         return ToolResult(
             data={
-                "error": "At least one of summary_id, document_path, or summary_type is required"
+                "error": "rlm_delete_summary: at least one filter is required (summary_id, document_path, or summary_type)"
             },
             input_tokens=0,
             output_tokens=0,

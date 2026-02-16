@@ -54,7 +54,7 @@ async def handle_swarm_create(
 
     if not name:
         return ToolResult(
-            data={"error": "name is required"},
+            data={"error": "rlm_swarm_create: missing required parameter 'name'"},
             input_tokens=0,
             output_tokens=0,
         )
@@ -97,8 +97,13 @@ async def handle_swarm_join(
     capabilities = params.get("capabilities")
 
     if not swarm_id or not agent_id:
+        missing = []
+        if not swarm_id:
+            missing.append("swarm_id")
+        if not agent_id:
+            missing.append("agent_id")
         return ToolResult(
-            data={"error": "swarm_id and agent_id are required"},
+            data={"error": f"rlm_swarm_join: missing required parameter(s): {', '.join(missing)}"},
             input_tokens=0,
             output_tokens=0,
         )
@@ -141,8 +146,17 @@ async def handle_claim(
     timeout_seconds = params.get("timeout_seconds", 300)
 
     if not all([swarm_id, agent_id, resource_type, resource_id]):
+        missing = []
+        if not swarm_id:
+            missing.append("swarm_id")
+        if not agent_id:
+            missing.append("agent_id")
+        if not resource_type:
+            missing.append("resource_type")
+        if not resource_id:
+            missing.append("resource_id")
         return ToolResult(
-            data={"error": "swarm_id, agent_id, resource_type, and resource_id are required"},
+            data={"error": f"rlm_claim: missing required parameter(s): {', '.join(missing)}"},
             input_tokens=0,
             output_tokens=0,
         )
@@ -186,8 +200,13 @@ async def handle_release(
     resource_id = params.get("resource_id")
 
     if not swarm_id or not agent_id:
+        missing = []
+        if not swarm_id:
+            missing.append("swarm_id")
+        if not agent_id:
+            missing.append("agent_id")
         return ToolResult(
-            data={"error": "swarm_id and agent_id are required"},
+            data={"error": f"rlm_release: missing required parameter(s): {', '.join(missing)}"},
             input_tokens=0,
             output_tokens=0,
         )
@@ -225,8 +244,13 @@ async def handle_state_get(
     key = params.get("key", "")
 
     if not swarm_id or not key:
+        missing = []
+        if not swarm_id:
+            missing.append("swarm_id")
+        if not key:
+            missing.append("key")
         return ToolResult(
-            data={"error": "swarm_id and key are required"},
+            data={"error": f"rlm_state_get: missing required parameter(s): {', '.join(missing)}"},
             input_tokens=0,
             output_tokens=0,
         )
@@ -264,8 +288,15 @@ async def handle_state_set(
     expected_version = params.get("expected_version")
 
     if not swarm_id or not agent_id or not key:
+        missing = []
+        if not swarm_id:
+            missing.append("swarm_id")
+        if not agent_id:
+            missing.append("agent_id")
+        if not key:
+            missing.append("key")
         return ToolResult(
-            data={"error": "swarm_id, agent_id, and key are required"},
+            data={"error": f"rlm_state_set: missing required parameter(s): {', '.join(missing)}"},
             input_tokens=0,
             output_tokens=0,
         )
@@ -307,8 +338,15 @@ async def handle_broadcast(
     payload = params.get("payload")
 
     if not swarm_id or not agent_id or not event_type:
+        missing = []
+        if not swarm_id:
+            missing.append("swarm_id")
+        if not agent_id:
+            missing.append("agent_id")
+        if not event_type:
+            missing.append("event_type")
         return ToolResult(
-            data={"error": "swarm_id, agent_id, and event_type are required"},
+            data={"error": f"rlm_broadcast: missing required parameter(s): {', '.join(missing)}"},
             input_tokens=0,
             output_tokens=0,
         )
@@ -355,8 +393,15 @@ async def handle_task_create(
     metadata = params.get("metadata")
 
     if not swarm_id or not agent_id or not title:
+        missing = []
+        if not swarm_id:
+            missing.append("swarm_id")
+        if not agent_id:
+            missing.append("agent_id")
+        if not title:
+            missing.append("title")
         return ToolResult(
-            data={"error": "swarm_id, agent_id, and title are required"},
+            data={"error": f"rlm_task_create: missing required parameter(s): {', '.join(missing)}"},
             input_tokens=0,
             output_tokens=0,
         )
@@ -400,8 +445,13 @@ async def handle_task_claim(
     timeout_seconds = params.get("timeout_seconds", 600)
 
     if not swarm_id or not agent_id:
+        missing = []
+        if not swarm_id:
+            missing.append("swarm_id")
+        if not agent_id:
+            missing.append("agent_id")
         return ToolResult(
-            data={"error": "swarm_id and agent_id are required"},
+            data={"error": f"rlm_task_claim: missing required parameter(s): {', '.join(missing)}"},
             input_tokens=0,
             output_tokens=0,
         )
@@ -444,8 +494,17 @@ async def handle_task_complete(
     result_data = params.get("result")
 
     if not swarm_id or not agent_id or not task_id:
+        missing = []
+        if not swarm_id:
+            missing.append("swarm_id")
+        if not agent_id:
+            missing.append("agent_id")
+        if not task_id:
+            missing.append("task_id")
         return ToolResult(
-            data={"error": "swarm_id, agent_id, and task_id are required"},
+            data={
+                "error": f"rlm_task_complete: missing required parameter(s): {', '.join(missing)}"
+            },
             input_tokens=0,
             output_tokens=0,
         )
