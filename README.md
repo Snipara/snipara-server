@@ -153,3 +153,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 **Links:** [Website](https://snipara.com) · [Documentation](https://snipara.com/docs) · [Hosted Signup](https://snipara.com/signup)
 
 **Contact:** sales@snipara.com · support@snipara.com
+# deploy trigger Mon Feb 16 10:17:13 CET 2026
