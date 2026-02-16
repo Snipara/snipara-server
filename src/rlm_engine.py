@@ -979,7 +979,21 @@ class RLMEngine:
 
     async def _handle_ask(self, params: dict[str, Any]) -> ToolResult:
         """Handle rlm_ask - query documentation with natural language."""
-        query = params.get("query", "")
+        # Accept both "query" and "question" as parameter names for better DX
+        query = params.get("query") or params.get("question") or ""
+
+        # Validate query is not empty
+        if not query.strip():
+            return ToolResult(
+                data={
+                    "error": "Missing required parameter 'query'",
+                    "hint": "Provide a question about your documentation",
+                    "example": {"query": "How does authentication work?"},
+                    "recommendation": "For better results, use rlm_context_query instead of rlm_ask",
+                },
+                input_tokens=0,
+                output_tokens=0,
+            )
 
         if not self.index:
             return ToolResult(data="No documentation loaded", input_tokens=0, output_tokens=0)
@@ -1003,7 +1017,15 @@ class RLMEngine:
 
         # Build response
         if not top_sections:
-            response = f"No relevant documentation found for: {query}"
+            # Provide helpful guidance when keyword matching fails
+            response = (
+                f"No relevant documentation found for: \"{query}\"\n\n"
+                "**Tips:**\n"
+                "- `rlm_ask` uses simple keyword matching\n"
+                "- Try `rlm_context_query` for semantic search (recommended)\n"
+                "- Check indexed docs with `rlm_stats`\n"
+                "- Use `rlm_search` for regex patterns"
+            )
         else:
             response_parts = [f"**Relevant Documentation for:** {query}\n"]
 
@@ -2537,10 +2559,23 @@ class RLMEngine:
         Returns:
             ToolResult with DecomposeResult containing sub-queries and dependencies
         """
-        query = params.get("query", "")
+        # Accept both "query" and "question" as parameter names for better DX
+        query = params.get("query") or params.get("question") or ""
         _max_depth = params.get("max_depth", 2)  # noqa: F841 — reserved for future use
         strategy_str = params.get("strategy", "auto")
         hints = params.get("hints", [])
+
+        # Validate query is not empty
+        if not query.strip():
+            return ToolResult(
+                data={
+                    "error": "Missing required parameter 'query'",
+                    "hint": "Provide a complex question to decompose into sub-queries",
+                    "example": {"query": "How does authentication work and what security measures are in place?"},
+                },
+                input_tokens=0,
+                output_tokens=0,
+            )
 
         # Plan gating
         if self.plan not in RECURSIVE_CONTEXT_PLANS:

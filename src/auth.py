@@ -226,14 +226,14 @@ async def check_team_key_project_access(
     # Get permission config
     config = team_member.team.permissionConfig if team_member.team else None
 
+    # OWNER and ADMIN roles always have full access (regardless of mode)
+    if team_member.role in ("OWNER", "ADMIN"):
+        return "ADMIN", False
+
     # If ADVANCED mode with project access control is NOT enabled,
     # team keys work as before (full access) - backward compatible
     if not config or config.mode != "ADVANCED" or not config.projectAccessControlEnabled:
         return "EDITOR", False  # Full access (backward compatible)
-
-    # OWNER and ADMIN roles always have full access
-    if team_member.role in ("OWNER", "ADMIN"):
-        return "ADMIN", False
 
     # Check ProjectMember for explicit access
     if team_member.projectAccess and len(team_member.projectAccess) > 0:
@@ -476,7 +476,9 @@ async def get_project_settings(project_id_or_slug: str) -> dict | None:
         # Memory injection settings (Agents feature)
         "memory_injection_enabled": getattr(project, "memoryInjectionEnabled", False),
         "memory_inject_types": getattr(project, "memoryInjectTypes", None),
-        "memory_exclude_session_checkpoints": getattr(project, "memoryExcludeSessionCheckpoints", False),
+        "memory_exclude_session_checkpoints": getattr(
+            project, "memoryExcludeSessionCheckpoints", False
+        ),
         "memory_min_confidence": getattr(project, "memoryMinConfidence", 0.2),
         "memory_recall_query": getattr(project, "memoryRecallQuery", None),
         "memory_save_on_commit": getattr(project, "memorySaveOnCommit", False),
