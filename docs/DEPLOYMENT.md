@@ -297,11 +297,35 @@ railway up
 
 **After code changes to MCP server:**
 
-1. Copy files: `cp apps/mcp-server/src/*.py /Users/alopez/Devs/snipara-fastapi/src/`
-2. **Pull first**: `cd snipara-fastapi && git pull origin main`
-3. Commit: `git add . && git commit -m "message"`
-4. Push: `git push origin main`
-5. **Deploy: `railway up`** (don't rely on git push auto-deploy)
+```bash
+# 1. Copy files from monorepo to deploy repo
+cp apps/mcp-server/src/*.py /Users/alopez/Devs/snipara-fastapi/src/
+cd /Users/alopez/Devs/snipara-fastapi
+
+# 2. Pull, commit, push to DEV first
+git pull origin dev
+git checkout dev
+git add . && git commit -m "message"
+git push origin dev
+# → Wait for CI tests to pass (GitHub Actions)
+# → Verify on snipara-fastapi-dev-dev.up.railway.app
+
+# 3. Once tests pass, merge to PROD
+git checkout main
+git pull origin main
+git merge dev
+git push origin main
+
+# 4. Force deploy to production
+railway link -p snipara -e production
+railway up
+```
+
+**Key points:**
+
+- Always push to `dev` first and validate tests before production
+- Never push directly to `main` without testing on dev
+- Use `railway up` for deployment (git push auto-deploy is unreliable)
 
 ---
 
