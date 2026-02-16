@@ -252,24 +252,50 @@ When updating MCP tools or auth logic:
 | MCP server files change on push/PR           | GitHub Actions runs lint (ruff) + test (pytest) |
 | Version bump in `snipara-mcp/pyproject.toml` | GitHub Actions publishes to PyPI                |
 
-### snipara-fastapi → Railway
+### Railway Services Overview
 
-**⚠️ IMPORTANT: Use manual deployment with `railway up`**
+**⚠️ CRITICAL: All Snipara Railway services require manual/force deployment. GitHub integration for builds is unreliable and often fails to trigger.**
 
-Git-based auto-deployment is unreliable. Always use the Railway CLI for deployments:
+| GitHub Repo                 | Railway Service (Prod)   | Railway Service (Dev)       |
+| --------------------------- | ------------------------ | --------------------------- |
+| `alopez3006/snipara-webapp` | `snipara` (main)         | `snipara-webapp` (dev)      |
+| `Snipara/snipara-server`    | `snipara-fastapi` (main) | `snipara-fastapi-dev` (dev) |
+
+**URLs:**
+
+- **Prod frontend**: snipara.com / www.snipara.com
+- **Dev frontend**: snipara-webapp-dev.up.railway.app
+- **Prod backend**: api.snipara.com
+- **Dev backend**: snipara-fastapi-dev-dev.up.railway.app
+
+### Deployment Commands
+
+Always use the Railway CLI for deployments. Git push auto-deploy is unreliable for all Snipara projects:
 
 ```bash
+# Backend (snipara-fastapi) - Production
 cd /Users/alopez/Devs/snipara-fastapi
+railway link -p snipara -e production
+railway up
+
+# Backend (snipara-fastapi) - Dev
+cd /Users/alopez/Devs/snipara-fastapi
+railway link -p snipara -e dev
+railway up
+
+# Frontend (snipara-webapp) - typically auto-deploys but use this if stuck
+cd /Users/alopez/Devs/Snipara
+railway link -p snipara -s snipara
 railway up
 ```
 
 | Method           | Command                                    | Status      |
 | ---------------- | ------------------------------------------ | ----------- |
-| **Manual (use)** | `cd snipara-fastapi && railway up`         | ✅ Reliable |
-| Git push (avoid) | Push to `main` → Railway auto-deploy       | ❌ Flaky    |
+| **Manual (use)** | `railway up`                               | ✅ Reliable |
+| Git push (avoid) | Push to branch → Railway auto-deploy       | ❌ Flaky    |
 | Dashboard        | Railway dashboard → Deploy → Deploy latest | ✅ Backup   |
 
-**After code changes:**
+**After code changes to MCP server:**
 
 1. Copy files: `cp apps/mcp-server/src/*.py /Users/alopez/Devs/snipara-fastapi/src/`
 2. Commit: `cd snipara-fastapi && git add . && git commit -m "message"`
