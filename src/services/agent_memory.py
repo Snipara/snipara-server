@@ -274,6 +274,106 @@ async def store_memory(
     }
 
 
+async def store_memories_bulk(
+    project_id: str,
+    memories: list[dict[str, Any]],
+    source: str | None = None,
+) -> dict[str, Any]:
+    """Store multiple memories with batch embedding.
+
+    Args:
+        project_id: The project ID
+        memories: Array of memory objects, each with:
+            - text: Memory text to store
+            - type: Memory type (default: fact)
+            - scope: Visibility scope (default: project)
+            - category: Optional grouping category
+            - ttl_days: Days until expiration
+            - related_to: IDs of related memories
+            - document_refs: Referenced document paths
+        source: What created these memories
+
+    Returns:
+        Dict with created memory IDs and stats
+    """
+    import asyncio
+
+    db = await get_db()
+    created_ids: list[str] = []
+    failed: list[dict[str, Any]] = []
+    texts: list[str] = []
+    created_memories: list[Any] = []
+
+    # Process each memory
+    for i, mem in enumerate(memories):
+        text = mem.get("text", "")
+        if not text:
+            failed.append({"index": i, "error": "text is required"})
+            continue
+
+        memory_type = mem.get("type", "fact").upper()
+        scope = mem.get("scope", "project").upper()
+        category = mem.get("category")
+        ttl_days = mem.get("ttl_days")
+        related_to = mem.get("related_to")
+        document_refs = mem.get("document_refs")
+
+        # Calculate expiration
+        expires_at = None
+        if ttl_days:
+            expires_at = datetime.now(UTC) + timedelta(days=ttl_days)
+
+        try:
+            memory = await db.agentmemory.create(
+                data={
+                    "projectId": project_id,
+                    "content": text,
+                    "type": memory_type,
+                    "scope": scope,
+                    "category": category,
+                    "expiresAt": expires_at,
+                    "relatedMemoryIds": related_to or [],
+                    "documentRefs": document_refs or [],
+                    "source": source,
+                    "confidence": 1.0,
+                    "accessCount": 0,
+                }
+            )
+            created_memories.append(memory)
+            created_ids.append(memory.id)
+            texts.append(text)
+        except Exception as e:
+            logger.warning(f"Failed to create memory at index {i}: {e}")
+            failed.append({"index": i, "error": str(e)})
+
+    # Batch generate embeddings for all created memories
+    if texts:
+        try:
+            embeddings_service = get_embeddings_service()
+            embeddings = await embeddings_service.embed_texts_async(texts)
+
+            # Store embeddings in parallel
+            embedding_ttl = MEMORY_EMBEDDING_TTL
+            tasks = [
+                _store_memory_embedding(mem.id, emb, embedding_ttl)
+                for mem, emb in zip(created_memories, embeddings)
+            ]
+            await asyncio.gather(*tasks, return_exceptions=True)
+
+            logger.info(f"Stored {len(created_ids)} memories with batch embeddings")
+        except Exception as e:
+            logger.warning(f"Failed to generate batch embeddings: {e}")
+            # Memories still created, just without embeddings
+
+    return {
+        "created": len(created_ids),
+        "failed": len(failed),
+        "memory_ids": created_ids,
+        "failures": failed if failed else None,
+        "message": f"Stored {len(created_ids)} memories successfully",
+    }
+
+
 async def semantic_recall(
     project_id: str,
     query: str,
@@ -300,6 +400,7 @@ async def semantic_recall(
         Dict with recalled memories and metadata
     """
     import time
+
     start_time = time.time()
 
     db = await get_db()
@@ -340,9 +441,7 @@ async def semantic_recall(
     except Exception as e:
         logger.error(f"Failed to embed query: {e}")
         # Fallback to text search if embedding fails
-        return await _text_search_fallback(
-            memories, query, limit, min_relevance, start_time
-        )
+        return await _text_search_fallback(memories, query, limit, min_relevance, start_time)
 
     # Batch fetch all cached embeddings
     memory_ids = [m.id for m in memories]
@@ -372,7 +471,9 @@ async def semantic_recall(
                 logger.warning(f"Failed to embed memory {memory.id}: {e}")
                 continue
         if len(memories_to_embed) > max_to_embed:
-            logger.info(f"Skipped embedding {len(memories_to_embed) - max_to_embed} memories to prevent timeout")
+            logger.info(
+                f"Skipped embedding {len(memories_to_embed) - max_to_embed} memories to prevent timeout"
+            )
 
     if not memory_embeddings:
         return {
@@ -392,9 +493,7 @@ async def semantic_recall(
             "This indicates corrupted embeddings in cache. Falling back to text search."
         )
         # Fallback to text search if embeddings are corrupted
-        return await _text_search_fallback(
-            memories, query, limit, min_relevance, start_time
-        )
+        return await _text_search_fallback(memories, query, limit, min_relevance, start_time)
 
     # Score and rank
     results = []
@@ -421,18 +520,22 @@ async def semantic_recall(
                 relevance = min(relevance * boost, 1.0)
 
         if relevance >= min_relevance:
-            results.append({
-                "memory_id": memory.id,
-                "content": memory.content,
-                "type": memory.type.lower(),
-                "scope": memory.scope.lower(),
-                "category": memory.category,
-                "relevance": round(relevance, 4),
-                "confidence": round(decayed_confidence, 4),
-                "created_at": memory.createdAt.isoformat(),
-                "last_accessed_at": memory.lastAccessedAt.isoformat() if memory.lastAccessedAt else None,
-                "access_count": memory.accessCount,
-            })
+            results.append(
+                {
+                    "memory_id": memory.id,
+                    "content": memory.content,
+                    "type": memory.type.lower(),
+                    "scope": memory.scope.lower(),
+                    "category": memory.category,
+                    "relevance": round(relevance, 4),
+                    "confidence": round(decayed_confidence, 4),
+                    "created_at": memory.createdAt.isoformat(),
+                    "last_accessed_at": memory.lastAccessedAt.isoformat()
+                    if memory.lastAccessedAt
+                    else None,
+                    "access_count": memory.accessCount,
+                }
+            )
 
     # Sort by relevance
     results.sort(key=lambda x: x["relevance"], reverse=True)
@@ -491,18 +594,22 @@ async def _text_search_fallback(
                     memory.lastAccessedAt,
                 )
 
-                results.append({
-                    "memory_id": memory.id,
-                    "content": memory.content,
-                    "type": memory.type.lower(),
-                    "scope": memory.scope.lower(),
-                    "category": memory.category,
-                    "relevance": round(relevance * decayed_confidence, 4),
-                    "confidence": round(decayed_confidence, 4),
-                    "created_at": memory.createdAt.isoformat(),
-                    "last_accessed_at": memory.lastAccessedAt.isoformat() if memory.lastAccessedAt else None,
-                    "access_count": memory.accessCount,
-                })
+                results.append(
+                    {
+                        "memory_id": memory.id,
+                        "content": memory.content,
+                        "type": memory.type.lower(),
+                        "scope": memory.scope.lower(),
+                        "category": memory.category,
+                        "relevance": round(relevance * decayed_confidence, 4),
+                        "confidence": round(decayed_confidence, 4),
+                        "created_at": memory.createdAt.isoformat(),
+                        "last_accessed_at": memory.lastAccessedAt.isoformat()
+                        if memory.lastAccessedAt
+                        else None,
+                        "access_count": memory.accessCount,
+                    }
+                )
 
     results.sort(key=lambda x: x["relevance"], reverse=True)
     results = results[:limit]
@@ -577,18 +684,20 @@ async def list_memories(
             memory.lastAccessedAt,
         )
 
-        results.append({
-            "memory_id": memory.id,
-            "content": memory.content,
-            "type": memory.type.lower(),
-            "scope": memory.scope.lower(),
-            "category": memory.category,
-            "confidence": round(decayed_confidence, 4),
-            "source": memory.source,
-            "created_at": memory.createdAt.isoformat(),
-            "expires_at": memory.expiresAt.isoformat() if memory.expiresAt else None,
-            "access_count": memory.accessCount,
-        })
+        results.append(
+            {
+                "memory_id": memory.id,
+                "content": memory.content,
+                "type": memory.type.lower(),
+                "scope": memory.scope.lower(),
+                "category": memory.category,
+                "confidence": round(decayed_confidence, 4),
+                "source": memory.source,
+                "created_at": memory.createdAt.isoformat(),
+                "expires_at": memory.expiresAt.isoformat() if memory.expiresAt else None,
+                "access_count": memory.accessCount,
+            }
+        )
 
     return {
         "memories": results,
@@ -645,7 +754,9 @@ async def delete_memories(
 
     message = f"Deleted {deleted_count} memories"
     if memory_id:
-        message = f"Memory {memory_id} deleted" if deleted_count > 0 else f"Memory {memory_id} not found"
+        message = (
+            f"Memory {memory_id} deleted" if deleted_count > 0 else f"Memory {memory_id} not found"
+        )
 
     return {
         "deleted_count": deleted_count,
