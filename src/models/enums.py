@@ -12,6 +12,7 @@ class ToolName(StrEnum):
     RLM_CONTEXT = "rlm_context"
     RLM_CLEAR_CONTEXT = "rlm_clear_context"
     RLM_STATS = "rlm_stats"
+    RLM_HELP = "rlm_help"
     RLM_SECTIONS = "rlm_sections"
     RLM_READ = "rlm_read"
     RLM_CONTEXT_QUERY = "rlm_context_query"
