@@ -650,7 +650,7 @@ async def reindex_project(
     mode: str = Query(
         default="incremental",
         description="Index mode: 'incremental' (only unindexed docs) or 'full' (all docs)",
-        regex="^(incremental|full)$",
+        pattern="^(incremental|full)$",
     ),
     x_api_key: Annotated[str | None, Header(alias="X-API-Key")] = None,
     x_internal_secret: Annotated[str | None, Header(alias="X-Internal-Secret")] = None,
