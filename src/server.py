@@ -121,8 +121,7 @@ async def lifespan(app: FastAPI):
     # Start background job processor for async indexing
     from .services.background_jobs import start_job_processor, stop_job_processor
 
-    db = await get_db()
-    await start_job_processor(db)
+    await start_job_processor()
 
     yield
     # Shutdown
