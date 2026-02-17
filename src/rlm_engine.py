@@ -4880,6 +4880,7 @@ class RLMEngine:
                     - title: Task title (required)
                     - description: Task description
                     - priority: Priority level
+                    - deadline: Optional deadline (ISO 8601)
                     - depends_on: Task IDs this depends on
                     - metadata: Additional task data
 

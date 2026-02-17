@@ -389,6 +389,7 @@ async def handle_task_create(
     title = params.get("title", "")
     description = params.get("description")
     priority = params.get("priority", 0)
+    deadline = params.get("deadline")
     depends_on = params.get("depends_on")
     metadata = params.get("metadata")
 
@@ -412,6 +413,7 @@ async def handle_task_create(
         title=title,
         description=description,
         priority=priority,
+        deadline=deadline,
         depends_on=depends_on,
         metadata=metadata,
     )
