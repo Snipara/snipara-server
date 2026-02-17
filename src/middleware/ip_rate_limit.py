@@ -32,6 +32,12 @@ class IPRateLimitMiddleware:
             await self.app(scope, receive, send)
             return
 
+        # Skip MCP endpoints - they have per-API-key rate limiting
+        # This prevents multi-agent systems on same IP from blocking each other
+        if path.startswith("/mcp/"):
+            await self.app(scope, receive, send)
+            return
+
         # Extract client IP from X-Forwarded-For (behind proxy) or direct connection
         client_ip = None
         headers = dict(scope.get("headers", []))
@@ -45,21 +51,27 @@ class IPRateLimitMiddleware:
         if client_ip:
             rate_ok = await check_ip_rate_limit(client_ip)
             if not rate_ok:
-                response_body = json.dumps({
-                    "detail": f"IP rate limit exceeded: {settings.ip_rate_limit_requests} requests per minute"
-                }).encode()
-                await send({
-                    "type": "http.response.start",
-                    "status": 429,
-                    "headers": [
-                        (b"content-type", b"application/json"),
-                        (b"content-length", str(len(response_body)).encode()),
-                    ],
-                })
-                await send({
-                    "type": "http.response.body",
-                    "body": response_body,
-                })
+                response_body = json.dumps(
+                    {
+                        "detail": f"IP rate limit exceeded: {settings.ip_rate_limit_requests} requests per minute"
+                    }
+                ).encode()
+                await send(
+                    {
+                        "type": "http.response.start",
+                        "status": 429,
+                        "headers": [
+                            (b"content-type", b"application/json"),
+                            (b"content-length", str(len(response_body)).encode()),
+                        ],
+                    }
+                )
+                await send(
+                    {
+                        "type": "http.response.body",
+                        "body": response_body,
+                    }
+                )
                 return
 
         await self.app(scope, receive, send)
