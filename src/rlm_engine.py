@@ -1073,40 +1073,68 @@ class RLMEngine:
         relevant_sections.sort(key=lambda x: x[1], reverse=True)
         top_sections = relevant_sections[:5]
 
-        # Build response
+        # Normalize scores for relevance (0-1 scale)
+        max_score = max((s for _, s in relevant_sections), default=1) if relevant_sections else 1
+
+        # Build response as structured data instead of text (better DX)
         if not top_sections:
             # Provide helpful guidance when keyword matching fails
-            response = (
-                f"No relevant documentation found for: \"{query}\"\n\n"
-                "**Tips:**\n"
-                "- `rlm_ask` uses simple keyword matching\n"
-                "- Try `rlm_context_query` for semantic search (recommended)\n"
-                "- Check indexed docs with `rlm_stats`\n"
-                "- Use `rlm_search` for regex patterns"
-            )
+            response = {
+                "query": query,
+                "sections": [],
+                "total_matches": 0,
+                "message": f"No relevant documentation found for: \"{query}\"",
+                "tips": [
+                    "rlm_ask uses simple keyword matching",
+                    "Try rlm_context_query for semantic search (recommended)",
+                    "Check indexed docs with rlm_stats",
+                    "Use rlm_search for regex patterns"
+                ],
+                "recommendation": "Use rlm_context_query for better results with semantic search"
+            }
         else:
-            response_parts = [f"**Relevant Documentation for:** {query}\n"]
+            # Build reverse lookup: line_number -> file_path
+            line_to_file: dict[int, str] = {}
+            for file_path, (start, end) in self.index.file_boundaries.items():
+                for line_idx in range(start, end):
+                    line_to_file[line_idx + 1] = file_path
 
-            if self.session_context:
-                response_parts.append(f"**Session Context:**\n{self.session_context}\n")
-
+            sections_data = []
             for section, score in top_sections:
-                response_parts.append(
-                    f"\n## {section.title} (lines {section.start_line}-{section.end_line})"
-                )
+                # Normalize score to 0-1 scale
+                relevance = round(score / max_score, 3) if max_score > 0 else 0
+
+                # Find file path for this section
+                file_path = line_to_file.get(section.start_line, "unknown")
+
                 # Truncate content if too long
                 content = (
                     section.content[:2000] + "..."
                     if len(section.content) > 2000
                     else section.content
                 )
-                response_parts.append(content)
 
-            response = "\n".join(response_parts)
+                sections_data.append({
+                    "title": section.title,
+                    "content": content,
+                    "file_path": file_path,
+                    "lines": (section.start_line, section.end_line),
+                    "relevance_score": relevance,
+                    "raw_score": score,
+                })
 
-        # Estimate tokens (rough: 4 chars per token)
-        input_tokens = len(query) // 4
-        output_tokens = len(response) // 4
+            response = {
+                "query": query,
+                "sections": sections_data,
+                "total_matches": len(relevant_sections),
+                "shown": len(top_sections),
+                "session_context_included": bool(self.session_context),
+                "recommendation": "Use rlm_context_query for semantic search with better results"
+            }
+
+        # Estimate tokens
+        input_tokens = count_tokens(query)
+        output_tokens = count_tokens(str(response))
 
         return ToolResult(data=response, input_tokens=input_tokens, output_tokens=output_tokens)
 
@@ -1154,6 +1182,13 @@ class RLMEngine:
 
         results: list[dict[str, Any]] = []
 
+        # Build reverse lookup: line_number -> file_path
+        line_to_file: dict[int, str] = {}
+        for file_path, (start, end) in self.index.file_boundaries.items():
+            for line_idx in range(start, end):
+                # line_number is 1-indexed, start/end are 0-indexed
+                line_to_file[line_idx + 1] = file_path
+
         # Execute search with timeout protection using thread pool
         def search_sync():
             """Synchronous search function to run in thread pool."""
@@ -1165,6 +1200,7 @@ class RLMEngine:
                         results.append(
                             {
                                 "line_number": i,
+                                "file_path": line_to_file.get(i, "unknown"),
                                 "content": line.strip()[:500],  # Limit content length in results
                             }
                         )
@@ -1448,6 +1484,10 @@ class RLMEngine:
         Returns:
             ToolResult with ContextQueryResult containing ranked sections
         """
+        import time
+        timing_start = time.perf_counter()
+        timing: dict[str, int] = {}
+
         original_query = params.get("query", "")
         # Expand abstract queries with concrete keywords for better search recall
         query = _expand_query(original_query)
@@ -2025,6 +2065,9 @@ class RLMEngine:
                 f"{preview_tokens} preview tokens (vs {total_tokens} full tokens)"
             )
 
+        # Calculate total timing
+        timing["total_ms"] = int((time.perf_counter() - timing_start) * 1000)
+
         result = ContextQueryResult(
             sections=[] if return_references else all_sections,
             section_refs=section_refs if return_references else [],
@@ -2037,6 +2080,7 @@ class RLMEngine:
             session_context_included=session_context_included,
             suggestions=suggestions,
             summaries_used=summaries_used,
+            timing=timing,  # Include timing breakdown
             system_instructions=instructions,
             shared_context_included=len(shared_context_sections) > 0,
             shared_context_tokens=shared_context_tokens,

@@ -505,18 +505,21 @@ async def semantic_recall(
             memory.lastAccessedAt,
         )
 
-        # Combined relevance = similarity * confidence
-        relevance = similarity * decayed_confidence
+        # Improved relevance scoring:
+        # - Semantic similarity is the PRIMARY signal (weight: 70%)
+        # - Confidence acts as a MINOR adjustment (weight: 30%)
+        # This prevents old but highly relevant memories from being penalized too much
+        relevance = (similarity * 0.7) + (similarity * decayed_confidence * 0.3)
 
         # Boost for high term overlap (near-exact matches)
-        # This fixes low scores (0.54) for quasi-exact query matches
+        # This fixes low scores for quasi-exact query matches
         query_terms = set(query.lower().split())
         content_terms = set(memory.content.lower().split())
         if query_terms:
             term_overlap = len(query_terms & content_terms) / len(query_terms)
-            if term_overlap > 0.7:  # 70%+ terms match
-                # Boost factor: 1.0 at 70% overlap, up to 1.15 at 100% overlap
-                boost = 1.0 + (term_overlap - 0.7) * 0.5
+            if term_overlap > 0.5:  # 50%+ terms match (lowered from 70%)
+                # Boost factor: 1.0 at 50% overlap, up to 1.25 at 100% overlap
+                boost = 1.0 + (term_overlap - 0.5) * 0.5
                 relevance = min(relevance * boost, 1.0)
 
         if relevance >= min_relevance:
@@ -631,8 +634,10 @@ async def list_memories(
     limit: int = 20,
     offset: int = 0,
     include_expired: bool = False,
+    sort_by: str = "created_at",
+    sort_order: str = "desc",
 ) -> dict[str, Any]:
-    """List memories with optional filters.
+    """List memories with optional filters and sorting.
 
     Args:
         project_id: The project ID
@@ -643,6 +648,8 @@ async def list_memories(
         limit: Maximum memories to return
         offset: Pagination offset
         include_expired: Include expired memories
+        sort_by: Field to sort by (created_at, confidence, access_count, last_accessed, expires_at)
+        sort_order: Sort direction (asc, desc)
 
     Returns:
         Dict with memories list and pagination info
@@ -665,13 +672,24 @@ async def list_memories(
             {"expiresAt": {"gt": datetime.now(UTC)}},
         ]
 
+    # Map sort_by to Prisma field names
+    sort_field_map = {
+        "created_at": "createdAt",
+        "confidence": "confidence",
+        "access_count": "accessCount",
+        "last_accessed": "lastAccessedAt",
+        "expires_at": "expiresAt",
+    }
+    sort_field = sort_field_map.get(sort_by, "createdAt")
+    order_direction = "asc" if sort_order == "asc" else "desc"
+
     # Count total
     total_count = await db.agentmemory.count(where=where)
 
     # Get memories
     memories = await db.agentmemory.find_many(
         where=where,
-        order={"createdAt": "desc"},
+        order={sort_field: order_direction},
         skip=offset,
         take=limit,
     )
