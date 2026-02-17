@@ -6,14 +6,13 @@ generator client {
   provider             = "prisma-client-py"
   interface            = "asyncio"
   recursive_type_depth = 5
-  previewFeatures      = ["postgresqlExtensions", "multiSchema"]
+  previewFeatures      = ["postgresqlExtensions"]
 }
 
 datasource db {
   provider   = "postgresql"
   url        = env("DATABASE_URL")
-  schemas    = ["tenant_snipara", "public"]
-  extensions = [vector(schema: "public")]
+  extensions = [vector]
 }
 
 // ============================================
