@@ -431,6 +431,98 @@ async def validate_oauth_token(token: str, project_id_or_slug: str) -> dict | No
     }
 
 
+async def validate_client_api_key(
+    api_key: str, project_id_or_slug: str
+) -> dict | None:
+    """
+    Validate a snipara_ic_ client API key (Integrator client keys).
+
+    Client API keys are issued by integrators to their clients. Each client
+    can only access their own assigned project - isolation is enforced.
+
+    Args:
+        api_key: The API key (must start with snipara_ic_)
+        project_id_or_slug: Project ID or slug to validate access
+
+    Returns:
+        Auth info dict if valid, None otherwise
+    """
+    if not api_key.startswith("snipara_ic_"):
+        return None
+
+    db = await get_db()
+    key_hash = hash_api_key(api_key)
+
+    # Find the client API key with all relations
+    client_key = await db.clientapikey.find_first(
+        where={"keyHash": key_hash},
+        include={
+            "client": {
+                "include": {
+                    "workspace": {
+                        "include": {
+                            "integrator": True
+                        }
+                    },
+                    "project": {
+                        "include": {
+                            "team": {
+                                "include": {
+                                    "subscription": True
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    )
+
+    if not client_key:
+        return None
+
+    # Check if key is revoked
+    if client_key.revokedAt:
+        return None
+
+    # Check if key is expired
+    if client_key.expiresAt and client_key.expiresAt < datetime.now(UTC):
+        return None
+
+    # Check if client is active
+    if not client_key.client.isActive:
+        return None
+
+    # Verify project access - client can ONLY access their own project
+    client = client_key.client
+    if not client.project:
+        return None
+
+    project = client.project
+    if project.id != project_id_or_slug and project.slug != project_id_or_slug:
+        return None
+
+    # Update lastUsedAt
+    await db.clientapikey.update(
+        where={"id": client_key.id},
+        data={"lastUsedAt": datetime.now(UTC)}
+    )
+
+    return {
+        "id": client_key.id,
+        "name": client_key.name,
+        "user_id": client.workspace.integrator.userId,
+        "project_id": project.id,
+        "project": project,
+        "auth_type": "integrator_client",
+        "access_level": "EDITOR",  # Clients get EDITOR access
+        "access_denied": False,
+        "client_id": client.id,
+        "client_bundle": client.bundle,
+        "workspace_id": client.workspaceId,
+    }
+
+
 async def get_project_settings(project_id_or_slug: str) -> dict | None:
     """
     Get project automation settings from database.

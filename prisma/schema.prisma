@@ -43,6 +43,9 @@ model User {
   // Snipara Agents relations
   agentsSubscriptions AgentsSubscription[]
 
+  // Integrator relation
+  integrator    Integrator?
+
   // Consent tracking
   cookiesAcceptedAt    DateTime?
   termsAcceptedAt      DateTime?
@@ -358,6 +361,9 @@ model Project {
 
   // Indexing jobs
   indexJobs      IndexJob[]
+
+  // Integrator client relation (if project is owned by an integrator client)
+  integratorClient IntegratorClient?
 
   @@unique([teamId, slug])
   @@map("projects")
@@ -1420,6 +1426,141 @@ model AgentsSubscription {
   @@unique([userId, teamId])
   @@index([stripeSubscriptionId])
   @@map("agents_subscriptions")
+}
+
+// ============================================
+// Integrator Models (B2B White-Label)
+// ============================================
+
+enum IntegratorTier {
+  STARTER    // €199/mo, 10 clients
+  GROWTH     // €499/mo, 50 clients
+  SCALE      // €999/mo, 200 clients
+  ENTERPRISE // Custom
+  @@schema("tenant_snipara")
+}
+
+enum ClientBundle {
+  LITE       // €29/mo: 200 queries, 100 memories, 1 swarm, 5 agents
+  STANDARD   // €59/mo: 2K queries, 500 memories, 5 swarms, 10 agents
+  UNLIMITED  // €129/mo: unlimited
+  @@schema("tenant_snipara")
+}
+
+enum IntegratorWebhookEventStatus {
+  PENDING
+  DELIVERED
+  FAILED
+  @@schema("tenant_snipara")
+}
+
+model Integrator {
+  id                   String           @id @default(cuid())
+  userId               String           @unique
+  user                 User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  tier                 IntegratorTier   @default(STARTER)
+  clientLimit          Int              @default(10)
+
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+
+  workspace            IntegratorWorkspace?
+
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+
+  @@map("integrators")
+  @@schema("tenant_snipara")
+}
+
+model IntegratorWorkspace {
+  id            String        @id @default(cuid())
+  integratorId  String        @unique
+  integrator    Integrator    @relation(fields: [integratorId], references: [id], onDelete: Cascade)
+
+  name          String
+  slug          String        @unique
+
+  webhookUrl    String?
+  webhookSecret String?
+
+  clients       IntegratorClient[]
+  webhookEvents IntegratorWebhookEvent[]
+
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@map("integrator_workspaces")
+  @@schema("tenant_snipara")
+}
+
+model IntegratorClient {
+  id            String        @id @default(cuid())
+  workspaceId   String
+  workspace     IntegratorWorkspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  name          String
+  email         String
+  externalId    String?
+
+  bundle        ClientBundle  @default(LITE)
+  isActive      Boolean       @default(true)
+
+  projectId     String?       @unique
+  project       Project?      @relation(fields: [projectId], references: [id])
+
+  apiKeys       ClientApiKey[]
+
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@unique([workspaceId, email])
+  @@unique([workspaceId, externalId])
+  @@index([workspaceId])
+  @@map("integrator_clients")
+  @@schema("tenant_snipara")
+}
+
+model ClientApiKey {
+  id          String    @id @default(cuid())
+  clientId    String
+  client      IntegratorClient @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  name        String
+  keyHash     String    @unique
+  keyPrefix   String
+
+  lastUsedAt  DateTime?
+  expiresAt   DateTime?
+  revokedAt   DateTime?
+
+  createdAt   DateTime  @default(now())
+
+  @@index([keyPrefix])
+  @@index([clientId])
+  @@map("client_api_keys")
+  @@schema("tenant_snipara")
+}
+
+model IntegratorWebhookEvent {
+  id            String        @id @default(cuid())
+  workspaceId   String
+  workspace     IntegratorWorkspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  eventType     String
+  payload       Json
+  status        IntegratorWebhookEventStatus @default(PENDING)
+  attempts      Int           @default(0)
+  lastError     String?       @db.Text
+  deliveredAt   DateTime?
+
+  createdAt     DateTime      @default(now())
+
+  @@index([workspaceId, createdAt])
+  @@index([status])
+  @@map("integrator_webhook_events")
+  @@schema("tenant_snipara")
 }
 
 // ============================================

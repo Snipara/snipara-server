@@ -133,12 +133,12 @@ def has_planned_content_markers(content: str) -> bool:
 
 # Internal path patterns for deprioritizing debug/internal files
 INTERNAL_PATH_PATTERNS = (
-    ".claude/",        # Claude config files
-    ".cursorrules",    # Cursor config
-    "/internal/",      # Internal documentation folders
-    "/debug/",         # Debug folders
-    "debug",           # Files containing "debug" in path
-    "session",         # Session logs
+    ".claude/",  # Claude config files
+    ".cursorrules",  # Cursor config
+    "/internal/",  # Internal documentation folders
+    "/debug/",  # Debug folders
+    "debug",  # Files containing "debug" in path
+    "session",  # Session logs
 )
 
 # Score multiplier for sections from internal paths (0.1 = 90% penalty)

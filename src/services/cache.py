@@ -60,9 +60,7 @@ class QueryCache:
         """
         self.project_id = project_id
 
-    async def get(
-        self, query: str, max_tokens: int
-    ) -> dict[str, Any] | None:
+    async def get(self, query: str, max_tokens: int) -> dict[str, Any] | None:
         """Get cached result for a query.
 
         Args:
@@ -221,9 +219,7 @@ class SimilarQueryCache:
         self.project_id = project_id
         self.base_cache = QueryCache(project_id)
 
-    async def get(
-        self, query: str, max_tokens: int
-    ) -> tuple[dict[str, Any] | None, bool]:
+    async def get(self, query: str, max_tokens: int) -> tuple[dict[str, Any] | None, bool]:
         """Get cached result, including similar query matches.
 
         Args:

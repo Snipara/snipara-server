@@ -13,34 +13,157 @@ This module contains all constants used by the hybrid keyword+semantic search:
 # Without this, "what are prices?" ranks "What Happens When Limits Are Exceeded"
 # above actual pricing content because "what" and "are" get 5x title weight.
 # ---------------------------------------------------------------------------
-STOP_WORDS = frozenset({
-    # Articles, auxiliaries, modals
-    "a", "an", "the", "is", "are", "was", "were", "be", "been", "being",
-    "have", "has", "had", "do", "does", "did", "will", "would", "could",
-    "should", "may", "might", "shall", "can", "need",
-    # Prepositions
-    "to", "of", "in", "for", "on", "with", "at", "by", "from", "as",
-    "into", "through", "during", "before", "after", "above", "below",
-    "between", "out", "off", "over", "under", "again", "further",
-    # Adverbs and conjunctions
-    "then", "once", "here", "there", "when", "where", "why", "how",
-    "all", "both", "each", "few", "more", "most", "other", "some",
-    "such", "no", "nor", "not", "only", "own", "same", "so", "than",
-    "too", "very", "just", "because", "but", "and", "or", "if",
-    # Pronouns and determiners
-    "what", "which", "who", "whom", "this", "that", "these", "those",
-    "it", "its", "my", "your", "his", "her", "our", "their", "about",
-    "up", "also", "any", "many", "much",
-    # Generic nouns that appear in many queries but aren't distinctive
-    "value", "proposition", "core", "main", "key", "primary",
-    "work", "works", "working", "feature", "features",
-    "thing", "things", "something", "everything",
-    # Common verbs that don't add search value
-    "use", "used", "using", "get", "gets", "getting",
-    "make", "makes", "making", "see", "sees", "seeing",
-    "know", "knows", "knowing", "think", "thinks",
-    "want", "wants", "wanting", "like", "likes",
-})
+STOP_WORDS = frozenset(
+    {
+        # Articles, auxiliaries, modals
+        "a",
+        "an",
+        "the",
+        "is",
+        "are",
+        "was",
+        "were",
+        "be",
+        "been",
+        "being",
+        "have",
+        "has",
+        "had",
+        "do",
+        "does",
+        "did",
+        "will",
+        "would",
+        "could",
+        "should",
+        "may",
+        "might",
+        "shall",
+        "can",
+        "need",
+        # Prepositions
+        "to",
+        "of",
+        "in",
+        "for",
+        "on",
+        "with",
+        "at",
+        "by",
+        "from",
+        "as",
+        "into",
+        "through",
+        "during",
+        "before",
+        "after",
+        "above",
+        "below",
+        "between",
+        "out",
+        "off",
+        "over",
+        "under",
+        "again",
+        "further",
+        # Adverbs and conjunctions
+        "then",
+        "once",
+        "here",
+        "there",
+        "when",
+        "where",
+        "why",
+        "how",
+        "all",
+        "both",
+        "each",
+        "few",
+        "more",
+        "most",
+        "other",
+        "some",
+        "such",
+        "no",
+        "nor",
+        "not",
+        "only",
+        "own",
+        "same",
+        "so",
+        "than",
+        "too",
+        "very",
+        "just",
+        "because",
+        "but",
+        "and",
+        "or",
+        "if",
+        # Pronouns and determiners
+        "what",
+        "which",
+        "who",
+        "whom",
+        "this",
+        "that",
+        "these",
+        "those",
+        "it",
+        "its",
+        "my",
+        "your",
+        "his",
+        "her",
+        "our",
+        "their",
+        "about",
+        "up",
+        "also",
+        "any",
+        "many",
+        "much",
+        # Generic nouns that appear in many queries but aren't distinctive
+        "value",
+        "proposition",
+        "core",
+        "main",
+        "key",
+        "primary",
+        "work",
+        "works",
+        "working",
+        "feature",
+        "features",
+        "thing",
+        "things",
+        "something",
+        "everything",
+        # Common verbs that don't add search value
+        "use",
+        "used",
+        "using",
+        "get",
+        "gets",
+        "getting",
+        "make",
+        "makes",
+        "making",
+        "see",
+        "sees",
+        "seeing",
+        "know",
+        "knows",
+        "knowing",
+        "think",
+        "thinks",
+        "want",
+        "wants",
+        "wanting",
+        "like",
+        "likes",
+    }
+)
 
 
 # ---------------------------------------------------------------------------
@@ -61,30 +184,85 @@ RRF_K = 45  # Reduced from 60 for better precision while keeping good recall
 
 # Generic title terms — these get reduced title weight (1.5x instead of 5x)
 # because they appear in many unrelated sections and cause false matches.
-GENERIC_TITLE_TERMS = frozenset({
-    "snipara", "rlm", "mcp",  # Project-specific but ubiquitous
-    "tools", "tool", "guide", "reference", "overview", "docs",  # Generic doc terms
-    "how", "what", "when", "where", "why",  # Question words (shouldn't boost titles)
-    "using", "use", "get", "set", "run", "make",  # Common verbs
-    "available", "not", "error", "issue", "troubleshoot",  # Debugging terms
-})
+GENERIC_TITLE_TERMS = frozenset(
+    {
+        "snipara",
+        "rlm",
+        "mcp",  # Project-specific but ubiquitous
+        "tools",
+        "tool",
+        "guide",
+        "reference",
+        "overview",
+        "docs",  # Generic doc terms
+        "how",
+        "what",
+        "when",
+        "where",
+        "why",  # Question words (shouldn't boost titles)
+        "using",
+        "use",
+        "get",
+        "set",
+        "run",
+        "make",  # Common verbs
+        "available",
+        "not",
+        "error",
+        "issue",
+        "troubleshoot",  # Debugging terms
+    }
+)
 
 
 # Query terms that signal structured/factual content (keyword-friendly)
 # These trigger keyword-heavy weights (60/40) for better precision
-SPECIFIC_QUERY_TERMS = frozenset({
-    # Technical/infrastructure
-    "pricing", "price", "cost", "tier", "plan",
-    "stack", "version", "model", "schema", "table",
-    "endpoint", "api", "command", "config", "database",
-    "deploy", "deployment", "auth", "authentication",
-    # Business/product terms - these need keyword matching
-    "value", "proposition", "feature", "benefit", "overview",
-    "architecture", "workflow", "integration", "limit", "rate",
-    # Search-specific terms
-    "hybrid", "semantic", "keyword", "search", "query",
-    "token", "context", "chunk", "section", "document",
-})
+SPECIFIC_QUERY_TERMS = frozenset(
+    {
+        # Technical/infrastructure
+        "pricing",
+        "price",
+        "cost",
+        "tier",
+        "plan",
+        "stack",
+        "version",
+        "model",
+        "schema",
+        "table",
+        "endpoint",
+        "api",
+        "command",
+        "config",
+        "database",
+        "deploy",
+        "deployment",
+        "auth",
+        "authentication",
+        # Business/product terms - these need keyword matching
+        "value",
+        "proposition",
+        "feature",
+        "benefit",
+        "overview",
+        "architecture",
+        "workflow",
+        "integration",
+        "limit",
+        "rate",
+        # Search-specific terms
+        "hybrid",
+        "semantic",
+        "keyword",
+        "search",
+        "query",
+        "token",
+        "context",
+        "chunk",
+        "section",
+        "document",
+    }
+)
 
 
 # Conceptual query prefixes (semantic-friendly)
@@ -127,22 +305,24 @@ CONCEPTUAL_PREFIXES = (
 # ---------------------------------------------------------------------------
 # Queries asking for lists of items (articles, tasks, features) should boost
 # sections with numbered patterns like "### Article #1", "1. First item", etc.
-LIST_QUERY_PATTERNS = frozenset({
-    "what are the",
-    "list the",
-    "list all",
-    "which",
-    "what to write",
-    "what to do",
-    "next articles",
-    "next tasks",
-    "next steps",
-    "upcoming",
-    "planned",
-    "todo",
-    "to-do",
-    "roadmap",
-})
+LIST_QUERY_PATTERNS = frozenset(
+    {
+        "what are the",
+        "list the",
+        "list all",
+        "which",
+        "what to write",
+        "what to do",
+        "next articles",
+        "next tasks",
+        "next steps",
+        "upcoming",
+        "planned",
+        "todo",
+        "to-do",
+        "roadmap",
+    }
+)
 
 # Patterns in section titles/content that indicate enumerated list items
 # These get boosted when a list query is detected
@@ -155,10 +335,21 @@ NUMBERED_SECTION_PATTERNS = (
 
 # Terms indicating planned/unpublished/future content
 # Boost sections containing these when query asks about "next" or "planned" items
-PLANNED_CONTENT_MARKERS = frozenset({
-    "📝", "unpublished", "planned", "draft", "todo", "upcoming",
-    "next:", "status:", "wip", "in progress", "pending",
-})
+PLANNED_CONTENT_MARKERS = frozenset(
+    {
+        "📝",
+        "unpublished",
+        "planned",
+        "draft",
+        "todo",
+        "upcoming",
+        "next:",
+        "status:",
+        "wip",
+        "in progress",
+        "pending",
+    }
+)
 
 
 # ---------------------------------------------------------------------------
@@ -169,68 +360,154 @@ PLANNED_CONTENT_MARKERS = frozenset({
 QUERY_EXPANSIONS: dict[str, list[str]] = {
     # Architecture queries need component names
     "architecture": [
-        "snipara-mcp", "FastAPI", "Railway", "Vercel", "Neon",
-        "component", "three-component", "PostgreSQL", "Redis",
+        "snipara-mcp",
+        "FastAPI",
+        "Railway",
+        "Vercel",
+        "Neon",
+        "component",
+        "three-component",
+        "PostgreSQL",
+        "Redis",
     ],
     "three-component": [
-        "snipara-mcp", "FastAPI", "Vercel", "Railway", "PostgreSQL",
+        "snipara-mcp",
+        "FastAPI",
+        "Vercel",
+        "Railway",
+        "PostgreSQL",
     ],
     "components": [
-        "snipara-mcp", "FastAPI", "Vercel", "web app", "MCP server",
+        "snipara-mcp",
+        "FastAPI",
+        "Vercel",
+        "web app",
+        "MCP server",
     ],
     # Stack queries
     "tech stack": [
-        "Next.js", "FastAPI", "Prisma", "PostgreSQL", "Railway",
-        "Tailwind", "DaisyUI", "Stripe",
+        "Next.js",
+        "FastAPI",
+        "Prisma",
+        "PostgreSQL",
+        "Railway",
+        "Tailwind",
+        "DaisyUI",
+        "Stripe",
     ],
     "stack": [
-        "Next.js", "FastAPI", "Prisma", "PostgreSQL", "Railway",
+        "Next.js",
+        "FastAPI",
+        "Prisma",
+        "PostgreSQL",
+        "Railway",
     ],
     # Deployment queries
     "deployment": [
-        "Railway", "Vercel", "Docker", "snipara-fastapi", "monorepo",
-        "main branch", "dev branch", "auto-deploy",
+        "Railway",
+        "Vercel",
+        "Docker",
+        "snipara-fastapi",
+        "monorepo",
+        "main branch",
+        "dev branch",
+        "auto-deploy",
     ],
     "deploy": [
-        "Railway", "Vercel", "Docker", "production", "staging",
+        "Railway",
+        "Vercel",
+        "Docker",
+        "production",
+        "staging",
     ],
     # MCP tools queries need tool names
     "mcp tools": [
-        "rlm_context_query", "rlm_ask", "rlm_search", "rlm_decompose",
-        "rlm_multi_query", "rlm_plan", "rlm_remember", "rlm_recall",
+        "rlm_context_query",
+        "rlm_ask",
+        "rlm_search",
+        "rlm_decompose",
+        "rlm_multi_query",
+        "rlm_plan",
+        "rlm_remember",
+        "rlm_recall",
     ],
     "tools": [
-        "rlm_context_query", "rlm_ask", "rlm_search", "rlm_decompose",
+        "rlm_context_query",
+        "rlm_ask",
+        "rlm_search",
+        "rlm_decompose",
     ],
     # Value proposition needs business terms
     "value proposition": [
-        "context optimization", "token reduction", "90%", "LLM-agnostic",
-        "high margins", "no vendor lock-in",
+        "context optimization",
+        "token reduction",
+        "90%",
+        "LLM-agnostic",
+        "high margins",
+        "no vendor lock-in",
     ],
     # Shared context needs budget allocation terms
     "shared context": [
-        "budget allocation", "MANDATORY", "BEST_PRACTICES", "GUIDELINES",
-        "REFERENCE", "40%", "30%", "20%", "10%",
+        "budget allocation",
+        "MANDATORY",
+        "BEST_PRACTICES",
+        "GUIDELINES",
+        "REFERENCE",
+        "40%",
+        "30%",
+        "20%",
+        "10%",
     ],
     "budget allocation": [
-        "MANDATORY", "BEST_PRACTICES", "GUIDELINES", "REFERENCE",
-        "40%", "30%", "20%", "10%", "shared context",
+        "MANDATORY",
+        "BEST_PRACTICES",
+        "GUIDELINES",
+        "REFERENCE",
+        "40%",
+        "30%",
+        "20%",
+        "10%",
+        "shared context",
     ],
     # Pricing/limits need concrete values
     "pricing": [
-        "FREE", "PRO", "TEAM", "ENTERPRISE", "$19", "$49", "$499",
-        "queries/mo", "100", "5000", "20000",
+        "FREE",
+        "PRO",
+        "TEAM",
+        "ENTERPRISE",
+        "$19",
+        "$49",
+        "$499",
+        "queries/mo",
+        "100",
+        "5000",
+        "20000",
     ],
     "limits": [
-        "rate limit", "monthly", "429", "exceeded", "reset_at",
+        "rate limit",
+        "monthly",
+        "429",
+        "exceeded",
+        "reset_at",
     ],
     # Memory/agent features
     "memory": [
-        "rlm_remember", "rlm_recall", "rlm_memories", "rlm_forget",
-        "ttl_days", "agent", "session", "decision", "learning",
+        "rlm_remember",
+        "rlm_recall",
+        "rlm_memories",
+        "rlm_forget",
+        "ttl_days",
+        "agent",
+        "session",
+        "decision",
+        "learning",
     ],
     "agent": [
-        "memory", "swarm", "rlm_remember", "rlm_recall", "coordination",
+        "memory",
+        "swarm",
+        "rlm_remember",
+        "rlm_recall",
+        "coordination",
     ],
 }
 

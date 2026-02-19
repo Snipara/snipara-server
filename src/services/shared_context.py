@@ -210,11 +210,13 @@ async def load_project_shared_context(project_id: str) -> SharedContext:
             total_tokens += doc.tokenCount
 
     # Sort documents by priority
-    documents.sort(key=lambda d: (
-        d.collection_priority,  # Collection priority first
-        -CATEGORY_PRIORITY.get(d.category, 0),  # Then category priority (descending)
-        -d.priority,  # Then document priority (descending)
-    ))
+    documents.sort(
+        key=lambda d: (
+            d.collection_priority,  # Collection priority first
+            -CATEGORY_PRIORITY.get(d.category, 0),  # Then category priority (descending)
+            -d.priority,  # Then document priority (descending)
+        )
+    )
 
     return SharedContext(
         documents=documents,
@@ -296,8 +298,7 @@ def allocate_shared_context_budget(
 
     # Calculate token budgets per category
     category_token_budgets = {
-        cat: int(max_tokens * percent / 100)
-        for cat, percent in budgets.items()
+        cat: int(max_tokens * percent / 100) for cat, percent in budgets.items()
     }
 
     # Track usage per category
@@ -586,17 +587,19 @@ async def get_shared_prompt_templates(
             if category and template.category != category:
                 continue
 
-            templates.append({
-                "id": template.id,
-                "name": template.name,
-                "slug": template.slug,
-                "description": template.description,
-                "prompt": template.prompt,
-                "variables": template.variables or [],
-                "category": template.category,
-                "collection_name": collection.name,
-                "collection_id": collection.id,
-            })
+            templates.append(
+                {
+                    "id": template.id,
+                    "name": template.name,
+                    "slug": template.slug,
+                    "description": template.description,
+                    "prompt": template.prompt,
+                    "variables": template.variables or [],
+                    "category": template.category,
+                    "collection_name": collection.name,
+                    "collection_id": collection.id,
+                }
+            )
 
     return templates
 
@@ -650,19 +653,21 @@ async def list_shared_collections(
         else:
             access_type = "public"
 
-        result.append({
-            "id": col.id,
-            "name": col.name,
-            "slug": col.slug,
-            "description": col.description,
-            "scope": col.scope,
-            "is_public": col.isPublic,
-            "team_name": col.team.name if col.team else None,
-            "document_count": col._count["documents"] if col._count else 0,
-            "project_count": col._count["projectLinks"] if col._count else 0,
-            "access_type": access_type,
-            "version": col.version,
-        })
+        result.append(
+            {
+                "id": col.id,
+                "name": col.name,
+                "slug": col.slug,
+                "description": col.description,
+                "scope": col.scope,
+                "is_public": col.isPublic,
+                "team_name": col.team.name if col.team else None,
+                "document_count": col._count["documents"] if col._count else 0,
+                "project_count": col._count["projectLinks"] if col._count else 0,
+                "access_type": access_type,
+                "version": col.version,
+            }
+        )
 
     return result
 

@@ -23,6 +23,7 @@ from ..auth import (
     get_project_with_team,
     get_team_by_slug_or_id,
     validate_api_key,
+    validate_client_api_key,
     validate_oauth_token,
     validate_team_api_key,
 )
@@ -30,6 +31,7 @@ from ..config import settings
 from ..models import MultiProjectQueryParams, Plan, ToolName
 from ..rlm_engine import RLMEngine, count_tokens
 from ..usage import (
+    check_client_usage_limits,
     check_rate_limit,
     check_usage_limits,
     is_scan_blocked,
@@ -138,6 +140,14 @@ async def validate_and_rate_limit(
                 status_code=401,
                 detail="Invalid or expired OAuth token. Re-authenticate at https://snipara.com/dashboard or run /snipara:quickstart",
             )
+    # Check if it's an integrator client key
+    elif api_key.startswith("snipara_ic_"):
+        auth_info = await validate_client_api_key(api_key, project_id)
+        if not auth_info:
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid client API key. Contact your integrator for access.",
+            )
     else:
         # Fall back to API key validation
         auth_info = await validate_api_key(api_key, project_id)
@@ -184,6 +194,25 @@ async def validate_and_rate_limit(
             status_code=429,
             detail=f"Rate limit exceeded: {max_requests} requests per minute",
         )
+
+    # 5.5 Check bundle limits for integrator clients
+    if auth_info.get("auth_type") == "integrator_client":
+        client_id = auth_info.get("client_id")
+        client_bundle = auth_info.get("client_bundle", "LITE")
+        if client_id:
+            bundle_limits = await check_client_usage_limits(client_id, client_bundle)
+            if bundle_limits.exceeded:
+                log_security_event(
+                    "bundle_limit.exceeded",
+                    "client",
+                    client_id,
+                    auth_info.get("user_id", auth_info["id"]),
+                    details={"bundle": client_bundle, "current": bundle_limits.current, "max": bundle_limits.max},
+                )
+                raise HTTPException(
+                    status_code=429,
+                    detail=f"Monthly query limit exceeded for {client_bundle} bundle: {bundle_limits.current}/{bundle_limits.max}. Contact your provider to upgrade.",
+                )
 
     # 6. Get project automation settings (from dashboard)
     project_settings = await get_project_settings(project_id)

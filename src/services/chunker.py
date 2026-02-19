@@ -55,22 +55,131 @@ class DocumentChunker:
     """Smart document chunker that respects markdown structure."""
 
     # Stop words to filter out when extracting terms
-    STOP_WORDS = frozenset({
-        "the", "a", "an", "is", "are", "was", "were", "be", "been", "being",
-        "have", "has", "had", "do", "does", "did", "will", "would", "could",
-        "should", "may", "might", "must", "shall", "can", "need", "dare",
-        "ought", "used", "to", "of", "in", "for", "on", "with", "at", "by",
-        "from", "as", "into", "through", "during", "before", "after", "above",
-        "below", "between", "under", "again", "further", "then", "once",
-        "here", "there", "when", "where", "why", "how", "all", "each", "few",
-        "more", "most", "other", "some", "such", "no", "nor", "not", "only",
-        "own", "same", "so", "than", "too", "very", "just", "and", "but",
-        "if", "or", "because", "until", "while", "although", "what", "which",
-        "who", "whom", "this", "that", "these", "those", "am", "i", "me",
-        "my", "myself", "we", "our", "ours", "you", "your", "he", "him",
-        "she", "her", "it", "its", "they", "them", "their", "explain",
-        "describe", "help", "tell", "show", "make", "get", "find", "work",
-    })
+    STOP_WORDS = frozenset(
+        {
+            "the",
+            "a",
+            "an",
+            "is",
+            "are",
+            "was",
+            "were",
+            "be",
+            "been",
+            "being",
+            "have",
+            "has",
+            "had",
+            "do",
+            "does",
+            "did",
+            "will",
+            "would",
+            "could",
+            "should",
+            "may",
+            "might",
+            "must",
+            "shall",
+            "can",
+            "need",
+            "dare",
+            "ought",
+            "used",
+            "to",
+            "of",
+            "in",
+            "for",
+            "on",
+            "with",
+            "at",
+            "by",
+            "from",
+            "as",
+            "into",
+            "through",
+            "during",
+            "before",
+            "after",
+            "above",
+            "below",
+            "between",
+            "under",
+            "again",
+            "further",
+            "then",
+            "once",
+            "here",
+            "there",
+            "when",
+            "where",
+            "why",
+            "how",
+            "all",
+            "each",
+            "few",
+            "more",
+            "most",
+            "other",
+            "some",
+            "such",
+            "no",
+            "nor",
+            "not",
+            "only",
+            "own",
+            "same",
+            "so",
+            "than",
+            "too",
+            "very",
+            "just",
+            "and",
+            "but",
+            "if",
+            "or",
+            "because",
+            "until",
+            "while",
+            "although",
+            "what",
+            "which",
+            "who",
+            "whom",
+            "this",
+            "that",
+            "these",
+            "those",
+            "am",
+            "i",
+            "me",
+            "my",
+            "myself",
+            "we",
+            "our",
+            "ours",
+            "you",
+            "your",
+            "he",
+            "him",
+            "she",
+            "her",
+            "it",
+            "its",
+            "they",
+            "them",
+            "their",
+            "explain",
+            "describe",
+            "help",
+            "tell",
+            "show",
+            "make",
+            "get",
+            "find",
+            "work",
+        }
+    )
 
     def __init__(
         self,
@@ -154,9 +263,7 @@ class DocumentChunker:
 
         return headers
 
-    def _is_in_code_block(
-        self, line_idx: int, code_blocks: list[tuple[int, int]]
-    ) -> bool:
+    def _is_in_code_block(self, line_idx: int, code_blocks: list[tuple[int, int]]) -> bool:
         """Check if a line is inside a code block."""
         for start, end in code_blocks:
             if start <= line_idx <= end:
@@ -172,12 +279,14 @@ class DocumentChunker:
         """Build sections from headers."""
         if not headers:
             # No headers - treat entire document as one section
-            return [{
-                "header": "",
-                "content": "\n".join(lines),
-                "start_line": 0,
-                "end_line": len(lines) - 1,
-            }]
+            return [
+                {
+                    "header": "",
+                    "content": "\n".join(lines),
+                    "start_line": 0,
+                    "end_line": len(lines) - 1,
+                }
+            ]
 
         sections = []
         for i, (line_idx, level, title) in enumerate(headers):
@@ -190,14 +299,16 @@ class DocumentChunker:
                     break
 
             section_lines = lines[line_idx : end_idx + 1]
-            sections.append({
-                "header": title,
-                "header_line": lines[line_idx],
-                "content": "\n".join(section_lines),
-                "start_line": line_idx,
-                "end_line": end_idx,
-                "level": level,
-            })
+            sections.append(
+                {
+                    "header": title,
+                    "header_line": lines[line_idx],
+                    "content": "\n".join(section_lines),
+                    "start_line": line_idx,
+                    "end_line": end_idx,
+                    "level": level,
+                }
+            )
 
         return sections
 
@@ -209,19 +320,19 @@ class DocumentChunker:
 
         # If section fits in one chunk, return as-is
         if count_tokens(content) <= self.max_chunk_tokens:
-            return [Chunk(
-                content=content,
-                header=header,
-                start_line=start_line,
-                end_line=section.get("end_line", start_line),
-            )]
+            return [
+                Chunk(
+                    content=content,
+                    header=header,
+                    start_line=start_line,
+                    end_line=section.get("end_line", start_line),
+                )
+            ]
 
         # Need to split - try paragraphs first
         return self._split_by_paragraphs(content, header, start_line)
 
-    def _split_by_paragraphs(
-        self, content: str, header: str, start_line: int
-    ) -> list[Chunk]:
+    def _split_by_paragraphs(self, content: str, header: str, start_line: int) -> list[Chunk]:
         """Split content by paragraphs."""
         chunks = []
 
@@ -253,11 +364,13 @@ class DocumentChunker:
                     if not chunks and header_line and header_line not in chunk_content:
                         chunk_content = header_line + "\n\n" + chunk_content
 
-                    chunks.append(Chunk(
-                        content=chunk_content,
-                        header=header,
-                        start_line=chunk_start_line,
-                    ))
+                    chunks.append(
+                        Chunk(
+                            content=chunk_content,
+                            header=header,
+                            start_line=chunk_start_line,
+                        )
+                    )
                     chunk_start_line += chunk_content.count("\n") + 1
 
                 # Start new chunk
@@ -281,17 +394,17 @@ class DocumentChunker:
             chunk_content = "\n\n".join(current_chunk_parts)
             if not chunks and header_line and header_line not in chunk_content:
                 chunk_content = header_line + "\n\n" + chunk_content
-            chunks.append(Chunk(
-                content=chunk_content,
-                header=header,
-                start_line=chunk_start_line,
-            ))
+            chunks.append(
+                Chunk(
+                    content=chunk_content,
+                    header=header,
+                    start_line=chunk_start_line,
+                )
+            )
 
         return chunks
 
-    def _split_by_sentences(
-        self, content: str, header: str, start_line: int
-    ) -> list[Chunk]:
+    def _split_by_sentences(self, content: str, header: str, start_line: int) -> list[Chunk]:
         """Split content by sentences as last resort."""
         chunks = []
 
@@ -308,11 +421,13 @@ class DocumentChunker:
                 current_tokens += sentence_tokens
             else:
                 if current_chunk_parts:
-                    chunks.append(Chunk(
-                        content=" ".join(current_chunk_parts),
-                        header=header,
-                        start_line=start_line,
-                    ))
+                    chunks.append(
+                        Chunk(
+                            content=" ".join(current_chunk_parts),
+                            header=header,
+                            start_line=start_line,
+                        )
+                    )
 
                 if sentence_tokens <= self.max_chunk_tokens:
                     current_chunk_parts = [sentence]
@@ -324,11 +439,13 @@ class DocumentChunker:
                     current_tokens = 0
 
         if current_chunk_parts:
-            chunks.append(Chunk(
-                content=" ".join(current_chunk_parts),
-                header=header,
-                start_line=start_line,
-            ))
+            chunks.append(
+                Chunk(
+                    content=" ".join(current_chunk_parts),
+                    header=header,
+                    start_line=start_line,
+                )
+            )
 
         return chunks
 
@@ -343,12 +460,14 @@ class DocumentChunker:
             chunk_content = encoder.decode(chunk_tokens)
 
             if len(chunk_content.strip()) > 0:
-                chunks.append(Chunk(
-                    content=chunk_content + "...",
-                    header=header,
-                    start_line=start_line,
-                    token_count=len(chunk_tokens),
-                ))
+                chunks.append(
+                    Chunk(
+                        content=chunk_content + "...",
+                        header=header,
+                        start_line=start_line,
+                        token_count=len(chunk_tokens),
+                    )
+                )
 
         return chunks
 

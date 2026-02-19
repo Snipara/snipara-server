@@ -198,15 +198,11 @@ class EmbeddingsService:
             )
             return result
         except TimeoutError:
-            logger.warning(
-                f"Batch embedding timed out after {timeout}s for {len(texts)} texts"
-            )
+            logger.warning(f"Batch embedding timed out after {timeout}s for {len(texts)} texts")
             raise
 
     def cosine_similarity(
-        self,
-        query_embedding: list[float],
-        doc_embeddings: list[list[float]]
+        self, query_embedding: list[float], doc_embeddings: list[list[float]]
     ) -> list[float]:
         """Calculate cosine similarity between query and document embeddings.
 

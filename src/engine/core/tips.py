@@ -2,6 +2,13 @@
 
 This module generates plan-filtered tool tips that help users understand
 all available tools without wasting tokens on every query.
+
+Tool Tiers:
+    - PRIMARY (🟢): Essential tools for all users - start here
+    - POWER_USER (🔵): Advanced features for intermediate users
+    - TEAM (🟡): Team collaboration and multi-project features
+    - UTILITY (⚪): Session and project management utilities
+    - ADVANCED (🔴): Multi-agent swarms and expert orchestration
 """
 
 from typing import TYPE_CHECKING
@@ -24,6 +31,7 @@ def _init_plan_sets() -> None:
     global SEMANTIC_SEARCH_PLANS, PLAN_FEATURE_PLANS
     if not SEMANTIC_SEARCH_PLANS:
         from ...models import Plan
+
         SEMANTIC_SEARCH_PLANS = {Plan.PRO, Plan.TEAM, Plan.ENTERPRISE}
         PLAN_FEATURE_PLANS = {Plan.TEAM, Plan.ENTERPRISE}
 
@@ -33,6 +41,7 @@ def get_first_query_tips(plan: "Plan") -> str:
 
     Tips are injected only on the first query of a session to help users
     understand all available tools without wasting tokens on every query.
+    Tools are organized by tier with emoji badges.
 
     Args:
         plan: User's current plan (FREE, PRO, TEAM, ENTERPRISE)
@@ -42,41 +51,53 @@ def get_first_query_tips(plan: "Plan") -> str:
     """
     _init_plan_sets()
 
-    tips = ["## Snipara Tool Guide (First Query Tips)", ""]
+    tips = ["## Snipara Tool Guide", ""]
 
-    # Primary tools - available to all plans
-    tips.append("**Primary Tools:**")
+    # Tier legend
+    tips.append("**Tiers:** 🟢 Primary | 🔵 Power User | 🟡 Team | ⚪ Utility | 🔴 Advanced")
+    tips.append("")
+
+    # PRIMARY (🟢) - available to all plans
+    tips.append("**🟢 Primary Tools (Start Here):**")
     tips.append("- `rlm_context_query` - Full documentation query with token budgeting")
-    tips.append("- `rlm_ask` - Quick, simple query (~2500 tokens, no config needed)")
-    tips.append("- `rlm_search` - Regex pattern search across documentation")
+    tips.append("- `rlm_ask` - Quick, simple query (~2500 tokens)")
+    tips.append("- `rlm_search` - Regex pattern search")
+    tips.append("- `rlm_recall` - Retrieve saved memories")
     tips.append("")
 
-    # Pro+ tools - semantic search, decompose, multi-query
+    # POWER_USER (🔵) - Pro+ tools
     if plan in SEMANTIC_SEARCH_PLANS:
-        tips.append("**Power User Tools (Pro+):**")
-        tips.append("- `rlm_multi_query` - Batch multiple queries in parallel")
+        tips.append("**🔵 Power User Tools (Pro+):**")
+        tips.append("- `rlm_multi_query` - Batch multiple queries")
         tips.append("- `rlm_decompose` - Break complex queries into sub-queries")
-        tips.append("- `rlm_shared_context` - Get team coding standards/best practices")
-        tips.append("- `rlm_load_document` - Load raw document content by file path")
+        tips.append("- `rlm_remember` / `rlm_remember_bulk` - Store memories")
+        tips.append("- `rlm_load_document` - Load raw document content")
         tips.append("")
 
-    # Team+ tools - multi-project, plan, templates, orchestration
+    # TEAM (🟡) - Team+ tools
     if plan in PLAN_FEATURE_PLANS:
-        tips.append("**Team Tools (Team+):**")
-        tips.append("- `rlm_multi_project_query` - Search across ALL your projects")
-        tips.append("- `rlm_plan` - Generate execution plan for complex questions")
-        tips.append("- `rlm_list_templates` / `rlm_get_template` - Use prompt templates")
-        tips.append("- `rlm_load_project` - Load full project structure with content")
-        tips.append("- `rlm_orchestrate` - Multi-round context exploration (search + raw load)")
+        tips.append("**🟡 Team Tools (Team+):**")
+        tips.append("- `rlm_multi_project_query` - Search across ALL projects")
+        tips.append("- `rlm_plan` - Generate execution plan")
+        tips.append("- `rlm_shared_context` - Team coding standards")
+        tips.append("- `rlm_list_templates` / `rlm_get_template` - Prompt templates")
         tips.append("")
 
-    # Utility tools - available to all
-    tips.append("**Utility Tools:**")
+    # UTILITY (⚪) - available to all
+    tips.append("**⚪ Utility Tools:**")
     tips.append("- `rlm_inject` / `rlm_context` / `rlm_clear_context` - Session context")
-    tips.append("- `rlm_stats` / `rlm_sections` - Browse documentation structure")
+    tips.append("- `rlm_stats` / `rlm_sections` - Documentation structure")
     tips.append("")
 
-    tips.append("**Tip:** Use `rlm_ask` for quick answers, `rlm_context_query` for full control.")
+    # ADVANCED (🔴) - Team+ for swarms
+    if plan in PLAN_FEATURE_PLANS:
+        tips.append("**🔴 Advanced Tools (Expert):**")
+        tips.append("- `rlm_orchestrate` - Multi-round context exploration")
+        tips.append("- `rlm_swarm_*` - Multi-agent coordination")
+        tips.append("")
+
+    tips.append("**Tip:** Start with `rlm_ask` for quick answers, `rlm_context_query` for control.")
+    tips.append("**Help:** Use `rlm_help` to find the right tool for your task.")
     tips.append("")
     tips.append("---")
 

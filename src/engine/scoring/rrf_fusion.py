@@ -56,9 +56,7 @@ def classify_query_weights(
     # Signal 2: specific / structured-data terms in the query
     # Also check stemmed variants so "prices" matches "price" in the set
     stemmed_words = {stem_keyword(w) for w in query_words}
-    has_specific = bool(
-        (query_words | stemmed_words) & SPECIFIC_QUERY_TERMS
-    )
+    has_specific = bool((query_words | stemmed_words) & SPECIFIC_QUERY_TERMS)
 
     # Signal 3: conceptual query pattern
     is_conceptual = any(query_lower.startswith(p) for p in CONCEPTUAL_PREFIXES)
@@ -169,7 +167,7 @@ def normalize_scores_graded(
         # Combine rank-based decay with score-ratio decay
         # rank_factor: exponential decay based on position (0.94^rank)
         # score_factor: how close is this score to the top? (raw/top)
-        rank_factor = decay_factor ** i
+        rank_factor = decay_factor**i
         score_factor = raw / top_score if top_score > 0 else 0
 
         # Weighted combination: 40% rank-based, 60% score-based (favor raw scores)
