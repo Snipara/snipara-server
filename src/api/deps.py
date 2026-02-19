@@ -167,9 +167,13 @@ async def validate_and_rate_limit(
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
 
-    # 4. Check rate limit (demo keys use per-IP limits)
-    rate_ok = await check_rate_limit(auth_info["id"], client_ip=client_ip)
+    # 4. Determine plan BEFORE rate limit check (plan-based limits)
+    plan = get_effective_plan(project.team.subscription if project.team else None)
+
+    # 5. Check rate limit with plan-based limits
+    rate_ok = await check_rate_limit(auth_info["id"], client_ip=client_ip, plan=plan.value)
     if not rate_ok:
+        max_requests = settings.plan_rate_limits.get(plan.value, settings.rate_limit_requests)
         log_security_event(
             "rate_limit.exceeded",
             "api_key",
@@ -178,11 +182,8 @@ async def validate_and_rate_limit(
         )
         raise HTTPException(
             status_code=429,
-            detail=f"Rate limit exceeded: {settings.rate_limit_requests} requests per minute",
+            detail=f"Rate limit exceeded: {max_requests} requests per minute",
         )
-
-    # 5. Determine plan (considers PRO boost for FREE users)
-    plan = get_effective_plan(project.team.subscription if project.team else None)
 
     # 6. Get project automation settings (from dashboard)
     project_settings = await get_project_settings(project_id)
@@ -215,8 +216,13 @@ async def validate_team_and_rate_limit(
     if not api_key_info:
         raise HTTPException(status_code=401, detail="Invalid API key")
 
-    rate_ok = await check_rate_limit(api_key_info["id"], client_ip=client_ip)
+    # Determine plan BEFORE rate limit check (plan-based limits)
+    plan = get_effective_plan(team.subscription)
+
+    # Check rate limit with plan-based limits
+    rate_ok = await check_rate_limit(api_key_info["id"], client_ip=client_ip, plan=plan.value)
     if not rate_ok:
+        max_requests = settings.plan_rate_limits.get(plan.value, settings.rate_limit_requests)
         log_security_event(
             "rate_limit.exceeded",
             "api_key",
@@ -226,10 +232,8 @@ async def validate_team_and_rate_limit(
         )
         raise HTTPException(
             status_code=429,
-            detail=f"Rate limit exceeded: {settings.rate_limit_requests} requests per minute",
+            detail=f"Rate limit exceeded: {max_requests} requests per minute",
         )
-
-    plan = get_effective_plan(team.subscription)
 
     return api_key_info, team, plan
 

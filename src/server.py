@@ -291,7 +291,9 @@ async def mcp_endpoint(
     # Execute the tool with project settings from dashboard
     try:
         engine = RLMEngine(
-            project.id, plan=plan, settings=project_settings,
+            project.id,
+            plan=plan,
+            settings=project_settings,
             user_id=api_key_info.get("user_id"),
             access_level=api_key_info.get("access_level", "EDITOR"),
         )
@@ -361,7 +363,9 @@ async def team_mcp_endpoint(
 
     try:
         result_payload, input_tokens, output_tokens = await execute_multi_project_query(
-            team, plan, request.params,
+            team,
+            plan,
+            request.params,
             user_id=api_key_info.get("user_id"),
         )
 
@@ -397,10 +401,28 @@ TEAM_TOOL_DEFINITION = {
         "type": "object",
         "properties": {
             "query": {"type": "string", "description": "The question to answer"},
-            "max_tokens": {"type": "integer", "default": 16000, "description": "Total token budget across all projects"},
-            "per_project_limit": {"type": "integer", "default": 10, "description": "Max sections per project"},
-            "project_ids": {"type": "array", "items": {"type": "string"}, "default": [], "description": "Filter to specific projects (empty = all)"},
-            "exclude_project_ids": {"type": "array", "items": {"type": "string"}, "default": [], "description": "Projects to exclude"},
+            "max_tokens": {
+                "type": "integer",
+                "default": 16000,
+                "description": "Total token budget across all projects",
+            },
+            "per_project_limit": {
+                "type": "integer",
+                "default": 10,
+                "description": "Max sections per project",
+            },
+            "project_ids": {
+                "type": "array",
+                "items": {"type": "string"},
+                "default": [],
+                "description": "Filter to specific projects (empty = all)",
+            },
+            "exclude_project_ids": {
+                "type": "array",
+                "items": {"type": "string"},
+                "default": [],
+                "description": "Projects to exclude",
+            },
         },
         "required": ["query"],
     },
@@ -450,21 +472,29 @@ async def team_mcp_transport_endpoint(
     api_key_info = await validate_team_api_key(api_key, team.id)
     if not api_key_info:
         log_security_event(
-            "auth.failed", "team", team_id, api_key[:12],
+            "auth.failed",
+            "team",
+            team_id,
+            api_key[:12],
             team_id=team.id,
             details={"reason": "invalid_team_api_key"},
         )
         raise HTTPException(status_code=401, detail="Invalid API key")
 
-    if not await check_rate_limit(api_key_info["id"]):
+    # Determine plan BEFORE rate limit check (plan-based limits)
+    plan = get_effective_plan(team.subscription)
+
+    # Check rate limit with plan-based limits
+    if not await check_rate_limit(api_key_info["id"], plan=plan.value):
+        max_requests = settings.plan_rate_limits.get(plan.value, settings.rate_limit_requests)
         log_security_event(
-            "rate_limit.exceeded", "api_key", api_key_info["id"],
+            "rate_limit.exceeded",
+            "api_key",
+            api_key_info["id"],
             api_key_info.get("user_id", api_key_info["id"]),
             team_id=team.id,
         )
-        raise HTTPException(status_code=429, detail="Rate limit exceeded")
-
-    plan = get_effective_plan(team.subscription)
+        raise HTTPException(status_code=429, detail=f"Rate limit exceeded: {max_requests}/min")
 
     # Parse JSON-RPC request
     try:
@@ -489,7 +519,9 @@ async def team_mcp_transport_endpoint(
     return JSONResponse(response) if response else Response(status_code=204)
 
 
-async def _handle_team_request(body: dict, team: any, plan: Plan, user_id: str | None = None) -> dict | None:
+async def _handle_team_request(
+    body: dict, team: any, plan: Plan, user_id: str | None = None
+) -> dict | None:
     """Handle a single JSON-RPC request for team endpoint."""
     method = body.get("method")
     id = body.get("id")
@@ -499,11 +531,14 @@ async def _handle_team_request(body: dict, team: any, plan: Plan, user_id: str |
         return None
 
     if method == "initialize":
-        return jsonrpc_response(id, {
-            "protocolVersion": "2024-11-05",
-            "serverInfo": {"name": "snipara-team", "version": "1.0.0"},
-            "capabilities": {"tools": {}},
-        })
+        return jsonrpc_response(
+            id,
+            {
+                "protocolVersion": "2024-11-05",
+                "serverInfo": {"name": "snipara-team", "version": "1.0.0"},
+                "capabilities": {"tools": {}},
+            },
+        )
     elif method == "tools/list":
         return jsonrpc_response(id, {"tools": [TEAM_TOOL_DEFINITION]})
     elif method == "tools/call":
@@ -514,22 +549,36 @@ async def _handle_team_request(body: dict, team: any, plan: Plan, user_id: str |
         return jsonrpc_error(id, -32601, f"Method not found: {method}")
 
 
-async def _handle_team_call_tool(id: any, params: dict, team: any, plan: Plan, user_id: str | None = None) -> dict:
+async def _handle_team_call_tool(
+    id: any, params: dict, team: any, plan: Plan, user_id: str | None = None
+) -> dict:
     """Handle MCP tools/call request for team endpoint."""
     tool_name = params.get("name")
     arguments = params.get("arguments", {})
 
     if tool_name != "rlm_multi_project_query":
-        return jsonrpc_error(id, -32602, f"Tool not available on team endpoint: {tool_name}. Only rlm_multi_project_query is supported.")
+        return jsonrpc_error(
+            id,
+            -32602,
+            f"Tool not available on team endpoint: {tool_name}. Only rlm_multi_project_query is supported.",
+        )
 
     try:
         result_payload, input_tokens, output_tokens = await execute_multi_project_query(
-            team, plan, arguments, user_id=user_id,
+            team,
+            plan,
+            arguments,
+            user_id=user_id,
         )
 
-        return jsonrpc_response(id, {
-            "content": [{"type": "text", "text": json.dumps(result_payload, indent=2, default=str)}],
-        })
+        return jsonrpc_response(
+            id,
+            {
+                "content": [
+                    {"type": "text", "text": json.dumps(result_payload, indent=2, default=str)}
+                ],
+            },
+        )
     except HTTPException as e:
         return jsonrpc_error(id, -32000, e.detail)
     except Exception as e:
@@ -706,8 +755,7 @@ async def reindex_project(
         triggered_via = "api_key"
     else:
         raise HTTPException(
-            status_code=401,
-            detail="Authentication required: X-API-Key or X-Internal-Secret header"
+            status_code=401, detail="Authentication required: X-API-Key or X-Internal-Secret header"
         )
 
     # Map mode to IndexJobMode enum value
@@ -778,8 +826,7 @@ async def get_reindex_status(
         _, project, _, _ = await validate_and_rate_limit(project_id, x_api_key)
     else:
         raise HTTPException(
-            status_code=401,
-            detail="Authentication required: X-API-Key or X-Internal-Secret header"
+            status_code=401, detail="Authentication required: X-API-Key or X-Internal-Secret header"
         )
 
     # Get job status
@@ -917,10 +964,7 @@ async def sse_event_generator(
 
     try:
         # Execute the tool
-        engine = RLMEngine(
-            project_id, plan=plan,
-            user_id=user_id, access_level=access_level
-        )
+        engine = RLMEngine(project_id, plan=plan, user_id=user_id, access_level=access_level)
         result = await engine.execute(tool, params)
 
         latency_ms = int((time.perf_counter() - start_time) * 1000)
@@ -1020,7 +1064,10 @@ async def mcp_sse_endpoint(
     # Return SSE stream
     return StreamingResponse(
         sse_event_generator(
-            project.id, tool_name, parsed_params, plan,
+            project.id,
+            tool_name,
+            parsed_params,
+            plan,
             user_id=api_key_info.get("user_id"),
             access_level=api_key_info.get("access_level", "EDITOR"),
         ),
@@ -1066,7 +1113,10 @@ async def mcp_sse_endpoint_post(
     # Return SSE stream
     return StreamingResponse(
         sse_event_generator(
-            project.id, request.tool, request.params, plan,
+            project.id,
+            request.tool,
+            request.params,
+            plan,
             user_id=api_key_info.get("user_id"),
             access_level=api_key_info.get("access_level", "EDITOR"),
         ),

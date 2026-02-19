@@ -29,9 +29,17 @@ class Settings(BaseSettings):
     # In production, this MUST be set explicitly (not "*")
     cors_allowed_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
 
-    # Rate limiting
-    rate_limit_requests: int = 100  # requests per minute per API key
+    # Rate limiting (per-minute, per-API-key)
     rate_limit_window: int = 60  # seconds
+    rate_limit_requests: int = 60  # default fallback (used if plan unknown)
+
+    # Plan-based rate limits (requests per minute)
+    plan_rate_limits: dict[str, int] = {
+        "FREE": 20,
+        "PRO": 120,
+        "TEAM": 300,
+        "ENTERPRISE": 1000,
+    }
 
     # Demo key rate limiting (stricter, public key)
     demo_api_key_ids: str = ""  # comma-separated DB IDs of demo API keys

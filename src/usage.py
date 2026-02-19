@@ -66,30 +66,48 @@ def _is_demo_key(api_key_id: str) -> bool:
     return api_key_id in demo_ids
 
 
-def _get_rate_limit_for_key(api_key_id: str) -> tuple[int, int]:
-    """Return (max_requests, window_seconds) for the given key."""
+def _get_rate_limit_for_key(api_key_id: str, plan: str | None = None) -> tuple[int, int]:
+    """Return (max_requests, window_seconds) for the given key and plan.
+
+    Args:
+        api_key_id: The API key ID
+        plan: Optional plan name (FREE, PRO, TEAM, ENTERPRISE)
+
+    Returns:
+        Tuple of (max_requests, window_seconds)
+    """
     if _is_demo_key(api_key_id):
         return settings.demo_rate_limit_requests, settings.demo_rate_limit_window
+
+    # Use plan-based rate limits if plan is provided
+    if plan and plan in settings.plan_rate_limits:
+        return settings.plan_rate_limits[plan], settings.rate_limit_window
+
+    # Fallback to default rate limit
     return settings.rate_limit_requests, settings.rate_limit_window
 
 
-async def check_rate_limit(api_key_id: str, client_ip: str | None = None) -> bool:
+async def check_rate_limit(
+    api_key_id: str, client_ip: str | None = None, plan: str | None = None
+) -> bool:
     """
     Check if the API key has exceeded rate limits.
 
     Uses Redis when available, falls back to in-memory sliding window.
     Demo keys use stricter per-IP limits (configured via DEMO_API_KEY_IDS).
+    Plan-based limits: FREE=20, PRO=120, TEAM=300, ENTERPRISE=1000 req/min.
 
     Args:
         api_key_id: The API key ID
         client_ip: Optional client IP for per-IP demo rate limiting
+        plan: Optional plan name for plan-based rate limits
 
     Returns:
         True if within limits, False if exceeded
     """
     global _fallback_warning_logged
 
-    max_requests, window = _get_rate_limit_for_key(api_key_id)
+    max_requests, window = _get_rate_limit_for_key(api_key_id, plan)
 
     # Demo keys: rate limit per IP instead of per key (since key is public)
     is_demo = _is_demo_key(api_key_id)
@@ -418,9 +436,9 @@ def log_security_event(
 # ============ ANTI-SCAN PROTECTION ============
 
 # Thresholds
-SCAN_WINDOW_SECONDS = 300   # 5 minutes
-SCAN_THRESHOLD = 10         # unique denied slugs
-SCAN_BLOCK_SECONDS = 900    # 15 minute block
+SCAN_WINDOW_SECONDS = 300  # 5 minutes
+SCAN_THRESHOLD = 10  # unique denied slugs
+SCAN_BLOCK_SECONDS = 900  # 15 minute block
 
 # In-memory tracking (per-process fallback)
 _scan_denials: dict[str, dict[str, float]] = defaultdict(dict)  # key_prefix -> {slug: timestamp}
@@ -448,8 +466,7 @@ async def record_access_denial(identifier: str, project_slug: str) -> None:
             # Count unique denied slugs in window
             all_denials = await r.hgetall(redis_key)
             unique_count = sum(
-                1 for ts in all_denials.values()
-                if now - float(ts) < SCAN_WINDOW_SECONDS
+                1 for ts in all_denials.values() if now - float(ts) < SCAN_WINDOW_SECONDS
             )
 
             if unique_count >= SCAN_THRESHOLD:
@@ -614,12 +631,18 @@ async def get_demo_analytics() -> dict:
             for ip, count in sorted_ips:
                 first_seen = int(first_seen_data.get(ip, 0))
                 last_seen = int(last_seen_data.get(ip, 0))
-                top_ips.append({
-                    "ip": _mask_ip(ip),
-                    "queries": int(count),
-                    "first_seen": datetime.fromtimestamp(first_seen).isoformat() if first_seen else None,
-                    "last_seen": datetime.fromtimestamp(last_seen).isoformat() if last_seen else None,
-                })
+                top_ips.append(
+                    {
+                        "ip": _mask_ip(ip),
+                        "queries": int(count),
+                        "first_seen": datetime.fromtimestamp(first_seen).isoformat()
+                        if first_seen
+                        else None,
+                        "last_seen": datetime.fromtimestamp(last_seen).isoformat()
+                        if last_seen
+                        else None,
+                    }
+                )
         else:
             top_ips = []
 
