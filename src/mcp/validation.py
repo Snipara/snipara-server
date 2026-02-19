@@ -4,10 +4,17 @@ This module handles authentication validation and usage limit checks
 for MCP requests. Supports both API keys and OAuth tokens.
 """
 
-from ..auth import get_effective_plan, get_project_with_team, validate_api_key, validate_oauth_token
+from ..auth import (
+    get_effective_plan,
+    get_project_with_team,
+    validate_api_key,
+    validate_client_api_key,
+    validate_oauth_token,
+)
 from ..config import settings
 from ..models import Plan
 from ..usage import (
+    check_client_usage_limits,
     check_rate_limit,
     check_usage_limits,
     is_scan_blocked,
@@ -52,6 +59,16 @@ async def validate_request(
                 "Invalid or expired OAuth token. Re-authenticate at https://snipara.com/dashboard or run /snipara:quickstart",
                 None,
             )
+    # Check if it's an integrator client key
+    elif api_key.startswith("snipara_ic_"):
+        auth_info = await validate_client_api_key(api_key, project_id_or_slug)
+        if not auth_info:
+            return (
+                None,
+                Plan.FREE,
+                "Invalid client API key. Contact your integrator for access.",
+                None,
+            )
     else:
         # Fall back to API key validation
         auth_info = await validate_api_key(api_key, project_id_or_slug)
@@ -84,8 +101,30 @@ async def validate_request(
         )
         return None, plan, f"Rate limit exceeded: {max_requests}/min", None
 
-    limits = await check_usage_limits(actual_project_id, plan)
-    if limits.exceeded:
-        return None, plan, f"Monthly limit exceeded: {limits.current}/{limits.max}", None
+    # Check bundle limits for integrator clients
+    if auth_info.get("auth_type") == "integrator_client":
+        client_id = auth_info.get("client_id")
+        client_bundle = auth_info.get("client_bundle", "LITE")
+        if client_id:
+            bundle_limits = await check_client_usage_limits(client_id, client_bundle)
+            if bundle_limits.exceeded:
+                log_security_event(
+                    "bundle_limit.exceeded",
+                    "client",
+                    client_id,
+                    auth_info.get("user_id", auth_info["id"]),
+                    details={"bundle": client_bundle, "current": bundle_limits.current, "max": bundle_limits.max},
+                )
+                return (
+                    None,
+                    plan,
+                    f"Monthly query limit exceeded for {client_bundle} bundle: {bundle_limits.current}/{bundle_limits.max}. Contact your provider to upgrade.",
+                    None,
+                )
+    else:
+        # Standard usage limits for non-integrator clients
+        limits = await check_usage_limits(actual_project_id, plan)
+        if limits.exceeded:
+            return None, plan, f"Monthly limit exceeded: {limits.current}/{limits.max}", None
 
     return auth_info, plan, None, actual_project_id

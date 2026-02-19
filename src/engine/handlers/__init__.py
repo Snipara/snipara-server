@@ -27,6 +27,7 @@ from .memory import (
     handle_memories,
     handle_recall,
     handle_remember,
+    handle_remember_bulk,
 )
 from .session import (
     handle_clear_context,
@@ -58,6 +59,7 @@ __all__ = [
     "count_tokens",
     # Memory handlers
     "handle_remember",
+    "handle_remember_bulk",
     "handle_recall",
     "handle_memories",
     "handle_forget",

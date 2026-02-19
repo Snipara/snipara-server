@@ -289,6 +289,130 @@ async def check_usage_limits(project_id: str, plan: Plan) -> LimitsInfo:
     )
 
 
+# ============ INTEGRATOR CLIENT BUNDLE LIMITS ============
+
+# Bundle limits for integrator clients
+CLIENT_BUNDLE_LIMITS = {
+    "LITE": {
+        "queries_per_month": 200,
+        "memories": 100,
+        "swarms": 1,
+        "agents_per_swarm": 5,
+    },
+    "STANDARD": {
+        "queries_per_month": 2000,
+        "memories": 500,
+        "swarms": 5,
+        "agents_per_swarm": 10,
+    },
+    "UNLIMITED": {
+        "queries_per_month": -1,  # Unlimited
+        "memories": -1,
+        "swarms": -1,
+        "agents_per_swarm": 20,
+    },
+}
+
+
+async def check_client_usage_limits(client_id: str, bundle: str) -> LimitsInfo:
+    """
+    Check if an integrator client has exceeded their bundle's monthly limits.
+
+    Args:
+        client_id: The integrator client ID
+        bundle: The client's bundle (LITE, STANDARD, UNLIMITED)
+
+    Returns:
+        LimitsInfo with current usage and bundle limits
+    """
+    db = await get_db()
+
+    # Get the start of the current month
+    now = datetime.utcnow()
+    month_start = datetime(now.year, now.month, 1)
+    next_month = (month_start + timedelta(days=32)).replace(day=1)
+
+    # Get the client with project
+    client = await db.integratorclient.find_first(
+        where={"id": client_id},
+        include={"project": True},
+    )
+
+    if not client or not client.project:
+        # No project = no usage
+        return LimitsInfo(
+            current=0,
+            max=CLIENT_BUNDLE_LIMITS.get(bundle, CLIENT_BUNDLE_LIMITS["LITE"])[
+                "queries_per_month"
+            ],
+            exceeded=False,
+            resets_at=next_month,
+        )
+
+    # Count queries this month for the client's project
+    query_count = await db.query.count(
+        where={
+            "projectId": client.projectId,
+            "createdAt": {"gte": month_start},
+        }
+    )
+
+    # Get bundle limit
+    bundle_limits = CLIENT_BUNDLE_LIMITS.get(bundle, CLIENT_BUNDLE_LIMITS["LITE"])
+    max_queries = bundle_limits["queries_per_month"]
+
+    return LimitsInfo(
+        current=query_count,
+        max=max_queries,
+        exceeded=max_queries != -1 and query_count >= max_queries,
+        resets_at=next_month,
+    )
+
+
+async def check_client_memory_limits(client_id: str, bundle: str) -> LimitsInfo:
+    """
+    Check if an integrator client has exceeded their bundle's memory limits.
+
+    Args:
+        client_id: The integrator client ID
+        bundle: The client's bundle (LITE, STANDARD, UNLIMITED)
+
+    Returns:
+        LimitsInfo with current memory count and bundle limits
+    """
+    db = await get_db()
+
+    # Get the client with project
+    client = await db.integratorclient.find_first(
+        where={"id": client_id},
+        include={"project": True},
+    )
+
+    if not client or not client.project:
+        bundle_limits = CLIENT_BUNDLE_LIMITS.get(bundle, CLIENT_BUNDLE_LIMITS["LITE"])
+        return LimitsInfo(
+            current=0,
+            max=bundle_limits["memories"],
+            exceeded=False,
+            resets_at=None,
+        )
+
+    # Count total memories for the client's project
+    memory_count = await db.agentmemory.count(
+        where={"projectId": client.projectId}
+    )
+
+    bundle_limits = CLIENT_BUNDLE_LIMITS.get(bundle, CLIENT_BUNDLE_LIMITS["LITE"])
+    max_memories = bundle_limits["memories"]
+
+    return LimitsInfo(
+        current=memory_count,
+        max=max_memories,
+        exceeded=max_memories != -1 and memory_count >= max_memories,
+        resets_at=None,  # Memories don't reset monthly
+    )
+
+
 async def track_usage(
     project_id: str,
     tool: str,

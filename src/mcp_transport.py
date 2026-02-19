@@ -227,7 +227,9 @@ async def mcp_endpoint(
         )
 
     client_ip = _get_client_ip(request)
-    api_key_info, plan, error, actual_project_id = await validate_request(project_id, api_key, client_ip=client_ip)
+    api_key_info, plan, error, actual_project_id = await validate_request(
+        project_id, api_key, client_ip=client_ip
+    )
     if error:
         raise HTTPException(status_code=401 if "Invalid" in error else 429, detail=error)
 
@@ -241,7 +243,11 @@ async def mcp_endpoint(
 
     # Use actual database ID for all operations (not URL slug)
     if isinstance(body, list):
-        responses = [r for req in body if (r := await handle_request(req, actual_project_id, plan, access_level))]
+        responses = [
+            r
+            for req in body
+            if (r := await handle_request(req, actual_project_id, plan, access_level))
+        ]
         return JSONResponse(responses)
 
     response = await handle_request(body, actual_project_id, plan, access_level)

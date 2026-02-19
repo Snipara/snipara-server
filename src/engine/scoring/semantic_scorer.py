@@ -6,8 +6,6 @@ Two paths are supported:
 2. On-the-fly embeddings (fallback when chunks not available)
 """
 
-from __future__ import annotations
-
 import logging
 from typing import TYPE_CHECKING, Protocol
 
@@ -171,10 +169,7 @@ class SemanticScorer:
             # Generate section embeddings (title + truncated content)
             # Using 120 chars to reduce tokenization cost on CPU.
             # Title carries the primary semantic signal; content adds context.
-            section_texts = [
-                f"{s.title}\n{s.content[:120]}"
-                for s in filtered_sections
-            ]
+            section_texts = [f"{s.title}\n{s.content[:120]}" for s in filtered_sections]
             section_embeddings = await self.embeddings_service.embed_texts_async(section_texts)
 
             # Calculate similarities

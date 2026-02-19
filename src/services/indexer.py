@@ -78,19 +78,17 @@ class DocumentIndexer:
         # Generate embeddings for all chunks (async to avoid blocking event loop)
         # Use longer timeout for indexing (300s) since large docs may have many chunks
         chunk_contents = [c.content for c in chunks]
-        embeddings = await self.embeddings.embed_texts_async(
-            chunk_contents, timeout=300.0
-        )
+        embeddings = await self.embeddings.embed_texts_async(chunk_contents, timeout=300.0)
 
         # Insert chunks with embeddings using raw SQL (for vector type)
         for chunk, embedding in zip(chunks, embeddings):
             embedding_str = "[" + ",".join(str(x) for x in embedding) + "]"
             await self.db.execute_raw(
-                '''
+                """
                 INSERT INTO document_chunks
                 (id, content, embedding, "startLine", "endLine", "tokenCount", title, "createdAt", "documentId")
                 VALUES (gen_random_uuid()::text, $1, $2::vector, $3, $4, $5, $6, NOW(), $7)
-                ''',
+                """,
                 chunk.content,
                 embedding_str,
                 chunk.start_line,
@@ -118,9 +116,7 @@ class DocumentIndexer:
         if incremental:
             return await self._index_unindexed_documents(project_id)
 
-        documents = await self.db.document.find_many(
-            where={"projectId": project_id}
-        )
+        documents = await self.db.document.find_many(where={"projectId": project_id})
 
         results: dict[str, int] = {}
         for doc in documents:
@@ -148,7 +144,7 @@ class DocumentIndexer:
         """
         # Find documents without any chunks using a LEFT JOIN
         unindexed_docs = await self.db.query_raw(
-            '''
+            """
             SELECT d.id, d.path
             FROM documents d
             LEFT JOIN document_chunks dc ON d.id = dc."documentId"
@@ -156,7 +152,7 @@ class DocumentIndexer:
             GROUP BY d.id, d.path
             HAVING COUNT(dc.id) = 0
             ORDER BY d.path
-            ''',
+            """,
             project_id,
         )
 
@@ -207,7 +203,7 @@ class DocumentIndexer:
         # Time vector search query
         search_start = time.perf_counter()
         results = await self.db.query_raw(
-            '''
+            """
             SELECT
                 dc.id,
                 dc.content,
@@ -223,7 +219,7 @@ class DocumentIndexer:
               AND 1 - (dc.embedding <=> $1::vector) >= $3
             ORDER BY dc.embedding <=> $1::vector
             LIMIT $4
-            ''',
+            """,
             embedding_str,
             project_id,
             min_similarity,
@@ -280,13 +276,15 @@ class DocumentIndexer:
             if section_tokens <= MAX_CHUNK_TOKENS:
                 # Section fits in one chunk
                 if section_tokens >= MIN_CHUNK_TOKENS:
-                    chunks.append(Chunk(
-                        content=section_content,
-                        start_line=section_start,
-                        end_line=section_end,
-                        token_count=section_tokens,
-                        title=section_title,
-                    ))
+                    chunks.append(
+                        Chunk(
+                            content=section_content,
+                            start_line=section_start,
+                            end_line=section_end,
+                            token_count=section_tokens,
+                            title=section_title,
+                        )
+                    )
             else:
                 # Section too large - split by paragraphs
                 paragraph_chunks = self._split_section_by_paragraphs(
@@ -296,9 +294,7 @@ class DocumentIndexer:
 
         return chunks
 
-    def _split_by_headers(
-        self, lines: list[str]
-    ) -> list[tuple[int, int, str | None, list[str]]]:
+    def _split_by_headers(self, lines: list[str]) -> list[tuple[int, int, str | None, list[str]]]:
         """
         Split document into sections by markdown headers.
 
@@ -321,12 +317,14 @@ class DocumentIndexer:
             if header_match:
                 # Save previous section if non-empty
                 if current_lines:
-                    sections.append((
-                        current_start,
-                        i - 1,
-                        current_title,
-                        current_lines,
-                    ))
+                    sections.append(
+                        (
+                            current_start,
+                            i - 1,
+                            current_title,
+                            current_lines,
+                        )
+                    )
 
                 # Start new section
                 current_start = i
@@ -337,12 +335,14 @@ class DocumentIndexer:
 
         # Save last section
         if current_lines:
-            sections.append((
-                current_start,
-                len(lines),
-                current_title,
-                current_lines,
-            ))
+            sections.append(
+                (
+                    current_start,
+                    len(lines),
+                    current_title,
+                    current_lines,
+                )
+            )
 
         return sections
 
@@ -374,13 +374,15 @@ class DocumentIndexer:
 
                 # Create chunk
                 if current_tokens >= MIN_CHUNK_TOKENS:
-                    chunks.append(Chunk(
-                        content=current_content.strip(),
-                        start_line=current_start,
-                        end_line=start_offset + i,
-                        token_count=current_tokens,
-                        title=section_title,
-                    ))
+                    chunks.append(
+                        Chunk(
+                            content=current_content.strip(),
+                            start_line=current_start,
+                            end_line=start_offset + i,
+                            token_count=current_tokens,
+                            title=section_title,
+                        )
+                    )
 
                 # Start new chunk with overlap
                 overlap_lines = current_chunk_lines[-3:] if len(current_chunk_lines) > 3 else []
@@ -393,13 +395,15 @@ class DocumentIndexer:
             current_tokens = self._estimate_tokens(current_content)
 
             if current_tokens >= MIN_CHUNK_TOKENS:
-                chunks.append(Chunk(
-                    content=current_content.strip(),
-                    start_line=current_start,
-                    end_line=start_offset + len(lines) - 1,
-                    token_count=current_tokens,
-                    title=section_title,
-                ))
+                chunks.append(
+                    Chunk(
+                        content=current_content.strip(),
+                        start_line=current_start,
+                        end_line=start_offset + len(lines) - 1,
+                        token_count=current_tokens,
+                        title=section_title,
+                    )
+                )
             elif chunks and current_tokens > 0:
                 # Merge with previous chunk if too small
                 last_chunk = chunks[-1]

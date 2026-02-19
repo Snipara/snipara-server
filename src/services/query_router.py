@@ -31,29 +31,32 @@ from enum import Enum
 
 class QueryMode(Enum):
     """Execution modes for queries."""
-    DIRECT = "direct"       # Direct context query (Mode B)
-    RLM_RUNTIME = "rlm"     # RLM-Runtime with tools (Mode C)
+
+    DIRECT = "direct"  # Direct context query (Mode B)
+    RLM_RUNTIME = "rlm"  # RLM-Runtime with tools (Mode C)
 
 
 class QueryComplexity(Enum):
     """Query complexity levels."""
-    SIMPLE = "simple"       # Single-topic factual queries
-    MODERATE = "moderate"   # Multi-aspect queries
-    COMPLEX = "complex"     # Multi-step reasoning, code generation
+
+    SIMPLE = "simple"  # Single-topic factual queries
+    MODERATE = "moderate"  # Multi-aspect queries
+    COMPLEX = "complex"  # Multi-step reasoning, code generation
 
 
 @dataclass
 class RouteDecision:
     """Routing decision with execution parameters."""
+
     mode: QueryMode
     complexity: QueryComplexity
     confidence: float  # 0-1, how confident we are in this routing
-    reason: str        # Human-readable explanation
+    reason: str  # Human-readable explanation
 
     # Mode-specific parameters
-    token_budget: int = 6000     # Context token budget
+    token_budget: int = 6000  # Context token budget
     search_mode: str = "hybrid"  # keyword, semantic, hybrid
-    rlm_max_depth: int = 3       # Max RLM recursion depth
+    rlm_max_depth: int = 3  # Max RLM recursion depth
     rlm_token_budget: int = 30000  # RLM total token budget
 
     @property
@@ -94,11 +97,16 @@ class QueryRouter:
         # Complex query patterns → RLM-Runtime
         self._COMPLEX_PATTERNS = [
             re.compile(r"\b(how to|how do|how can|explain|describe|walk me through)\b", re.I),
-            re.compile(r"\b(implement|create|build|write|generate|refactor)\b.*\b(code|function|class|component|api|endpoint)\b", re.I),
+            re.compile(
+                r"\b(implement|create|build|write|generate|refactor)\b.*\b(code|function|class|component|api|endpoint)\b",
+                re.I,
+            ),
             re.compile(r"\b(step by step|steps to|process for)\b", re.I),
             re.compile(r"\b(compare|difference between|versus|vs\.?)\b", re.I),
             re.compile(r"\b(debug|fix|solve|troubleshoot)\b", re.I),
-            re.compile(r"\b(and|also|additionally|furthermore)\b.*\?", re.I),  # Multi-part questions
+            re.compile(
+                r"\b(and|also|additionally|furthermore)\b.*\?", re.I
+            ),  # Multi-part questions
             re.compile(r"\?.*\?", re.I),  # Multiple questions
         ]
 
@@ -114,10 +122,28 @@ class QueryRouter:
 
         # Code-related keywords
         self._CODE_KEYWORDS = {
-            "code", "function", "class", "method", "api", "endpoint",
-            "implement", "create", "build", "write", "generate", "refactor",
-            "typescript", "javascript", "python", "react", "nextjs",
-            "test", "unit test", "integration test", "lint", "typecheck",
+            "code",
+            "function",
+            "class",
+            "method",
+            "api",
+            "endpoint",
+            "implement",
+            "create",
+            "build",
+            "write",
+            "generate",
+            "refactor",
+            "typescript",
+            "javascript",
+            "python",
+            "react",
+            "nextjs",
+            "test",
+            "unit test",
+            "integration test",
+            "lint",
+            "typecheck",
         }
 
     def route(
