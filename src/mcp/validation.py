@@ -70,16 +70,20 @@ async def validate_request(
     # Use actual database ID for all operations
     actual_project_id = project.id
 
-    if not await check_rate_limit(auth_info["id"], client_ip=client_ip):
+    # Determine plan BEFORE rate limit check (plan-based limits)
+    plan = get_effective_plan(project.team.subscription if project.team else None)
+
+    # Check rate limit with plan-based limits
+    if not await check_rate_limit(auth_info["id"], client_ip=client_ip, plan=plan.value):
+        max_requests = settings.plan_rate_limits.get(plan.value, settings.rate_limit_requests)
         log_security_event(
             "rate_limit.exceeded",
             "api_key",
             auth_info["id"],
             auth_info.get("user_id", auth_info["id"]),
         )
-        return None, Plan.FREE, f"Rate limit exceeded: {settings.rate_limit_requests}/min", None
+        return None, plan, f"Rate limit exceeded: {max_requests}/min", None
 
-    plan = get_effective_plan(project.team.subscription if project.team else None)
     limits = await check_usage_limits(actual_project_id, plan)
     if limits.exceeded:
         return None, plan, f"Monthly limit exceeded: {limits.current}/{limits.max}", None
