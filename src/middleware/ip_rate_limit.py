@@ -32,9 +32,10 @@ class IPRateLimitMiddleware:
             await self.app(scope, receive, send)
             return
 
-        # Skip MCP endpoints - they have per-API-key rate limiting
+        # Skip MCP and API endpoints - they have per-API-key rate limiting
         # This prevents multi-agent systems on same IP from blocking each other
-        if path.startswith("/mcp/"):
+        # /mcp/ = streamable HTTP transport, /v1/ = REST API (used by snipara-mcp client)
+        if path.startswith("/mcp/") or path.startswith("/v1/"):
             await self.app(scope, receive, send)
             return
 
