@@ -90,9 +90,14 @@ async def validate_request(
     # Determine plan BEFORE rate limit check (plan-based limits)
     plan = get_effective_plan(project.team.subscription if project.team else None)
 
+    # Use PARTNER rate limits for integrator clients (higher limits for heavy polling)
+    rate_limit_plan = plan.value
+    if auth_info.get("auth_type") == "integrator_client":
+        rate_limit_plan = "PARTNER"
+
     # Check rate limit with plan-based limits
-    if not await check_rate_limit(auth_info["id"], client_ip=client_ip, plan=plan.value):
-        max_requests = settings.plan_rate_limits.get(plan.value, settings.rate_limit_requests)
+    if not await check_rate_limit(auth_info["id"], client_ip=client_ip, plan=rate_limit_plan):
+        max_requests = settings.plan_rate_limits.get(rate_limit_plan, settings.rate_limit_requests)
         log_security_event(
             "rate_limit.exceeded",
             "api_key",

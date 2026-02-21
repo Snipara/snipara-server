@@ -82,6 +82,7 @@ class Plan(StrEnum):
     PRO = "PRO"
     TEAM = "TEAM"
     ENTERPRISE = "ENTERPRISE"
+    PARTNER = "PARTNER"  # Partners/Integrators with high-volume needs
 
 
 class DecomposeStrategy(StrEnum):

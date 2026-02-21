@@ -38,7 +38,8 @@ class Settings(BaseSettings):
         "FREE": 20,
         "PRO": 120,
         "TEAM": 300,
-        "ENTERPRISE": 1000,
+        "ENTERPRISE": 2000,
+        "PARTNER": 5000,  # Partners/Integrators with heavy polling
     }
 
     # Demo key rate limiting (stricter, public key)
