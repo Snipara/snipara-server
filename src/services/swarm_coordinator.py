@@ -1193,7 +1193,7 @@ async def list_tasks(
                 "priority": t.priority,
                 "depends_on": t.dependsOn,
                 "created_at": t.createdAt.isoformat() if t.createdAt else None,
-                "deadline": t.deadline.isoformat() if t.deadline else None,
+                "deadline": t.dueAt.isoformat() if t.dueAt else None,
             }
             for t in tasks
         ],
