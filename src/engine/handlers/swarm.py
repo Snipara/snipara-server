@@ -380,6 +380,7 @@ async def handle_task_create(
             - priority: Task priority (higher = more urgent)
             - depends_on: Task IDs this depends on
             - metadata: Additional task data
+            - for_agent_id: Pre-assign task to specific agent (task affinity)
 
     Returns:
         ToolResult with task ID
@@ -392,6 +393,7 @@ async def handle_task_create(
     deadline = params.get("deadline")
     depends_on = params.get("depends_on")
     metadata = params.get("metadata")
+    for_agent_id = params.get("for_agent_id")
 
     if not swarm_id or not agent_id or not title:
         missing = []
@@ -416,6 +418,7 @@ async def handle_task_create(
         deadline=deadline,
         depends_on=depends_on,
         metadata=metadata,
+        for_agent_id=for_agent_id,
     )
 
     return ToolResult(

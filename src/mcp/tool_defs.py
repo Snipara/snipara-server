@@ -99,6 +99,7 @@ def get_tool_tier(tool_name: str) -> ToolTier:
 
 
 TOOL_DEFINITIONS: list[dict] = [
+    # ============ Context Retrieval Tools ============
     {
         "name": "rlm_context_query",
         "description": "Query optimized context from documentation. Returns ranked sections within token budget.",
@@ -163,6 +164,7 @@ TOOL_DEFINITIONS: list[dict] = [
             "required": ["start_line", "end_line"],
         },
     },
+    # ============ Query Optimization Tools ============
     {
         "name": "rlm_decompose",
         "description": "Break complex query into sub-queries with execution order.",
@@ -222,6 +224,7 @@ TOOL_DEFINITIONS: list[dict] = [
             "required": ["query"],
         },
     },
+    # ============ Team Query Tools ============
     {
         "name": "rlm_multi_project_query",
         "description": "Query across all projects in a team. Requires team API key.",
@@ -257,6 +260,7 @@ TOOL_DEFINITIONS: list[dict] = [
             "required": ["query"],
         },
     },
+    # ============ Session Management Tools ============
     {
         "name": "rlm_inject",
         "description": "Set session context for subsequent queries.",
@@ -279,6 +283,7 @@ TOOL_DEFINITIONS: list[dict] = [
         "description": "Clear session context.",
         "inputSchema": {"type": "object", "properties": {}, "required": []},
     },
+    # ============ Metadata Tools ============
     {
         "name": "rlm_stats",
         "description": "Show documentation statistics.",
@@ -351,6 +356,7 @@ TOOL_DEFINITIONS: list[dict] = [
             "required": [],
         },
     },
+    # ============ Summary Tools ============
     {
         "name": "rlm_store_summary",
         "description": "Store an LLM-generated summary for a document.",
@@ -394,6 +400,7 @@ TOOL_DEFINITIONS: list[dict] = [
             "required": [],
         },
     },
+    # ============ Shared Context Tools ============
     {
         "name": "rlm_shared_context",
         "description": "Get merged context from linked shared collections. Returns categorized docs with budget allocation.",
@@ -497,6 +504,7 @@ TOOL_DEFINITIONS: list[dict] = [
             "required": ["collection_id", "title", "content"],
         },
     },
+    # ============ Agent Memory Tools ============
     {
         "name": "rlm_remember",
         "description": "Store a memory for later semantic recall. Supports types: fact, decision, learning, preference, todo, context.",
@@ -659,6 +667,7 @@ TOOL_DEFINITIONS: list[dict] = [
             "required": [],
         },
     },
+    # ============ Multi-Agent Swarm Tools ============
     {
         "name": "rlm_swarm_create",
         "description": "Create a new agent swarm for multi-agent coordination.",
@@ -852,6 +861,10 @@ TOOL_DEFINITIONS: list[dict] = [
                     "description": "Task IDs this depends on",
                 },
                 "metadata": {"type": "object"},
+                "for_agent_id": {
+                    "type": "string",
+                    "description": "Pre-assign task to specific agent (task affinity). If set, only this agent can claim the task. Use agent's agentId string, not the DB id.",
+                },
             },
             "required": ["swarm_id", "agent_id", "title"],
         },
@@ -889,6 +902,10 @@ TOOL_DEFINITIONS: list[dict] = [
                                 "description": "Task IDs this depends on",
                             },
                             "metadata": {"type": "object"},
+                            "for_agent_id": {
+                                "type": "string",
+                                "description": "Pre-assign task to specific agent (task affinity)",
+                            },
                         },
                         "required": ["title"],
                     },
@@ -926,6 +943,7 @@ TOOL_DEFINITIONS: list[dict] = [
             "required": ["swarm_id", "agent_id", "task_id"],
         },
     },
+    # ============ Document Sync Tools ============
     {
         "name": "rlm_upload_document",
         "description": "Upload or update a document in the project. Supports .md, .txt, .mdx files.",
@@ -965,6 +983,7 @@ TOOL_DEFINITIONS: list[dict] = [
             "required": ["documents"],
         },
     },
+    # ============ RLM Orchestration Tools ============
     {
         "name": "rlm_load_document",
         "description": "Load raw document content by file path. Returns the full unprocessed content of a single document for RLM-style exploration where the model navigates raw content directly.",
@@ -1074,6 +1093,7 @@ Returns context_data (files + sections), setup_code (helper functions), and usag
             "required": [],
         },
     },
+    # ============ Pass-by-Reference Tools ============
     {
         "name": "rlm_get_chunk",
         "description": "Retrieve full content by chunk ID. Use with rlm_context_query(return_references=True) to fetch full content of specific sections. This pass-by-reference pattern reduces hallucination by maintaining clear source attribution.",

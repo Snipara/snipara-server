@@ -395,6 +395,11 @@ class TaskCreateParams(BaseModel):
     depends_on: list[str] = Field(
         default_factory=list, description="Task IDs that must complete first"
     )
+    for_agent_id: str | None = Field(
+        default=None,
+        description="Pre-assign task to specific agent (task affinity). "
+        "If set, only this agent can claim the task.",
+    )
 
 
 class TaskClaimParams(BaseModel):

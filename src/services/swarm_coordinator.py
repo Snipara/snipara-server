@@ -786,6 +786,7 @@ async def create_task(
     deadline: datetime | str | None = None,
     depends_on: list[str] | None = None,
     metadata: dict[str, Any] | None = None,
+    for_agent_id: str | None = None,
 ) -> dict[str, Any]:
     """Create a task in the swarm's queue.
 
@@ -798,6 +799,8 @@ async def create_task(
         deadline: Optional deadline (datetime or ISO string)
         depends_on: List of task IDs this task depends on
         metadata: Additional task metadata
+        for_agent_id: Pre-assign task to specific agent (task affinity).
+                      If set, only this agent can claim the task.
 
     Returns:
         Dict with task info
@@ -812,19 +815,37 @@ async def create_task(
         else:
             due_at = deadline
 
-    task = await db.swarmtask.create(
-        data={
-            "swarm": {"connect": {"id": swarm_id}},
-            "title": title,
-            "description": description,
-            "status": "PENDING",
-            "priority": priority,
-            "dueAt": due_at,
-            "dependsOn": depends_on or [],
-        }
-    )
+    # Build task data
+    task_data: dict[str, Any] = {
+        "swarm": {"connect": {"id": swarm_id}},
+        "title": title,
+        "description": description,
+        "status": "PENDING",
+        "priority": priority,
+        "dueAt": due_at,
+        "dependsOn": depends_on or [],
+    }
 
-    logger.info(f"Created task {task.id} in swarm {swarm_id}")
+    # Pre-assign to specific agent if for_agent_id is provided
+    assigned_agent_db_id = None
+    if for_agent_id:
+        # Find the agent's DB record (SwarmAgent.id, not the agentId string)
+        target_agent = await db.swarmagent.find_first(
+            where={
+                "swarmId": swarm_id,
+                "agentId": for_agent_id,
+                "isActive": True,
+            }
+        )
+        if target_agent:
+            task_data["agent"] = {"connect": {"id": target_agent.id}}
+            assigned_agent_db_id = target_agent.id
+        else:
+            logger.warning(f"for_agent_id '{for_agent_id}' not found in swarm {swarm_id}, task will be unassigned")
+
+    task = await db.swarmtask.create(data=task_data)
+
+    logger.info(f"Created task {task.id} in swarm {swarm_id}" + (f" for agent {for_agent_id}" if for_agent_id else ""))
 
     return {
         "success": True,
@@ -833,7 +854,9 @@ async def create_task(
         "priority": priority,
         "deadline": due_at.isoformat() if due_at else None,
         "depends_on": depends_on or [],
-        "message": "Task created",
+        "for_agent_id": for_agent_id,
+        "assigned": assigned_agent_db_id is not None,
+        "message": "Task created" + (f" for agent {for_agent_id}" if for_agent_id else ""),
     }
 
 
@@ -847,7 +870,8 @@ async def create_tasks_bulk(
     Args:
         swarm_id: The swarm ID
         agent_id: Agent creating the tasks
-        tasks: List of task objects with title, description, priority, deadline, depends_on, metadata
+        tasks: List of task objects with title, description, priority, deadline,
+               depends_on, metadata, for_agent_id
 
     Returns:
         Dict with created task IDs and stats
@@ -856,6 +880,19 @@ async def create_tasks_bulk(
 
     created_ids: list[str] = []
     failed: list[dict[str, Any]] = []
+
+    # Pre-fetch all target agents for task affinity (batch lookup)
+    target_agent_ids = {t.get("for_agent_id") for t in tasks if t.get("for_agent_id")}
+    agent_id_to_db_id: dict[str, str] = {}
+    if target_agent_ids:
+        target_agents = await db.swarmagent.find_many(
+            where={
+                "swarmId": swarm_id,
+                "agentId": {"in": list(target_agent_ids)},
+                "isActive": True,
+            }
+        )
+        agent_id_to_db_id = {a.agentId: a.id for a in target_agents}
 
     for i, task_data in enumerate(tasks):
         title = task_data.get("title", "")
@@ -873,17 +910,27 @@ async def create_tasks_bulk(
                 else:
                     due_at = deadline
 
-            task = await db.swarmtask.create(
-                data={
-                    "swarm": {"connect": {"id": swarm_id}},
-                    "title": title,
-                    "description": task_data.get("description"),
-                    "status": "PENDING",
-                    "priority": task_data.get("priority", 0),
-                    "dueAt": due_at,
-                    "dependsOn": task_data.get("depends_on") or [],
-                }
-            )
+            # Build task data
+            create_data: dict[str, Any] = {
+                "swarm": {"connect": {"id": swarm_id}},
+                "title": title,
+                "description": task_data.get("description"),
+                "status": "PENDING",
+                "priority": task_data.get("priority", 0),
+                "dueAt": due_at,
+                "dependsOn": task_data.get("depends_on") or [],
+            }
+
+            # Handle task affinity (for_agent_id)
+            for_agent_id = task_data.get("for_agent_id")
+            if for_agent_id:
+                db_id = agent_id_to_db_id.get(for_agent_id)
+                if db_id:
+                    create_data["agent"] = {"connect": {"id": db_id}}
+                else:
+                    logger.warning(f"for_agent_id '{for_agent_id}' not found for task {i}")
+
+            task = await db.swarmtask.create(data=create_data)
             created_ids.append(task.id)
         except Exception as e:
             failed.append({"index": i, "title": title, "error": str(e)})
@@ -909,6 +956,10 @@ async def claim_task(
 
     If task_id is not provided, claims the highest priority available task
     (one whose dependencies are all completed).
+
+    Task affinity rules:
+    - If task has assignedTo set (pre-assigned), only that agent can claim it
+    - If task has no assignedTo (null), any agent can claim it
 
     Args:
         swarm_id: The swarm ID
@@ -953,14 +1004,23 @@ async def claim_task(
                 "error": "Task not found or not available",
                 "task_id": None,
             }
+
+        # Check task affinity - agent can only claim if assigned to them or unassigned
+        if task.assignedTo is not None and task.assignedTo != agent.id:
+            return {
+                "success": False,
+                "error": "Task is assigned to another agent",
+                "task_id": task.id,
+                "assigned_to": task.assignedTo,
+            }
     else:
-        # Find available task (dependencies completed)
-        task = await _get_available_task(swarm_id)
+        # Find available task (dependencies completed + agent affinity filter)
+        task = await _get_available_task(swarm_id, agent_db_id=agent.id)
 
         if not task:
             return {
                 "success": False,
-                "error": "No available tasks",
+                "error": "No available tasks for this agent",
                 "task_id": None,
             }
 
@@ -997,6 +1057,7 @@ async def claim_task(
         "description": task.description,
         "priority": task.priority,
         "deadline": deadline.isoformat(),
+        "was_preassigned": task.assignedTo is not None,
         "message": "Task claimed",
     }
 
@@ -1140,16 +1201,36 @@ async def list_tasks(
     }
 
 
-async def _get_available_task(swarm_id: str):
-    """Get highest priority task with all dependencies completed."""
+async def _get_available_task(swarm_id: str, agent_db_id: str | None = None):
+    """Get highest priority task with all dependencies completed.
+
+    Task affinity rules:
+    - If task has assignedTo set, only that agent can claim it
+    - If task has no assignedTo (null), any agent can claim it
+
+    Args:
+        swarm_id: The swarm ID
+        agent_db_id: The claiming agent's DB ID (SwarmAgent.id).
+                     If provided, filters to tasks assigned to this agent OR unassigned tasks.
+    """
     db = await get_db()
+
+    # Build where clause with agent affinity filter
+    where_clause: dict[str, Any] = {
+        "swarmId": swarm_id,
+        "status": "PENDING",
+    }
+
+    # Apply agent affinity filter: agent can only claim tasks assigned to them OR unassigned
+    if agent_db_id:
+        where_clause["OR"] = [
+            {"assignedTo": agent_db_id},  # Tasks assigned to this agent
+            {"assignedTo": None},          # Unassigned tasks (any agent can claim)
+        ]
 
     # Get all pending tasks ordered by priority
     pending_tasks = await db.swarmtask.find_many(
-        where={
-            "swarmId": swarm_id,
-            "status": "PENDING",
-        },
+        where=where_clause,
         order=[{"priority": "desc"}, {"createdAt": "asc"}],
     )
 
