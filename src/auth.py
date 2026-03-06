@@ -91,6 +91,12 @@ async def validate_api_key(api_key: str, project_id_or_slug: str) -> dict | None
         # Use access level from API key record (defaults to EDITOR in DB)
         access_level = api_key_record.accessLevel if api_key_record.accessLevel else "EDITOR"
 
+        # Check if this project belongs to an integrator client (for PARTNER rate limits)
+        integrator_client = await db.integratorclient.find_first(
+            where={"projectId": api_key_record.projectId}
+        )
+        is_integrator_project = integrator_client is not None
+
         return {
             "id": api_key_record.id,
             "name": api_key_record.name,
@@ -99,6 +105,7 @@ async def validate_api_key(api_key: str, project_id_or_slug: str) -> dict | None
             "project": api_key_record.project,
             "access_level": access_level,
             "access_denied": False,
+            "is_integrator_project": is_integrator_project,
         }
 
     # If no project key found, try team API key
@@ -160,6 +167,12 @@ async def validate_api_key(api_key: str, project_id_or_slug: str) -> dict | None
         team_key_record.userId, project.id, project.teamId
     )
 
+    # Check if this project belongs to an integrator client (for PARTNER rate limits)
+    integrator_client = await db.integratorclient.find_first(
+        where={"projectId": project.id}
+    )
+    is_integrator_project = integrator_client is not None
+
     # Return team key info with project and access level attached
     return {
         "id": team_key_record.id,
@@ -170,6 +183,7 @@ async def validate_api_key(api_key: str, project_id_or_slug: str) -> dict | None
         "auth_type": "team_key",
         "access_level": access_level,
         "access_denied": access_denied,
+        "is_integrator_project": is_integrator_project,
     }
 
 
@@ -422,6 +436,12 @@ async def validate_oauth_token(token: str, project_id_or_slug: str) -> dict | No
     # mcp:write scope grants EDITOR, mcp:read grants VIEWER
     oauth_access_level = "EDITOR" if "mcp:write" in (oauth_token.scope or "") else "VIEWER"
 
+    # Check if this project belongs to an integrator client (for PARTNER rate limits)
+    integrator_client = await db.integratorclient.find_first(
+        where={"projectId": oauth_token.projectId}
+    )
+    is_integrator_project = integrator_client is not None
+
     return {
         "id": oauth_token.id,
         "user_id": oauth_token.userId,
@@ -431,6 +451,7 @@ async def validate_oauth_token(token: str, project_id_or_slug: str) -> dict | No
         "auth_type": "oauth",
         "access_level": oauth_access_level,
         "access_denied": False,
+        "is_integrator_project": is_integrator_project,
     }
 
 

@@ -91,8 +91,14 @@ async def validate_request(
     plan = get_effective_plan(project.team.subscription if project.team else None)
 
     # Use PARTNER rate limits for integrator clients (higher limits for heavy polling)
+    # This applies both when:
+    # 1. Using snipara_ic_* client API key (auth_type == "integrator_client")
+    # 2. Using regular rlm_* API key on a project that belongs to an integrator client
     rate_limit_plan = plan.value
     if auth_info.get("auth_type") == "integrator_client":
+        rate_limit_plan = "PARTNER"
+    elif auth_info.get("is_integrator_project"):
+        # Regular API key on an integrator project also gets PARTNER limits
         rate_limit_plan = "PARTNER"
 
     # Check rate limit with plan-based limits
