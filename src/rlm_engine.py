@@ -6450,10 +6450,11 @@ print(f"[Snipara] {len(context.get('files', {}))} files loaded. Helpers: peek, g
         """
         from src.services.index_health import compute_index_health
 
+        db = await get_db()
         stale_threshold_days = params.get("stale_threshold_days", 30)
 
         health = await compute_index_health(
-            self.db,
+            db,
             self.project_id,
             stale_threshold_days=stale_threshold_days,
         )
@@ -6472,9 +6473,10 @@ print(f"[Snipara] {len(context.get('files', {}))} files loaded. Helpers: peek, g
         """
         from src.services.index_health import compute_index_health, get_index_recommendations
 
+        db = await get_db()
         # Compute health first if not cached
-        health = await compute_index_health(self.db, self.project_id)
-        recommendations = await get_index_recommendations(self.db, self.project_id, health)
+        health = await compute_index_health(db, self.project_id)
+        recommendations = await get_index_recommendations(db, self.project_id, health)
 
         return ToolResult(
             data={
@@ -6495,10 +6497,11 @@ print(f"[Snipara] {len(context.get('files', {}))} files loaded. Helpers: peek, g
         """
         from src.services.search_analytics import compute_search_analytics
 
+        db = await get_db()
         days = params.get("days", 30)
 
         analytics = await compute_search_analytics(
-            self.db,
+            db,
             self.project_id,
             days=days,
         )
@@ -6517,11 +6520,12 @@ print(f"[Snipara] {len(context.get('files', {}))} files loaded. Helpers: peek, g
         """
         from src.services.search_analytics import get_query_trends
 
+        db = await get_db()
         days = params.get("days", 7)
         granularity = params.get("granularity", "hour")
 
         trends = await get_query_trends(
-            self.db,
+            db,
             self.project_id,
             days=days,
             granularity=granularity,
