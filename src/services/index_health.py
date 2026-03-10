@@ -169,13 +169,13 @@ async def compute_index_health(
         where={"projectId": project_id, "deletedAt": None}
     )
 
-    # Get documents with their chunk info
+    # Get documents with their chunk IDs (for counting)
     docs_with_chunks = await db.document.find_many(
         where={"projectId": project_id, "deletedAt": None},
-        include={"_count": {"select": {"chunks": True}}},
+        include={"chunks": {"select": {"id": True}}},
     )
 
-    indexed_docs = sum(1 for d in docs_with_chunks if d._count["chunks"] > 0)
+    indexed_docs = sum(1 for d in docs_with_chunks if len(d.chunks) > 0)
     unindexed_docs = total_docs - indexed_docs
 
     # Get all chunks for this project
@@ -225,9 +225,10 @@ async def compute_index_health(
     stale_documents: list[StaleDocument] = []
 
     for doc in docs_with_chunks:
-        chunk_count = doc._count["chunks"]
+        chunk_count = len(doc.chunks)
         reason = None
         days_stale = 0
+        latest_chunk = None
 
         # No chunks = definitely stale
         if chunk_count == 0:
@@ -266,7 +267,7 @@ async def compute_index_health(
                     id=doc.id,
                     path=doc.path,
                     reason=reason,
-                    last_indexed=latest_chunk.createdAt if chunk_count > 0 else None,
+                    last_indexed=latest_chunk.createdAt if latest_chunk else None,
                     days_stale=days_stale,
                     chunk_count=chunk_count,
                     avg_quality=avg_q,
