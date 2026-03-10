@@ -188,9 +188,10 @@ async def compute_index_health(
     total_chunks = len(chunks)
 
     # Tier distribution
+    # Note: tier and qualityScore may not exist in schema yet, use getattr with defaults
     tier_dist = TierDistribution()
     for c in chunks:
-        tier = c.tier or "WARM"
+        tier = getattr(c, "tier", None) or "WARM"
         if tier == "HOT":
             tier_dist.hot += 1
         elif tier == "WARM":
@@ -204,7 +205,7 @@ async def compute_index_health(
     quality_dist = QualityDistribution()
     total_quality = 0.0
     for c in chunks:
-        score = c.qualityScore or 0.5
+        score = getattr(c, "qualityScore", None) or 0.5
         total_quality += score
         if score >= 0.8:
             quality_dist.high += 1
@@ -250,9 +251,9 @@ async def compute_index_health(
 
         if reason:
             # Get average quality for this doc's chunks
-            doc_chunks = [c for c in chunks if c.documentId == doc.id]
+            doc_chunks = [c for c in chunks if getattr(c, "documentId", None) == doc.id]
             avg_q = (
-                sum(c.qualityScore or 0.5 for c in doc_chunks) / len(doc_chunks)
+                sum(getattr(c, "qualityScore", 0.5) or 0.5 for c in doc_chunks) / len(doc_chunks)
                 if doc_chunks
                 else 0.0
             )
