@@ -257,7 +257,7 @@ async def check_ip_rate_limit(client_ip: str) -> bool:
         window = _local_ip_rate_limits[client_ip]
         window[:] = [t for t in window if now - t < settings.ip_rate_limit_window]
         if len(window) >= settings.ip_rate_limit_requests:
-            logger.warning(f"IP rate limit exceeded for {client_ip}")
+            logger.debug(f"IP rate limit exceeded for {client_ip}")
             return False
         window.append(now)
         return True
@@ -272,7 +272,7 @@ async def check_ip_rate_limit(client_ip: str) -> bool:
 
         count = int(count)
         if count >= settings.ip_rate_limit_requests:
-            logger.warning(f"IP rate limit exceeded for {client_ip}")
+            logger.debug(f"IP rate limit exceeded for {client_ip}")
             return False
 
         await r.incr(key)
