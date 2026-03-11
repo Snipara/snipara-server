@@ -423,7 +423,7 @@ async def semantic_recall(
     # Get all matching memories
     memories = await db.agentmemory.find_many(
         where=where,
-        order={"createdAt": "desc"},
+        order_by={"createdAt": "desc"},
         take=500,  # Limit to prevent huge queries
     )
 
@@ -689,7 +689,7 @@ async def list_memories(
     # Get memories
     memories = await db.agentmemory.find_many(
         where=where,
-        order={sort_field: order_direction},
+        order_by={sort_field: order_direction},
         skip=offset,
         take=limit,
     )

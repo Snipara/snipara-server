@@ -1179,7 +1179,7 @@ async def list_tasks(
 
     tasks = await db.swarmtask.find_many(
         where=where,
-        order=[{"priority": "desc"}, {"createdAt": "asc"}],
+        order_by=[{"priority": "desc"}, {"createdAt": "asc"}],
         take=limit,
     )
 
@@ -1231,7 +1231,7 @@ async def _get_available_task(swarm_id: str, agent_db_id: str | None = None):
     # Get all pending tasks ordered by priority
     pending_tasks = await db.swarmtask.find_many(
         where=where_clause,
-        order=[{"priority": "desc"}, {"createdAt": "asc"}],
+        order_by=[{"priority": "desc"}, {"createdAt": "asc"}],
     )
 
     for task in pending_tasks:

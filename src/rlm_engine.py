@@ -533,7 +533,7 @@ class RLMEngine:
         # Exclude soft-deleted documents
         documents = await db.document.find_many(
             where={"projectId": self.project_id, "deletedAt": None},
-            order={"path": "asc"},
+            order_by={"path": "asc"},
         )
 
         self.index = DocumentationIndex()
@@ -746,7 +746,7 @@ class RLMEngine:
             where={
                 "projectId": self.project_id,
             },
-            order={"createdAt": "asc"},
+            order_by={"createdAt": "asc"},
         )
 
         if context_entries:
@@ -3823,7 +3823,7 @@ Rationale: {decision.rationale}"""
         summaries = await db.documentsummary.find_many(
             where=where_clause,
             include={"document": True},
-            order={"createdAt": "desc"},
+            order_by={"createdAt": "desc"},
         )
 
         # Build response

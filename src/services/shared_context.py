@@ -99,7 +99,7 @@ async def load_team_context_for_project(project_id: str) -> list[SharedDocument]
             "teamId": project.teamId,
             "isActive": True,
         },
-        order={"priority": "desc"},
+        order_by={"priority": "desc"},
     )
 
     documents: list[SharedDocument] = []
@@ -160,7 +160,7 @@ async def load_project_shared_context(project_id: str) -> SharedContext:
                 }
             }
         },
-        order={"priority": "asc"},
+        order_by={"priority": "asc"},
     )
 
     documents: list[SharedDocument] = []
@@ -502,7 +502,7 @@ async def get_shared_mcp_config(project_id: str) -> dict | None:
                 }
             }
         },
-        order={"priority": "asc"},
+        order_by={"priority": "asc"},
     )
 
     merged_config: dict = {
@@ -572,7 +572,7 @@ async def get_shared_prompt_templates(
                 }
             }
         },
-        order={"priority": "asc"},
+        order_by={"priority": "asc"},
     )
 
     templates: list[dict] = []
@@ -640,7 +640,7 @@ async def list_shared_collections(
             "team": {"select": {"name": True}},
             "_count": {"select": {"documents": True, "projectLinks": True}},
         },
-        order={"updatedAt": "desc"},
+        order_by={"updatedAt": "desc"},
     )
 
     result = []

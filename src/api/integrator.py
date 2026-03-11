@@ -569,7 +569,7 @@ async def list_clients(
         include={"project": True},
         take=limit,
         skip=offset,
-        order={"createdAt": "desc"},
+        order_by={"createdAt": "desc"},
     )
 
     total = await db.integratorclient.count(where=where_clause)
@@ -926,7 +926,7 @@ async def list_api_keys(
 
     api_keys = await db.clientapikey.find_many(
         where={"clientId": client_id},
-        order={"createdAt": "desc"},
+        order_by={"createdAt": "desc"},
     )
 
     return {

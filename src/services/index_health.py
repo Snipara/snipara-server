@@ -236,7 +236,7 @@ async def compute_index_health(
             # Get latest chunk for this document
             latest_chunk = await db.documentchunk.find_first(
                 where={"documentId": doc.id},
-                order={"createdAt": "desc"},
+                order_by={"createdAt": "desc"},
             )
             if latest_chunk and doc.updatedAt > latest_chunk.createdAt:
                 reason = "outdated_chunks"
@@ -278,7 +278,7 @@ async def compute_index_health(
     # Get last index job
     last_job = await db.indexjob.find_first(
         where={"projectId": project_id},
-        order={"createdAt": "desc"},
+        order_by={"createdAt": "desc"},
     )
 
     # Compute health score (0-100)

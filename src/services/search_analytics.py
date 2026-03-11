@@ -188,7 +188,7 @@ async def compute_search_analytics(
             "projectId": project_id,
             "createdAt": {"gte": period_start},
         },
-        order={"createdAt": "desc"},
+        order_by={"createdAt": "desc"},
     )
 
     total_queries = len(queries)
@@ -378,12 +378,12 @@ async def get_query_trends(
     now = datetime.now(tz=UTC)
     period_start = now - timedelta(days=days)
 
-    # Note: Prisma Python doesn't support select like Prisma JS
     queries = await db.query.find_many(
         where={
             "projectId": project_id,
             "createdAt": {"gte": period_start},
         },
+        select={"createdAt": True, "success": True, "latencyMs": True},
     )
 
     # Bucket by granularity
@@ -435,6 +435,7 @@ async def get_top_queries(
             "projectId": project_id,
             "createdAt": {"gte": period_start},
         },
+        select={"tool": True, "success": True, "latencyMs": True},
     )
 
     # Aggregate by tool (since we don't store query text)
