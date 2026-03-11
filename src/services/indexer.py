@@ -15,6 +15,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
 from .embeddings import get_embeddings_service
+from .chunk_quality import compute_chunk_quality
 
 if TYPE_CHECKING:
     from prisma import Prisma
@@ -83,11 +84,20 @@ class DocumentIndexer:
         # Insert chunks with embeddings using raw SQL (for vector type)
         for chunk, embedding in zip(chunks, embeddings):
             embedding_str = "[" + ",".join(str(x) for x in embedding) + "]"
+
+            # Compute quality score at index time
+            quality = compute_chunk_quality(
+                content=chunk.content,
+                updated_at=document.updatedAt,
+                is_truncated=False,  # Will be True if chunk was force-split
+            )
+
             await self.db.execute_raw(
                 """
                 INSERT INTO document_chunks
-                (id, content, embedding, "startLine", "endLine", "tokenCount", title, "createdAt", "documentId")
-                VALUES (gen_random_uuid()::text, $1, $2::vector, $3, $4, $5, $6, NOW(), $7)
+                (id, content, embedding, "startLine", "endLine", "tokenCount", title, "createdAt", "documentId",
+                 "qualityScore", "isComplete", "isTruncated")
+                VALUES (gen_random_uuid()::text, $1, $2::vector, $3, $4, $5, $6, NOW(), $7, $8, $9, $10)
                 """,
                 chunk.content,
                 embedding_str,
@@ -96,6 +106,9 @@ class DocumentIndexer:
                 chunk.token_count,
                 chunk.title,
                 document_id,
+                quality.score,
+                quality.completeness > 0.8,
+                quality.completeness < 0.5,
             )
 
         logger.info(f"Indexed document {document.path}: {len(chunks)} chunks")
@@ -181,6 +194,8 @@ class DocumentIndexer:
         query: str,
         limit: int = 10,
         min_similarity: float = 0.3,
+        tier_filter: list[str] | None = None,
+        track_access: bool = True,
     ) -> dict[str, Any]:
         """
         Search for chunks similar to the query using cosine similarity.
@@ -190,6 +205,9 @@ class DocumentIndexer:
             query: The search query.
             limit: Maximum number of results.
             min_similarity: Minimum cosine similarity (0-1).
+            tier_filter: Optional list of tiers to include (e.g., ["HOT", "WARM"]).
+                         If None, searches all tiers.
+            track_access: Whether to update chunk access stats (default: True).
 
         Returns:
             Dict with 'results' (list of matching chunks) and 'timing' (performance metrics).
@@ -201,10 +219,16 @@ class DocumentIndexer:
 
         embedding_str = "[" + ",".join(str(x) for x in query_embedding) + "]"
 
+        # Build tier filter clause
+        tier_clause = ""
+        if tier_filter:
+            tiers_str = ", ".join(f"'{t}'" for t in tier_filter)
+            tier_clause = f"AND dc.tier IN ({tiers_str})"
+
         # Time vector search query
         search_start = time.perf_counter()
         results = await self.db.query_raw(
-            """
+            f"""
             SELECT
                 dc.id,
                 dc.content,
@@ -212,12 +236,14 @@ class DocumentIndexer:
                 dc."endLine",
                 dc."tokenCount",
                 dc.title,
+                dc.tier,
                 d.path as file_path,
                 1 - (dc.embedding <=> $1::vector) as similarity
             FROM document_chunks dc
             JOIN documents d ON dc."documentId" = d.id
             WHERE d."projectId" = $2
               AND 1 - (dc.embedding <=> $1::vector) >= $3
+              {tier_clause}
             ORDER BY dc.embedding <=> $1::vector
             LIMIT $4
             """,
@@ -228,9 +254,22 @@ class DocumentIndexer:
         )
         search_ms = int((time.perf_counter() - search_start) * 1000)
 
+        # Track chunk access for tier promotion (fire and forget)
+        if track_access and results:
+            import asyncio
+            from src.services.tier_manager import batch_update_chunk_access
+
+            chunk_relevance_pairs = [
+                (row["id"], float(row["similarity"])) for row in results
+            ]
+            asyncio.create_task(
+                batch_update_chunk_access(self.db, chunk_relevance_pairs)
+            )
+
         # Log timing for monitoring
+        tier_info = f" tiers={tier_filter}" if tier_filter else ""
         logger.info(
-            f"vector_search: project={project_id} results={len(results)} "
+            f"vector_search: project={project_id} results={len(results)}{tier_info} "
             f"embed_ms={embed_ms} search_ms={search_ms} total_ms={embed_ms + search_ms}"
         )
 
@@ -243,6 +282,7 @@ class DocumentIndexer:
                     "end_line": row["endLine"],
                     "token_count": row["tokenCount"],
                     "title": row["title"],
+                    "tier": row["tier"],
                     "file_path": row["file_path"],
                     "similarity": float(row["similarity"]),
                 }

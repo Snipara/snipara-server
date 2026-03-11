@@ -147,6 +147,17 @@ class ContextQueryResult(BaseModel):
         default_factory=list,
         description="Sub-queries used when decomposed=True",
     )
+    # Decision log metadata (Phase 15)
+    decisions_included: int = Field(
+        default=0,
+        ge=0,
+        description="Number of active CRITICAL/HIGH impact decisions auto-included in context",
+    )
+    decision_tokens: int = Field(
+        default=0,
+        ge=0,
+        description="Number of tokens from auto-included decisions",
+    )
 
 
 # ============ RECURSIVE CONTEXT MODELS (Phase 4.5) ============
