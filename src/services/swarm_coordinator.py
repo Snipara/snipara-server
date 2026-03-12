@@ -253,9 +253,12 @@ async def get_swarm_info(swarm_id: str) -> dict[str, Any]:
     agents = [
         {
             "agent_id": a.agentId,
-            "role": a.role.lower(),
-            "capabilities": a.capabilities,
-            "last_seen": a.lastSeenAt.isoformat() if a.lastSeenAt else None,
+            "name": a.name,
+            "is_active": a.isActive,
+            "last_heartbeat": a.lastHeartbeat.isoformat() if a.lastHeartbeat else None,
+            "tasks_completed": a.tasksCompleted,
+            "tasks_failed": a.tasksFailed,
+            "joined_at": a.joinedAt.isoformat() if a.joinedAt else None,
         }
         for a in swarm.agents
     ]

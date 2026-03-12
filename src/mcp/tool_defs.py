@@ -1129,8 +1129,9 @@ Use this to:
 - Rebalance workload across agents
 - Recover tasks from crashed agents
 
-Only PENDING or CLAIMED tasks can be reassigned.
-IN_PROGRESS and COMPLETED tasks cannot be reassigned.""",
+PENDING and CLAIMED tasks can always be reassigned.
+IN_PROGRESS tasks require force=true (admin override).
+COMPLETED/FAILED tasks cannot be reassigned.""",
         "inputSchema": {
             "type": "object",
             "properties": {
@@ -1145,6 +1146,11 @@ IN_PROGRESS and COMPLETED tasks cannot be reassigned.""",
                 "new_agent_id": {
                     "type": "string",
                     "description": "Agent ID to assign the task to (or null to unassign)",
+                },
+                "force": {
+                    "type": "boolean",
+                    "default": False,
+                    "description": "Force reassign even if task is IN_PROGRESS (admin only)",
                 },
             },
             "required": ["swarm_id", "task_id"],

@@ -5516,6 +5516,7 @@ Rationale: {decision.rationale}"""
         swarm_id = params.get("swarm_id", "")
         task_id = params.get("task_id", "")
         new_agent_id = params.get("new_agent_id")
+        force = params.get("force", False)
 
         if not swarm_id or not task_id:
             missing = []
@@ -5543,10 +5544,21 @@ Rationale: {decision.rationale}"""
                 output_tokens=0,
             )
 
-        # Check task status - can only reassign PENDING or CLAIMED tasks
-        if task.status not in ["PENDING", "CLAIMED"]:
+        # Check task status - normally can only reassign PENDING or CLAIMED tasks
+        # With force=True (admin), can also reassign IN_PROGRESS tasks
+        allowed_statuses = ["PENDING", "CLAIMED"]
+        if force:
+            allowed_statuses.append("IN_PROGRESS")
+
+        if task.status not in allowed_statuses:
+            if task.status == "IN_PROGRESS":
+                return ToolResult(
+                    data={"error": f"Cannot reassign IN_PROGRESS task. Use force=true to override (admin only)."},
+                    input_tokens=0,
+                    output_tokens=0,
+                )
             return ToolResult(
-                data={"error": f"Cannot reassign task with status '{task.status}'. Only PENDING or CLAIMED tasks can be reassigned."},
+                data={"error": f"Cannot reassign task with status '{task.status}'. Only PENDING, CLAIMED, or IN_PROGRESS (with force=true) tasks can be reassigned."},
                 input_tokens=0,
                 output_tokens=0,
             )
