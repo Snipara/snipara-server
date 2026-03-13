@@ -613,7 +613,6 @@ async def _get_user_team_ids(user_id: str) -> list[str]:
     db = await get_db()
     memberships = await db.teammember.find_many(
         where={"userId": user_id},
-        select={"teamId": True},
     )
     return [m.teamId for m in memberships]
 
@@ -655,12 +654,13 @@ async def list_shared_collections(
         or_conditions.append({"isPublic": True})
 
     # Query collections without _count (not supported in prisma-client-py)
+    # Note: prisma-client-py doesn't support nested select in include
     collections = await db.sharedcontextcollection.find_many(
         where={"OR": or_conditions},
         include={
-            "team": {"select": {"name": True}},
-            "documents": {"select": {"id": True}},
-            "projectLinks": {"select": {"id": True}},
+            "team": True,
+            "documents": True,
+            "projectLinks": True,
         },
         order={"updatedAt": "desc"},
     )
