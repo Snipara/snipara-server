@@ -80,6 +80,7 @@ TOOL_TIERS: dict[str, ToolTier] = {
     "rlm_repl_context": ToolTier.ADVANCED,
     "rlm_upload_document": ToolTier.ADVANCED,
     "rlm_sync_documents": ToolTier.ADVANCED,
+    "rlm_request_access": ToolTier.UTILITY,  # Request access to a project
     "rlm_swarm_create": ToolTier.ADVANCED,
     "rlm_swarm_join": ToolTier.ADVANCED,
     "rlm_claim": ToolTier.ADVANCED,
