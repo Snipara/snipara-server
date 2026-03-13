@@ -1284,6 +1284,30 @@ COMPLETED/FAILED tasks cannot be reassigned.""",
             "required": ["documents"],
         },
     },
+    {
+        "name": "rlm_request_access",
+        "description": """Request access to a project.
+
+Allows team members with NONE access level to request higher access levels
+(VIEWER, EDITOR, ADMIN) from project admins. Creates an access request that
+admins can approve or deny via the dashboard.""",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "requested_level": {
+                    "type": "string",
+                    "enum": ["VIEWER", "EDITOR", "ADMIN"],
+                    "default": "VIEWER",
+                    "description": "The access level to request",
+                },
+                "reason": {
+                    "type": "string",
+                    "description": "Optional reason for requesting access",
+                },
+            },
+            "required": [],
+        },
+    },
     # ============ RLM Orchestration Tools ============
     {
         "name": "rlm_load_document",
