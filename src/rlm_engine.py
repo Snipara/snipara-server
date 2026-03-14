@@ -932,6 +932,8 @@ class RLMEngine:
             ToolName.RLM_SWARM_MEMBERS: self._handle_swarm_members,
             ToolName.RLM_SWARM_UPDATE: self._handle_swarm_update,
             ToolName.RLM_TASK_REASSIGN: self._handle_task_reassign,
+            ToolName.RLM_TASK_DELETE: self._handle_task_delete,
+            ToolName.RLM_TASK_UPDATE: self._handle_task_update,
             # Phase 10: Document Sync Tools
             ToolName.RLM_UPLOAD_DOCUMENT: self._handle_upload_document,
             ToolName.RLM_SYNC_DOCUMENTS: self._handle_sync_documents,
@@ -5729,6 +5731,166 @@ Rationale: {decision.rationale}"""
                 "id": updated.id,
                 "title": updated.title,
                 "status": updated.status,
+            },
+        }
+
+        return ToolResult(
+            data=result,
+            input_tokens=0,
+            output_tokens=count_tokens(str(result)),
+        )
+
+    async def _handle_task_delete(self, params: dict[str, Any]) -> ToolResult:
+        """
+        Handle rlm_task_delete - delete a task from a swarm (admin only).
+
+        Args:
+            params: Dict containing:
+                - swarm_id: Swarm ID (required)
+                - task_id: Task ID to delete (required)
+                - force: Force delete even if COMPLETED/IN_PROGRESS (optional)
+
+        Returns:
+            ToolResult with deletion status
+        """
+        swarm_id = params.get("swarm_id", "")
+        task_id = params.get("task_id", "")
+        force = params.get("force", False)
+
+        if not swarm_id or not task_id:
+            missing = []
+            if not swarm_id:
+                missing.append("swarm_id")
+            if not task_id:
+                missing.append("task_id")
+            err = f"rlm_task_delete: missing required parameter(s): {', '.join(missing)}"
+            return ToolResult(data={"error": err}, input_tokens=0, output_tokens=0)
+
+        db = await get_db()
+
+        # Get the task
+        task = await db.swarmtask.find_first(
+            where={"id": task_id, "swarmId": swarm_id}
+        )
+
+        if not task:
+            return ToolResult(
+                data={"error": f"Task '{task_id}' not found in swarm '{swarm_id}'"},
+                input_tokens=0,
+                output_tokens=0,
+            )
+
+        # Check task status - normally can only delete PENDING, FAILED, CANCELLED
+        allowed_statuses = ["PENDING", "FAILED", "CANCELLED"]
+        if force:
+            allowed_statuses.extend(["COMPLETED", "IN_PROGRESS", "CLAIMED"])
+
+        if task.status not in allowed_statuses:
+            err = f"Cannot delete task with status '{task.status}'. Use force=true."
+            return ToolResult(data={"error": err}, input_tokens=0, output_tokens=0)
+
+        # Delete the task
+        await db.swarmtask.delete(where={"id": task_id})
+
+        result = {
+            "success": True,
+            "task_id": task_id,
+            "title": task.title,
+            "status": task.status,
+            "message": f"Task '{task.title}' deleted successfully",
+        }
+
+        return ToolResult(
+            data=result,
+            input_tokens=0,
+            output_tokens=count_tokens(str(result)),
+        )
+
+    async def _handle_task_update(self, params: dict[str, Any]) -> ToolResult:
+        """
+        Handle rlm_task_update - update task properties (admin only).
+
+        Args:
+            params: Dict containing:
+                - swarm_id: Swarm ID (required)
+                - task_id: Task ID to update (required)
+                - title: New title (optional)
+                - description: New description (optional)
+                - priority: New priority (optional)
+                - status: New status (optional)
+                - metadata: New metadata (optional)
+
+        Returns:
+            ToolResult with update status
+        """
+        swarm_id = params.get("swarm_id", "")
+        task_id = params.get("task_id", "")
+
+        if not swarm_id or not task_id:
+            missing = []
+            if not swarm_id:
+                missing.append("swarm_id")
+            if not task_id:
+                missing.append("task_id")
+            err = f"rlm_task_update: missing required parameter(s): {', '.join(missing)}"
+            return ToolResult(data={"error": err}, input_tokens=0, output_tokens=0)
+
+        db = await get_db()
+
+        # Get the task
+        task = await db.swarmtask.find_first(
+            where={"id": task_id, "swarmId": swarm_id}
+        )
+
+        if not task:
+            return ToolResult(
+                data={"error": f"Task '{task_id}' not found in swarm '{swarm_id}'"},
+                input_tokens=0,
+                output_tokens=0,
+            )
+
+        # Build update data from provided params
+        update_data: dict[str, Any] = {}
+
+        if "title" in params:
+            update_data["title"] = params["title"]
+
+        if "description" in params:
+            update_data["description"] = params["description"]
+
+        if "priority" in params:
+            update_data["priority"] = int(params["priority"])
+
+        if "status" in params:
+            new_status = params["status"].upper()
+            valid = ["PENDING", "IN_PROGRESS", "COMPLETED", "FAILED", "CANCELLED", "CLAIMED"]
+            if new_status not in valid:
+                err = f"Invalid status '{new_status}'. Valid: {', '.join(valid)}"
+                return ToolResult(data={"error": err}, input_tokens=0, output_tokens=0)
+            update_data["status"] = new_status
+            # Set completedAt if marking as completed/failed
+            if new_status in ["COMPLETED", "FAILED"]:
+                update_data["completedAt"] = datetime.now(timezone.utc)
+
+        if not update_data:
+            err = "No fields to update. Provide: title, description, priority, or status"
+            return ToolResult(data={"error": err}, input_tokens=0, output_tokens=0)
+
+        # Update the task
+        updated = await db.swarmtask.update(
+            where={"id": task_id},
+            data=update_data,
+        )
+
+        result = {
+            "success": True,
+            "task_id": task_id,
+            "updated_fields": list(update_data.keys()),
+            "task": {
+                "id": updated.id,
+                "title": updated.title,
+                "status": updated.status,
+                "priority": updated.priority,
             },
         }
 

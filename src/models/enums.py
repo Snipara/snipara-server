@@ -60,6 +60,8 @@ class ToolName(StrEnum):
     RLM_SWARM_MEMBERS = "rlm_swarm_members"  # List agents in swarm
     RLM_SWARM_UPDATE = "rlm_swarm_update"  # Update swarm config
     RLM_TASK_REASSIGN = "rlm_task_reassign"  # Reassign task to different agent
+    RLM_TASK_DELETE = "rlm_task_delete"  # Delete a task (admin only)
+    RLM_TASK_UPDATE = "rlm_task_update"  # Update task properties (admin only)
     # Phase 10: Document Sync Tools
     RLM_UPLOAD_DOCUMENT = "rlm_upload_document"
     RLM_SYNC_DOCUMENTS = "rlm_sync_documents"

@@ -100,6 +100,8 @@ TOOL_TIERS: dict[str, ToolTier] = {
     "rlm_swarm_members": ToolTier.ADVANCED,  # List agents in swarm
     "rlm_swarm_update": ToolTier.ADVANCED,  # Update swarm config (ADMIN)
     "rlm_task_reassign": ToolTier.ADVANCED,  # Reassign task
+    "rlm_task_delete": ToolTier.ADVANCED,  # Delete task (admin only)
+    "rlm_task_update": ToolTier.ADVANCED,  # Update task (admin only)
     # POWER_USER - Decision Log
     "rlm_decision_create": ToolTier.POWER_USER,
     "rlm_decision_query": ToolTier.POWER_USER,
@@ -1240,6 +1242,80 @@ COMPLETED/FAILED tasks cannot be reassigned.""",
                     "type": "boolean",
                     "default": False,
                     "description": "Force reassign even if task is IN_PROGRESS (admin only)",
+                },
+            },
+            "required": ["swarm_id", "task_id"],
+        },
+    },
+    {
+        "name": "rlm_task_delete",
+        "description": """Delete a task from a swarm (admin only).
+
+Use this to:
+- Remove cancelled or obsolete tasks
+- Clean up test tasks
+- Remove erroneously created tasks
+
+Only PENDING, FAILED, or CANCELLED tasks can be deleted.
+COMPLETED and IN_PROGRESS tasks cannot be deleted (use force=true to override).""",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "swarm_id": {
+                    "type": "string",
+                    "description": "Swarm ID",
+                },
+                "task_id": {
+                    "type": "string",
+                    "description": "Task ID to delete",
+                },
+                "force": {
+                    "type": "boolean",
+                    "default": False,
+                    "description": "Force delete even if task is COMPLETED or IN_PROGRESS (admin only)",
+                },
+            },
+            "required": ["swarm_id", "task_id"],
+        },
+    },
+    {
+        "name": "rlm_task_update",
+        "description": """Update task properties (admin only).
+
+Modifiable fields:
+- title: Task title
+- description: Task description
+- priority: Task priority (higher = more urgent)
+- status: Task status (PENDING, IN_PROGRESS, COMPLETED, FAILED, CANCELLED)
+
+Note: Changing status to COMPLETED/FAILED sets completedAt automatically.""",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "swarm_id": {
+                    "type": "string",
+                    "description": "Swarm ID",
+                },
+                "task_id": {
+                    "type": "string",
+                    "description": "Task ID to update",
+                },
+                "title": {
+                    "type": "string",
+                    "description": "New task title",
+                },
+                "description": {
+                    "type": "string",
+                    "description": "New task description",
+                },
+                "priority": {
+                    "type": "integer",
+                    "description": "New priority (higher = more urgent)",
+                },
+                "status": {
+                    "type": "string",
+                    "enum": ["PENDING", "IN_PROGRESS", "COMPLETED", "FAILED", "CANCELLED"],
+                    "description": "New task status",
                 },
             },
             "required": ["swarm_id", "task_id"],
