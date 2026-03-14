@@ -267,7 +267,7 @@ async def _tier_demotion_loop() -> None:
                 SET tier = 'WARM'
                 WHERE tier = 'HOT'
                   AND "lastAccessed" IS NOT NULL
-                  AND "lastAccessed" < $1
+                  AND "lastAccessed" < $1::timestamptz
                 RETURNING id
                 """,
                 hot_cutoff.isoformat(),
@@ -284,7 +284,7 @@ async def _tier_demotion_loop() -> None:
                 SET tier = 'COLD'
                 WHERE tier = 'WARM'
                   AND "lastAccessed" IS NOT NULL
-                  AND "lastAccessed" < $1
+                  AND "lastAccessed" < $1::timestamptz
                 RETURNING id
                 """,
                 warm_cutoff.isoformat(),
@@ -301,7 +301,7 @@ async def _tier_demotion_loop() -> None:
                 SET tier = 'ARCHIVE'
                 WHERE tier = 'COLD'
                   AND "lastAccessed" IS NOT NULL
-                  AND "lastAccessed" < $1
+                  AND "lastAccessed" < $1::timestamptz
                 RETURNING id
                 """,
                 cold_cutoff.isoformat(),
