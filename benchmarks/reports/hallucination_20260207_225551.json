@@ -1,0 +1,704 @@
+{
+  "benchmark_name": "hallucination",
+  "num_cases": 21,
+  "mean_with_snipara": {
+    "unverifiable_claims": 1.619047619047619,
+    "response_length": 653.1428571428571,
+    "incorrect_claims": 0.9047619047619048,
+    "factual_accuracy": 0.8461428571428571,
+    "context_grounded": 7.523809523809524,
+    "true_hallucination_rate": 0.0872857142857143,
+    "total_claims": 9.142857142857142,
+    "correct_claims": 6.476190476190476
+  },
+  "mean_without_snipara": {
+    "unverifiable_claims": 0.14285714285714285,
+    "response_length": 563.7619047619048,
+    "incorrect_claims": 0.2857142857142857,
+    "factual_accuracy": 0.892,
+    "context_grounded": 2.9047619047619047,
+    "true_hallucination_rate": 0.08352380952380953,
+    "total_claims": 8.428571428571429,
+    "correct_claims": 8.0
+  },
+  "mean_improvement": {
+    "accuracy_improvement": -0.04585714285714285,
+    "hallucination_reduction_pct": 7.252380952380953,
+    "true_hallucination_reduction": -0.0037619047619047645
+  },
+  "summary": "Hallucination Detection (v2 - True Hallucinations): acceptable\n  With Snipara:\n    - True hallucination rate: 8.7%\n    - Factual accuracy: 84.6%\n  Without Snipara:\n    - True hallucination rate: 8.4%\n    - Factual accuracy: 89.2%\n  Hallucination reduced by: +7.3%",
+  "results": [
+    {
+      "benchmark_name": "hallucination",
+      "test_case": "tech_stack",
+      "timestamp": "2026-02-07T22:48:10.088764",
+      "with_snipara": {
+        "total_claims": 8,
+        "correct_claims": 7,
+        "incorrect_claims": 1,
+        "unverifiable_claims": 0,
+        "factual_accuracy": 0.875,
+        "true_hallucination_rate": 0.125,
+        "context_grounded": 8,
+        "response_length": 344
+      },
+      "without_snipara": {
+        "total_claims": 9,
+        "correct_claims": 9,
+        "incorrect_claims": 0,
+        "unverifiable_claims": 0,
+        "factual_accuracy": 1.0,
+        "true_hallucination_rate": 0.0,
+        "context_grounded": 1,
+        "response_length": 366
+      },
+      "improvement": {
+        "true_hallucination_reduction": -0.125,
+        "accuracy_improvement": -0.125,
+        "hallucination_reduction_pct": 0
+      },
+      "latency_ms": 25429.68511581421,
+      "error": null
+    },
+    {
+      "benchmark_name": "hallucination",
+      "test_case": "core_value_prop",
+      "timestamp": "2026-02-07T22:48:28.063099",
+      "with_snipara": {
+        "total_claims": 6,
+        "correct_claims": 5,
+        "incorrect_claims": 1,
+        "unverifiable_claims": 0,
+        "factual_accuracy": 0.833,
+        "true_hallucination_rate": 0.167,
+        "context_grounded": 0,
+        "response_length": 348
+      },
+      "without_snipara": {
+        "total_claims": 8,
+        "correct_claims": 8,
+        "incorrect_claims": 0,
+        "unverifiable_claims": 0,
+        "factual_accuracy": 1.0,
+        "true_hallucination_rate": 0.0,
+        "context_grounded": 8,
+        "response_length": 334
+      },
+      "improvement": {
+        "true_hallucination_reduction": -0.167,
+        "accuracy_improvement": -0.167,
+        "hallucination_reduction_pct": 0
+      },
+      "latency_ms": 17974.237203598022,
+      "error": null
+    },
+    {
+      "benchmark_name": "hallucination",
+      "test_case": "mcp_tools",
+      "timestamp": "2026-02-07T22:49:01.774769",
+      "with_snipara": {
+        "total_claims": 11,
+        "correct_claims": 1,
+        "incorrect_claims": 6,
+        "unverifiable_claims": 4,
+        "factual_accuracy": 0.143,
+        "true_hallucination_rate": 0.545,
+        "context_grounded": 0,
+        "response_length": 816
+      },
+      "without_snipara": {
+        "total_claims": 13,
+        "correct_claims": 13,
+        "incorrect_claims": 0,
+        "unverifiable_claims": 0,
+        "factual_accuracy": 1.0,
+        "true_hallucination_rate": 0.0,
+        "context_grounded": 13,
+        "response_length": 897
+      },
+      "improvement": {
+        "true_hallucination_reduction": -0.545,
+        "accuracy_improvement": -0.857,
+        "hallucination_reduction_pct": 0
+      },
+      "latency_ms": 33711.69090270996,
+      "error": null
+    },
+    {
+      "benchmark_name": "hallucination",
+      "test_case": "pricing",
+      "timestamp": "2026-02-07T22:49:37.762340",
+      "with_snipara": {
+        "total_claims": 9,
+        "correct_claims": 2,
+        "incorrect_claims": 3,
+        "unverifiable_claims": 4,
+        "factual_accuracy": 0.4,
+        "true_hallucination_rate": 0.333,
+        "context_grounded": 9,
+        "response_length": 462
+      },
+      "without_snipara": {
+        "total_claims": 19,
+        "correct_claims": 19,
+        "incorrect_claims": 0,
+        "unverifiable_claims": 0,
+        "factual_accuracy": 1.0,
+        "true_hallucination_rate": 0.0,
+        "context_grounded": 0,
+        "response_length": 676
+      },
+      "improvement": {
+        "true_hallucination_reduction": -0.333,
+        "accuracy_improvement": -0.6,
+        "hallucination_reduction_pct": 0
+      },
+      "latency_ms": 35987.548828125,
+      "error": null
+    },
+    {
+      "benchmark_name": "hallucination",
+      "test_case": "architecture",
+      "timestamp": "2026-02-07T22:50:19.486252",
+      "with_snipara": {
+        "total_claims": 21,
+        "correct_claims": 21,
+        "incorrect_claims": 0,
+        "unverifiable_claims": 0,
+        "factual_accuracy": 1.0,
+        "true_hallucination_rate": 0.0,
+        "context_grounded": 21,
+        "response_length": 1142
+      },
+      "without_snipara": {
+        "total_claims": 20,
+        "correct_claims": 20,
+        "incorrect_claims": 0,
+        "unverifiable_claims": 0,
+        "factual_accuracy": 1.0,
+        "true_hallucination_rate": 0.0,
+        "context_grounded": 2,
+        "response_length": 895
+      },
+      "improvement": {
+        "true_hallucination_reduction": 0.0,
+        "accuracy_improvement": 0.0,
+        "hallucination_reduction_pct": 0
+      },
+      "latency_ms": 41723.910093307495,
+      "error": null
+    },
+    {
+      "benchmark_name": "hallucination",
+      "test_case": "token_budgeting",
+      "timestamp": "2026-02-07T22:50:48.679644",
+      "with_snipara": {
+        "total_claims": 20,
+        "correct_claims": 13,
+        "incorrect_claims": 0,
+        "unverifiable_claims": 7,
+        "factual_accuracy": 1.0,
+        "true_hallucination_rate": 0.0,
+        "context_grounded": 13,
+        "response_length": 1487
+      },
+      "without_snipara": {
+        "total_claims": 6,
+        "correct_claims": 6,
+        "incorrect_claims": 0,
+        "unverifiable_claims": 0,
+        "factual_accuracy": 1.0,
+        "true_hallucination_rate": 0.0,
+        "context_grounded": 6,
+        "response_length": 566
+      },
+      "improvement": {
+        "true_hallucination_reduction": 0.0,
+        "accuracy_improvement": 0.0,
+        "hallucination_reduction_pct": 0
+      },
+      "latency_ms": 29193.37010383606,
+      "error": null
+    },
+    {
+      "benchmark_name": "hallucination",
+      "test_case": "shared_context",
+      "timestamp": "2026-02-07T22:51:14.996263",
+      "with_snipara": {
+        "total_claims": 12,
+        "correct_claims": 12,
+        "incorrect_claims": 0,
+        "unverifiable_claims": 0,
+        "factual_accuracy": 1.0,
+        "true_hallucination_rate": 0.0,
+        "context_grounded": 12,
+        "response_length": 1126
+      },
+      "without_snipara": {
+        "total_claims": 9,
+        "correct_claims": 9,
+        "incorrect_claims": 0,
+        "unverifiable_claims": 0,
+        "factual_accuracy": 1.0,
+        "true_hallucination_rate": 0.0,
+        "context_grounded": 4,
+        "response_length": 812
+      },
+      "improvement": {
+        "true_hallucination_reduction": 0.0,
+        "accuracy_improvement": 0.0,
+        "hallucination_reduction_pct": 0
+      },
+      "latency_ms": 26316.62106513977,
+      "error": null
+    },
+    {
+      "benchmark_name": "hallucination",
+      "test_case": "oauth_device_flow",
+      "timestamp": "2026-02-07T22:51:30.304098",
+      "with_snipara": {
+        "total_claims": 6,
+        "correct_claims": 0,
+        "incorrect_claims": 0,
+        "unverifiable_claims": 6,
+        "factual_accuracy": 1.0,
+        "true_hallucination_rate": 0.0,
+        "context_grounded": 5,
+        "response_length": 850
+      },
+      "without_snipara": {
+        "total_claims": 2,
+        "correct_claims": 1,
+        "incorrect_claims": 1,
+        "unverifiable_claims": 0,
+        "factual_accuracy": 0.5,
+        "true_hallucination_rate": 0.5,
+        "context_grounded": 2,
+        "response_length": 189
+      },
+      "improvement": {
+        "true_hallucination_reduction": 0.5,
+        "accuracy_improvement": 0.5,
+        "hallucination_reduction_pct": 50.0
+      },
+      "latency_ms": 15307.810068130493,
+      "error": null
+    },
+    {
+      "benchmark_name": "hallucination",
+      "test_case": "database_models",
+      "timestamp": "2026-02-07T22:51:39.265431",
+      "with_snipara": {
+        "total_claims": 3,
+        "correct_claims": 0,
+        "incorrect_claims": 0,
+        "unverifiable_claims": 0,
+        "factual_accuracy": 1.0,
+        "true_hallucination_rate": 0.0,
+        "context_grounded": 3,
+        "response_length": 71
+      },
+      "without_snipara": {
+        "total_claims": 2,
+        "correct_claims": 0,
+        "incorrect_claims": 1,
+        "unverifiable_claims": 1,
+        "factual_accuracy": 0.0,
+        "true_hallucination_rate": 0.5,
+        "context_grounded": 1,
+        "response_length": 148
+      },
+      "improvement": {
+        "true_hallucination_reduction": 0.5,
+        "accuracy_improvement": 1.0,
+        "hallucination_reduction_pct": 50.0
+      },
+      "latency_ms": 8961.329936981201,
+      "error": null
+    },
+    {
+      "benchmark_name": "hallucination",
+      "test_case": "layered_architecture",
+      "timestamp": "2026-02-07T22:52:23.093624",
+      "with_snipara": {
+        "total_claims": 22,
+        "correct_claims": 18,
+        "incorrect_claims": 4,
+        "unverifiable_claims": 0,
+        "factual_accuracy": 0.818,
+        "true_hallucination_rate": 0.182,
+        "context_grounded": 22,
+        "response_length": 1083
+      },
+      "without_snipara": {
+        "total_claims": 20,
+        "correct_claims": 20,
+        "incorrect_claims": 0,
+        "unverifiable_claims": 0,
+        "factual_accuracy": 1.0,
+        "true_hallucination_rate": 0.0,
+        "context_grounded": 0,
+        "response_length": 1068
+      },
+      "improvement": {
+        "true_hallucination_reduction": -0.182,
+        "accuracy_improvement": -0.182,
+        "hallucination_reduction_pct": 0
+      },
+      "latency_ms": 43828.20391654968,
+      "error": null
+    },
+    {
+      "benchmark_name": "hallucination",
+      "test_case": "cost_benefit_analysis",
+      "timestamp": "2026-02-07T22:52:46.416359",
+      "with_snipara": {
+        "total_claims": 7,
+        "correct_claims": 5,
+        "incorrect_claims": 0,
+        "unverifiable_claims": 2,
+        "factual_accuracy": 1.0,
+        "true_hallucination_rate": 0.0,
+        "context_grounded": 6,
+        "response_length": 665
+      },
+      "without_snipara": {
+        "total_claims": 9,
+        "correct_claims": 7,
+        "incorrect_claims": 1,
+        "unverifiable_claims": 1,
+        "factual_accuracy": 0.875,
+        "true_hallucination_rate": 0.111,
+        "context_grounded": 1,
+        "response_length": 804
+      },
+      "improvement": {
+        "true_hallucination_reduction": 0.111,
+        "accuracy_improvement": 0.125,
+        "hallucination_reduction_pct": 11.1
+      },
+      "latency_ms": 23322.683811187744,
+      "error": null
+    },
+    {
+      "benchmark_name": "hallucination",
+      "test_case": "when_to_use_decompose",
+      "timestamp": "2026-02-07T22:53:04.720736",
+      "with_snipara": {
+        "total_claims": 3,
+        "correct_claims": 3,
+        "incorrect_claims": 0,
+        "unverifiable_claims": 0,
+        "factual_accuracy": 1.0,
+        "true_hallucination_rate": 0.0,
+        "context_grounded": 3,
+        "response_length": 349
+      },
+      "without_snipara": {
+        "total_claims": 7,
+        "correct_claims": 6,
+        "incorrect_claims": 1,
+        "unverifiable_claims": 0,
+        "factual_accuracy": 0.857,
+        "true_hallucination_rate": 0.143,
+        "context_grounded": 7,
+        "response_length": 679
+      },
+      "improvement": {
+        "true_hallucination_reduction": 0.143,
+        "accuracy_improvement": 0.143,
+        "hallucination_reduction_pct": 14.3
+      },
+      "latency_ms": 18304.35013771057,
+      "error": null
+    },
+    {
+      "benchmark_name": "hallucination",
+      "test_case": "search_mode_selection",
+      "timestamp": "2026-02-07T22:53:32.892038",
+      "with_snipara": {
+        "total_claims": 11,
+        "correct_claims": 9,
+        "incorrect_claims": 0,
+        "unverifiable_claims": 2,
+        "factual_accuracy": 1.0,
+        "true_hallucination_rate": 0.0,
+        "context_grounded": 11,
+        "response_length": 956
+      },
+      "without_snipara": {
+        "total_claims": 7,
+        "correct_claims": 7,
+        "incorrect_claims": 0,
+        "unverifiable_claims": 0,
+        "factual_accuracy": 1.0,
+        "true_hallucination_rate": 0.0,
+        "context_grounded": 7,
+        "response_length": 759
+      },
+      "improvement": {
+        "true_hallucination_reduction": 0.0,
+        "accuracy_improvement": 0.0,
+        "hallucination_reduction_pct": 0
+      },
+      "latency_ms": 28171.31495475769,
+      "error": null
+    },
+    {
+      "benchmark_name": "hallucination",
+      "test_case": "full_request_flow",
+      "timestamp": "2026-02-07T22:54:10.475823",
+      "with_snipara": {
+        "total_claims": 16,
+        "correct_claims": 16,
+        "incorrect_claims": 0,
+        "unverifiable_claims": 0,
+        "factual_accuracy": 1.0,
+        "true_hallucination_rate": 0.0,
+        "context_grounded": 16,
+        "response_length": 1391
+      },
+      "without_snipara": {
+        "total_claims": 15,
+        "correct_claims": 15,
+        "incorrect_claims": 0,
+        "unverifiable_claims": 0,
+        "factual_accuracy": 1.0,
+        "true_hallucination_rate": 0.0,
+        "context_grounded": 4,
+        "response_length": 1449
+      },
+      "improvement": {
+        "true_hallucination_reduction": 0.0,
+        "accuracy_improvement": 0.0,
+        "hallucination_reduction_pct": 0
+      },
+      "latency_ms": 37583.72497558594,
+      "error": null
+    },
+    {
+      "benchmark_name": "hallucination",
+      "test_case": "security_authentication_chain",
+      "timestamp": "2026-02-07T22:54:34.632529",
+      "with_snipara": {
+        "total_claims": 4,
+        "correct_claims": 0,
+        "incorrect_claims": 1,
+        "unverifiable_claims": 3,
+        "factual_accuracy": 0.0,
+        "true_hallucination_rate": 0.25,
+        "context_grounded": 3,
+        "response_length": 376
+      },
+      "without_snipara": {
+        "total_claims": 16,
+        "correct_claims": 16,
+        "incorrect_claims": 0,
+        "unverifiable_claims": 0,
+        "factual_accuracy": 1.0,
+        "true_hallucination_rate": 0.0,
+        "context_grounded": 0,
+        "response_length": 936
+      },
+      "improvement": {
+        "true_hallucination_reduction": -0.25,
+        "accuracy_improvement": -1.0,
+        "hallucination_reduction_pct": 0
+      },
+      "latency_ms": 24156.657218933105,
+      "error": null
+    },
+    {
+      "benchmark_name": "hallucination",
+      "test_case": "shared_context_budget_allocation",
+      "timestamp": "2026-02-07T22:54:57.151933",
+      "with_snipara": {
+        "total_claims": 13,
+        "correct_claims": 7,
+        "incorrect_claims": 3,
+        "unverifiable_claims": 3,
+        "factual_accuracy": 0.7,
+        "true_hallucination_rate": 0.231,
+        "context_grounded": 11,
+        "response_length": 1223
+      },
+      "without_snipara": {
+        "total_claims": 4,
+        "correct_claims": 2,
+        "incorrect_claims": 2,
+        "unverifiable_claims": 0,
+        "factual_accuracy": 0.5,
+        "true_hallucination_rate": 0.5,
+        "context_grounded": 2,
+        "response_length": 546
+      },
+      "improvement": {
+        "true_hallucination_reduction": 0.269,
+        "accuracy_improvement": 0.2,
+        "hallucination_reduction_pct": 26.9
+      },
+      "latency_ms": 22519.408226013184,
+      "error": null
+    },
+    {
+      "benchmark_name": "hallucination",
+      "test_case": "nonexistent_feature",
+      "timestamp": "2026-02-07T22:55:05.673628",
+      "with_snipara": {
+        "total_claims": 1,
+        "correct_claims": 1,
+        "incorrect_claims": 0,
+        "unverifiable_claims": 0,
+        "factual_accuracy": 1.0,
+        "true_hallucination_rate": 0.0,
+        "context_grounded": 1,
+        "response_length": 108
+      },
+      "without_snipara": {
+        "total_claims": 2,
+        "correct_claims": 1,
+        "incorrect_claims": 0,
+        "unverifiable_claims": 1,
+        "factual_accuracy": 1.0,
+        "true_hallucination_rate": 0.0,
+        "context_grounded": 1,
+        "response_length": 171
+      },
+      "improvement": {
+        "true_hallucination_reduction": 0.0,
+        "accuracy_improvement": 0.0,
+        "hallucination_reduction_pct": 0
+      },
+      "latency_ms": 8521.681070327759,
+      "error": null
+    },
+    {
+      "benchmark_name": "hallucination",
+      "test_case": "ambiguous_acronym",
+      "timestamp": "2026-02-07T22:55:13.912052",
+      "with_snipara": {
+        "total_claims": 3,
+        "correct_claims": 3,
+        "incorrect_claims": 0,
+        "unverifiable_claims": 0,
+        "factual_accuracy": 1.0,
+        "true_hallucination_rate": 0.0,
+        "context_grounded": 1,
+        "response_length": 139
+      },
+      "without_snipara": {
+        "total_claims": 1,
+        "correct_claims": 1,
+        "incorrect_claims": 0,
+        "unverifiable_claims": 0,
+        "factual_accuracy": 1.0,
+        "true_hallucination_rate": 0.0,
+        "context_grounded": 1,
+        "response_length": 45
+      },
+      "improvement": {
+        "true_hallucination_reduction": 0.0,
+        "accuracy_improvement": 0.0,
+        "hallucination_reduction_pct": 0
+      },
+      "latency_ms": 8238.420963287354,
+      "error": null
+    },
+    {
+      "benchmark_name": "hallucination",
+      "test_case": "version_specific",
+      "timestamp": "2026-02-07T22:55:20.349697",
+      "with_snipara": {
+        "total_claims": 1,
+        "correct_claims": 1,
+        "incorrect_claims": 0,
+        "unverifiable_claims": 0,
+        "factual_accuracy": 1.0,
+        "true_hallucination_rate": 0.0,
+        "context_grounded": 0,
+        "response_length": 46
+      },
+      "without_snipara": {
+        "total_claims": 1,
+        "correct_claims": 1,
+        "incorrect_claims": 0,
+        "unverifiable_claims": 0,
+        "factual_accuracy": 1.0,
+        "true_hallucination_rate": 0.0,
+        "context_grounded": 0,
+        "response_length": 46
+      },
+      "improvement": {
+        "true_hallucination_reduction": 0.0,
+        "accuracy_improvement": 0.0,
+        "hallucination_reduction_pct": 0
+      },
+      "latency_ms": 6437.6373291015625,
+      "error": null
+    },
+    {
+      "benchmark_name": "hallucination",
+      "test_case": "error_handling",
+      "timestamp": "2026-02-07T22:55:42.609473",
+      "with_snipara": {
+        "total_claims": 11,
+        "correct_claims": 11,
+        "incorrect_claims": 0,
+        "unverifiable_claims": 0,
+        "factual_accuracy": 1.0,
+        "true_hallucination_rate": 0.0,
+        "context_grounded": 11,
+        "response_length": 528
+      },
+      "without_snipara": {
+        "total_claims": 6,
+        "correct_claims": 6,
+        "incorrect_claims": 0,
+        "unverifiable_claims": 0,
+        "factual_accuracy": 1.0,
+        "true_hallucination_rate": 0.0,
+        "context_grounded": 0,
+        "response_length": 337
+      },
+      "improvement": {
+        "true_hallucination_reduction": 0.0,
+        "accuracy_improvement": 0.0,
+        "hallucination_reduction_pct": 0
+      },
+      "latency_ms": 22259.766817092896,
+      "error": null
+    },
+    {
+      "benchmark_name": "hallucination",
+      "test_case": "empty_context",
+      "timestamp": "2026-02-07T22:55:51.461597",
+      "with_snipara": {
+        "total_claims": 4,
+        "correct_claims": 1,
+        "incorrect_claims": 0,
+        "unverifiable_claims": 3,
+        "factual_accuracy": 1.0,
+        "true_hallucination_rate": 0.0,
+        "context_grounded": 2,
+        "response_length": 206
+      },
+      "without_snipara": {
+        "total_claims": 1,
+        "correct_claims": 1,
+        "incorrect_claims": 0,
+        "unverifiable_claims": 0,
+        "factual_accuracy": 1.0,
+        "true_hallucination_rate": 0.0,
+        "context_grounded": 1,
+        "response_length": 116
+      },
+      "improvement": {
+        "true_hallucination_reduction": 0.0,
+        "accuracy_improvement": 0.0,
+        "hallucination_reduction_pct": 0
+      },
+      "latency_ms": 8852.118015289307,
+      "error": null
+    }
+  ]
+}

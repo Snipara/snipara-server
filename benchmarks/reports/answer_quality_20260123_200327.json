@@ -1,0 +1,220 @@
+{
+  "benchmark_name": "answer_quality",
+  "num_cases": 21,
+  "mean_with_snipara": {},
+  "mean_without_snipara": {},
+  "mean_improvement": {},
+  "summary": "All test cases failed.",
+  "results": [
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "tech_stack",
+      "timestamp": "2026-01-23T20:03:27.073423",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.0050067901611328125,
+      "error": "ANTHROPIC_API_KEY not configured"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "core_value_prop",
+      "timestamp": "2026-01-23T20:03:27.073431",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.0019073486328125,
+      "error": "ANTHROPIC_API_KEY not configured"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "mcp_tools",
+      "timestamp": "2026-01-23T20:03:27.073433",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.0011920928955078125,
+      "error": "ANTHROPIC_API_KEY not configured"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "pricing",
+      "timestamp": "2026-01-23T20:03:27.073435",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.0007152557373046875,
+      "error": "ANTHROPIC_API_KEY not configured"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "architecture",
+      "timestamp": "2026-01-23T20:03:27.073437",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.00095367431640625,
+      "error": "ANTHROPIC_API_KEY not configured"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "token_budgeting",
+      "timestamp": "2026-01-23T20:03:27.073439",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.00095367431640625,
+      "error": "ANTHROPIC_API_KEY not configured"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "shared_context",
+      "timestamp": "2026-01-23T20:03:27.073441",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.00095367431640625,
+      "error": "ANTHROPIC_API_KEY not configured"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "oauth_device_flow",
+      "timestamp": "2026-01-23T20:03:27.073443",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.0,
+      "error": "ANTHROPIC_API_KEY not configured"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "database_models",
+      "timestamp": "2026-01-23T20:03:27.073444",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.00095367431640625,
+      "error": "ANTHROPIC_API_KEY not configured"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "layered_architecture",
+      "timestamp": "2026-01-23T20:03:27.073446",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.0007152557373046875,
+      "error": "ANTHROPIC_API_KEY not configured"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "cost_benefit_analysis",
+      "timestamp": "2026-01-23T20:03:27.073448",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.0,
+      "error": "ANTHROPIC_API_KEY not configured"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "when_to_use_decompose",
+      "timestamp": "2026-01-23T20:03:27.073449",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.0,
+      "error": "ANTHROPIC_API_KEY not configured"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "search_mode_selection",
+      "timestamp": "2026-01-23T20:03:27.073451",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.00095367431640625,
+      "error": "ANTHROPIC_API_KEY not configured"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "full_request_flow",
+      "timestamp": "2026-01-23T20:03:27.073452",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.0,
+      "error": "ANTHROPIC_API_KEY not configured"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "security_authentication_chain",
+      "timestamp": "2026-01-23T20:03:27.073454",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.0011920928955078125,
+      "error": "ANTHROPIC_API_KEY not configured"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "shared_context_budget_allocation",
+      "timestamp": "2026-01-23T20:03:27.073456",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.0,
+      "error": "ANTHROPIC_API_KEY not configured"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "nonexistent_feature",
+      "timestamp": "2026-01-23T20:03:27.073457",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.0,
+      "error": "ANTHROPIC_API_KEY not configured"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "ambiguous_acronym",
+      "timestamp": "2026-01-23T20:03:27.073459",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.00095367431640625,
+      "error": "ANTHROPIC_API_KEY not configured"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "version_specific",
+      "timestamp": "2026-01-23T20:03:27.073460",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.0,
+      "error": "ANTHROPIC_API_KEY not configured"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "error_handling",
+      "timestamp": "2026-01-23T20:03:27.073462",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.00095367431640625,
+      "error": "ANTHROPIC_API_KEY not configured"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "empty_context",
+      "timestamp": "2026-01-23T20:03:27.073463",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.0,
+      "error": "ANTHROPIC_API_KEY not configured"
+    }
+  ]
+}

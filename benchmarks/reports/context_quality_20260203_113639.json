@@ -1,0 +1,682 @@
+{
+  "benchmark_name": "context_quality",
+  "num_cases": 21,
+  "mean_with_snipara": {
+    "recall_at_k": 0.2139047619047619,
+    "num_relevant_found": 0.19047619047619047,
+    "precision_at_k": 0.0380952380952381,
+    "mrr": 0.16666666666666666,
+    "ndcg": 0.07357142857142857,
+    "f1": 0.053904761904761914,
+    "num_retrieved": 28.19047619047619
+  },
+  "mean_without_snipara": {
+    "recall_at_k": 0.5293809523809524,
+    "num_relevant_found": 0.38095238095238093,
+    "precision_at_k": 0.0761904761904762,
+    "mrr": 0.14285714285714285,
+    "ndcg": 0.10771428571428572,
+    "f1": 0.10176190476190476,
+    "num_retrieved": 194.0
+  },
+  "mean_improvement": {
+    "precision_improvement": -0.0380952380952381,
+    "mrr_improvement": 0.023809523809523808,
+    "recall_improvement": -0.31542857142857145,
+    "ndcg_improvement": -0.03414285714285715
+  },
+  "summary": "Context Quality: needs improvement\n  With Snipara:\n    - Precision@K: 3.8%\n    - Recall@K: 21.4%\n    - NDCG: 0.074\n  Improvement over baseline:\n    - Precision: +-3.8%\n    - Recall: +-31.5%",
+  "results": [
+    {
+      "benchmark_name": "context_quality",
+      "test_case": "tech_stack",
+      "timestamp": "2026-02-03T11:36:39.551578",
+      "with_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.25,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0.0,
+        "num_retrieved": 29,
+        "num_relevant_found": 0
+      },
+      "without_snipara": {
+        "precision_at_k": 0.2,
+        "recall_at_k": 1.0,
+        "mrr": 0.5,
+        "ndcg": 0.246,
+        "f1": 0.333,
+        "num_retrieved": 194,
+        "num_relevant_found": 1
+      },
+      "improvement": {
+        "precision_improvement": -0.2,
+        "recall_improvement": -0.75,
+        "mrr_improvement": -0.5,
+        "ndcg_improvement": -0.246
+      },
+      "latency_ms": 3.5610198974609375,
+      "error": null
+    },
+    {
+      "benchmark_name": "context_quality",
+      "test_case": "core_value_prop",
+      "timestamp": "2026-02-03T11:36:39.552948",
+      "with_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.0,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0,
+        "num_retrieved": 27,
+        "num_relevant_found": 0
+      },
+      "without_snipara": {
+        "precision_at_k": 0.4,
+        "recall_at_k": 0.667,
+        "mrr": 0.5,
+        "ndcg": 0.531,
+        "f1": 0.5,
+        "num_retrieved": 194,
+        "num_relevant_found": 2
+      },
+      "improvement": {
+        "precision_improvement": -0.4,
+        "recall_improvement": -0.667,
+        "mrr_improvement": -0.5,
+        "ndcg_improvement": -0.531
+      },
+      "latency_ms": 1.3480186462402344,
+      "error": null
+    },
+    {
+      "benchmark_name": "context_quality",
+      "test_case": "mcp_tools",
+      "timestamp": "2026-02-03T11:36:39.556373",
+      "with_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.2,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0.0,
+        "num_retrieved": 25,
+        "num_relevant_found": 0
+      },
+      "without_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.2,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0.0,
+        "num_retrieved": 194,
+        "num_relevant_found": 0
+      },
+      "improvement": {
+        "precision_improvement": 0.0,
+        "recall_improvement": 0.0,
+        "mrr_improvement": 0.0,
+        "ndcg_improvement": 0.0
+      },
+      "latency_ms": 3.4270286560058594,
+      "error": null
+    },
+    {
+      "benchmark_name": "context_quality",
+      "test_case": "pricing",
+      "timestamp": "2026-02-03T11:36:39.559168",
+      "with_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.25,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0.0,
+        "num_retrieved": 25,
+        "num_relevant_found": 0
+      },
+      "without_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.75,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0.0,
+        "num_retrieved": 194,
+        "num_relevant_found": 0
+      },
+      "improvement": {
+        "precision_improvement": 0.0,
+        "recall_improvement": -0.5,
+        "mrr_improvement": 0.0,
+        "ndcg_improvement": 0.0
+      },
+      "latency_ms": 2.791166305541992,
+      "error": null
+    },
+    {
+      "benchmark_name": "context_quality",
+      "test_case": "architecture",
+      "timestamp": "2026-02-03T11:36:39.561327",
+      "with_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.0,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0,
+        "num_retrieved": 29,
+        "num_relevant_found": 0
+      },
+      "without_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.2,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0.0,
+        "num_retrieved": 194,
+        "num_relevant_found": 0
+      },
+      "improvement": {
+        "precision_improvement": 0.0,
+        "recall_improvement": -0.2,
+        "mrr_improvement": 0.0,
+        "ndcg_improvement": 0.0
+      },
+      "latency_ms": 2.151012420654297,
+      "error": null
+    },
+    {
+      "benchmark_name": "context_quality",
+      "test_case": "token_budgeting",
+      "timestamp": "2026-02-03T11:36:39.563076",
+      "with_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.0,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0,
+        "num_retrieved": 31,
+        "num_relevant_found": 0
+      },
+      "without_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.333,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0.0,
+        "num_retrieved": 194,
+        "num_relevant_found": 0
+      },
+      "improvement": {
+        "precision_improvement": 0.0,
+        "recall_improvement": -0.333,
+        "mrr_improvement": 0.0,
+        "ndcg_improvement": 0.0
+      },
+      "latency_ms": 1.7528533935546875,
+      "error": null
+    },
+    {
+      "benchmark_name": "context_quality",
+      "test_case": "shared_context",
+      "timestamp": "2026-02-03T11:36:39.564416",
+      "with_snipara": {
+        "precision_at_k": 0.2,
+        "recall_at_k": 0.333,
+        "mrr": 0.5,
+        "ndcg": 0.296,
+        "f1": 0.25,
+        "num_retrieved": 12,
+        "num_relevant_found": 1
+      },
+      "without_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.667,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0.0,
+        "num_retrieved": 194,
+        "num_relevant_found": 0
+      },
+      "improvement": {
+        "precision_improvement": 0.2,
+        "recall_improvement": -0.333,
+        "mrr_improvement": 0.5,
+        "ndcg_improvement": 0.296
+      },
+      "latency_ms": 1.3270378112792969,
+      "error": null
+    },
+    {
+      "benchmark_name": "context_quality",
+      "test_case": "oauth_device_flow",
+      "timestamp": "2026-02-03T11:36:39.566232",
+      "with_snipara": {
+        "precision_at_k": 0.2,
+        "recall_at_k": 0.75,
+        "mrr": 1.0,
+        "ndcg": 0.39,
+        "f1": 0.316,
+        "num_retrieved": 50,
+        "num_relevant_found": 1
+      },
+      "without_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.75,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0.0,
+        "num_retrieved": 194,
+        "num_relevant_found": 0
+      },
+      "improvement": {
+        "precision_improvement": 0.2,
+        "recall_improvement": 0.0,
+        "mrr_improvement": 1.0,
+        "ndcg_improvement": 0.39
+      },
+      "latency_ms": 1.8157958984375,
+      "error": null
+    },
+    {
+      "benchmark_name": "context_quality",
+      "test_case": "database_models",
+      "timestamp": "2026-02-03T11:36:39.568040",
+      "with_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.143,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0.0,
+        "num_retrieved": 17,
+        "num_relevant_found": 0
+      },
+      "without_snipara": {
+        "precision_at_k": 0.4,
+        "recall_at_k": 1.0,
+        "mrr": 1.0,
+        "ndcg": 0.47,
+        "f1": 0.571,
+        "num_retrieved": 194,
+        "num_relevant_found": 2
+      },
+      "improvement": {
+        "precision_improvement": -0.4,
+        "recall_improvement": -0.857,
+        "mrr_improvement": -1.0,
+        "ndcg_improvement": -0.47
+      },
+      "latency_ms": 1.8129348754882812,
+      "error": null
+    },
+    {
+      "benchmark_name": "context_quality",
+      "test_case": "layered_architecture",
+      "timestamp": "2026-02-03T11:36:39.569831",
+      "with_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.0,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0,
+        "num_retrieved": 18,
+        "num_relevant_found": 0
+      },
+      "without_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.667,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0.0,
+        "num_retrieved": 194,
+        "num_relevant_found": 0
+      },
+      "improvement": {
+        "precision_improvement": 0.0,
+        "recall_improvement": -0.667,
+        "mrr_improvement": 0.0,
+        "ndcg_improvement": 0.0
+      },
+      "latency_ms": 1.7960071563720703,
+      "error": null
+    },
+    {
+      "benchmark_name": "context_quality",
+      "test_case": "cost_benefit_analysis",
+      "timestamp": "2026-02-03T11:36:39.572080",
+      "with_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.0,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0,
+        "num_retrieved": 22,
+        "num_relevant_found": 0
+      },
+      "without_snipara": {
+        "precision_at_k": 0.4,
+        "recall_at_k": 0.4,
+        "mrr": 0.5,
+        "ndcg": 0.384,
+        "f1": 0.4,
+        "num_retrieved": 194,
+        "num_relevant_found": 2
+      },
+      "improvement": {
+        "precision_improvement": -0.4,
+        "recall_improvement": -0.4,
+        "mrr_improvement": -0.5,
+        "ndcg_improvement": -0.384
+      },
+      "latency_ms": 2.2346973419189453,
+      "error": null
+    },
+    {
+      "benchmark_name": "context_quality",
+      "test_case": "when_to_use_decompose",
+      "timestamp": "2026-02-03T11:36:39.573954",
+      "with_snipara": {
+        "precision_at_k": 0.2,
+        "recall_at_k": 0.333,
+        "mrr": 1.0,
+        "ndcg": 0.469,
+        "f1": 0.25,
+        "num_retrieved": 17,
+        "num_relevant_found": 1
+      },
+      "without_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.0,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0,
+        "num_retrieved": 194,
+        "num_relevant_found": 0
+      },
+      "improvement": {
+        "precision_improvement": 0.2,
+        "recall_improvement": 0.333,
+        "mrr_improvement": 1.0,
+        "ndcg_improvement": 0.469
+      },
+      "latency_ms": 1.8723011016845703,
+      "error": null
+    },
+    {
+      "benchmark_name": "context_quality",
+      "test_case": "search_mode_selection",
+      "timestamp": "2026-02-03T11:36:39.575646",
+      "with_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.0,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0,
+        "num_retrieved": 29,
+        "num_relevant_found": 0
+      },
+      "without_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.0,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0,
+        "num_retrieved": 194,
+        "num_relevant_found": 0
+      },
+      "improvement": {
+        "precision_improvement": 0.0,
+        "recall_improvement": 0.0,
+        "mrr_improvement": 0.0,
+        "ndcg_improvement": 0.0
+      },
+      "latency_ms": 1.6911029815673828,
+      "error": null
+    },
+    {
+      "benchmark_name": "context_quality",
+      "test_case": "full_request_flow",
+      "timestamp": "2026-02-03T11:36:39.577587",
+      "with_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.0,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0,
+        "num_retrieved": 18,
+        "num_relevant_found": 0
+      },
+      "without_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.0,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0,
+        "num_retrieved": 194,
+        "num_relevant_found": 0
+      },
+      "improvement": {
+        "precision_improvement": 0.0,
+        "recall_improvement": 0.0,
+        "mrr_improvement": 0.0,
+        "ndcg_improvement": 0.0
+      },
+      "latency_ms": 1.9409656524658203,
+      "error": null
+    },
+    {
+      "benchmark_name": "context_quality",
+      "test_case": "security_authentication_chain",
+      "timestamp": "2026-02-03T11:36:39.579861",
+      "with_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.4,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0.0,
+        "num_retrieved": 26,
+        "num_relevant_found": 0
+      },
+      "without_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.4,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0.0,
+        "num_retrieved": 194,
+        "num_relevant_found": 0
+      },
+      "improvement": {
+        "precision_improvement": 0.0,
+        "recall_improvement": 0.0,
+        "mrr_improvement": 0.0,
+        "ndcg_improvement": 0.0
+      },
+      "latency_ms": 2.290010452270508,
+      "error": null
+    },
+    {
+      "benchmark_name": "context_quality",
+      "test_case": "shared_context_budget_allocation",
+      "timestamp": "2026-02-03T11:36:39.581564",
+      "with_snipara": {
+        "precision_at_k": 0.2,
+        "recall_at_k": 0.75,
+        "mrr": 1.0,
+        "ndcg": 0.39,
+        "f1": 0.316,
+        "num_retrieved": 78,
+        "num_relevant_found": 1
+      },
+      "without_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 1.0,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0.0,
+        "num_retrieved": 194,
+        "num_relevant_found": 0
+      },
+      "improvement": {
+        "precision_improvement": 0.2,
+        "recall_improvement": -0.25,
+        "mrr_improvement": 1.0,
+        "ndcg_improvement": 0.39
+      },
+      "latency_ms": 1.683950424194336,
+      "error": null
+    },
+    {
+      "benchmark_name": "context_quality",
+      "test_case": "nonexistent_feature",
+      "timestamp": "2026-02-03T11:36:39.582543",
+      "with_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.0,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0,
+        "num_retrieved": 45,
+        "num_relevant_found": 0
+      },
+      "without_snipara": {
+        "precision_at_k": 0.2,
+        "recall_at_k": 1.0,
+        "mrr": 0.5,
+        "ndcg": 0.631,
+        "f1": 0.333,
+        "num_retrieved": 194,
+        "num_relevant_found": 1
+      },
+      "improvement": {
+        "precision_improvement": -0.2,
+        "recall_improvement": -1.0,
+        "mrr_improvement": -0.5,
+        "ndcg_improvement": -0.631
+      },
+      "latency_ms": 0.9739398956298828,
+      "error": null
+    },
+    {
+      "benchmark_name": "context_quality",
+      "test_case": "ambiguous_acronym",
+      "timestamp": "2026-02-03T11:36:39.583960",
+      "with_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.5,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0.0,
+        "num_retrieved": 22,
+        "num_relevant_found": 0
+      },
+      "without_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.5,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0.0,
+        "num_retrieved": 194,
+        "num_relevant_found": 0
+      },
+      "improvement": {
+        "precision_improvement": 0.0,
+        "recall_improvement": 0.0,
+        "mrr_improvement": 0.0,
+        "ndcg_improvement": 0.0
+      },
+      "latency_ms": 1.4159679412841797,
+      "error": null
+    },
+    {
+      "benchmark_name": "context_quality",
+      "test_case": "version_specific",
+      "timestamp": "2026-02-03T11:36:39.585263",
+      "with_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.0,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0,
+        "num_retrieved": 37,
+        "num_relevant_found": 0
+      },
+      "without_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 1.0,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0.0,
+        "num_retrieved": 194,
+        "num_relevant_found": 0
+      },
+      "improvement": {
+        "precision_improvement": 0.0,
+        "recall_improvement": -1.0,
+        "mrr_improvement": 0.0,
+        "ndcg_improvement": 0.0
+      },
+      "latency_ms": 1.302957534790039,
+      "error": null
+    },
+    {
+      "benchmark_name": "context_quality",
+      "test_case": "error_handling",
+      "timestamp": "2026-02-03T11:36:39.587100",
+      "with_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.25,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0.0,
+        "num_retrieved": 21,
+        "num_relevant_found": 0
+      },
+      "without_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.25,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0.0,
+        "num_retrieved": 194,
+        "num_relevant_found": 0
+      },
+      "improvement": {
+        "precision_improvement": 0.0,
+        "recall_improvement": 0.0,
+        "mrr_improvement": 0.0,
+        "ndcg_improvement": 0.0
+      },
+      "latency_ms": 1.8391609191894531,
+      "error": null
+    },
+    {
+      "benchmark_name": "context_quality",
+      "test_case": "empty_context",
+      "timestamp": "2026-02-03T11:36:39.588716",
+      "with_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.333,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0.0,
+        "num_retrieved": 14,
+        "num_relevant_found": 0
+      },
+      "without_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.333,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0.0,
+        "num_retrieved": 194,
+        "num_relevant_found": 0
+      },
+      "improvement": {
+        "precision_improvement": 0.0,
+        "recall_improvement": 0.0,
+        "mrr_improvement": 0.0,
+        "ndcg_improvement": 0.0
+      },
+      "latency_ms": 1.6188621520996094,
+      "error": null
+    }
+  ]
+}

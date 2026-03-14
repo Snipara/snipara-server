@@ -1,0 +1,220 @@
+{
+  "benchmark_name": "answer_quality",
+  "num_cases": 21,
+  "mean_with_snipara": {},
+  "mean_without_snipara": {},
+  "mean_improvement": {},
+  "summary": "All test cases failed.",
+  "results": [
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "tech_stack",
+      "timestamp": "2026-01-24T22:39:11.132097",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.0171661376953125,
+      "error": "'BenchmarkConfig' object has no attribute 'anthropic_api_key'"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "core_value_prop",
+      "timestamp": "2026-01-24T22:39:11.132127",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.007867813110351562,
+      "error": "'BenchmarkConfig' object has no attribute 'anthropic_api_key'"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "mcp_tools",
+      "timestamp": "2026-01-24T22:39:11.132141",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.0050067901611328125,
+      "error": "'BenchmarkConfig' object has no attribute 'anthropic_api_key'"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "pricing",
+      "timestamp": "2026-01-24T22:39:11.132153",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.0030994415283203125,
+      "error": "'BenchmarkConfig' object has no attribute 'anthropic_api_key'"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "architecture",
+      "timestamp": "2026-01-24T22:39:11.132164",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.0040531158447265625,
+      "error": "'BenchmarkConfig' object has no attribute 'anthropic_api_key'"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "token_budgeting",
+      "timestamp": "2026-01-24T22:39:11.132176",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.005245208740234375,
+      "error": "'BenchmarkConfig' object has no attribute 'anthropic_api_key'"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "shared_context",
+      "timestamp": "2026-01-24T22:39:11.132188",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.00476837158203125,
+      "error": "'BenchmarkConfig' object has no attribute 'anthropic_api_key'"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "oauth_device_flow",
+      "timestamp": "2026-01-24T22:39:11.132199",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.0030994415283203125,
+      "error": "'BenchmarkConfig' object has no attribute 'anthropic_api_key'"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "database_models",
+      "timestamp": "2026-01-24T22:39:11.132210",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.0030994415283203125,
+      "error": "'BenchmarkConfig' object has no attribute 'anthropic_api_key'"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "layered_architecture",
+      "timestamp": "2026-01-24T22:39:11.132221",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.003814697265625,
+      "error": "'BenchmarkConfig' object has no attribute 'anthropic_api_key'"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "cost_benefit_analysis",
+      "timestamp": "2026-01-24T22:39:11.132233",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.00476837158203125,
+      "error": "'BenchmarkConfig' object has no attribute 'anthropic_api_key'"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "when_to_use_decompose",
+      "timestamp": "2026-01-24T22:39:11.132245",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.003814697265625,
+      "error": "'BenchmarkConfig' object has no attribute 'anthropic_api_key'"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "search_mode_selection",
+      "timestamp": "2026-01-24T22:39:11.132431",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.1728534698486328,
+      "error": "'BenchmarkConfig' object has no attribute 'anthropic_api_key'"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "full_request_flow",
+      "timestamp": "2026-01-24T22:39:11.132461",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.0069141387939453125,
+      "error": "'BenchmarkConfig' object has no attribute 'anthropic_api_key'"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "security_authentication_chain",
+      "timestamp": "2026-01-24T22:39:11.132476",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.00476837158203125,
+      "error": "'BenchmarkConfig' object has no attribute 'anthropic_api_key'"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "shared_context_budget_allocation",
+      "timestamp": "2026-01-24T22:39:11.132489",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.0050067901611328125,
+      "error": "'BenchmarkConfig' object has no attribute 'anthropic_api_key'"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "nonexistent_feature",
+      "timestamp": "2026-01-24T22:39:11.132502",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.0040531158447265625,
+      "error": "'BenchmarkConfig' object has no attribute 'anthropic_api_key'"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "ambiguous_acronym",
+      "timestamp": "2026-01-24T22:39:11.132514",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.005245208740234375,
+      "error": "'BenchmarkConfig' object has no attribute 'anthropic_api_key'"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "version_specific",
+      "timestamp": "2026-01-24T22:39:11.132526",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.0040531158447265625,
+      "error": "'BenchmarkConfig' object has no attribute 'anthropic_api_key'"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "error_handling",
+      "timestamp": "2026-01-24T22:39:11.132537",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.0030994415283203125,
+      "error": "'BenchmarkConfig' object has no attribute 'anthropic_api_key'"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "empty_context",
+      "timestamp": "2026-01-24T22:39:11.132548",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.0040531158447265625,
+      "error": "'BenchmarkConfig' object has no attribute 'anthropic_api_key'"
+    }
+  ]
+}

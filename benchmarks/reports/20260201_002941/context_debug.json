@@ -1,0 +1,1054 @@
+[
+  {
+    "task_id": "add_api_endpoint",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "Next.js API route handler Prisma Zod validation query params GET endpoint coding standards",
+    "original_query": "Write a Next.js API route handler at app/api/users/route.ts that returns a list of users from Prisma with Zod validation on query params.",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 850
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 1164
+      },
+      {
+        "title": "Adding a New API Route",
+        "relevance": 1.0,
+        "tokens": 74
+      },
+      {
+        "title": "Coding Standards",
+        "relevance": 0.9351437415976792,
+        "tokens": 26
+      },
+      {
+        "title": "API Routes",
+        "relevance": 0.9219141806236537,
+        "tokens": 342
+      },
+      {
+        "title": "API Routes (9 files)",
+        "relevance": 0.909384350969933,
+        "tokens": 170
+      },
+      {
+        "title": "API Routes Created",
+        "relevance": 0.8972522936861718,
+        "tokens": 64
+      },
+      {
+        "title": "API Endpoints for Automation",
+        "relevance": 0.8854993631925281,
+        "tokens": 129
+      },
+      {
+        "title": "Admin API Routes",
+        "relevance": 0.8741080613294581,
+        "tokens": 176
+      },
+      {
+        "title": "Automation API Routes",
+        "relevance": 0.8630619504319356,
+        "tokens": 173
+      },
+      {
+        "title": "GET /api/teams/[teamId]/context/[contextId]",
+        "relevance": 0.8523455741880704,
+        "tokens": 159
+      },
+      {
+        "title": "Route Handler Pattern",
+        "relevance": 0.8318446805041546,
+        "tokens": 119
+      },
+      {
+        "title": "GET /api/teams/[teamId]/api-keys",
+        "relevance": 0.8220335385268521,
+        "tokens": 121
+      },
+      {
+        "title": "Discovery API Routes",
+        "relevance": 0.8124987667460931,
+        "tokens": 116
+      },
+      {
+        "title": "1. Team-Wide Coding Standards",
+        "relevance": 0.8032288497370221,
+        "tokens": 107
+      },
+      {
+        "title": "B. API Endpoints",
+        "relevance": 0.7942129030569666,
+        "tokens": 23
+      },
+      {
+        "title": "Consolidated API Routes Summary",
+        "relevance": 0.7854406306115073,
+        "tokens": 19
+      },
+      {
+        "title": "GET /api/analytics/queries",
+        "relevance": 0.7685886335452301,
+        "tokens": 224
+      },
+      {
+        "title": "GET /api/debug",
+        "relevance": 0.7604909206692269,
+        "tokens": 230
+      },
+      {
+        "title": "NextAuth.js Configuration",
+        "relevance": 0.7526008414567107,
+        "tokens": 19
+      },
+      {
+        "title": "Next.js Web App (`apps/web/`)",
+        "relevance": 0.7449105110850178,
+        "tokens": 171
+      },
+      {
+        "title": "GET /api/ping",
+        "relevance": 0.7374124389726172,
+        "tokens": 29
+      },
+      {
+        "title": "Step 1: Get Your API Key",
+        "relevance": 0.7300995044432389,
+        "tokens": 53
+      },
+      {
+        "title": "GET /api/agents/memory/[id]",
+        "relevance": 0.7229649341706746,
+        "tokens": 40
+      },
+      {
+        "title": "GET /api/teams/[teamId]/sso",
+        "relevance": 0.716002281254076,
+        "tokens": 112
+      },
+      {
+        "title": "GET /api/admin/audit",
+        "relevance": 0.7092054057878724,
+        "tokens": 163
+      },
+      {
+        "title": "GET /api/health",
+        "relevance": 0.7025684568032264,
+        "tokens": 60
+      },
+      {
+        "title": "GET /api/agents/cache",
+        "relevance": 0.6960858554693864,
+        "tokens": 59
+      },
+      {
+        "title": "GET /api/settings/notifications",
+        "relevance": 0.6897522794535655,
+        "tokens": 53
+      },
+      {
+        "title": "GET /api/settings/profile",
+        "relevance": 0.6835626483471952,
+        "tokens": 63
+      },
+      {
+        "title": "GET /api/invites/[token]",
+        "relevance": 0.6775121100746757,
+        "tokens": 89
+      },
+      {
+        "title": "GET /api/agents",
+        "relevance": 0.6715960282082125,
+        "tokens": 138
+      },
+      {
+        "title": "GET /api/auth/session",
+        "relevance": 0.6658099701190341,
+        "tokens": 85
+      },
+      {
+        "title": "GET /api/projects",
+        "relevance": 0.6601496959013595,
+        "tokens": 212
+      },
+      {
+        "title": "GET /api/admin/users/[userId]",
+        "relevance": 0.6546111480109467,
+        "tokens": 84
+      },
+      {
+        "title": "GET /api/teams/[teamId]",
+        "relevance": 0.6491904415650108,
+        "tokens": 181
+      },
+      {
+        "title": "GET /api/projects/[projectId]/documents/[documentId]/versions/[version]",
+        "relevance": 0.6438838552547789,
+        "tokens": 83
+      },
+      {
+        "title": "GET /api/analytics",
+        "relevance": 0.6386878228260101,
+        "tokens": 256
+      },
+      {
+        "title": "\u2705 Test 3: Existing API Keys",
+        "relevance": 0.637648403429313,
+        "tokens": 90
+      },
+      {
+        "title": "GET /api/teams/[teamId]/projects/[projectId]/members/[memberId]",
+        "relevance": 0.6335989250864942,
+        "tokens": 109
+      },
+      {
+        "title": "From API Routes",
+        "relevance": 0.6286138824028868,
+        "tokens": 114
+      },
+      {
+        "title": "GET /api/oauth/device/authorize",
+        "relevance": 0.6237295476522817,
+        "tokens": 37
+      },
+      {
+        "title": "GET /api/agents/memory",
+        "relevance": 0.6189428995966886,
+        "tokens": 192
+      },
+      {
+        "title": "GET /api/teams",
+        "relevance": 0.6142510366511073,
+        "tokens": 132
+      },
+      {
+        "title": "GET /api/teams/[teamId]/permissions",
+        "relevance": 0.6096511710181844,
+        "tokens": 122
+      },
+      {
+        "title": "GET /api/billing",
+        "relevance": 0.6051406231645416,
+        "tokens": 179
+      }
+    ],
+    "sections_filtered": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 850
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 1164
+      },
+      {
+        "title": "Adding a New API Route",
+        "relevance": 1.0,
+        "tokens": 74
+      },
+      {
+        "title": "Coding Standards",
+        "relevance": 0.9351437415976792,
+        "tokens": 26
+      },
+      {
+        "title": "API Routes",
+        "relevance": 0.9219141806236537,
+        "tokens": 342
+      },
+      {
+        "title": "API Routes (9 files)",
+        "relevance": 0.909384350969933,
+        "tokens": 170
+      },
+      {
+        "title": "API Routes Created",
+        "relevance": 0.8972522936861718,
+        "tokens": 64
+      },
+      {
+        "title": "API Endpoints for Automation",
+        "relevance": 0.8854993631925281,
+        "tokens": 129
+      },
+      {
+        "title": "Admin API Routes",
+        "relevance": 0.8741080613294581,
+        "tokens": 176
+      },
+      {
+        "title": "Automation API Routes",
+        "relevance": 0.8630619504319356,
+        "tokens": 173
+      },
+      {
+        "title": "GET /api/teams/[teamId]/context/[contextId]",
+        "relevance": 0.8523455741880704,
+        "tokens": 159
+      },
+      {
+        "title": "Route Handler Pattern",
+        "relevance": 0.8318446805041546,
+        "tokens": 119
+      },
+      {
+        "title": "GET /api/teams/[teamId]/api-keys",
+        "relevance": 0.8220335385268521,
+        "tokens": 121
+      },
+      {
+        "title": "Discovery API Routes",
+        "relevance": 0.8124987667460931,
+        "tokens": 116
+      },
+      {
+        "title": "1. Team-Wide Coding Standards",
+        "relevance": 0.8032288497370221,
+        "tokens": 107
+      },
+      {
+        "title": "B. API Endpoints",
+        "relevance": 0.7942129030569666,
+        "tokens": 23
+      },
+      {
+        "title": "Consolidated API Routes Summary",
+        "relevance": 0.7854406306115073,
+        "tokens": 19
+      },
+      {
+        "title": "GET /api/analytics/queries",
+        "relevance": 0.7685886335452301,
+        "tokens": 224
+      },
+      {
+        "title": "GET /api/debug",
+        "relevance": 0.7604909206692269,
+        "tokens": 230
+      },
+      {
+        "title": "NextAuth.js Configuration",
+        "relevance": 0.7526008414567107,
+        "tokens": 19
+      },
+      {
+        "title": "Next.js Web App (`apps/web/`)",
+        "relevance": 0.7449105110850178,
+        "tokens": 171
+      },
+      {
+        "title": "GET /api/ping",
+        "relevance": 0.7374124389726172,
+        "tokens": 29
+      },
+      {
+        "title": "Step 1: Get Your API Key",
+        "relevance": 0.7300995044432389,
+        "tokens": 53
+      },
+      {
+        "title": "GET /api/agents/memory/[id]",
+        "relevance": 0.7229649341706746,
+        "tokens": 40
+      },
+      {
+        "title": "GET /api/teams/[teamId]/sso",
+        "relevance": 0.716002281254076,
+        "tokens": 112
+      },
+      {
+        "title": "GET /api/admin/audit",
+        "relevance": 0.7092054057878724,
+        "tokens": 163
+      },
+      {
+        "title": "GET /api/health",
+        "relevance": 0.7025684568032264,
+        "tokens": 60
+      },
+      {
+        "title": "GET /api/agents/cache",
+        "relevance": 0.6960858554693864,
+        "tokens": 59
+      },
+      {
+        "title": "GET /api/settings/notifications",
+        "relevance": 0.6897522794535655,
+        "tokens": 53
+      },
+      {
+        "title": "GET /api/settings/profile",
+        "relevance": 0.6835626483471952,
+        "tokens": 63
+      },
+      {
+        "title": "GET /api/invites/[token]",
+        "relevance": 0.6775121100746757,
+        "tokens": 89
+      },
+      {
+        "title": "GET /api/agents",
+        "relevance": 0.6715960282082125,
+        "tokens": 138
+      },
+      {
+        "title": "GET /api/auth/session",
+        "relevance": 0.6658099701190341,
+        "tokens": 85
+      },
+      {
+        "title": "GET /api/projects",
+        "relevance": 0.6601496959013595,
+        "tokens": 212
+      },
+      {
+        "title": "GET /api/admin/users/[userId]",
+        "relevance": 0.6546111480109467,
+        "tokens": 84
+      },
+      {
+        "title": "GET /api/teams/[teamId]",
+        "relevance": 0.6491904415650108,
+        "tokens": 181
+      },
+      {
+        "title": "GET /api/projects/[projectId]/documents/[documentId]/versions/[version]",
+        "relevance": 0.6438838552547789,
+        "tokens": 83
+      },
+      {
+        "title": "GET /api/analytics",
+        "relevance": 0.6386878228260101,
+        "tokens": 256
+      },
+      {
+        "title": "\u2705 Test 3: Existing API Keys",
+        "relevance": 0.637648403429313,
+        "tokens": 90
+      },
+      {
+        "title": "GET /api/teams/[teamId]/projects/[projectId]/members/[memberId]",
+        "relevance": 0.6335989250864942,
+        "tokens": 109
+      },
+      {
+        "title": "From API Routes",
+        "relevance": 0.6286138824028868,
+        "tokens": 114
+      },
+      {
+        "title": "GET /api/oauth/device/authorize",
+        "relevance": 0.6237295476522817,
+        "tokens": 37
+      },
+      {
+        "title": "GET /api/agents/memory",
+        "relevance": 0.6189428995966886,
+        "tokens": 192
+      },
+      {
+        "title": "GET /api/teams",
+        "relevance": 0.6142510366511073,
+        "tokens": 132
+      },
+      {
+        "title": "GET /api/teams/[teamId]/permissions",
+        "relevance": 0.6096511710181844,
+        "tokens": 122
+      },
+      {
+        "title": "GET /api/billing",
+        "relevance": 0.6051406231645416,
+        "tokens": 179
+      }
+    ],
+    "shared_context_removed": 0,
+    "total_tokens": 7598,
+    "query_term_coverage": 0.857
+  },
+  {
+    "task_id": "fix_type_error",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "TypeScript type annotations function parameters return types coding standards",
+    "original_query": "Fix this TypeScript: function getUser(id) { return db.users.find(u => u.id === id); }. The parameter needs a type annotation.",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 850
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 1164
+      },
+      {
+        "title": "TypeScript Strict Mode (Required)",
+        "relevance": 1.0,
+        "tokens": 59
+      },
+      {
+        "title": "TypeScript Architecture Layers",
+        "relevance": 0.9727784308603272,
+        "tokens": 151
+      },
+      {
+        "title": "TypeScript Standards",
+        "relevance": 0.827637793015991,
+        "tokens": 4
+      },
+      {
+        "title": "1. Team-Wide Coding Standards",
+        "relevance": 0.805710809751758,
+        "tokens": 107
+      },
+      {
+        "title": "Example: JavaScript/TypeScript",
+        "relevance": 0.7952533254257392,
+        "tokens": 337
+      },
+      {
+        "title": "Type Annotations",
+        "relevance": 0.7851127345641451,
+        "tokens": 113
+      },
+      {
+        "title": "Key Files to Reference",
+        "relevance": 0.7850809228650136,
+        "tokens": 159
+      },
+      {
+        "title": "Example Request (TypeScript)",
+        "relevance": 0.7752748479073749,
+        "tokens": 45
+      },
+      {
+        "title": "Types & Interfaces",
+        "relevance": 0.7657263108581567,
+        "tokens": 93
+      },
+      {
+        "title": "Supported File Types",
+        "relevance": 0.7564545429987709,
+        "tokens": 54
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "relevance": 0.7501464858055253,
+        "tokens": 1864
+      },
+      {
+        "title": "Coding Standards",
+        "relevance": 0.7474476827925103,
+        "tokens": 26
+      },
+      {
+        "title": "1.2 Core Types",
+        "relevance": 0.7386945369582572,
+        "tokens": 547
+      },
+      {
+        "title": "Pricing (Two Subscription Types)",
+        "relevance": 0.7301845340638444,
+        "tokens": 7
+      },
+      {
+        "title": "API Key Types",
+        "relevance": 0.721907681933662,
+        "tokens": 94
+      },
+      {
+        "title": "Memory Types",
+        "relevance": 0.7138545285097009,
+        "tokens": 100
+      },
+      {
+        "title": "Available Hook Types",
+        "relevance": 0.706016125843712,
+        "tokens": 143
+      },
+      {
+        "title": "5.3 Event Types",
+        "relevance": 0.6983839969320913,
+        "tokens": 259
+      },
+      {
+        "title": "Example Request (JavaScript)",
+        "relevance": 0.6909501051350582,
+        "tokens": 93
+      },
+      {
+        "title": "No `any` Type",
+        "relevance": 0.6837068259482052,
+        "tokens": 112
+      },
+      {
+        "title": "Before Starting Work",
+        "relevance": 0.6782493697721474,
+        "tokens": 111
+      },
+      {
+        "title": "Type vs Interface",
+        "relevance": 0.6766469209179814,
+        "tokens": 109
+      },
+      {
+        "title": "Variables & Functions",
+        "relevance": 0.6697635135135134,
+        "tokens": 124
+      },
+      {
+        "title": "Component File Structure",
+        "relevance": 0.663050066785699,
+        "tokens": 202
+      },
+      {
+        "title": "POST /api/teams/[teamId]/context",
+        "relevance": 0.6565003626610018,
+        "tokens": 283
+      }
+    ],
+    "sections_filtered": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 850
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 1164
+      },
+      {
+        "title": "TypeScript Strict Mode (Required)",
+        "relevance": 1.0,
+        "tokens": 59
+      },
+      {
+        "title": "TypeScript Architecture Layers",
+        "relevance": 0.9727784308603272,
+        "tokens": 151
+      },
+      {
+        "title": "TypeScript Standards",
+        "relevance": 0.827637793015991,
+        "tokens": 4
+      },
+      {
+        "title": "1. Team-Wide Coding Standards",
+        "relevance": 0.805710809751758,
+        "tokens": 107
+      },
+      {
+        "title": "Example: JavaScript/TypeScript",
+        "relevance": 0.7952533254257392,
+        "tokens": 337
+      },
+      {
+        "title": "Type Annotations",
+        "relevance": 0.7851127345641451,
+        "tokens": 113
+      },
+      {
+        "title": "Key Files to Reference",
+        "relevance": 0.7850809228650136,
+        "tokens": 159
+      },
+      {
+        "title": "Example Request (TypeScript)",
+        "relevance": 0.7752748479073749,
+        "tokens": 45
+      },
+      {
+        "title": "Types & Interfaces",
+        "relevance": 0.7657263108581567,
+        "tokens": 93
+      },
+      {
+        "title": "Supported File Types",
+        "relevance": 0.7564545429987709,
+        "tokens": 54
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "relevance": 0.7501464858055253,
+        "tokens": 1864
+      },
+      {
+        "title": "Coding Standards",
+        "relevance": 0.7474476827925103,
+        "tokens": 26
+      },
+      {
+        "title": "1.2 Core Types",
+        "relevance": 0.7386945369582572,
+        "tokens": 547
+      },
+      {
+        "title": "Pricing (Two Subscription Types)",
+        "relevance": 0.7301845340638444,
+        "tokens": 7
+      },
+      {
+        "title": "API Key Types",
+        "relevance": 0.721907681933662,
+        "tokens": 94
+      },
+      {
+        "title": "Memory Types",
+        "relevance": 0.7138545285097009,
+        "tokens": 100
+      },
+      {
+        "title": "Available Hook Types",
+        "relevance": 0.706016125843712,
+        "tokens": 143
+      },
+      {
+        "title": "5.3 Event Types",
+        "relevance": 0.6983839969320913,
+        "tokens": 259
+      },
+      {
+        "title": "Example Request (JavaScript)",
+        "relevance": 0.6909501051350582,
+        "tokens": 93
+      },
+      {
+        "title": "No `any` Type",
+        "relevance": 0.6837068259482052,
+        "tokens": 112
+      },
+      {
+        "title": "Before Starting Work",
+        "relevance": 0.6782493697721474,
+        "tokens": 111
+      },
+      {
+        "title": "Type vs Interface",
+        "relevance": 0.6766469209179814,
+        "tokens": 109
+      },
+      {
+        "title": "Variables & Functions",
+        "relevance": 0.6697635135135134,
+        "tokens": 124
+      },
+      {
+        "title": "Component File Structure",
+        "relevance": 0.663050066785699,
+        "tokens": 202
+      },
+      {
+        "title": "POST /api/teams/[teamId]/context",
+        "relevance": 0.6565003626610018,
+        "tokens": 283
+      }
+    ],
+    "shared_context_removed": 0,
+    "total_tokens": 7597,
+    "query_term_coverage": 0.909
+  },
+  {
+    "task_id": "add_unit_test",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "unit test vitest jest testing describe it expect coding standards test patterns",
+    "original_query": "Write a unit test for a function calculatePrice(quantity: number, unitPrice: number): number that returns quantity * unitPrice.",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 850
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 1164
+      },
+      {
+        "title": "10.1 Unit Tests",
+        "relevance": 1.0,
+        "tokens": 133
+      },
+      {
+        "title": "Testing Coverage",
+        "relevance": 0.9862784823448929,
+        "tokens": 121
+      },
+      {
+        "title": "Testing",
+        "relevance": 0.9733360182164218,
+        "tokens": 3
+      },
+      {
+        "title": "Security Commit Pre-Production Test Report",
+        "relevance": 0.9729925684248686,
+        "tokens": 99
+      },
+      {
+        "title": "Testing (dev)",
+        "relevance": 0.960121839314845,
+        "tokens": 34
+      },
+      {
+        "title": "Testing Hooks",
+        "relevance": 0.947647132638976,
+        "tokens": 167
+      },
+      {
+        "title": "10.2 Integration Tests",
+        "relevance": 0.9355504473775272,
+        "tokens": 185
+      },
+      {
+        "title": "Local Testing with Stripe CLI",
+        "relevance": 0.9238148571985099,
+        "tokens": 65
+      },
+      {
+        "title": "\u2753 Test 6: Runtime Security Feature Verification",
+        "relevance": 0.9124244314365224,
+        "tokens": 154
+      },
+      {
+        "title": "Adding Test Cases",
+        "relevance": 0.9057153920214024,
+        "tokens": 137
+      },
+      {
+        "title": "\u2705 Test 5: Dual-Repo Deployment Status",
+        "relevance": 0.905095628789852,
+        "tokens": 158
+      },
+      {
+        "title": "Testing Emails",
+        "relevance": 0.9013641629429984,
+        "tokens": 51
+      },
+      {
+        "title": "Mobile Testing Checklist",
+        "relevance": 0.890619902120718,
+        "tokens": 171
+      },
+      {
+        "title": "Feature Implementation Workflow (Snipara + RLM-Runtime)",
+        "relevance": 0.8892037353405864,
+        "tokens": 1672
+      },
+      {
+        "title": "Test Naming",
+        "relevance": 0.8801782965328677,
+        "tokens": 99
+      },
+      {
+        "title": "Test Structure",
+        "relevance": 0.8700267355446801,
+        "tokens": 48
+      },
+      {
+        "title": "Testing locally",
+        "relevance": 0.860153299515073,
+        "tokens": 23
+      },
+      {
+        "title": "10.3 E2E Tests",
+        "relevance": 0.8505467131078877,
+        "tokens": 120
+      },
+      {
+        "title": "Testing Checklist",
+        "relevance": 0.8320919550098738,
+        "tokens": 4
+      },
+      {
+        "title": "7. TESTING CHECKLIST",
+        "relevance": 0.8232240842355034,
+        "tokens": 8
+      },
+      {
+        "title": "Phase 10: Testing (Est. 2 days)",
+        "relevance": 0.8145835947630401,
+        "tokens": 13
+      },
+      {
+        "title": "\u26a0\ufe0f Test 2: Anti-Scan Protection",
+        "relevance": 0.8061618518594998,
+        "tokens": 327
+      },
+      {
+        "title": "1. Team-Wide Coding Standards",
+        "relevance": 0.7979506525285481,
+        "tokens": 107
+      },
+      {
+        "title": "Test Coverage",
+        "relevance": 0.7899421988600891,
+        "tokens": 36
+      },
+      {
+        "title": "Test Environment",
+        "relevance": 0.7821290733298849,
+        "tokens": 140
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "relevance": 0.7682332672135717,
+        "tokens": 1058
+      }
+    ],
+    "sections_filtered": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 850
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 1164
+      },
+      {
+        "title": "10.1 Unit Tests",
+        "relevance": 1.0,
+        "tokens": 133
+      },
+      {
+        "title": "Testing Coverage",
+        "relevance": 0.9862784823448929,
+        "tokens": 121
+      },
+      {
+        "title": "Testing",
+        "relevance": 0.9733360182164218,
+        "tokens": 3
+      },
+      {
+        "title": "Security Commit Pre-Production Test Report",
+        "relevance": 0.9729925684248686,
+        "tokens": 99
+      },
+      {
+        "title": "Testing (dev)",
+        "relevance": 0.960121839314845,
+        "tokens": 34
+      },
+      {
+        "title": "Testing Hooks",
+        "relevance": 0.947647132638976,
+        "tokens": 167
+      },
+      {
+        "title": "10.2 Integration Tests",
+        "relevance": 0.9355504473775272,
+        "tokens": 185
+      },
+      {
+        "title": "Local Testing with Stripe CLI",
+        "relevance": 0.9238148571985099,
+        "tokens": 65
+      },
+      {
+        "title": "\u2753 Test 6: Runtime Security Feature Verification",
+        "relevance": 0.9124244314365224,
+        "tokens": 154
+      },
+      {
+        "title": "Adding Test Cases",
+        "relevance": 0.9057153920214024,
+        "tokens": 137
+      },
+      {
+        "title": "\u2705 Test 5: Dual-Repo Deployment Status",
+        "relevance": 0.905095628789852,
+        "tokens": 158
+      },
+      {
+        "title": "Testing Emails",
+        "relevance": 0.9013641629429984,
+        "tokens": 51
+      },
+      {
+        "title": "Mobile Testing Checklist",
+        "relevance": 0.890619902120718,
+        "tokens": 171
+      },
+      {
+        "title": "Feature Implementation Workflow (Snipara + RLM-Runtime)",
+        "relevance": 0.8892037353405864,
+        "tokens": 1672
+      },
+      {
+        "title": "Test Naming",
+        "relevance": 0.8801782965328677,
+        "tokens": 99
+      },
+      {
+        "title": "Test Structure",
+        "relevance": 0.8700267355446801,
+        "tokens": 48
+      },
+      {
+        "title": "Testing locally",
+        "relevance": 0.860153299515073,
+        "tokens": 23
+      },
+      {
+        "title": "10.3 E2E Tests",
+        "relevance": 0.8505467131078877,
+        "tokens": 120
+      },
+      {
+        "title": "Testing Checklist",
+        "relevance": 0.8320919550098738,
+        "tokens": 4
+      },
+      {
+        "title": "7. TESTING CHECKLIST",
+        "relevance": 0.8232240842355034,
+        "tokens": 8
+      },
+      {
+        "title": "Phase 10: Testing (Est. 2 days)",
+        "relevance": 0.8145835947630401,
+        "tokens": 13
+      },
+      {
+        "title": "\u26a0\ufe0f Test 2: Anti-Scan Protection",
+        "relevance": 0.8061618518594998,
+        "tokens": 327
+      },
+      {
+        "title": "1. Team-Wide Coding Standards",
+        "relevance": 0.7979506525285481,
+        "tokens": 107
+      },
+      {
+        "title": "Test Coverage",
+        "relevance": 0.7899421988600891,
+        "tokens": 36
+      },
+      {
+        "title": "Test Environment",
+        "relevance": 0.7821290733298849,
+        "tokens": 140
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "relevance": 0.7682332672135717,
+        "tokens": 1058
+      }
+    ],
+    "shared_context_removed": 0,
+    "total_tokens": 7534,
+    "query_term_coverage": 0.556
+  }
+]

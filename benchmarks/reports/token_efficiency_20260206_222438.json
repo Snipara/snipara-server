@@ -1,0 +1,616 @@
+{
+  "benchmark_name": "token_efficiency",
+  "num_cases": 21,
+  "mean_with_snipara": {
+    "context_tokens": 3023.5714285714284,
+    "output_tokens": 188.0,
+    "input_tokens": 3523.5714285714284,
+    "total_tokens": 3711.5714285714284,
+    "cost_usd": 0.0006413333333333334
+  },
+  "mean_without_snipara": {
+    "context_tokens": 28186.0,
+    "output_tokens": 188.0,
+    "input_tokens": 28686.0,
+    "total_tokens": 28874.0,
+    "cost_usd": 0.004416
+  },
+  "mean_improvement": {
+    "token_reduction": 25162.428571428572,
+    "cost_savings_pct": 85.47619047619048,
+    "cost_savings_usd": 0.003774285714285714,
+    "compression_ratio": 10.974285714285715,
+    "token_reduction_pct": 89.26666666666667
+  },
+  "summary": "Token Efficiency: 11.0x compression (excellent)\n  - Context reduced by 89.3%\n  - Cost savings: 85.5%\n  - With Snipara: ~3024 tokens/query\n  - Without Snipara: ~28186 tokens/query",
+  "results": [
+    {
+      "benchmark_name": "token_efficiency",
+      "test_case": "tech_stack",
+      "timestamp": "2026-02-06T22:24:38.060500",
+      "with_snipara": {
+        "context_tokens": 2610,
+        "input_tokens": 3110,
+        "output_tokens": 188,
+        "total_tokens": 3298,
+        "cost_usd": 0.000579
+      },
+      "without_snipara": {
+        "context_tokens": 28186,
+        "input_tokens": 28686,
+        "output_tokens": 188,
+        "total_tokens": 28874,
+        "cost_usd": 0.004416
+      },
+      "improvement": {
+        "compression_ratio": 10.8,
+        "token_reduction": 25576,
+        "token_reduction_pct": 90.7,
+        "cost_savings_usd": 0.003836,
+        "cost_savings_pct": 86.9
+      },
+      "latency_ms": 39.12973403930664,
+      "error": null
+    },
+    {
+      "benchmark_name": "token_efficiency",
+      "test_case": "core_value_prop",
+      "timestamp": "2026-02-06T22:24:38.076769",
+      "with_snipara": {
+        "context_tokens": 2896,
+        "input_tokens": 3396,
+        "output_tokens": 188,
+        "total_tokens": 3584,
+        "cost_usd": 0.000622
+      },
+      "without_snipara": {
+        "context_tokens": 28186,
+        "input_tokens": 28686,
+        "output_tokens": 188,
+        "total_tokens": 28874,
+        "cost_usd": 0.004416
+      },
+      "improvement": {
+        "compression_ratio": 9.73,
+        "token_reduction": 25290,
+        "token_reduction_pct": 89.7,
+        "cost_savings_usd": 0.003793,
+        "cost_savings_pct": 85.9
+      },
+      "latency_ms": 16.260147094726562,
+      "error": null
+    },
+    {
+      "benchmark_name": "token_efficiency",
+      "test_case": "mcp_tools",
+      "timestamp": "2026-02-06T22:24:38.091378",
+      "with_snipara": {
+        "context_tokens": 3487,
+        "input_tokens": 3987,
+        "output_tokens": 188,
+        "total_tokens": 4175,
+        "cost_usd": 0.000711
+      },
+      "without_snipara": {
+        "context_tokens": 28186,
+        "input_tokens": 28686,
+        "output_tokens": 188,
+        "total_tokens": 28874,
+        "cost_usd": 0.004416
+      },
+      "improvement": {
+        "compression_ratio": 8.08,
+        "token_reduction": 24699,
+        "token_reduction_pct": 87.6,
+        "cost_savings_usd": 0.003705,
+        "cost_savings_pct": 83.9
+      },
+      "latency_ms": 14.605045318603516,
+      "error": null
+    },
+    {
+      "benchmark_name": "token_efficiency",
+      "test_case": "pricing",
+      "timestamp": "2026-02-06T22:24:38.104295",
+      "with_snipara": {
+        "context_tokens": 2240,
+        "input_tokens": 2740,
+        "output_tokens": 188,
+        "total_tokens": 2928,
+        "cost_usd": 0.000524
+      },
+      "without_snipara": {
+        "context_tokens": 28186,
+        "input_tokens": 28686,
+        "output_tokens": 188,
+        "total_tokens": 28874,
+        "cost_usd": 0.004416
+      },
+      "improvement": {
+        "compression_ratio": 12.58,
+        "token_reduction": 25946,
+        "token_reduction_pct": 92.1,
+        "cost_savings_usd": 0.003892,
+        "cost_savings_pct": 88.1
+      },
+      "latency_ms": 12.915849685668945,
+      "error": null
+    },
+    {
+      "benchmark_name": "token_efficiency",
+      "test_case": "architecture",
+      "timestamp": "2026-02-06T22:24:38.116718",
+      "with_snipara": {
+        "context_tokens": 2896,
+        "input_tokens": 3396,
+        "output_tokens": 188,
+        "total_tokens": 3584,
+        "cost_usd": 0.000622
+      },
+      "without_snipara": {
+        "context_tokens": 28186,
+        "input_tokens": 28686,
+        "output_tokens": 188,
+        "total_tokens": 28874,
+        "cost_usd": 0.004416
+      },
+      "improvement": {
+        "compression_ratio": 9.73,
+        "token_reduction": 25290,
+        "token_reduction_pct": 89.7,
+        "cost_savings_usd": 0.003793,
+        "cost_savings_pct": 85.9
+      },
+      "latency_ms": 12.423276901245117,
+      "error": null
+    },
+    {
+      "benchmark_name": "token_efficiency",
+      "test_case": "token_budgeting",
+      "timestamp": "2026-02-06T22:24:38.129584",
+      "with_snipara": {
+        "context_tokens": 4736,
+        "input_tokens": 5236,
+        "output_tokens": 188,
+        "total_tokens": 5424,
+        "cost_usd": 0.000898
+      },
+      "without_snipara": {
+        "context_tokens": 28186,
+        "input_tokens": 28686,
+        "output_tokens": 188,
+        "total_tokens": 28874,
+        "cost_usd": 0.004416
+      },
+      "improvement": {
+        "compression_ratio": 5.95,
+        "token_reduction": 23450,
+        "token_reduction_pct": 83.2,
+        "cost_savings_usd": 0.003517,
+        "cost_savings_pct": 79.7
+      },
+      "latency_ms": 12.865066528320312,
+      "error": null
+    },
+    {
+      "benchmark_name": "token_efficiency",
+      "test_case": "shared_context",
+      "timestamp": "2026-02-06T22:24:38.141973",
+      "with_snipara": {
+        "context_tokens": 2665,
+        "input_tokens": 3165,
+        "output_tokens": 188,
+        "total_tokens": 3353,
+        "cost_usd": 0.000588
+      },
+      "without_snipara": {
+        "context_tokens": 28186,
+        "input_tokens": 28686,
+        "output_tokens": 188,
+        "total_tokens": 28874,
+        "cost_usd": 0.004416
+      },
+      "improvement": {
+        "compression_ratio": 10.58,
+        "token_reduction": 25521,
+        "token_reduction_pct": 90.5,
+        "cost_savings_usd": 0.003828,
+        "cost_savings_pct": 86.7
+      },
+      "latency_ms": 12.388944625854492,
+      "error": null
+    },
+    {
+      "benchmark_name": "token_efficiency",
+      "test_case": "oauth_device_flow",
+      "timestamp": "2026-02-06T22:24:38.154837",
+      "with_snipara": {
+        "context_tokens": 4005,
+        "input_tokens": 4505,
+        "output_tokens": 188,
+        "total_tokens": 4693,
+        "cost_usd": 0.000789
+      },
+      "without_snipara": {
+        "context_tokens": 28186,
+        "input_tokens": 28686,
+        "output_tokens": 188,
+        "total_tokens": 28874,
+        "cost_usd": 0.004416
+      },
+      "improvement": {
+        "compression_ratio": 7.04,
+        "token_reduction": 24181,
+        "token_reduction_pct": 85.8,
+        "cost_savings_usd": 0.003627,
+        "cost_savings_pct": 82.1
+      },
+      "latency_ms": 12.8631591796875,
+      "error": null
+    },
+    {
+      "benchmark_name": "token_efficiency",
+      "test_case": "database_models",
+      "timestamp": "2026-02-06T22:24:38.166740",
+      "with_snipara": {
+        "context_tokens": 1759,
+        "input_tokens": 2259,
+        "output_tokens": 188,
+        "total_tokens": 2447,
+        "cost_usd": 0.000452
+      },
+      "without_snipara": {
+        "context_tokens": 28186,
+        "input_tokens": 28686,
+        "output_tokens": 188,
+        "total_tokens": 28874,
+        "cost_usd": 0.004416
+      },
+      "improvement": {
+        "compression_ratio": 16.02,
+        "token_reduction": 26427,
+        "token_reduction_pct": 93.8,
+        "cost_savings_usd": 0.003964,
+        "cost_savings_pct": 89.8
+      },
+      "latency_ms": 11.903047561645508,
+      "error": null
+    },
+    {
+      "benchmark_name": "token_efficiency",
+      "test_case": "layered_architecture",
+      "timestamp": "2026-02-06T22:24:38.179456",
+      "with_snipara": {
+        "context_tokens": 3667,
+        "input_tokens": 4167,
+        "output_tokens": 188,
+        "total_tokens": 4355,
+        "cost_usd": 0.000738
+      },
+      "without_snipara": {
+        "context_tokens": 28186,
+        "input_tokens": 28686,
+        "output_tokens": 188,
+        "total_tokens": 28874,
+        "cost_usd": 0.004416
+      },
+      "improvement": {
+        "compression_ratio": 7.69,
+        "token_reduction": 24519,
+        "token_reduction_pct": 87.0,
+        "cost_savings_usd": 0.003678,
+        "cost_savings_pct": 83.3
+      },
+      "latency_ms": 12.714862823486328,
+      "error": null
+    },
+    {
+      "benchmark_name": "token_efficiency",
+      "test_case": "cost_benefit_analysis",
+      "timestamp": "2026-02-06T22:24:38.191409",
+      "with_snipara": {
+        "context_tokens": 1258,
+        "input_tokens": 1758,
+        "output_tokens": 188,
+        "total_tokens": 1946,
+        "cost_usd": 0.000376
+      },
+      "without_snipara": {
+        "context_tokens": 28186,
+        "input_tokens": 28686,
+        "output_tokens": 188,
+        "total_tokens": 28874,
+        "cost_usd": 0.004416
+      },
+      "improvement": {
+        "compression_ratio": 22.41,
+        "token_reduction": 26928,
+        "token_reduction_pct": 95.5,
+        "cost_savings_usd": 0.004039,
+        "cost_savings_pct": 91.5
+      },
+      "latency_ms": 11.952877044677734,
+      "error": null
+    },
+    {
+      "benchmark_name": "token_efficiency",
+      "test_case": "when_to_use_decompose",
+      "timestamp": "2026-02-06T22:24:38.203347",
+      "with_snipara": {
+        "context_tokens": 2209,
+        "input_tokens": 2709,
+        "output_tokens": 188,
+        "total_tokens": 2897,
+        "cost_usd": 0.000519
+      },
+      "without_snipara": {
+        "context_tokens": 28186,
+        "input_tokens": 28686,
+        "output_tokens": 188,
+        "total_tokens": 28874,
+        "cost_usd": 0.004416
+      },
+      "improvement": {
+        "compression_ratio": 12.76,
+        "token_reduction": 25977,
+        "token_reduction_pct": 92.2,
+        "cost_savings_usd": 0.003897,
+        "cost_savings_pct": 88.2
+      },
+      "latency_ms": 11.939048767089844,
+      "error": null
+    },
+    {
+      "benchmark_name": "token_efficiency",
+      "test_case": "search_mode_selection",
+      "timestamp": "2026-02-06T22:24:38.216205",
+      "with_snipara": {
+        "context_tokens": 5122,
+        "input_tokens": 5622,
+        "output_tokens": 188,
+        "total_tokens": 5810,
+        "cost_usd": 0.000956
+      },
+      "without_snipara": {
+        "context_tokens": 28186,
+        "input_tokens": 28686,
+        "output_tokens": 188,
+        "total_tokens": 28874,
+        "cost_usd": 0.004416
+      },
+      "improvement": {
+        "compression_ratio": 5.5,
+        "token_reduction": 23064,
+        "token_reduction_pct": 81.8,
+        "cost_savings_usd": 0.00346,
+        "cost_savings_pct": 78.3
+      },
+      "latency_ms": 12.855052947998047,
+      "error": null
+    },
+    {
+      "benchmark_name": "token_efficiency",
+      "test_case": "full_request_flow",
+      "timestamp": "2026-02-06T22:24:38.228321",
+      "with_snipara": {
+        "context_tokens": 2626,
+        "input_tokens": 3126,
+        "output_tokens": 188,
+        "total_tokens": 3314,
+        "cost_usd": 0.000582
+      },
+      "without_snipara": {
+        "context_tokens": 28186,
+        "input_tokens": 28686,
+        "output_tokens": 188,
+        "total_tokens": 28874,
+        "cost_usd": 0.004416
+      },
+      "improvement": {
+        "compression_ratio": 10.73,
+        "token_reduction": 25560,
+        "token_reduction_pct": 90.7,
+        "cost_savings_usd": 0.003834,
+        "cost_savings_pct": 86.8
+      },
+      "latency_ms": 12.115001678466797,
+      "error": null
+    },
+    {
+      "benchmark_name": "token_efficiency",
+      "test_case": "security_authentication_chain",
+      "timestamp": "2026-02-06T22:24:38.240119",
+      "with_snipara": {
+        "context_tokens": 1202,
+        "input_tokens": 1702,
+        "output_tokens": 188,
+        "total_tokens": 1890,
+        "cost_usd": 0.000368
+      },
+      "without_snipara": {
+        "context_tokens": 28186,
+        "input_tokens": 28686,
+        "output_tokens": 188,
+        "total_tokens": 28874,
+        "cost_usd": 0.004416
+      },
+      "improvement": {
+        "compression_ratio": 23.45,
+        "token_reduction": 26984,
+        "token_reduction_pct": 95.7,
+        "cost_savings_usd": 0.004048,
+        "cost_savings_pct": 91.7
+      },
+      "latency_ms": 11.795997619628906,
+      "error": null
+    },
+    {
+      "benchmark_name": "token_efficiency",
+      "test_case": "shared_context_budget_allocation",
+      "timestamp": "2026-02-06T22:24:38.252996",
+      "with_snipara": {
+        "context_tokens": 4812,
+        "input_tokens": 5312,
+        "output_tokens": 188,
+        "total_tokens": 5500,
+        "cost_usd": 0.00091
+      },
+      "without_snipara": {
+        "context_tokens": 28186,
+        "input_tokens": 28686,
+        "output_tokens": 188,
+        "total_tokens": 28874,
+        "cost_usd": 0.004416
+      },
+      "improvement": {
+        "compression_ratio": 5.86,
+        "token_reduction": 23374,
+        "token_reduction_pct": 82.9,
+        "cost_savings_usd": 0.003506,
+        "cost_savings_pct": 79.4
+      },
+      "latency_ms": 12.876033782958984,
+      "error": null
+    },
+    {
+      "benchmark_name": "token_efficiency",
+      "test_case": "nonexistent_feature",
+      "timestamp": "2026-02-06T22:24:38.265557",
+      "with_snipara": {
+        "context_tokens": 4000,
+        "input_tokens": 4500,
+        "output_tokens": 188,
+        "total_tokens": 4688,
+        "cost_usd": 0.000788
+      },
+      "without_snipara": {
+        "context_tokens": 28186,
+        "input_tokens": 28686,
+        "output_tokens": 188,
+        "total_tokens": 28874,
+        "cost_usd": 0.004416
+      },
+      "improvement": {
+        "compression_ratio": 7.05,
+        "token_reduction": 24186,
+        "token_reduction_pct": 85.8,
+        "cost_savings_usd": 0.003628,
+        "cost_savings_pct": 82.2
+      },
+      "latency_ms": 12.56108283996582,
+      "error": null
+    },
+    {
+      "benchmark_name": "token_efficiency",
+      "test_case": "ambiguous_acronym",
+      "timestamp": "2026-02-06T22:24:38.278297",
+      "with_snipara": {
+        "context_tokens": 4191,
+        "input_tokens": 4691,
+        "output_tokens": 188,
+        "total_tokens": 4879,
+        "cost_usd": 0.000816
+      },
+      "without_snipara": {
+        "context_tokens": 28186,
+        "input_tokens": 28686,
+        "output_tokens": 188,
+        "total_tokens": 28874,
+        "cost_usd": 0.004416
+      },
+      "improvement": {
+        "compression_ratio": 6.73,
+        "token_reduction": 23995,
+        "token_reduction_pct": 85.1,
+        "cost_savings_usd": 0.003599,
+        "cost_savings_pct": 81.5
+      },
+      "latency_ms": 12.739896774291992,
+      "error": null
+    },
+    {
+      "benchmark_name": "token_efficiency",
+      "test_case": "version_specific",
+      "timestamp": "2026-02-06T22:24:38.290711",
+      "with_snipara": {
+        "context_tokens": 3071,
+        "input_tokens": 3571,
+        "output_tokens": 188,
+        "total_tokens": 3759,
+        "cost_usd": 0.000648
+      },
+      "without_snipara": {
+        "context_tokens": 28186,
+        "input_tokens": 28686,
+        "output_tokens": 188,
+        "total_tokens": 28874,
+        "cost_usd": 0.004416
+      },
+      "improvement": {
+        "compression_ratio": 9.18,
+        "token_reduction": 25115,
+        "token_reduction_pct": 89.1,
+        "cost_savings_usd": 0.003767,
+        "cost_savings_pct": 85.3
+      },
+      "latency_ms": 12.413263320922852,
+      "error": null
+    },
+    {
+      "benchmark_name": "token_efficiency",
+      "test_case": "error_handling",
+      "timestamp": "2026-02-06T22:24:38.302665",
+      "with_snipara": {
+        "context_tokens": 1704,
+        "input_tokens": 2204,
+        "output_tokens": 188,
+        "total_tokens": 2392,
+        "cost_usd": 0.000443
+      },
+      "without_snipara": {
+        "context_tokens": 28186,
+        "input_tokens": 28686,
+        "output_tokens": 188,
+        "total_tokens": 28874,
+        "cost_usd": 0.004416
+      },
+      "improvement": {
+        "compression_ratio": 16.54,
+        "token_reduction": 26482,
+        "token_reduction_pct": 94.0,
+        "cost_savings_usd": 0.003972,
+        "cost_savings_pct": 90.0
+      },
+      "latency_ms": 11.95383071899414,
+      "error": null
+    },
+    {
+      "benchmark_name": "token_efficiency",
+      "test_case": "empty_context",
+      "timestamp": "2026-02-06T22:24:38.314822",
+      "with_snipara": {
+        "context_tokens": 2339,
+        "input_tokens": 2839,
+        "output_tokens": 188,
+        "total_tokens": 3027,
+        "cost_usd": 0.000539
+      },
+      "without_snipara": {
+        "context_tokens": 28186,
+        "input_tokens": 28686,
+        "output_tokens": 188,
+        "total_tokens": 28874,
+        "cost_usd": 0.004416
+      },
+      "improvement": {
+        "compression_ratio": 12.05,
+        "token_reduction": 25847,
+        "token_reduction_pct": 91.7,
+        "cost_savings_usd": 0.003877,
+        "cost_savings_pct": 87.8
+      },
+      "latency_ms": 12.156963348388672,
+      "error": null
+    }
+  ]
+}

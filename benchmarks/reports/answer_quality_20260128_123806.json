@@ -1,0 +1,220 @@
+{
+  "benchmark_name": "answer_quality",
+  "num_cases": 21,
+  "mean_with_snipara": {},
+  "mean_without_snipara": {},
+  "mean_improvement": {},
+  "summary": "All test cases failed.",
+  "results": [
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "tech_stack",
+      "timestamp": "2026-01-28T12:38:06.079711",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.0591278076171875,
+      "error": "OPENAI_API_KEY not configured"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "core_value_prop",
+      "timestamp": "2026-01-28T12:38:06.079751",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.01621246337890625,
+      "error": "OPENAI_API_KEY not configured"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "mcp_tools",
+      "timestamp": "2026-01-28T12:38:06.079769",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.008344650268554688,
+      "error": "OPENAI_API_KEY not configured"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "pricing",
+      "timestamp": "2026-01-28T12:38:06.079784",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.0057220458984375,
+      "error": "OPENAI_API_KEY not configured"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "architecture",
+      "timestamp": "2026-01-28T12:38:06.079798",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.0059604644775390625,
+      "error": "OPENAI_API_KEY not configured"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "token_budgeting",
+      "timestamp": "2026-01-28T12:38:06.079813",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.007152557373046875,
+      "error": "OPENAI_API_KEY not configured"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "shared_context",
+      "timestamp": "2026-01-28T12:38:06.079828",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.0059604644775390625,
+      "error": "OPENAI_API_KEY not configured"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "oauth_device_flow",
+      "timestamp": "2026-01-28T12:38:06.079842",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.0057220458984375,
+      "error": "OPENAI_API_KEY not configured"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "database_models",
+      "timestamp": "2026-01-28T12:38:06.079856",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.0059604644775390625,
+      "error": "OPENAI_API_KEY not configured"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "layered_architecture",
+      "timestamp": "2026-01-28T12:38:06.079870",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.0059604644775390625,
+      "error": "OPENAI_API_KEY not configured"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "cost_benefit_analysis",
+      "timestamp": "2026-01-28T12:38:06.079885",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.0069141387939453125,
+      "error": "OPENAI_API_KEY not configured"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "when_to_use_decompose",
+      "timestamp": "2026-01-28T12:38:06.079899",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.006198883056640625,
+      "error": "OPENAI_API_KEY not configured"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "search_mode_selection",
+      "timestamp": "2026-01-28T12:38:06.079913",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.0069141387939453125,
+      "error": "OPENAI_API_KEY not configured"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "full_request_flow",
+      "timestamp": "2026-01-28T12:38:06.079927",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.0059604644775390625,
+      "error": "OPENAI_API_KEY not configured"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "security_authentication_chain",
+      "timestamp": "2026-01-28T12:38:06.079942",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.006198883056640625,
+      "error": "OPENAI_API_KEY not configured"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "shared_context_budget_allocation",
+      "timestamp": "2026-01-28T12:38:06.079956",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.0057220458984375,
+      "error": "OPENAI_API_KEY not configured"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "nonexistent_feature",
+      "timestamp": "2026-01-28T12:38:06.079970",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.0059604644775390625,
+      "error": "OPENAI_API_KEY not configured"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "ambiguous_acronym",
+      "timestamp": "2026-01-28T12:38:06.079985",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.0059604644775390625,
+      "error": "OPENAI_API_KEY not configured"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "version_specific",
+      "timestamp": "2026-01-28T12:38:06.080000",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.0059604644775390625,
+      "error": "OPENAI_API_KEY not configured"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "error_handling",
+      "timestamp": "2026-01-28T12:38:06.080014",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.006198883056640625,
+      "error": "OPENAI_API_KEY not configured"
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "empty_context",
+      "timestamp": "2026-01-28T12:38:06.080027",
+      "with_snipara": {},
+      "without_snipara": {},
+      "improvement": {},
+      "latency_ms": 0.006198883056640625,
+      "error": "OPENAI_API_KEY not configured"
+    }
+  ]
+}

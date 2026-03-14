@@ -243,28 +243,37 @@ async def create_htask(
 
     db = await get_db()
 
-    # Create task
-    task = await db.hierarchicaltask.create(
-        data={
-            "swarmId": swarm_id,
-            "level": level,
-            "parentId": parent_id,
-            "sequenceNumber": sequence_number,
-            "workstreamType": workstream_type,
-            "customWorkstreamType": custom_workstream_type,
-            "title": title,
-            "description": description,
-            "owner": owner.strip(),
-            "executionTarget": execution_target,
-            "priority": priority,
-            "etaTarget": eta_target,
-            "acceptanceCriteria": Json(acceptance_criteria) if acceptance_criteria else None,
-            "contextRefs": context_refs or [],
-            "evidenceRequired": Json(evidence_required) if evidence_required else None,
-            "status": "PENDING",
-            "isBlocking": is_blocking,
-        }
-    )
+    # Create task - use relation connect syntax for prisma-client-py
+    create_data: dict[str, Any] = {
+        "swarm": {"connect": {"id": swarm_id}},
+        "level": level,
+        "sequenceNumber": sequence_number,
+        "title": title,
+        "description": description,
+        "owner": owner.strip(),
+        "priority": priority,
+        "status": "PENDING",
+        "isBlocking": is_blocking,
+        "contextRefs": context_refs or [],
+    }
+
+    # Optional fields
+    if parent_id:
+        create_data["parent"] = {"connect": {"id": parent_id}}
+    if workstream_type:
+        create_data["workstreamType"] = workstream_type
+    if custom_workstream_type:
+        create_data["customWorkstreamType"] = custom_workstream_type
+    if execution_target:
+        create_data["executionTarget"] = execution_target
+    if eta_target:
+        create_data["etaTarget"] = eta_target
+    if acceptance_criteria:
+        create_data["acceptanceCriteria"] = Json(acceptance_criteria)
+    if evidence_required:
+        create_data["evidenceRequired"] = Json(evidence_required)
+
+    task = await db.hierarchicaltask.create(data=create_data)
 
     # Log event
     await log_htask_event(

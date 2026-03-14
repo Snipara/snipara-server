@@ -1,0 +1,682 @@
+{
+  "benchmark_name": "context_quality",
+  "num_cases": 21,
+  "mean_with_snipara": {
+    "ndcg": 0.6090476190476191,
+    "precision_at_k": 0.5047619047619047,
+    "recall_at_k": 0.8333333333333334,
+    "num_retrieved": 32.38095238095238,
+    "mrr": 0.9126666666666667,
+    "f1": 0.5996190476190476,
+    "num_relevant_found": 2.5238095238095237
+  },
+  "mean_without_snipara": {
+    "ndcg": 0.008095238095238096,
+    "precision_at_k": 0.009523809523809525,
+    "recall_at_k": 0.4372857142857143,
+    "num_retrieved": 349.0,
+    "mrr": 0.015857142857142858,
+    "f1": 0.014285714285714285,
+    "num_relevant_found": 0.047619047619047616
+  },
+  "mean_improvement": {
+    "ndcg_improvement": 0.600952380952381,
+    "precision_improvement": 0.49523809523809526,
+    "recall_improvement": 0.39604761904761904,
+    "mrr_improvement": 0.8968095238095237
+  },
+  "summary": "Context Quality: good\n  With Snipara:\n    - Precision@K: 50.5%\n    - Recall@K: 83.3%\n    - NDCG: 0.609\n  Improvement over baseline:\n    - Precision: +49.5%\n    - Recall: +39.6%",
+  "results": [
+    {
+      "benchmark_name": "context_quality",
+      "test_case": "tech_stack",
+      "timestamp": "2026-02-06T13:45:26.633706",
+      "with_snipara": {
+        "precision_at_k": 0.6,
+        "recall_at_k": 1.0,
+        "mrr": 1.0,
+        "ndcg": 0.655,
+        "f1": 0.75,
+        "num_retrieved": 36,
+        "num_relevant_found": 3
+      },
+      "without_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.4,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0.0,
+        "num_retrieved": 349,
+        "num_relevant_found": 0
+      },
+      "improvement": {
+        "precision_improvement": 0.6,
+        "recall_improvement": 0.6,
+        "mrr_improvement": 1.0,
+        "ndcg_improvement": 0.655
+      },
+      "latency_ms": 6.340980529785156,
+      "error": null
+    },
+    {
+      "benchmark_name": "context_quality",
+      "test_case": "core_value_prop",
+      "timestamp": "2026-02-06T13:45:26.639237",
+      "with_snipara": {
+        "precision_at_k": 0.6,
+        "recall_at_k": 1.0,
+        "mrr": 1.0,
+        "ndcg": 0.684,
+        "f1": 0.75,
+        "num_retrieved": 42,
+        "num_relevant_found": 3
+      },
+      "without_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.2,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0.0,
+        "num_retrieved": 349,
+        "num_relevant_found": 0
+      },
+      "improvement": {
+        "precision_improvement": 0.6,
+        "recall_improvement": 0.8,
+        "mrr_improvement": 1.0,
+        "ndcg_improvement": 0.684
+      },
+      "latency_ms": 5.511045455932617,
+      "error": null
+    },
+    {
+      "benchmark_name": "context_quality",
+      "test_case": "mcp_tools",
+      "timestamp": "2026-02-06T13:45:26.643774",
+      "with_snipara": {
+        "precision_at_k": 0.4,
+        "recall_at_k": 0.4,
+        "mrr": 0.333,
+        "ndcg": 0.316,
+        "f1": 0.4,
+        "num_retrieved": 21,
+        "num_relevant_found": 2
+      },
+      "without_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.6,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0.0,
+        "num_retrieved": 349,
+        "num_relevant_found": 0
+      },
+      "improvement": {
+        "precision_improvement": 0.4,
+        "recall_improvement": -0.2,
+        "mrr_improvement": 0.333,
+        "ndcg_improvement": 0.316
+      },
+      "latency_ms": 4.534006118774414,
+      "error": null
+    },
+    {
+      "benchmark_name": "context_quality",
+      "test_case": "pricing",
+      "timestamp": "2026-02-06T13:45:26.648302",
+      "with_snipara": {
+        "precision_at_k": 0.4,
+        "recall_at_k": 1.0,
+        "mrr": 1.0,
+        "ndcg": 0.553,
+        "f1": 0.571,
+        "num_retrieved": 32,
+        "num_relevant_found": 2
+      },
+      "without_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.4,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0.0,
+        "num_retrieved": 349,
+        "num_relevant_found": 0
+      },
+      "improvement": {
+        "precision_improvement": 0.4,
+        "recall_improvement": 0.6,
+        "mrr_improvement": 1.0,
+        "ndcg_improvement": 0.553
+      },
+      "latency_ms": 4.533052444458008,
+      "error": null
+    },
+    {
+      "benchmark_name": "context_quality",
+      "test_case": "architecture",
+      "timestamp": "2026-02-06T13:45:26.652603",
+      "with_snipara": {
+        "precision_at_k": 0.6,
+        "recall_at_k": 1.0,
+        "mrr": 1.0,
+        "ndcg": 0.684,
+        "f1": 0.75,
+        "num_retrieved": 42,
+        "num_relevant_found": 3
+      },
+      "without_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.2,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0.0,
+        "num_retrieved": 349,
+        "num_relevant_found": 0
+      },
+      "improvement": {
+        "precision_improvement": 0.6,
+        "recall_improvement": 0.8,
+        "mrr_improvement": 1.0,
+        "ndcg_improvement": 0.684
+      },
+      "latency_ms": 4.296064376831055,
+      "error": null
+    },
+    {
+      "benchmark_name": "context_quality",
+      "test_case": "token_budgeting",
+      "timestamp": "2026-02-06T13:45:26.655584",
+      "with_snipara": {
+        "precision_at_k": 0.6,
+        "recall_at_k": 1.0,
+        "mrr": 1.0,
+        "ndcg": 1.0,
+        "f1": 0.75,
+        "num_retrieved": 49,
+        "num_relevant_found": 3
+      },
+      "without_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.333,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0.0,
+        "num_retrieved": 349,
+        "num_relevant_found": 0
+      },
+      "improvement": {
+        "precision_improvement": 0.6,
+        "recall_improvement": 0.667,
+        "mrr_improvement": 1.0,
+        "ndcg_improvement": 1.0
+      },
+      "latency_ms": 2.9790401458740234,
+      "error": null
+    },
+    {
+      "benchmark_name": "context_quality",
+      "test_case": "shared_context",
+      "timestamp": "2026-02-06T13:45:26.658745",
+      "with_snipara": {
+        "precision_at_k": 0.6,
+        "recall_at_k": 0.8,
+        "mrr": 1.0,
+        "ndcg": 0.655,
+        "f1": 0.686,
+        "num_retrieved": 12,
+        "num_relevant_found": 3
+      },
+      "without_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.4,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0.0,
+        "num_retrieved": 349,
+        "num_relevant_found": 0
+      },
+      "improvement": {
+        "precision_improvement": 0.6,
+        "recall_improvement": 0.4,
+        "mrr_improvement": 1.0,
+        "ndcg_improvement": 0.655
+      },
+      "latency_ms": 3.160238265991211,
+      "error": null
+    },
+    {
+      "benchmark_name": "context_quality",
+      "test_case": "oauth_device_flow",
+      "timestamp": "2026-02-06T13:45:26.662131",
+      "with_snipara": {
+        "precision_at_k": 1.0,
+        "recall_at_k": 1.0,
+        "mrr": 1.0,
+        "ndcg": 1.0,
+        "f1": 1.0,
+        "num_retrieved": 46,
+        "num_relevant_found": 5
+      },
+      "without_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.4,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0.0,
+        "num_retrieved": 349,
+        "num_relevant_found": 0
+      },
+      "improvement": {
+        "precision_improvement": 1.0,
+        "recall_improvement": 0.6,
+        "mrr_improvement": 1.0,
+        "ndcg_improvement": 1.0
+      },
+      "latency_ms": 3.3850669860839844,
+      "error": null
+    },
+    {
+      "benchmark_name": "context_quality",
+      "test_case": "database_models",
+      "timestamp": "2026-02-06T13:45:26.665677",
+      "with_snipara": {
+        "precision_at_k": 0.6,
+        "recall_at_k": 0.6,
+        "mrr": 1.0,
+        "ndcg": 0.723,
+        "f1": 0.6,
+        "num_retrieved": 27,
+        "num_relevant_found": 3
+      },
+      "without_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.2,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0.0,
+        "num_retrieved": 349,
+        "num_relevant_found": 0
+      },
+      "improvement": {
+        "precision_improvement": 0.6,
+        "recall_improvement": 0.4,
+        "mrr_improvement": 1.0,
+        "ndcg_improvement": 0.723
+      },
+      "latency_ms": 3.5457611083984375,
+      "error": null
+    },
+    {
+      "benchmark_name": "context_quality",
+      "test_case": "layered_architecture",
+      "timestamp": "2026-02-06T13:45:26.669113",
+      "with_snipara": {
+        "precision_at_k": 0.2,
+        "recall_at_k": 0.2,
+        "mrr": 1.0,
+        "ndcg": 0.339,
+        "f1": 0.2,
+        "num_retrieved": 37,
+        "num_relevant_found": 1
+      },
+      "without_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.4,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0.0,
+        "num_retrieved": 349,
+        "num_relevant_found": 0
+      },
+      "improvement": {
+        "precision_improvement": 0.2,
+        "recall_improvement": -0.2,
+        "mrr_improvement": 1.0,
+        "ndcg_improvement": 0.339
+      },
+      "latency_ms": 3.4351348876953125,
+      "error": null
+    },
+    {
+      "benchmark_name": "context_quality",
+      "test_case": "cost_benefit_analysis",
+      "timestamp": "2026-02-06T13:45:26.672036",
+      "with_snipara": {
+        "precision_at_k": 0.6,
+        "recall_at_k": 1.0,
+        "mrr": 1.0,
+        "ndcg": 0.64,
+        "f1": 0.75,
+        "num_retrieved": 11,
+        "num_relevant_found": 3
+      },
+      "without_snipara": {
+        "precision_at_k": 0.2,
+        "recall_at_k": 0.6,
+        "mrr": 0.333,
+        "ndcg": 0.17,
+        "f1": 0.3,
+        "num_retrieved": 349,
+        "num_relevant_found": 1
+      },
+      "improvement": {
+        "precision_improvement": 0.4,
+        "recall_improvement": 0.4,
+        "mrr_improvement": 0.667,
+        "ndcg_improvement": 0.47
+      },
+      "latency_ms": 2.92205810546875,
+      "error": null
+    },
+    {
+      "benchmark_name": "context_quality",
+      "test_case": "when_to_use_decompose",
+      "timestamp": "2026-02-06T13:45:26.674865",
+      "with_snipara": {
+        "precision_at_k": 1.0,
+        "recall_at_k": 1.0,
+        "mrr": 1.0,
+        "ndcg": 1.0,
+        "f1": 1.0,
+        "num_retrieved": 23,
+        "num_relevant_found": 5
+      },
+      "without_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.6,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0.0,
+        "num_retrieved": 349,
+        "num_relevant_found": 0
+      },
+      "improvement": {
+        "precision_improvement": 1.0,
+        "recall_improvement": 0.4,
+        "mrr_improvement": 1.0,
+        "ndcg_improvement": 1.0
+      },
+      "latency_ms": 2.8290748596191406,
+      "error": null
+    },
+    {
+      "benchmark_name": "context_quality",
+      "test_case": "search_mode_selection",
+      "timestamp": "2026-02-06T13:45:26.677510",
+      "with_snipara": {
+        "precision_at_k": 0.6,
+        "recall_at_k": 0.8,
+        "mrr": 0.5,
+        "ndcg": 0.53,
+        "f1": 0.686,
+        "num_retrieved": 15,
+        "num_relevant_found": 3
+      },
+      "without_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.4,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0.0,
+        "num_retrieved": 349,
+        "num_relevant_found": 0
+      },
+      "improvement": {
+        "precision_improvement": 0.6,
+        "recall_improvement": 0.4,
+        "mrr_improvement": 0.5,
+        "ndcg_improvement": 0.53
+      },
+      "latency_ms": 2.6438236236572266,
+      "error": null
+    },
+    {
+      "benchmark_name": "context_quality",
+      "test_case": "full_request_flow",
+      "timestamp": "2026-02-06T13:45:26.680247",
+      "with_snipara": {
+        "precision_at_k": 0.2,
+        "recall_at_k": 1.0,
+        "mrr": 1.0,
+        "ndcg": 0.339,
+        "f1": 0.333,
+        "num_retrieved": 25,
+        "num_relevant_found": 1
+      },
+      "without_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.4,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0.0,
+        "num_retrieved": 349,
+        "num_relevant_found": 0
+      },
+      "improvement": {
+        "precision_improvement": 0.2,
+        "recall_improvement": 0.6,
+        "mrr_improvement": 1.0,
+        "ndcg_improvement": 0.339
+      },
+      "latency_ms": 2.7379989624023438,
+      "error": null
+    },
+    {
+      "benchmark_name": "context_quality",
+      "test_case": "security_authentication_chain",
+      "timestamp": "2026-02-06T13:45:26.683063",
+      "with_snipara": {
+        "precision_at_k": 0.2,
+        "recall_at_k": 0.6,
+        "mrr": 1.0,
+        "ndcg": 0.339,
+        "f1": 0.3,
+        "num_retrieved": 15,
+        "num_relevant_found": 1
+      },
+      "without_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.6,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0.0,
+        "num_retrieved": 349,
+        "num_relevant_found": 0
+      },
+      "improvement": {
+        "precision_improvement": 0.2,
+        "recall_improvement": 0.0,
+        "mrr_improvement": 1.0,
+        "ndcg_improvement": 0.339
+      },
+      "latency_ms": 2.81524658203125,
+      "error": null
+    },
+    {
+      "benchmark_name": "context_quality",
+      "test_case": "shared_context_budget_allocation",
+      "timestamp": "2026-02-06T13:45:26.685543",
+      "with_snipara": {
+        "precision_at_k": 0.2,
+        "recall_at_k": 0.75,
+        "mrr": 1.0,
+        "ndcg": 0.39,
+        "f1": 0.316,
+        "num_retrieved": 78,
+        "num_relevant_found": 1
+      },
+      "without_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.5,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0.0,
+        "num_retrieved": 349,
+        "num_relevant_found": 0
+      },
+      "improvement": {
+        "precision_improvement": 0.2,
+        "recall_improvement": 0.25,
+        "mrr_improvement": 1.0,
+        "ndcg_improvement": 0.39
+      },
+      "latency_ms": 2.4797916412353516,
+      "error": null
+    },
+    {
+      "benchmark_name": "context_quality",
+      "test_case": "nonexistent_feature",
+      "timestamp": "2026-02-06T13:45:26.688075",
+      "with_snipara": {
+        "precision_at_k": 0.8,
+        "recall_at_k": 1.0,
+        "mrr": 1.0,
+        "ndcg": 0.905,
+        "f1": 0.889,
+        "num_retrieved": 59,
+        "num_relevant_found": 4
+      },
+      "without_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.5,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0.0,
+        "num_retrieved": 349,
+        "num_relevant_found": 0
+      },
+      "improvement": {
+        "precision_improvement": 0.8,
+        "recall_improvement": 0.5,
+        "mrr_improvement": 1.0,
+        "ndcg_improvement": 0.905
+      },
+      "latency_ms": 2.5310516357421875,
+      "error": null
+    },
+    {
+      "benchmark_name": "context_quality",
+      "test_case": "ambiguous_acronym",
+      "timestamp": "2026-02-06T13:45:26.690343",
+      "with_snipara": {
+        "precision_at_k": 0.2,
+        "recall_at_k": 0.8,
+        "mrr": 1.0,
+        "ndcg": 0.339,
+        "f1": 0.32,
+        "num_retrieved": 41,
+        "num_relevant_found": 1
+      },
+      "without_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.6,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0.0,
+        "num_retrieved": 349,
+        "num_relevant_found": 0
+      },
+      "improvement": {
+        "precision_improvement": 0.2,
+        "recall_improvement": 0.2,
+        "mrr_improvement": 1.0,
+        "ndcg_improvement": 0.339
+      },
+      "latency_ms": 2.2678375244140625,
+      "error": null
+    },
+    {
+      "benchmark_name": "context_quality",
+      "test_case": "version_specific",
+      "timestamp": "2026-02-06T13:45:26.691985",
+      "with_snipara": {
+        "precision_at_k": 0.2,
+        "recall_at_k": 1.0,
+        "mrr": 1.0,
+        "ndcg": 0.613,
+        "f1": 0.333,
+        "num_retrieved": 32,
+        "num_relevant_found": 1
+      },
+      "without_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.5,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0.0,
+        "num_retrieved": 349,
+        "num_relevant_found": 0
+      },
+      "improvement": {
+        "precision_improvement": 0.2,
+        "recall_improvement": 0.5,
+        "mrr_improvement": 1.0,
+        "ndcg_improvement": 0.613
+      },
+      "latency_ms": 1.641988754272461,
+      "error": null
+    },
+    {
+      "benchmark_name": "context_quality",
+      "test_case": "error_handling",
+      "timestamp": "2026-02-06T13:45:26.694132",
+      "with_snipara": {
+        "precision_at_k": 0.4,
+        "recall_at_k": 0.75,
+        "mrr": 0.333,
+        "ndcg": 0.363,
+        "f1": 0.522,
+        "num_retrieved": 16,
+        "num_relevant_found": 2
+      },
+      "without_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.75,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0.0,
+        "num_retrieved": 349,
+        "num_relevant_found": 0
+      },
+      "improvement": {
+        "precision_improvement": 0.4,
+        "recall_improvement": 0.0,
+        "mrr_improvement": 0.333,
+        "ndcg_improvement": 0.363
+      },
+      "latency_ms": 2.1469593048095703,
+      "error": null
+    },
+    {
+      "benchmark_name": "context_quality",
+      "test_case": "empty_context",
+      "timestamp": "2026-02-06T13:45:26.696800",
+      "with_snipara": {
+        "precision_at_k": 0.6,
+        "recall_at_k": 0.8,
+        "mrr": 1.0,
+        "ndcg": 0.723,
+        "f1": 0.686,
+        "num_retrieved": 21,
+        "num_relevant_found": 3
+      },
+      "without_snipara": {
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.2,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "f1": 0.0,
+        "num_retrieved": 349,
+        "num_relevant_found": 0
+      },
+      "improvement": {
+        "precision_improvement": 0.6,
+        "recall_improvement": 0.6,
+        "mrr_improvement": 1.0,
+        "ndcg_improvement": 0.723
+      },
+      "latency_ms": 2.668142318725586,
+      "error": null
+    }
+  ]
+}

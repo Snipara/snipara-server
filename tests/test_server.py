@@ -46,7 +46,7 @@ class TestMCPEndpoints:
         # Should fail with 422 (missing header) or 401 (invalid key)
         assert response.status_code in [401, 422]
 
-    def test_mcp_invalid_api_key(self, client):
+    def test_mcp_invalid_api_key(self, client, mock_validate_api_key_invalid):
         """Test MCP endpoint with invalid API key."""
         response = client.post(
             "/v1/test-project/mcp",
@@ -95,7 +95,7 @@ class TestRequestValidation:
 class TestResponseFormat:
     """Tests for response format consistency."""
 
-    def test_error_response_format(self, client):
+    def test_error_response_format(self, client, mock_validate_api_key_invalid):
         """Test that error responses have consistent format."""
         response = client.post(
             "/v1/test-project/mcp",

@@ -1,0 +1,383 @@
+{
+  "benchmark_name": "answer_quality",
+  "num_cases": 10,
+  "mean_with_snipara": {
+    "correctness": 5.24,
+    "issues_count": 1.0,
+    "faithfulness": 4.18,
+    "relevance": 5.22,
+    "overall": 6.32,
+    "completeness": 9.559999999999999,
+    "clarity": 7.0
+  },
+  "mean_without_snipara": {
+    "correctness": 6.290000000000001,
+    "issues_count": 1.7,
+    "faithfulness": 3.18,
+    "relevance": 4.6,
+    "overall": 6.295,
+    "completeness": 9.3,
+    "clarity": 7.3
+  },
+  "mean_improvement": {
+    "faithfulness_improvement": 1.0,
+    "relevance_improvement": 0.62,
+    "clarity_improvement": -0.3,
+    "completeness_improvement": 0.25999999999999995,
+    "correctness_improvement": -1.05,
+    "overall_improvement": 0.02499999999999999
+  },
+  "summary": "Answer Quality: good (6.3/10)\n  With Snipara:\n    - Correctness: 5.2/10\n    - Completeness: 9.6/10\n    - Faithfulness: 4.2/10\n  Without Snipara:\n    - Overall: 6.3/10\n  Quality improvement: +0.0 points",
+  "results": [
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "tech_stack",
+      "timestamp": "2026-01-23T09:03:49.262232",
+      "with_snipara": {
+        "correctness": 5.7,
+        "completeness": 10,
+        "relevance": 2.8,
+        "faithfulness": 2.2,
+        "clarity": 7,
+        "overall": 5.8,
+        "issues_count": 1,
+        "response_preview": "Based on the documentation, Snipara's tech stack consists of the following components:\n\n## Frontend & Web Application\n- **Framework:** Next.js 14 with App Router\n- **UI Libraries:** \n  - Tailwind CSS ..."
+      },
+      "without_snipara": {
+        "correctness": 9,
+        "completeness": 9,
+        "relevance": 10,
+        "faithfulness": 8,
+        "clarity": 9,
+        "overall": 8.9,
+        "issues_count": 3,
+        "response_preview": "Based on the documentation, **Snipara** (the product name for RLM SaaS) uses a modern, full-stack architecture with the following tech stack:\n\n## Frontend & Web Application\n- **Framework:** Next.js 14..."
+      },
+      "improvement": {
+        "correctness_improvement": -3.3,
+        "completeness_improvement": 1,
+        "relevance_improvement": -7.2,
+        "faithfulness_improvement": -5.8,
+        "clarity_improvement": -2,
+        "overall_improvement": -3.1
+      },
+      "latency_ms": 33329.6480178833,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "core_value_prop",
+      "timestamp": "2026-01-23T09:04:27.110696",
+      "with_snipara": {
+        "correctness": 5.8,
+        "completeness": 10,
+        "relevance": 6.4,
+        "faithfulness": 5.1,
+        "clarity": 7,
+        "overall": 7.0,
+        "issues_count": 1,
+        "response_preview": "Based on the documentation provided, Snipara's core value proposition centers around **Context Optimization as a Service**. Here are the key components:\n\n## Primary Value Proposition\n\n**90% Context Re..."
+      },
+      "without_snipara": {
+        "correctness": 5.8,
+        "completeness": 10,
+        "relevance": 6.6,
+        "faithfulness": 5.3,
+        "clarity": 7,
+        "overall": 7.1,
+        "issues_count": 1,
+        "response_preview": "Based on the documentation, Snipara's core value proposition is **Context Optimization as a Service** for LLM users. Here are the key elements:\n\n## Primary Value Proposition\n\n**90% context reduction**..."
+      },
+      "improvement": {
+        "correctness_improvement": 0.0,
+        "completeness_improvement": 0,
+        "relevance_improvement": -0.2,
+        "faithfulness_improvement": -0.2,
+        "clarity_improvement": 0,
+        "overall_improvement": -0.1
+      },
+      "latency_ms": 37848.46782684326,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "mcp_tools",
+      "timestamp": "2026-01-23T09:05:15.794298",
+      "with_snipara": {
+        "correctness": 3.2,
+        "completeness": 10,
+        "relevance": 4.4,
+        "faithfulness": 3.5,
+        "clarity": 7,
+        "overall": 5.6,
+        "issues_count": 1,
+        "response_preview": "Based on the documentation, Snipara exposes the following MCP tools organized into several categories:\n\n## Primary Tool (Context Optimization)\n\n**`rlm_context_query`** - The main tool that returns opt..."
+      },
+      "without_snipara": {
+        "correctness": 3.7,
+        "completeness": 10,
+        "relevance": 4.4,
+        "faithfulness": 3.5,
+        "clarity": 7,
+        "overall": 5.7,
+        "issues_count": 1,
+        "response_preview": "Based on the documentation, Snipara exposes the following MCP tools organized by category:\n\n## Primary Tool (Context Optimization)\n\n**`rlm_context_query`** - The main tool for optimized context retrie..."
+      },
+      "improvement": {
+        "correctness_improvement": -0.5,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0.0,
+        "faithfulness_improvement": 0.0,
+        "clarity_improvement": 0,
+        "overall_improvement": -0.1
+      },
+      "latency_ms": 48683.5880279541,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "pricing",
+      "timestamp": "2026-01-23T09:05:43.606303",
+      "with_snipara": {
+        "correctness": 6.2,
+        "completeness": 5.6,
+        "relevance": 2.0,
+        "faithfulness": 1.6,
+        "clarity": 7,
+        "overall": 4.6,
+        "issues_count": 1,
+        "response_preview": "Based on the provided documentation, Snipara offers four pricing tiers:\n\n## Pricing Tiers\n\n**Free Plan**\n- Price: $0\n- Queries per month: 100\n\n**Pro Plan**\n- Price: $19/month\n- Queries per month: 5,00..."
+      },
+      "without_snipara": {
+        "correctness": 4.4,
+        "completeness": 10,
+        "relevance": 3.0,
+        "faithfulness": 2.4,
+        "clarity": 7,
+        "overall": 5.5,
+        "issues_count": 1,
+        "response_preview": "Based on the documentation, Snipara's pricing tiers are:\n\n## Pricing Tiers\n\n| Plan | Price | Queries/Month |\n|------|-------|---------------|\n| **Free** | $0 | 100 |\n| **Pro** | $19/mo | 5,000 |\n| **T..."
+      },
+      "improvement": {
+        "correctness_improvement": 1.8,
+        "completeness_improvement": -4.4,
+        "relevance_improvement": -1.0,
+        "faithfulness_improvement": -0.8,
+        "clarity_improvement": 0,
+        "overall_improvement": -0.9
+      },
+      "latency_ms": 27811.975955963135,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "architecture",
+      "timestamp": "2026-01-23T09:06:29.110871",
+      "with_snipara": {
+        "correctness": 7.5,
+        "completeness": 10,
+        "relevance": 5.6,
+        "faithfulness": 4.5,
+        "clarity": 7,
+        "overall": 7.2,
+        "issues_count": 1,
+        "response_preview": "Snipara uses a three-component distributed architecture designed to integrate AI code assistants with a centralized knowledge management system. Here's how the components work together:\n\n## The Three ..."
+      },
+      "without_snipara": {
+        "correctness": 7.9,
+        "completeness": 10,
+        "relevance": 1.8,
+        "faithfulness": 1.4,
+        "clarity": 7,
+        "overall": 6.2,
+        "issues_count": 1,
+        "response_preview": "Snipara's three-component architecture consists of separate components that work together to provide context optimization services:\n\n## The Three Components\n\n### 1. **snipara-mcp** (PyPI Package)\n- **..."
+      },
+      "improvement": {
+        "correctness_improvement": -0.4,
+        "completeness_improvement": 0,
+        "relevance_improvement": 3.8,
+        "faithfulness_improvement": 3.1,
+        "clarity_improvement": 0,
+        "overall_improvement": 1.0
+      },
+      "latency_ms": 45504.55188751221,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "token_budgeting",
+      "timestamp": "2026-01-23T09:07:22.501461",
+      "with_snipara": {
+        "correctness": 3.2,
+        "completeness": 10,
+        "relevance": 4.0,
+        "faithfulness": 3.2,
+        "clarity": 7,
+        "overall": 5.4,
+        "issues_count": 1,
+        "response_preview": "Based on the documentation, Snipara's token budgeting is a sophisticated system that manages context allocation efficiently. Here's how it works:\n\n## Core Token Budgeting\n\n**Token Budgeting** is avail..."
+      },
+      "without_snipara": {
+        "correctness": 5.1,
+        "completeness": 10,
+        "relevance": 4.0,
+        "faithfulness": 3.2,
+        "clarity": 7,
+        "overall": 6.0,
+        "issues_count": 1,
+        "response_preview": "Based on the documentation, Snipara's token budgeting is a sophisticated system that optimizes context delivery within client-specified token limits. Here's how it works:\n\n## Core Token Budgeting\n\n###..."
+      },
+      "improvement": {
+        "correctness_improvement": -1.9,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0.0,
+        "faithfulness_improvement": 0.0,
+        "clarity_improvement": 0,
+        "overall_improvement": -0.6
+      },
+      "latency_ms": 53390.57683944702,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "shared_context",
+      "timestamp": "2026-01-23T09:08:17.571834",
+      "with_snipara": {
+        "correctness": 5.6,
+        "completeness": 10,
+        "relevance": 9.6,
+        "faithfulness": 7.7,
+        "clarity": 7,
+        "overall": 7.9,
+        "issues_count": 1,
+        "response_preview": "Based on the documentation, **Shared Context Collections** are a feature that allows teams to create and manage reusable documentation, coding standards, and prompt templates that can be linked to mul..."
+      },
+      "without_snipara": {
+        "correctness": 6.9,
+        "completeness": 10,
+        "relevance": 2.6,
+        "faithfulness": 2.1,
+        "clarity": 7,
+        "overall": 6.1,
+        "issues_count": 1,
+        "response_preview": "Shared Context Collections are a powerful feature in Snipara that allow teams to create reusable documentation, coding standards, and prompt templates that can be linked to multiple projects.\n\n## Over..."
+      },
+      "improvement": {
+        "correctness_improvement": -1.3,
+        "completeness_improvement": 0,
+        "relevance_improvement": 7.0,
+        "faithfulness_improvement": 5.6,
+        "clarity_improvement": 0,
+        "overall_improvement": 1.8
+      },
+      "latency_ms": 55070.39427757263,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "oauth_device_flow",
+      "timestamp": "2026-01-23T09:09:05.889939",
+      "with_snipara": {
+        "correctness": 7.9,
+        "completeness": 10,
+        "relevance": 7.6,
+        "faithfulness": 6.1,
+        "clarity": 7,
+        "overall": 8.0,
+        "issues_count": 1,
+        "response_preview": "Based on the documentation, OAuth Device Flow authentication in Snipara works as follows:\n\n## Overview\nOAuth Device Flow (RFC 8628) enables secure MCP authentication without requiring users to copy AP..."
+      },
+      "without_snipara": {
+        "correctness": 7.7,
+        "completeness": 10,
+        "relevance": 2.4,
+        "faithfulness": 1.9,
+        "clarity": 7,
+        "overall": 6.3,
+        "issues_count": 1,
+        "response_preview": "OAuth Device Flow in Snipara enables secure MCP (Model Context Protocol) authentication without requiring users to copy and paste API keys. Here's how it works:\n\n## Overview\n\nOAuth Device Flow (RFC 86..."
+      },
+      "improvement": {
+        "correctness_improvement": 0.2,
+        "completeness_improvement": 0,
+        "relevance_improvement": 5.2,
+        "faithfulness_improvement": 4.2,
+        "clarity_improvement": 0,
+        "overall_improvement": 1.7
+      },
+      "latency_ms": 48318.0992603302,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "database_models",
+      "timestamp": "2026-01-23T09:09:45.993689",
+      "with_snipara": {
+        "correctness": 1.7,
+        "completeness": 10,
+        "relevance": 8.2,
+        "faithfulness": 6.6,
+        "clarity": 7,
+        "overall": 6.3,
+        "issues_count": 1,
+        "response_preview": "Based on the provided documentation, Snipara has a comprehensive database schema with the following main models:\n\n## Core User & Authentication Models\n- **User**: User accounts\n- **Account**: OAuth ac..."
+      },
+      "without_snipara": {
+        "correctness": 6,
+        "completeness": 4,
+        "relevance": 10,
+        "faithfulness": 3,
+        "clarity": 8,
+        "overall": 5.65,
+        "issues_count": 6,
+        "response_preview": "Based on the documentation, Snipara has the following main database models:\n\n## Core Business Models\n\n### User & Authentication\n- **User** - User accounts\n- **Account** - OAuth accounts (NextAuth inte..."
+      },
+      "improvement": {
+        "correctness_improvement": -4.3,
+        "completeness_improvement": 6,
+        "relevance_improvement": -1.8,
+        "faithfulness_improvement": 3.6,
+        "clarity_improvement": -1,
+        "overall_improvement": 0.65
+      },
+      "latency_ms": 40103.7380695343,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "layered_architecture",
+      "timestamp": "2026-01-23T09:10:36.657186",
+      "with_snipara": {
+        "correctness": 5.6,
+        "completeness": 10,
+        "relevance": 1.6,
+        "faithfulness": 1.3,
+        "clarity": 7,
+        "overall": 5.4,
+        "issues_count": 1,
+        "response_preview": "Based on the documentation, Snipara uses a **5-layer architecture pattern** with strict dependency flow from top to bottom. Here's the detailed breakdown:\n\n## Layered Architecture Pattern\n\nSnipara fol..."
+      },
+      "without_snipara": {
+        "correctness": 6.4,
+        "completeness": 10,
+        "relevance": 1.2,
+        "faithfulness": 1.0,
+        "clarity": 7,
+        "overall": 5.5,
+        "issues_count": 1,
+        "response_preview": "Based on the documentation, Snipara uses a strict **layered architecture pattern** with unidirectional dependencies and specific line limits for each layer. Here's the detailed breakdown:\n\n## Layered ..."
+      },
+      "improvement": {
+        "correctness_improvement": -0.8,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0.4,
+        "faithfulness_improvement": 0.3,
+        "clarity_improvement": 0,
+        "overall_improvement": -0.1
+      },
+      "latency_ms": 50663.496017456055,
+      "error": null
+    }
+  ]
+}

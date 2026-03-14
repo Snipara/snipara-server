@@ -1,0 +1,768 @@
+{
+  "benchmark_name": "answer_quality",
+  "num_cases": 21,
+  "mean_with_snipara": {
+    "completeness": 0.0,
+    "overall": 0.0,
+    "faithfulness": 0.0,
+    "relevance": 0.0,
+    "correctness": 0.0,
+    "clarity": 0.0,
+    "issues_count": 1.0
+  },
+  "mean_without_snipara": {
+    "completeness": 0.0,
+    "overall": 0.0,
+    "faithfulness": 0.0,
+    "relevance": 0.0,
+    "correctness": 0.0,
+    "clarity": 0.0,
+    "issues_count": 1.0
+  },
+  "mean_improvement": {
+    "overall_improvement": 0.0,
+    "faithfulness_improvement": 0.0,
+    "completeness_improvement": 0.0,
+    "relevance_improvement": 0.0,
+    "correctness_improvement": 0.0,
+    "clarity_improvement": 0.0
+  },
+  "summary": "Answer Quality: needs improvement (0.0/10)\n  With Snipara:\n    - Correctness: 0.0/10\n    - Completeness: 0.0/10\n    - Faithfulness: 0.0/10\n  Without Snipara:\n    - Overall: 0.0/10\n  Quality improvement: +0.0 points",
+  "results": [
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "tech_stack",
+      "timestamp": "2026-01-23T09:29:19.615051",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & B..."
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & B..."
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 800.0202178955078,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "core_value_prop",
+      "timestamp": "2026-01-23T09:29:20.310610",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & B..."
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & B..."
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 695.551872253418,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "mcp_tools",
+      "timestamp": "2026-01-23T09:29:20.978531",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & B..."
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & B..."
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 667.9120063781738,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "pricing",
+      "timestamp": "2026-01-23T09:29:21.739244",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & B..."
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & B..."
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 760.7097625732422,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "architecture",
+      "timestamp": "2026-01-23T09:29:22.406315",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & B..."
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & B..."
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 667.0668125152588,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "token_budgeting",
+      "timestamp": "2026-01-23T09:29:23.227214",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & B..."
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & B..."
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 820.892333984375,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "shared_context",
+      "timestamp": "2026-01-23T09:29:23.944973",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & B..."
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & B..."
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 717.7510261535645,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "oauth_device_flow",
+      "timestamp": "2026-01-23T09:29:24.729006",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & B..."
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & B..."
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 784.0418815612793,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "database_models",
+      "timestamp": "2026-01-23T09:29:25.360079",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & B..."
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & B..."
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 631.0489177703857,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "layered_architecture",
+      "timestamp": "2026-01-23T09:29:26.059438",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & B..."
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & B..."
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 699.3451118469238,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "cost_benefit_analysis",
+      "timestamp": "2026-01-23T09:29:26.744365",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & B..."
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & B..."
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 684.9157810211182,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "when_to_use_decompose",
+      "timestamp": "2026-01-23T09:29:27.467475",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & B..."
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & B..."
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 723.1061458587646,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "search_mode_selection",
+      "timestamp": "2026-01-23T09:29:28.290506",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & B..."
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & B..."
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 823.0257034301758,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "full_request_flow",
+      "timestamp": "2026-01-23T09:29:28.904266",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & B..."
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & B..."
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 613.7559413909912,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "security_authentication_chain",
+      "timestamp": "2026-01-23T09:29:29.616453",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & B..."
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & B..."
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 712.1660709381104,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "shared_context_budget_allocation",
+      "timestamp": "2026-01-23T09:29:30.288716",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & B..."
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & B..."
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 672.2712516784668,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "nonexistent_feature",
+      "timestamp": "2026-01-23T09:29:30.967040",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & B..."
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & B..."
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 678.3149242401123,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "ambiguous_acronym",
+      "timestamp": "2026-01-23T09:29:31.572999",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & B..."
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & B..."
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 605.9567928314209,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "version_specific",
+      "timestamp": "2026-01-23T09:29:32.215632",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & B..."
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & B..."
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 642.6138877868652,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "error_handling",
+      "timestamp": "2026-01-23T09:29:32.866066",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & B..."
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & B..."
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 650.4371166229248,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "empty_context",
+      "timestamp": "2026-01-23T09:29:33.493503",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & B..."
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & B..."
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 627.4170875549316,
+      "error": null
+    }
+  ]
+}

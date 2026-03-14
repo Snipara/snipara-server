@@ -1,0 +1,768 @@
+{
+  "benchmark_name": "answer_quality",
+  "num_cases": 21,
+  "mean_with_snipara": {
+    "issues_count": 0.9523809523809523,
+    "correctness": 5.714285714285714,
+    "faithfulness": 4.3047619047619055,
+    "relevance": 5.142857142857143,
+    "completeness": 9.390476190476189,
+    "overall": 6.419047619047619,
+    "clarity": 7.476190476190476
+  },
+  "mean_without_snipara": {
+    "issues_count": 1.0476190476190477,
+    "correctness": 5.385714285714285,
+    "faithfulness": 2.5523809523809526,
+    "relevance": 3.142857142857143,
+    "completeness": 9.528571428571428,
+    "overall": 5.687619047619047,
+    "clarity": 7.142857142857143
+  },
+  "mean_improvement": {
+    "clarity_improvement": 0.3333333333333333,
+    "overall_improvement": 0.7314285714285714,
+    "relevance_improvement": 2.0,
+    "faithfulness_improvement": 1.7523809523809522,
+    "correctness_improvement": 0.32857142857142857,
+    "completeness_improvement": -0.1380952380952381
+  },
+  "summary": "Answer Quality: good (6.4/10)\n  With Snipara:\n    - Correctness: 5.7/10\n    - Completeness: 9.4/10\n    - Faithfulness: 4.3/10\n  Without Snipara:\n    - Overall: 5.7/10\n  Quality improvement: +0.7 points",
+  "results": [
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "tech_stack",
+      "timestamp": "2026-02-07T18:21:09.839899",
+      "with_snipara": {
+        "correctness": 4.5,
+        "completeness": 10,
+        "relevance": 2.0,
+        "faithfulness": 1.6,
+        "clarity": 7,
+        "overall": 5.2,
+        "issues_count": 1,
+        "response_preview": "Snipara's tech stack consists of a variety of technologies layered to create a robust application. Here is a detailed breakdown of each layer:\n\n| Layer            | Technology                         ..."
+      },
+      "without_snipara": {
+        "correctness": 6.8,
+        "completeness": 10,
+        "relevance": 1.8,
+        "faithfulness": 1.4,
+        "clarity": 7,
+        "overall": 5.8,
+        "issues_count": 1,
+        "response_preview": "Snipara's tech stack consists of several components that work together to deliver its services effectively. Here\u2019s a detailed overview of the key components:\n\n| Component            | Technology      ..."
+      },
+      "improvement": {
+        "correctness_improvement": -2.3,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0.2,
+        "faithfulness_improvement": 0.2,
+        "clarity_improvement": 0,
+        "overall_improvement": -0.6
+      },
+      "latency_ms": 16323.742866516113,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "core_value_prop",
+      "timestamp": "2026-02-07T18:21:24.205575",
+      "with_snipara": {
+        "correctness": 10,
+        "completeness": 9,
+        "relevance": 10,
+        "faithfulness": 10,
+        "clarity": 9,
+        "overall": 9.5,
+        "issues_count": 0,
+        "response_preview": "Snipara's core value proposition is centered around providing **Context Optimization as a Service** for language model (LLM) clients. Here are the key components that define this value proposition:\n\n1..."
+      },
+      "without_snipara": {
+        "correctness": 5.8,
+        "completeness": 10,
+        "relevance": 6.6,
+        "faithfulness": 5.3,
+        "clarity": 7,
+        "overall": 7.1,
+        "issues_count": 1,
+        "response_preview": "Snipara's core value proposition lies in its offering of **Context Optimization as a Service** specifically designed for users of language models (LLMs) such as Claude, GPT, and others. Here are the k..."
+      },
+      "improvement": {
+        "correctness_improvement": 4.2,
+        "completeness_improvement": -1,
+        "relevance_improvement": 3.4,
+        "faithfulness_improvement": 4.7,
+        "clarity_improvement": 2,
+        "overall_improvement": 2.4
+      },
+      "latency_ms": 14365.669965744019,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "mcp_tools",
+      "timestamp": "2026-02-07T18:21:39.426556",
+      "with_snipara": {
+        "correctness": 2.4,
+        "completeness": 10,
+        "relevance": 5.2,
+        "faithfulness": 4.2,
+        "clarity": 7,
+        "overall": 5.6,
+        "issues_count": 1,
+        "response_preview": "Snipara exposes a total of **39 MCP tools** that are categorized into different functionalities. Here\u2019s a detailed breakdown:\n\n### 1. Core Context Tools (25 tools)\nThese tools are primarily focused on..."
+      },
+      "without_snipara": {
+        "correctness": 3.4,
+        "completeness": 10,
+        "relevance": 3.2,
+        "faithfulness": 2.6,
+        "clarity": 7,
+        "overall": 5.2,
+        "issues_count": 1,
+        "response_preview": "Snipara exposes a variety of tools under the **MCP (Multi-Context Protocol)** framework, which are designed for different functionalities related to context optimization and documentation retrieval. B..."
+      },
+      "improvement": {
+        "correctness_improvement": -1.0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 2.0,
+        "faithfulness_improvement": 1.6,
+        "clarity_improvement": 0,
+        "overall_improvement": 0.4
+      },
+      "latency_ms": 15220.950841903687,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "pricing",
+      "timestamp": "2026-02-07T18:21:49.839238",
+      "with_snipara": {
+        "correctness": 3,
+        "completeness": 5,
+        "relevance": 9,
+        "faithfulness": 4,
+        "clarity": 8,
+        "overall": 5.05,
+        "issues_count": 2,
+        "response_preview": "Snipara offers several pricing tiers tailored to different user needs. Below is a detailed breakdown of the available plans along with their respective prices and target users:\n\n| Plan          | Pric..."
+      },
+      "without_snipara": {
+        "correctness": 3.3,
+        "completeness": 10,
+        "relevance": 1.4,
+        "faithfulness": 1.1,
+        "clarity": 7,
+        "overall": 4.6,
+        "issues_count": 1,
+        "response_preview": "Snipara offers several pricing tiers for their Context Optimization as a Service, as follows:\n\n### Context Plans (Context Optimization)\n\n| Plan       | Price   | Monthly Queries |\n| ---------- | -----..."
+      },
+      "improvement": {
+        "correctness_improvement": -0.3,
+        "completeness_improvement": -5,
+        "relevance_improvement": 7.6,
+        "faithfulness_improvement": 2.9,
+        "clarity_improvement": 1,
+        "overall_improvement": 0.45
+      },
+      "latency_ms": 10412.67704963684,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "architecture",
+      "timestamp": "2026-02-07T18:22:11.750363",
+      "with_snipara": {
+        "correctness": 8.3,
+        "completeness": 10,
+        "relevance": 3.2,
+        "faithfulness": 2.6,
+        "clarity": 7,
+        "overall": 6.7,
+        "issues_count": 1,
+        "response_preview": "Snipara's three-component architecture consists of three main components that work together to provide context optimization and agent infrastructure for Language Learning Models (LLMs). Here\u2019s a detai..."
+      },
+      "without_snipara": {
+        "correctness": 6.9,
+        "completeness": 10,
+        "relevance": 3.6,
+        "faithfulness": 2.9,
+        "clarity": 7,
+        "overall": 6.4,
+        "issues_count": 1,
+        "response_preview": "Snipara's three-component architecture consists of three main parts that work together seamlessly to provide its services. Here\u2019s a detailed overview:\n\n### 1. User's Machine\nThis component includes va..."
+      },
+      "improvement": {
+        "correctness_improvement": 1.4,
+        "completeness_improvement": 0,
+        "relevance_improvement": -0.4,
+        "faithfulness_improvement": -0.3,
+        "clarity_improvement": 0,
+        "overall_improvement": 0.3
+      },
+      "latency_ms": 21911.142826080322,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "token_budgeting",
+      "timestamp": "2026-02-07T18:22:29.523461",
+      "with_snipara": {
+        "correctness": 5.6,
+        "completeness": 10,
+        "relevance": 4.0,
+        "faithfulness": 3.2,
+        "clarity": 7,
+        "overall": 6.2,
+        "issues_count": 1,
+        "response_preview": "Snipara's token budgeting is a structured process designed to manage and optimize the use of tokens when processing queries and responses. Here's a detailed breakdown of its functionality:\n\n### 1. Tok..."
+      },
+      "without_snipara": {
+        "correctness": 3.7,
+        "completeness": 10,
+        "relevance": 4.6,
+        "faithfulness": 3.7,
+        "clarity": 7,
+        "overall": 5.8,
+        "issues_count": 1,
+        "response_preview": "Token budgeting in Snipara works as a critical component of the context optimization process, enabling efficient interactions with large language models (LLMs) while adhering to specified limits. Here..."
+      },
+      "improvement": {
+        "correctness_improvement": 1.9,
+        "completeness_improvement": 0,
+        "relevance_improvement": -0.6,
+        "faithfulness_improvement": -0.5,
+        "clarity_improvement": 0,
+        "overall_improvement": 0.4
+      },
+      "latency_ms": 17773.06580543518,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "shared_context",
+      "timestamp": "2026-02-07T18:22:44.096160",
+      "with_snipara": {
+        "correctness": 6.0,
+        "completeness": 10,
+        "relevance": 4.8,
+        "faithfulness": 3.8,
+        "clarity": 7,
+        "overall": 6.5,
+        "issues_count": 1,
+        "response_preview": "Shared context collections are reusable sets of coding standards, best practices, and guidelines that are designed to be shared across projects or teams within the Snipara platform. They help ensure c..."
+      },
+      "without_snipara": {
+        "correctness": 5.3,
+        "completeness": 10,
+        "relevance": 1.0,
+        "faithfulness": 0.8,
+        "clarity": 7,
+        "overall": 5.1,
+        "issues_count": 1,
+        "response_preview": "Shared context collections in Snipara are a feature designed to allow teams to create reusable documents that encapsulate coding standards, best practices, guidelines, and reference materials. These c..."
+      },
+      "improvement": {
+        "correctness_improvement": 0.7,
+        "completeness_improvement": 0,
+        "relevance_improvement": 3.8,
+        "faithfulness_improvement": 3.0,
+        "clarity_improvement": 0,
+        "overall_improvement": 1.4
+      },
+      "latency_ms": 14572.689294815063,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "oauth_device_flow",
+      "timestamp": "2026-02-07T18:23:09.814170",
+      "with_snipara": {
+        "correctness": 4.9,
+        "completeness": 10,
+        "relevance": 2.2,
+        "faithfulness": 1.8,
+        "clarity": 7,
+        "overall": 5.4,
+        "issues_count": 1,
+        "response_preview": "The OAuth Device Flow authentication in Snipara allows users to authenticate securely without the need for copying API keys. This method is particularly useful for devices with limited input capabilit..."
+      },
+      "without_snipara": {
+        "correctness": 4.9,
+        "completeness": 10,
+        "relevance": 2.4,
+        "faithfulness": 1.9,
+        "clarity": 7,
+        "overall": 5.4,
+        "issues_count": 1,
+        "response_preview": "The OAuth Device Flow authentication in Snipara allows users to authenticate devices that do not have a user interface (like TVs, consoles, or IoT devices) by providing an easier way to obtain an acce..."
+      },
+      "improvement": {
+        "correctness_improvement": 0.0,
+        "completeness_improvement": 0,
+        "relevance_improvement": -0.2,
+        "faithfulness_improvement": -0.1,
+        "clarity_improvement": 0,
+        "overall_improvement": 0.0
+      },
+      "latency_ms": 25718.00708770752,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "database_models",
+      "timestamp": "2026-02-07T18:23:31.673666",
+      "with_snipara": {
+        "correctness": 1.7,
+        "completeness": 10,
+        "relevance": 2.6,
+        "faithfulness": 2.1,
+        "clarity": 7,
+        "overall": 4.5,
+        "issues_count": 1,
+        "response_preview": "The main database models in Snipara, as defined within the Prisma ORM schema, include the following:\n\n1. **User**\n   - This model represents users in the system. Key attributes include:\n     - `id`: A..."
+      },
+      "without_snipara": {
+        "correctness": 2.3,
+        "completeness": 10,
+        "relevance": 2.6,
+        "faithfulness": 2.1,
+        "clarity": 7,
+        "overall": 4.7,
+        "issues_count": 1,
+        "response_preview": "In the Snipara project, the main database models are defined within the Prisma schema, which governs the structure and relationships of the data stored in the PostgreSQL database. Here\u2019s a breakdown o..."
+      },
+      "improvement": {
+        "correctness_improvement": -0.6,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0.0,
+        "faithfulness_improvement": 0.0,
+        "clarity_improvement": 0,
+        "overall_improvement": -0.2
+      },
+      "latency_ms": 21859.46488380432,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "layered_architecture",
+      "timestamp": "2026-02-07T18:23:51.473473",
+      "with_snipara": {
+        "correctness": 2.6,
+        "completeness": 10,
+        "relevance": 4.0,
+        "faithfulness": 3.2,
+        "clarity": 7,
+        "overall": 5.2,
+        "issues_count": 1,
+        "response_preview": "The Snipara architecture follows a **Three-Component Architecture** pattern, which integrates three main components that work together to provide documentation querying and context optimization functi..."
+      },
+      "without_snipara": {
+        "correctness": 5.1,
+        "completeness": 10,
+        "relevance": 0.2,
+        "faithfulness": 0.2,
+        "clarity": 7,
+        "overall": 4.8,
+        "issues_count": 1,
+        "response_preview": "The Snipara application follows a strict **layered architecture pattern** designed to enhance modularity, maintainability, and separation of concerns within the codebase. This architecture is applied ..."
+      },
+      "improvement": {
+        "correctness_improvement": -2.5,
+        "completeness_improvement": 0,
+        "relevance_improvement": 3.8,
+        "faithfulness_improvement": 3.0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0.4
+      },
+      "latency_ms": 19799.822092056274,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "cost_benefit_analysis",
+      "timestamp": "2026-02-07T18:24:09.480669",
+      "with_snipara": {
+        "correctness": 6.0,
+        "completeness": 10,
+        "relevance": 4.2,
+        "faithfulness": 3.4,
+        "clarity": 7,
+        "overall": 6.3,
+        "issues_count": 1,
+        "response_preview": "Snipara dramatically improves the efficiency of working with a large codebase, such as a 500K token codebase, especially when your language model (LLM) has a context window of only 128K tokens. Here\u2019s..."
+      },
+      "without_snipara": {
+        "correctness": 9,
+        "completeness": 8,
+        "relevance": 10,
+        "faithfulness": 9,
+        "clarity": 9,
+        "overall": 8.59,
+        "issues_count": 1,
+        "response_preview": "Snipara helps users with large codebases, like a 500K token codebase, by providing **context optimization** to reduce the token load when querying. This is essential because using a model with a 128K ..."
+      },
+      "improvement": {
+        "correctness_improvement": -3.0,
+        "completeness_improvement": 2,
+        "relevance_improvement": -5.8,
+        "faithfulness_improvement": -5.6,
+        "clarity_improvement": -2,
+        "overall_improvement": -2.29
+      },
+      "latency_ms": 18007.193088531494,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "when_to_use_decompose",
+      "timestamp": "2026-02-07T18:24:23.418748",
+      "with_snipara": {
+        "correctness": 3.8,
+        "completeness": 10,
+        "relevance": 5.2,
+        "faithfulness": 4.2,
+        "clarity": 7,
+        "overall": 6.0,
+        "issues_count": 1,
+        "response_preview": "You should use `rlm_decompose` and `rlm_context_query` in different scenarios depending on the complexity of your question or task. Here\u2019s a detailed perspective on when to utilize each:\n\n### When to ..."
+      },
+      "without_snipara": {
+        "correctness": 5.1,
+        "completeness": 10,
+        "relevance": 2.8,
+        "faithfulness": 2.2,
+        "clarity": 7,
+        "overall": 5.6,
+        "issues_count": 1,
+        "response_preview": "The use of `rlm_decompose` vs. `rlm_context_query` depends on the complexity of your queries and the tasks you are trying to accomplish within Snipara's context optimization framework.\n\n### Use Cases ..."
+      },
+      "improvement": {
+        "correctness_improvement": -1.3,
+        "completeness_improvement": 0,
+        "relevance_improvement": 2.4,
+        "faithfulness_improvement": 2.0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0.4
+      },
+      "latency_ms": 13938.069105148315,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "search_mode_selection",
+      "timestamp": "2026-02-07T18:24:39.104730",
+      "with_snipara": {
+        "correctness": 9,
+        "completeness": 9,
+        "relevance": 10,
+        "faithfulness": 9,
+        "clarity": 10,
+        "overall": 9.05,
+        "issues_count": 0,
+        "response_preview": "When selecting a search mode for queries using the Snipara MCP tools, you should consider the complexity and requirements of your query. Here\u2019s a breakdown of the available search modes and their idea..."
+      },
+      "without_snipara": {
+        "correctness": 6.0,
+        "completeness": 10,
+        "relevance": 1.6,
+        "faithfulness": 1.3,
+        "clarity": 7,
+        "overall": 5.5,
+        "issues_count": 1,
+        "response_preview": "In Snipara, the choice of search mode depends on the complexity and nature of the queries you are handling. There are primarily three search modes available: **Keyword**, **Semantic**, and **Hybrid**...."
+      },
+      "improvement": {
+        "correctness_improvement": 3.0,
+        "completeness_improvement": -1,
+        "relevance_improvement": 8.4,
+        "faithfulness_improvement": 7.7,
+        "clarity_improvement": 3,
+        "overall_improvement": 3.55
+      },
+      "latency_ms": 15685.9610080719,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "full_request_flow",
+      "timestamp": "2026-02-07T18:24:55.230331",
+      "with_snipara": {
+        "correctness": 7.2,
+        "completeness": 10,
+        "relevance": 4.2,
+        "faithfulness": 3.4,
+        "clarity": 7,
+        "overall": 6.7,
+        "issues_count": 1,
+        "response_preview": "The full flow of an MCP (Machine Context Provider) request from a user's Claude Desktop to the database query and back involves several steps and components. Here\u2019s a breakdown of that process:\n\n1. **..."
+      },
+      "without_snipara": {
+        "correctness": 6.4,
+        "completeness": 10,
+        "relevance": 2.2,
+        "faithfulness": 1.8,
+        "clarity": 7,
+        "overall": 5.8,
+        "issues_count": 1,
+        "response_preview": "To trace the full flow of an MCP request from a user's Claude Desktop to a database query and back, we can break down the process into distinct steps. Here\u2019s the detailed flow:\n\n1. **User Initiates Re..."
+      },
+      "improvement": {
+        "correctness_improvement": 0.8,
+        "completeness_improvement": 0,
+        "relevance_improvement": 2.0,
+        "faithfulness_improvement": 1.6,
+        "clarity_improvement": 0,
+        "overall_improvement": 0.9
+      },
+      "latency_ms": 16125.603199005127,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "security_authentication_chain",
+      "timestamp": "2026-02-07T18:25:09.723433",
+      "with_snipara": {
+        "correctness": 2.6,
+        "completeness": 10,
+        "relevance": 3.6,
+        "faithfulness": 2.9,
+        "clarity": 7,
+        "overall": 5.1,
+        "issues_count": 1,
+        "response_preview": "Based on the provided documentation, the authentication options available for the Snipara project include the following:\n\n### 1. Session Cookies (Web App Authentication)\n- **Description:** All endpoin..."
+      },
+      "without_snipara": {
+        "correctness": 4.0,
+        "completeness": 10,
+        "relevance": 1.4,
+        "faithfulness": 1.1,
+        "clarity": 7,
+        "overall": 4.8,
+        "issues_count": 1,
+        "response_preview": "Snipara supports multiple authentication options, each with different levels of security and use cases. Here\u2019s a breakdown of the available authentication methods:\n\n### 1. Project API Key\n\n- **Header ..."
+      },
+      "improvement": {
+        "correctness_improvement": -1.4,
+        "completeness_improvement": 0,
+        "relevance_improvement": 2.2,
+        "faithfulness_improvement": 1.8,
+        "clarity_improvement": 0,
+        "overall_improvement": 0.3
+      },
+      "latency_ms": 14493.105173110962,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "shared_context_budget_allocation",
+      "timestamp": "2026-02-07T18:25:25.367129",
+      "with_snipara": {
+        "correctness": 6.2,
+        "completeness": 10,
+        "relevance": 3.8,
+        "faithfulness": 3.0,
+        "clarity": 7,
+        "overall": 6.3,
+        "issues_count": 1,
+        "response_preview": "Token budget allocation in the context of using shared context collections follows a structured approach, which ensures that both project-specific and shared documentation are effectively utilized dur..."
+      },
+      "without_snipara": {
+        "correctness": 4.7,
+        "completeness": 10,
+        "relevance": 2.8,
+        "faithfulness": 2.2,
+        "clarity": 7,
+        "overall": 5.5,
+        "issues_count": 1,
+        "response_preview": "Token budget allocation when using shared context collections in Snipara is designed to ensure efficient use of available tokens when multiple sources of context are being queried. Here\u2019s how it works..."
+      },
+      "improvement": {
+        "correctness_improvement": 1.5,
+        "completeness_improvement": 0,
+        "relevance_improvement": 1.0,
+        "faithfulness_improvement": 0.8,
+        "clarity_improvement": 0,
+        "overall_improvement": 0.8
+      },
+      "latency_ms": 15643.692016601562,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "nonexistent_feature",
+      "timestamp": "2026-02-07T18:25:41.065813",
+      "with_snipara": {
+        "correctness": 3.9,
+        "completeness": 10,
+        "relevance": 2.2,
+        "faithfulness": 1.8,
+        "clarity": 7,
+        "overall": 5.1,
+        "issues_count": 1,
+        "response_preview": "To configure real-time collaborative editing in Snipara, you would utilize the Redis Pub/Sub mechanism for instant notifications. Below are the detailed steps and considerations for implementing this:..."
+      },
+      "without_snipara": {
+        "correctness": 6.8,
+        "completeness": 10,
+        "relevance": 2.6,
+        "faithfulness": 2.1,
+        "clarity": 7,
+        "overall": 6.1,
+        "issues_count": 1,
+        "response_preview": "The documentation provided does not explicitly mention real-time collaborative editing as a feature of Snipara. However, the platform does emphasize team cooperation through shared context and multipl..."
+      },
+      "improvement": {
+        "correctness_improvement": -2.9,
+        "completeness_improvement": 0,
+        "relevance_improvement": -0.4,
+        "faithfulness_improvement": -0.3,
+        "clarity_improvement": 0,
+        "overall_improvement": -1.0
+      },
+      "latency_ms": 15698.674201965332,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "ambiguous_acronym",
+      "timestamp": "2026-02-07T18:25:49.251256",
+      "with_snipara": {
+        "correctness": 7.6,
+        "completeness": 7.2,
+        "relevance": 2.8,
+        "faithfulness": 2.2,
+        "clarity": 7,
+        "overall": 5.7,
+        "issues_count": 1,
+        "response_preview": "RLM stands for **Recursive Language Models**. This term is used as the internal project codename for Snipara's context optimization engine and multi-context processing (MCP) server. The naming reflect..."
+      },
+      "without_snipara": {
+        "correctness": 6.8,
+        "completeness": 10,
+        "relevance": 4.8,
+        "faithfulness": 3.8,
+        "clarity": 7,
+        "overall": 6.8,
+        "issues_count": 1,
+        "response_preview": "RLM stands for **Recursive Language Models**. It is the internal project codename for Snipara's context optimization engine and MCP (Multi-Context Processing) server. The term \"RLM\" reflects the **rec..."
+      },
+      "improvement": {
+        "correctness_improvement": 0.8,
+        "completeness_improvement": -2.8,
+        "relevance_improvement": -2.0,
+        "faithfulness_improvement": -1.6,
+        "clarity_improvement": 0,
+        "overall_improvement": -1.1
+      },
+      "latency_ms": 8185.441017150879,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "version_specific",
+      "timestamp": "2026-02-07T18:25:55.586331",
+      "with_snipara": {
+        "correctness": 10,
+        "completeness": 8,
+        "relevance": 10,
+        "faithfulness": 10,
+        "clarity": 9,
+        "overall": 9.1,
+        "issues_count": 1,
+        "response_preview": "The MCP server requires Python version **3.10 or higher**. This requirement is indicated by the line in the documentation that specifies the supported Python version:\n\n```markdown\n[![Python 3.10+](htt..."
+      },
+      "without_snipara": {
+        "correctness": 4.5,
+        "completeness": 4.1,
+        "relevance": 0.4,
+        "faithfulness": 0.3,
+        "clarity": 7,
+        "overall": 3.2,
+        "issues_count": 1,
+        "response_preview": "The MCP server for Snipara requires **Python 3.10 or higher**. This information is specified in the section titled **MCP Server Deployment Architecture** within the documentation, where it explicitly ..."
+      },
+      "improvement": {
+        "correctness_improvement": 5.5,
+        "completeness_improvement": 3.9,
+        "relevance_improvement": 9.6,
+        "faithfulness_improvement": 9.7,
+        "clarity_improvement": 2,
+        "overall_improvement": 5.9
+      },
+      "latency_ms": 6335.069894790649,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "error_handling",
+      "timestamp": "2026-02-07T18:26:07.694742",
+      "with_snipara": {
+        "correctness": 10,
+        "completeness": 9,
+        "relevance": 10,
+        "faithfulness": 10,
+        "clarity": 9,
+        "overall": 9.4,
+        "issues_count": 1,
+        "response_preview": "When a user exceeds their monthly query limit, the API responds with a **429 Too Many Requests** status. The response includes details about the rate limit, indicating that the user has exceeded their..."
+      },
+      "without_snipara": {
+        "correctness": 5.3,
+        "completeness": 10,
+        "relevance": 1.0,
+        "faithfulness": 0.8,
+        "clarity": 7,
+        "overall": 5.1,
+        "issues_count": 1,
+        "response_preview": "When a user exceeds their monthly query limit on the Snipara platform, the API responds with a **429 Too Many Requests** status code. The response will include a JSON payload detailing the situation. ..."
+      },
+      "improvement": {
+        "correctness_improvement": 4.7,
+        "completeness_improvement": -1,
+        "relevance_improvement": 9.0,
+        "faithfulness_improvement": 9.2,
+        "clarity_improvement": 2,
+        "overall_improvement": 4.3
+      },
+      "latency_ms": 12108.398914337158,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "empty_context",
+      "timestamp": "2026-02-07T18:26:19.353499",
+      "with_snipara": {
+        "correctness": 4.7,
+        "completeness": 10,
+        "relevance": 5.0,
+        "faithfulness": 4.0,
+        "clarity": 7,
+        "overall": 6.2,
+        "issues_count": 1,
+        "response_preview": "If no relevant documents are found for a query when using the Snipara MCP tools, the expected behavior is defined by the fallback mechanisms and configurations in place. Here are the detailed steps an..."
+      },
+      "without_snipara": {
+        "correctness": 7,
+        "completeness": 8,
+        "relevance": 9,
+        "faithfulness": 7,
+        "clarity": 8,
+        "overall": 7.55,
+        "issues_count": 2,
+        "response_preview": "If no relevant documents are found for a query in the RLM SaaS platform, the behavior largely depends on the specific tool being used and the context of the query. Here are the general mechanisms in p..."
+      },
+      "improvement": {
+        "correctness_improvement": -2.3,
+        "completeness_improvement": 2,
+        "relevance_improvement": -4.0,
+        "faithfulness_improvement": -3.0,
+        "clarity_improvement": -1,
+        "overall_improvement": -1.35
+      },
+      "latency_ms": 11658.751964569092,
+      "error": null
+    }
+  ]
+}

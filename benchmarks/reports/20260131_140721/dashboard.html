@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Snipara Benchmark Dashboard — 2026-01-31 14:07:21</title>
+<style>
+  :root { --bg: #0d1117; --card: #161b22; --border: #30363d; --text: #c9d1d9; --accent: #58a6ff; --green: #3fb950; --red: #f85149; --yellow: #d29922; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', monospace; background: var(--bg); color: var(--text); padding: 24px; }
+  h1 { color: var(--accent); margin-bottom: 4px; font-size: 1.5em; }
+  .meta { color: #8b949e; margin-bottom: 24px; font-size: 0.85em; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 32px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+  .card h3 { font-size: 0.9em; color: #8b949e; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .card .value { font-size: 2em; font-weight: 700; }
+  .card .value.green { color: var(--green); }
+  .card .value.yellow { color: var(--yellow); }
+  .card .value.red { color: var(--red); }
+  table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 0.85em; }
+  th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+  th { color: var(--accent); font-weight: 600; }
+  .pass { color: var(--green); } .fail { color: var(--red); }
+  .bar { display: inline-block; height: 14px; border-radius: 3px; }
+  .section { margin-top: 32px; }
+  .section h2 { color: var(--accent); font-size: 1.2em; margin-bottom: 12px; }
+</style>
+</head>
+<body>
+<h1>Snipara Benchmark Dashboard</h1>
+<p class="meta">Provider: openai &middot; Model: gpt-4o-mini &middot; Runs/task: 1 &middot; Temp: 0.0 &middot; 2026-01-31 14:07:21</p>
+
+<div id="app"></div>
+
+<script>
+const DATA = [
+  {
+    "suite": "docs-qa",
+    "mode": "snipara_ctx_mem",
+    "cbs": 0.975,
+    "quality": 5.32,
+    "tokens": 2721,
+    "cost": 0.00048,
+    "latency_p50": 3942,
+    "latency_p95": 10837,
+    "success_rate": 0.429,
+    "hallucination": 0.095,
+    "precision": 0.429,
+    "recall": 0.419,
+    "tasks": [
+      {
+        "id": "tech_stack",
+        "quality": 8.1,
+        "latency": 3942,
+        "tokens": 4375,
+        "success": true,
+        "difficulty": "easy",
+        "category": "factual"
+      },
+      {
+        "id": "core_value_prop",
+        "quality": 8,
+        "latency": 5131,
+        "tokens": 4153,
+        "success": true,
+        "difficulty": "easy",
+        "category": "factual"
+      },
+      {
+        "id": "mcp_tools",
+        "quality": 3.4,
+        "latency": 2723,
+        "tokens": 4206,
+        "success": false,
+        "difficulty": "easy",
+        "category": "factual"
+      },
+      {
+        "id": "pricing",
+        "quality": 6.1,
+        "latency": 2922,
+        "tokens": 383,
+        "success": false,
+        "difficulty": "easy",
+        "category": "factual"
+      },
+      {
+        "id": "architecture",
+        "quality": 4,
+        "latency": 6430,
+        "tokens": 374,
+        "success": false,
+        "difficulty": "easy",
+        "category": "factual"
+      },
+      {
+        "id": "token_budgeting",
+        "quality": 4.1,
+        "latency": 4275,
+        "tokens": 3752,
+        "success": false,
+        "difficulty": "easy",
+        "category": "factual"
+      },
+      {
+        "id": "shared_context",
+        "quality": 8.1,
+        "latency": 6519,
+        "tokens": 4289,
+        "success": true,
+        "difficulty": "easy",
+        "category": "factual"
+      },
+      {
+        "id": "oauth_device_flow",
+        "quality": 8,
+        "latency": 10837,
+        "tokens": 4113,
+        "success": true,
+        "difficulty": "easy",
+        "category": "factual"
+      },
+      {
+        "id": "database_models",
+        "quality": 1,
+        "latency": 2125,
+        "tokens": 2635,
+        "success": false,
+        "difficulty": "easy",
+        "category": "factual"
+      },
+      {
+        "id": "layered_architecture",
+        "quality": 8,
+        "latency": 3175,
+        "tokens": 4550,
+        "success": true,
+        "difficulty": "easy",
+        "category": "factual"
+      },
+      {
+        "id": "cost_benefit_analysis",
+        "quality": 7.2,
+        "latency": 3147,
+        "tokens": 1961,
+        "success": true,
+        "difficulty": "hard",
+        "category": "reasoning"
+      },
+      {
+        "id": "when_to_use_decompose",
+        "quality": 7.25,
+        "latency": 4583,
+        "tokens": 4289,
+        "success": true,
+        "difficulty": "medium",
+        "category": "reasoning"
+      },
+      {
+        "id": "search_mode_selection",
+        "quality": 3.5,
+        "latency": 8290,
+        "tokens": 1026,
+        "success": false,
+        "difficulty": "medium",
+        "category": "reasoning"
+      },
+      {
+        "id": "full_request_flow",
+        "quality": 6.4,
+        "latency": 7975,
+        "tokens": 2098,
+        "success": false,
+        "difficulty": "hard",
+        "category": "multi_hop"
+      },
+      {
+        "id": "security_authentication_chain",
+        "quality": 8.1,
+        "latency": 11224,
+        "tokens": 4227,
+        "success": true,
+        "difficulty": "hard",
+        "category": "multi_hop"
+      },
+      {
+        "id": "shared_context_budget_allocation",
+        "quality": 3.4,
+        "latency": 3344,
+        "tokens": 1727,
+        "success": false,
+        "difficulty": "hard",
+        "category": "multi_hop"
+      },
+      {
+        "id": "nonexistent_feature",
+        "quality": 0,
+        "latency": 6518,
+        "tokens": 417,
+        "success": false,
+        "difficulty": "medium",
+        "category": "edge_case"
+      },
+      {
+        "id": "ambiguous_acronym",
+        "quality": 3.5,
+        "latency": 949,
+        "tokens": 366,
+        "success": false,
+        "difficulty": "easy",
+        "category": "edge_case"
+      },
+      {
+        "id": "version_specific",
+        "quality": 0,
+        "latency": 1313,
+        "tokens": 234,
+        "success": false,
+        "difficulty": "easy",
+        "category": "edge_case"
+      },
+      {
+        "id": "error_handling",
+        "quality": 7.25,
+        "latency": 1904,
+        "tokens": 3788,
+        "success": true,
+        "difficulty": "medium",
+        "category": "edge_case"
+      },
+      {
+        "id": "empty_context",
+        "quality": 6.4,
+        "latency": 2285,
+        "tokens": 4187,
+        "success": false,
+        "difficulty": "medium",
+        "category": "edge_case"
+      }
+    ]
+  }
+];
+
+const app = document.getElementById('app');
+
+// --- CBS Cards ---
+const modes = [...new Set(DATA.map(d => d.mode))];
+const suites = [...new Set(DATA.map(d => d.suite))];
+
+let html = '<div class="grid">';
+for (const d of DATA) {
+  const cls = d.cbs >= 0.7 ? 'green' : d.cbs >= 0.4 ? 'yellow' : 'red';
+  html += `<div class="card">
+    <h3>${d.suite} — ${d.mode}</h3>
+    <div class="value ${cls}">${d.cbs.toFixed(3)}</div>
+    <div style="margin-top:8px;font-size:0.8em;color:#8b949e">
+      Quality ${d.quality.toFixed(1)} &middot; Success ${(d.success_rate*100).toFixed(0)}% &middot; Halluc ${(d.hallucination*100).toFixed(1)}%
+    </div>
+  </div>`;
+}
+html += '</div>';
+
+// --- Comparison Table ---
+for (const suite of suites) {
+  const rows = DATA.filter(d => d.suite === suite);
+  if (!rows.length) continue;
+  html += `<div class="section"><h2>${suite}</h2><table>
+    <tr><th>Mode</th><th>CBS</th><th>Quality</th><th>Tokens</th><th>Cost</th><th>p50 ms</th><th>p95 ms</th><th>Success</th><th>Halluc</th><th>Prec@5</th></tr>`;
+  for (const r of rows) {
+    html += `<tr>
+      <td>${r.mode}</td>
+      <td>${r.cbs.toFixed(3)}</td>
+      <td>${r.quality.toFixed(2)}</td>
+      <td>${r.tokens}</td>
+      <td>$${r.cost.toFixed(5)}</td>
+      <td>${r.latency_p50}</td>
+      <td>${r.latency_p95}</td>
+      <td>${(r.success_rate*100).toFixed(0)}%</td>
+      <td>${(r.hallucination*100).toFixed(1)}%</td>
+      <td>${(r.precision*100).toFixed(0)}%</td>
+    </tr>`;
+  }
+  html += '</table>';
+
+  // Per-task breakdown
+  const ref = rows[0];
+  html += '<table style="margin-top:12px"><tr><th>Task</th><th>Diff</th>';
+  for (const r of rows) html += `<th>${r.mode}</th>`;
+  html += '</tr>';
+  for (let i = 0; i < ref.tasks.length; i++) {
+    html += `<tr><td>${ref.tasks[i].id}</td><td>${ref.tasks[i].difficulty}</td>`;
+    for (const r of rows) {
+      const t = r.tasks[i];
+      const cls = t.success ? 'pass' : 'fail';
+      html += `<td class="${cls}">${t.quality.toFixed(1)}</td>`;
+    }
+    html += '</tr>';
+  }
+  html += '</table></div>';
+}
+
+app.innerHTML = html;
+</script>
+</body>
+</html>

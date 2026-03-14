@@ -1,0 +1,1298 @@
+[
+  {
+    "task_id": "mem_store_recall",
+    "mode": "snipara_ctx_mem",
+    "query": "database PostgreSQL Prisma schema models project configuration",
+    "original_query": "I prefer using PostgreSQL. Remember this. Now, what database should we use for the new project?",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "Database Migration",
+        "relevance": 1.0,
+        "tokens": 56
+      },
+      {
+        "title": "Per-Project MCP Configuration",
+        "relevance": 1.0,
+        "tokens": 275
+      },
+      {
+        "title": "Prisma Schema",
+        "relevance": 1.0,
+        "tokens": 348
+      },
+      {
+        "title": "C. Database Schema",
+        "relevance": 0.9865205304916893,
+        "tokens": 32
+      },
+      {
+        "title": "Database Changes",
+        "relevance": 0.9861463080605808,
+        "tokens": 44
+      },
+      {
+        "title": "\u2705 Test 1: Database Schema Verification",
+        "relevance": 0.9734689806503092,
+        "tokens": 152
+      },
+      {
+        "title": "3. Per-Project MCP Configuration",
+        "relevance": 0.9608252917414721,
+        "tokens": 98
+      },
+      {
+        "title": "Database Models",
+        "relevance": 0.9485706394144454,
+        "tokens": 85
+      },
+      {
+        "title": "Project Configuration",
+        "relevance": 0.9251587663120661,
+        "tokens": 90
+      },
+      {
+        "title": "Database Schema Addition",
+        "relevance": 0.913969268138135,
+        "tokens": 251
+      },
+      {
+        "title": "1.1 New Prisma Models",
+        "relevance": 0.9031041032446074,
+        "tokens": 1214
+      },
+      {
+        "title": "Database (Prisma)",
+        "relevance": 0.8925493716337521,
+        "tokens": 6
+      },
+      {
+        "title": "Phase 1: Database Schema (Est. 1-2 days)",
+        "relevance": 0.8822919564063012,
+        "tokens": 16
+      },
+      {
+        "title": "Key Files to Reference",
+        "relevance": 0.8784036505086774,
+        "tokens": 159
+      },
+      {
+        "title": "Database Schema",
+        "relevance": 0.8723194693796131,
+        "tokens": 1077
+      },
+      {
+        "title": "URL Patterns",
+        "relevance": 0.8626202011755736,
+        "tokens": 95
+      },
+      {
+        "title": "Checklist: After Schema Changes",
+        "relevance": 0.8531830753554271,
+        "tokens": 164
+      },
+      {
+        "title": "2.3 Project Management",
+        "relevance": 0.843997606223818,
+        "tokens": 561
+      },
+      {
+        "title": "1.2 Database Setup",
+        "relevance": 0.8263424188020239,
+        "tokens": 333
+      },
+      {
+        "title": "Prisma Client Not Generated (Docker)",
+        "relevance": 0.8178543479261612,
+        "tokens": 498
+      },
+      {
+        "title": "Implemented (Backend)",
+        "relevance": 0.8095811649205735,
+        "tokens": 227
+      },
+      {
+        "title": "4. Project Created",
+        "relevance": 0.8015148114901255,
+        "tokens": 147
+      },
+      {
+        "title": "Repository Pattern",
+        "relevance": 0.7936476272801825,
+        "tokens": 141
+      },
+      {
+        "title": "Project Actions",
+        "relevance": 0.7784819709718588,
+        "tokens": 54
+      },
+      {
+        "title": "Projects Router",
+        "relevance": 0.7711699581089168,
+        "tokens": 115
+      },
+      {
+        "title": "Per-Project Access (`ProjectMember.accessLevel`)",
+        "relevance": 0.7640299926074557,
+        "tokens": 70
+      },
+      {
+        "title": "1. \"Cannot connect to database\"",
+        "relevance": 0.7570560728153314,
+        "tokens": 146
+      },
+      {
+        "title": "Transactions",
+        "relevance": 0.7502424730184281,
+        "tokens": 104
+      },
+      {
+        "title": "Architecture: Two Repositories, One Shared Schema",
+        "relevance": 0.7466422321049241,
+        "tokens": 274
+      },
+      {
+        "title": "Get Sync Status",
+        "relevance": 0.7435837277623634,
+        "tokens": 51
+      },
+      {
+        "title": "2.2 Multi-Project ACL Gate (Week 1 Fix)",
+        "relevance": 0.7370746172311539,
+        "tokens": 209
+      },
+      {
+        "title": "POST /api/projects",
+        "relevance": 0.7307101536006383,
+        "tokens": 128
+      }
+    ],
+    "sections_filtered": [
+      {
+        "title": "Database Migration",
+        "relevance": 1.0,
+        "tokens": 56
+      },
+      {
+        "title": "Per-Project MCP Configuration",
+        "relevance": 1.0,
+        "tokens": 275
+      },
+      {
+        "title": "Prisma Schema",
+        "relevance": 1.0,
+        "tokens": 348
+      },
+      {
+        "title": "C. Database Schema",
+        "relevance": 0.9865205304916893,
+        "tokens": 32
+      },
+      {
+        "title": "Database Changes",
+        "relevance": 0.9861463080605808,
+        "tokens": 44
+      },
+      {
+        "title": "\u2705 Test 1: Database Schema Verification",
+        "relevance": 0.9734689806503092,
+        "tokens": 152
+      },
+      {
+        "title": "3. Per-Project MCP Configuration",
+        "relevance": 0.9608252917414721,
+        "tokens": 98
+      },
+      {
+        "title": "Database Models",
+        "relevance": 0.9485706394144454,
+        "tokens": 85
+      },
+      {
+        "title": "Project Configuration",
+        "relevance": 0.9251587663120661,
+        "tokens": 90
+      },
+      {
+        "title": "Database Schema Addition",
+        "relevance": 0.913969268138135,
+        "tokens": 251
+      },
+      {
+        "title": "1.1 New Prisma Models",
+        "relevance": 0.9031041032446074,
+        "tokens": 1214
+      },
+      {
+        "title": "Database (Prisma)",
+        "relevance": 0.8925493716337521,
+        "tokens": 6
+      },
+      {
+        "title": "Phase 1: Database Schema (Est. 1-2 days)",
+        "relevance": 0.8822919564063012,
+        "tokens": 16
+      },
+      {
+        "title": "Key Files to Reference",
+        "relevance": 0.8784036505086774,
+        "tokens": 159
+      },
+      {
+        "title": "Database Schema",
+        "relevance": 0.8723194693796131,
+        "tokens": 1077
+      },
+      {
+        "title": "URL Patterns",
+        "relevance": 0.8626202011755736,
+        "tokens": 95
+      },
+      {
+        "title": "Checklist: After Schema Changes",
+        "relevance": 0.8531830753554271,
+        "tokens": 164
+      },
+      {
+        "title": "2.3 Project Management",
+        "relevance": 0.843997606223818,
+        "tokens": 561
+      },
+      {
+        "title": "1.2 Database Setup",
+        "relevance": 0.8263424188020239,
+        "tokens": 333
+      },
+      {
+        "title": "Prisma Client Not Generated (Docker)",
+        "relevance": 0.8178543479261612,
+        "tokens": 498
+      },
+      {
+        "title": "Implemented (Backend)",
+        "relevance": 0.8095811649205735,
+        "tokens": 227
+      },
+      {
+        "title": "4. Project Created",
+        "relevance": 0.8015148114901255,
+        "tokens": 147
+      },
+      {
+        "title": "Repository Pattern",
+        "relevance": 0.7936476272801825,
+        "tokens": 141
+      },
+      {
+        "title": "Project Actions",
+        "relevance": 0.7784819709718588,
+        "tokens": 54
+      },
+      {
+        "title": "Projects Router",
+        "relevance": 0.7711699581089168,
+        "tokens": 115
+      },
+      {
+        "title": "Per-Project Access (`ProjectMember.accessLevel`)",
+        "relevance": 0.7640299926074557,
+        "tokens": 70
+      },
+      {
+        "title": "1. \"Cannot connect to database\"",
+        "relevance": 0.7570560728153314,
+        "tokens": 146
+      },
+      {
+        "title": "Transactions",
+        "relevance": 0.7502424730184281,
+        "tokens": 104
+      },
+      {
+        "title": "Architecture: Two Repositories, One Shared Schema",
+        "relevance": 0.7466422321049241,
+        "tokens": 274
+      },
+      {
+        "title": "Get Sync Status",
+        "relevance": 0.7435837277623634,
+        "tokens": 51
+      },
+      {
+        "title": "2.2 Multi-Project ACL Gate (Week 1 Fix)",
+        "relevance": 0.7370746172311539,
+        "tokens": 209
+      },
+      {
+        "title": "POST /api/projects",
+        "relevance": 0.7307101536006383,
+        "tokens": 128
+      }
+    ],
+    "shared_context_removed": 0,
+    "total_tokens": 7607,
+    "query_term_coverage": 0.8
+  },
+  {
+    "task_id": "mem_decision_log",
+    "mode": "snipara_ctx_mem",
+    "query": "OAuth device flow RFC 8628 CLI authentication snipara-mcp-login tokens",
+    "original_query": "We decided to use OAuth Device Flow for CLI authentication. Why did we make that decision?",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "OAuth Device Flow (MCP Authentication)",
+        "relevance": 1.0,
+        "tokens": 46
+      },
+      {
+        "title": "Use Snipara MCP for Documentation Queries",
+        "relevance": 0.9956819431255933,
+        "tokens": 626
+      },
+      {
+        "title": "1. Client MCP (`snipara-mcp` sur PyPI)",
+        "relevance": 0.9863787102255597,
+        "tokens": 143
+      },
+      {
+        "title": "Client MCP (snipara-mcp)",
+        "relevance": 0.9731898423487207,
+        "tokens": 64
+      },
+      {
+        "title": "Solution 1: Use SNIPARA_IGNORE_OAUTH Environment Variable (Recommended)",
+        "relevance": 0.9604131265930331,
+        "tokens": 163
+      },
+      {
+        "title": "OAuth Device Flow",
+        "relevance": 0.9480295405529049,
+        "tokens": 12
+      },
+      {
+        "title": "2. SNIPARA_IGNORE_OAUTH Environment Variable",
+        "relevance": 0.9360212146958111,
+        "tokens": 56
+      },
+      {
+        "title": "Solution 2: Remove OAuth Tokens (Force API Key)",
+        "relevance": 0.9243713463269885,
+        "tokens": 65
+      },
+      {
+        "title": "When Updating MCP Client:",
+        "relevance": 0.9130641211454844,
+        "tokens": 118
+      },
+      {
+        "title": "POST /api/oauth/device/code",
+        "relevance": 0.9020846416214152,
+        "tokens": 121
+      },
+      {
+        "title": "MCP Server Authentication",
+        "relevance": 0.8914188615123194,
+        "tokens": 83
+      },
+      {
+        "title": "Feature Implementation Workflow (Snipara + RLM-Runtime)",
+        "relevance": 0.8883708643942867,
+        "tokens": 1672
+      },
+      {
+        "title": "MCP Authentication (Quick Reference)",
+        "relevance": 0.8810535259133389,
+        "tokens": 181
+      },
+      {
+        "title": "MCP vs Inject API Authentication",
+        "relevance": 0.8709761163032192,
+        "tokens": 302
+      },
+      {
+        "title": "Snipara MCP Server",
+        "relevance": 0.8611748001070751,
+        "tokens": 259
+      },
+      {
+        "title": "POST /api/oauth/device/token",
+        "relevance": 0.8516383843486645,
+        "tokens": 141
+      },
+      {
+        "title": "Publier une nouvelle version du client MCP",
+        "relevance": 0.8423562730104786,
+        "tokens": 183
+      },
+      {
+        "title": "1.2 OAuth Token Authentication",
+        "relevance": 0.8333184277601393,
+        "tokens": 113
+      },
+      {
+        "title": "10. New Device Login",
+        "relevance": 0.824515331737082,
+        "tokens": 218
+      },
+      {
+        "title": "Update snipara-mcp Package",
+        "relevance": 0.815937956124872,
+        "tokens": 1335
+      },
+      {
+        "title": "Authentication Flow",
+        "relevance": 0.8075777292623383,
+        "tokens": 61
+      },
+      {
+        "title": "Installer le client MCP localement (dev)",
+        "relevance": 0.7994265080713677,
+        "tokens": 43
+      },
+      {
+        "title": "2. Restart your MCP client",
+        "relevance": 0.791476551601162,
+        "tokens": 41
+      },
+      {
+        "title": "Snipara MCP Tools (39 total)",
+        "relevance": 0.7837204965082785,
+        "tokens": 118
+      },
+      {
+        "title": "MCP Authentication",
+        "relevance": 0.7761513343091994,
+        "tokens": 14
+      },
+      {
+        "title": "Snipara Workflow Modes (Internal)",
+        "relevance": 0.7687623902577172,
+        "tokens": 27
+      },
+      {
+        "title": "Configure any MCP client to connect to localhost",
+        "relevance": 0.7545000098792752,
+        "tokens": 701
+      }
+    ],
+    "sections_filtered": [
+      {
+        "title": "OAuth Device Flow (MCP Authentication)",
+        "relevance": 1.0,
+        "tokens": 46
+      },
+      {
+        "title": "Use Snipara MCP for Documentation Queries",
+        "relevance": 0.9956819431255933,
+        "tokens": 626
+      },
+      {
+        "title": "1. Client MCP (`snipara-mcp` sur PyPI)",
+        "relevance": 0.9863787102255597,
+        "tokens": 143
+      },
+      {
+        "title": "Client MCP (snipara-mcp)",
+        "relevance": 0.9731898423487207,
+        "tokens": 64
+      },
+      {
+        "title": "Solution 1: Use SNIPARA_IGNORE_OAUTH Environment Variable (Recommended)",
+        "relevance": 0.9604131265930331,
+        "tokens": 163
+      },
+      {
+        "title": "OAuth Device Flow",
+        "relevance": 0.9480295405529049,
+        "tokens": 12
+      },
+      {
+        "title": "2. SNIPARA_IGNORE_OAUTH Environment Variable",
+        "relevance": 0.9360212146958111,
+        "tokens": 56
+      },
+      {
+        "title": "Solution 2: Remove OAuth Tokens (Force API Key)",
+        "relevance": 0.9243713463269885,
+        "tokens": 65
+      },
+      {
+        "title": "When Updating MCP Client:",
+        "relevance": 0.9130641211454844,
+        "tokens": 118
+      },
+      {
+        "title": "POST /api/oauth/device/code",
+        "relevance": 0.9020846416214152,
+        "tokens": 121
+      },
+      {
+        "title": "MCP Server Authentication",
+        "relevance": 0.8914188615123194,
+        "tokens": 83
+      },
+      {
+        "title": "Feature Implementation Workflow (Snipara + RLM-Runtime)",
+        "relevance": 0.8883708643942867,
+        "tokens": 1672
+      },
+      {
+        "title": "MCP Authentication (Quick Reference)",
+        "relevance": 0.8810535259133389,
+        "tokens": 181
+      },
+      {
+        "title": "MCP vs Inject API Authentication",
+        "relevance": 0.8709761163032192,
+        "tokens": 302
+      },
+      {
+        "title": "Snipara MCP Server",
+        "relevance": 0.8611748001070751,
+        "tokens": 259
+      },
+      {
+        "title": "POST /api/oauth/device/token",
+        "relevance": 0.8516383843486645,
+        "tokens": 141
+      },
+      {
+        "title": "Publier une nouvelle version du client MCP",
+        "relevance": 0.8423562730104786,
+        "tokens": 183
+      },
+      {
+        "title": "1.2 OAuth Token Authentication",
+        "relevance": 0.8333184277601393,
+        "tokens": 113
+      },
+      {
+        "title": "10. New Device Login",
+        "relevance": 0.824515331737082,
+        "tokens": 218
+      },
+      {
+        "title": "Update snipara-mcp Package",
+        "relevance": 0.815937956124872,
+        "tokens": 1335
+      },
+      {
+        "title": "Authentication Flow",
+        "relevance": 0.8075777292623383,
+        "tokens": 61
+      },
+      {
+        "title": "Installer le client MCP localement (dev)",
+        "relevance": 0.7994265080713677,
+        "tokens": 43
+      },
+      {
+        "title": "2. Restart your MCP client",
+        "relevance": 0.791476551601162,
+        "tokens": 41
+      },
+      {
+        "title": "Snipara MCP Tools (39 total)",
+        "relevance": 0.7837204965082785,
+        "tokens": 118
+      },
+      {
+        "title": "MCP Authentication",
+        "relevance": 0.7761513343091994,
+        "tokens": 14
+      },
+      {
+        "title": "Snipara Workflow Modes (Internal)",
+        "relevance": 0.7687623902577172,
+        "tokens": 27
+      },
+      {
+        "title": "Configure any MCP client to connect to localhost",
+        "relevance": 0.7545000098792752,
+        "tokens": 701
+      }
+    ],
+    "shared_context_removed": 0,
+    "total_tokens": 7293,
+    "query_term_coverage": 0.727
+  },
+  {
+    "task_id": "mem_shared_std",
+    "mode": "snipara_ctx_mem",
+    "query": "coding standards API endpoint Zod validation route handler layered architecture patterns",
+    "original_query": "What coding standards should I follow when adding a new API endpoint?",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 673
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 919
+      },
+      {
+        "title": "Adding a New API Route",
+        "relevance": 1.0,
+        "tokens": 74
+      },
+      {
+        "title": "\u2705 Test 3: Existing API Keys",
+        "relevance": 1.0,
+        "tokens": 90
+      },
+      {
+        "title": "API Routes",
+        "relevance": 0.9928921666867074,
+        "tokens": 342
+      },
+      {
+        "title": "API Routes (9 files)",
+        "relevance": 0.9798025606646159,
+        "tokens": 170
+      },
+      {
+        "title": "API Routes Created",
+        "relevance": 0.9671284976908447,
+        "tokens": 64
+      },
+      {
+        "title": "Discovery API Routes",
+        "relevance": 0.954850499185004,
+        "tokens": 116
+      },
+      {
+        "title": "B. API Endpoints",
+        "relevance": 0.9314106838556715,
+        "tokens": 23
+      },
+      {
+        "title": "Admin API Routes",
+        "relevance": 0.9202155481759903,
+        "tokens": 176
+      },
+      {
+        "title": "Route Handler Pattern",
+        "relevance": 0.9093496811927705,
+        "tokens": 119
+      },
+      {
+        "title": "Automation API Routes",
+        "relevance": 0.8987987668757307,
+        "tokens": 173
+      },
+      {
+        "title": "API Endpoints for Automation",
+        "relevance": 0.8885493072534636,
+        "tokens": 129
+      },
+      {
+        "title": "1. Team-Wide Coding Standards",
+        "relevance": 0.8785885648036548,
+        "tokens": 107
+      },
+      {
+        "title": "Consolidated API Routes Summary",
+        "relevance": 0.8689045096441184,
+        "tokens": 19
+      },
+      {
+        "title": "Architecture: Two Repositories, One Shared Schema",
+        "relevance": 0.8647282729495441,
+        "tokens": 274
+      },
+      {
+        "title": "Coding Standards",
+        "relevance": 0.8594857710642952,
+        "tokens": 26
+      },
+      {
+        "title": "API Endpoints",
+        "relevance": 0.8503215929866295,
+        "tokens": 5
+      },
+      {
+        "title": "8. API Endpoints",
+        "relevance": 0.8414017929910349,
+        "tokens": 8
+      },
+      {
+        "title": "API Design (tRPC Routers)",
+        "relevance": 0.8327167245742717,
+        "tokens": 9
+      },
+      {
+        "title": "Phase 7: API Routes (Est. 1-2 days)",
+        "relevance": 0.8242572423501519,
+        "tokens": 16
+      },
+      {
+        "title": "From API Routes",
+        "relevance": 0.8160146699266503,
+        "tokens": 114
+      },
+      {
+        "title": "Per-Project MCP Configuration",
+        "relevance": 0.8089512585648018,
+        "tokens": 275
+      },
+      {
+        "title": "Team API Key Management",
+        "relevance": 0.8079807702227311,
+        "tokens": 90
+      },
+      {
+        "title": "3.2 MCP Proxy Endpoint",
+        "relevance": 0.8001477180114098,
+        "tokens": 408
+      },
+      {
+        "title": "Project Structure",
+        "relevance": 0.797990689986066,
+        "tokens": 204
+      },
+      {
+        "title": "MCP vs Inject API Authentication",
+        "relevance": 0.7925080744966644,
+        "tokens": 302
+      },
+      {
+        "title": "15. Implemented Files Reference",
+        "relevance": 0.7850547637505713,
+        "tokens": 391
+      },
+      {
+        "title": "API Reference",
+        "relevance": 0.7777810508537819,
+        "tokens": 118
+      },
+      {
+        "title": "URL Patterns",
+        "relevance": 0.770680521597392,
+        "tokens": 95
+      },
+      {
+        "title": "auth.py - validate_api_key()",
+        "relevance": 0.7637470636176229,
+        "tokens": 71
+      }
+    ],
+    "sections_filtered": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 673
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 919
+      },
+      {
+        "title": "Adding a New API Route",
+        "relevance": 1.0,
+        "tokens": 74
+      },
+      {
+        "title": "\u2705 Test 3: Existing API Keys",
+        "relevance": 1.0,
+        "tokens": 90
+      },
+      {
+        "title": "API Routes",
+        "relevance": 0.9928921666867074,
+        "tokens": 342
+      },
+      {
+        "title": "API Routes (9 files)",
+        "relevance": 0.9798025606646159,
+        "tokens": 170
+      },
+      {
+        "title": "API Routes Created",
+        "relevance": 0.9671284976908447,
+        "tokens": 64
+      },
+      {
+        "title": "Discovery API Routes",
+        "relevance": 0.954850499185004,
+        "tokens": 116
+      },
+      {
+        "title": "B. API Endpoints",
+        "relevance": 0.9314106838556715,
+        "tokens": 23
+      },
+      {
+        "title": "Admin API Routes",
+        "relevance": 0.9202155481759903,
+        "tokens": 176
+      },
+      {
+        "title": "Route Handler Pattern",
+        "relevance": 0.9093496811927705,
+        "tokens": 119
+      },
+      {
+        "title": "Automation API Routes",
+        "relevance": 0.8987987668757307,
+        "tokens": 173
+      },
+      {
+        "title": "API Endpoints for Automation",
+        "relevance": 0.8885493072534636,
+        "tokens": 129
+      },
+      {
+        "title": "1. Team-Wide Coding Standards",
+        "relevance": 0.8785885648036548,
+        "tokens": 107
+      },
+      {
+        "title": "Consolidated API Routes Summary",
+        "relevance": 0.8689045096441184,
+        "tokens": 19
+      },
+      {
+        "title": "Architecture: Two Repositories, One Shared Schema",
+        "relevance": 0.8647282729495441,
+        "tokens": 274
+      },
+      {
+        "title": "Coding Standards",
+        "relevance": 0.8594857710642952,
+        "tokens": 26
+      },
+      {
+        "title": "API Endpoints",
+        "relevance": 0.8503215929866295,
+        "tokens": 5
+      },
+      {
+        "title": "8. API Endpoints",
+        "relevance": 0.8414017929910349,
+        "tokens": 8
+      },
+      {
+        "title": "API Design (tRPC Routers)",
+        "relevance": 0.8327167245742717,
+        "tokens": 9
+      },
+      {
+        "title": "Phase 7: API Routes (Est. 1-2 days)",
+        "relevance": 0.8242572423501519,
+        "tokens": 16
+      },
+      {
+        "title": "From API Routes",
+        "relevance": 0.8160146699266503,
+        "tokens": 114
+      },
+      {
+        "title": "Per-Project MCP Configuration",
+        "relevance": 0.8089512585648018,
+        "tokens": 275
+      },
+      {
+        "title": "Team API Key Management",
+        "relevance": 0.8079807702227311,
+        "tokens": 90
+      },
+      {
+        "title": "3.2 MCP Proxy Endpoint",
+        "relevance": 0.8001477180114098,
+        "tokens": 408
+      },
+      {
+        "title": "Project Structure",
+        "relevance": 0.797990689986066,
+        "tokens": 204
+      },
+      {
+        "title": "MCP vs Inject API Authentication",
+        "relevance": 0.7925080744966644,
+        "tokens": 302
+      },
+      {
+        "title": "15. Implemented Files Reference",
+        "relevance": 0.7850547637505713,
+        "tokens": 391
+      },
+      {
+        "title": "API Reference",
+        "relevance": 0.7777810508537819,
+        "tokens": 118
+      },
+      {
+        "title": "URL Patterns",
+        "relevance": 0.770680521597392,
+        "tokens": 95
+      },
+      {
+        "title": "auth.py - validate_api_key()",
+        "relevance": 0.7637470636176229,
+        "tokens": 71
+      }
+    ],
+    "shared_context_removed": 0,
+    "total_tokens": 5987,
+    "query_term_coverage": 0.889
+  },
+  {
+    "task_id": "multi_turn_refine",
+    "mode": "snipara_ctx_mem",
+    "query": "pricing plans tiers Team $49 queries per month shared context multi-project",
+    "original_query": "What is Snipara's pricing? Actually, focus only on the Team tier details.",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "relevance": 1.0,
+        "tokens": 1864
+      },
+      {
+        "title": "Shared Context (Team+)",
+        "relevance": 1.0,
+        "tokens": 98
+      },
+      {
+        "title": "Article #10: Team Collaboration with Shared Context",
+        "relevance": 0.9814118508050733,
+        "tokens": 142
+      },
+      {
+        "title": "8.2 Project Shared Context Manager",
+        "relevance": 0.9684608129834288,
+        "tokens": 1384
+      },
+      {
+        "title": "Project Shared Contexts",
+        "relevance": 0.9559144950937107,
+        "tokens": 16
+      },
+      {
+        "title": "POST /api/teams/[teamId]/projects/[projectId]/members",
+        "relevance": 0.9437542177544455,
+        "tokens": 213
+      },
+      {
+        "title": "2.2 Multi-Project ACL Gate (Week 1 Fix)",
+        "relevance": 0.9319624336678853,
+        "tokens": 209
+      },
+      {
+        "title": "Context Plans (Context Optimization)",
+        "relevance": 0.9275557402609078,
+        "tokens": 82
+      },
+      {
+        "title": "Share Context Across Projects",
+        "relevance": 0.9094193170318143,
+        "tokens": 91
+      },
+      {
+        "title": "MCP Query Order (Shared Context First)",
+        "relevance": 0.898637826466737,
+        "tokens": 193
+      },
+      {
+        "title": "DELETE /api/teams/[teamId]/projects/[projectId]/members/[memberId]",
+        "relevance": 0.8881643784892331,
+        "tokens": 85
+      },
+      {
+        "title": "Feature 3: Multi-Project ACL Gate",
+        "relevance": 0.8779859572153209,
+        "tokens": 234
+      },
+      {
+        "title": "PATCH /api/teams/[teamId]/projects/[projectId]/members/[memberId]",
+        "relevance": 0.8680902698656843,
+        "tokens": 63
+      },
+      {
+        "title": "Team Context API",
+        "relevance": 0.8584656972379553,
+        "tokens": 49
+      },
+      {
+        "title": "PUT /api/teams/[teamId]/context/[contextId]",
+        "relevance": 0.8491012481947595,
+        "tokens": 99
+      },
+      {
+        "title": "GET /api/teams/[teamId]/context/[contextId]",
+        "relevance": 0.8399865177927157,
+        "tokens": 159
+      },
+      {
+        "title": "2. Use Team Context",
+        "relevance": 0.8311116487170415,
+        "tokens": 38
+      },
+      {
+        "title": "GET /api/teams/[teamId]/projects/[projectId]/members/[memberId]",
+        "relevance": 0.8224672957212549,
+        "tokens": 109
+      },
+      {
+        "title": "Shared Context Tools (Phase 7)",
+        "relevance": 0.8140445928022833,
+        "tokens": 316
+      },
+      {
+        "title": "Publication Schedule (2 per month)",
+        "relevance": 0.8058351228686021,
+        "tokens": 175
+      },
+      {
+        "title": "Create Team Context",
+        "relevance": 0.797830889683263,
+        "tokens": 32
+      },
+      {
+        "title": "GET /api/teams/[teamId]/permissions",
+        "relevance": 0.7900242918852162,
+        "tokens": 122
+      },
+      {
+        "title": "5.2 Multi-Agent Context Sharing",
+        "relevance": 0.782408098911512,
+        "tokens": 121
+      },
+      {
+        "title": "Pricing Plans (Quick Reference)",
+        "relevance": 0.7724237478900616,
+        "tokens": 7
+      },
+      {
+        "title": "2.1 Per-Project Access Control",
+        "relevance": 0.7677197267479398,
+        "tokens": 148
+      },
+      {
+        "title": "Per-Project Access (`ProjectMember.accessLevel`)",
+        "relevance": 0.7606347472337458,
+        "tokens": 70
+      },
+      {
+        "title": "Agents TEAM/ENTERPRISE Require Context Plan",
+        "relevance": 0.7537145346849985,
+        "tokens": 94
+      },
+      {
+        "title": "List Team Contexts",
+        "relevance": 0.7469534074821993,
+        "tokens": 32
+      },
+      {
+        "title": "POST /api/teams/[teamId]/context",
+        "relevance": 0.7403459422612819,
+        "tokens": 357
+      },
+      {
+        "title": "rlm_multi_project_query",
+        "relevance": 0.7338869594048796,
+        "tokens": 43
+      },
+      {
+        "title": "3. Per-Project MCP Configuration",
+        "relevance": 0.7275715095008418,
+        "tokens": 98
+      },
+      {
+        "title": "MCP Tools for Shared Context",
+        "relevance": 0.721394860693596,
+        "tokens": 123
+      },
+      {
+        "title": "TEAM/SHARED TOOLS",
+        "relevance": 0.7153524868604206,
+        "tokens": 249
+      },
+      {
+        "title": "Context Plans (Documentation Search)",
+        "relevance": 0.7094400565505395,
+        "tokens": 110
+      }
+    ],
+    "sections_filtered": [
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "relevance": 1.0,
+        "tokens": 1864
+      },
+      {
+        "title": "Shared Context (Team+)",
+        "relevance": 1.0,
+        "tokens": 98
+      },
+      {
+        "title": "Article #10: Team Collaboration with Shared Context",
+        "relevance": 0.9814118508050733,
+        "tokens": 142
+      },
+      {
+        "title": "8.2 Project Shared Context Manager",
+        "relevance": 0.9684608129834288,
+        "tokens": 1384
+      },
+      {
+        "title": "Project Shared Contexts",
+        "relevance": 0.9559144950937107,
+        "tokens": 16
+      },
+      {
+        "title": "POST /api/teams/[teamId]/projects/[projectId]/members",
+        "relevance": 0.9437542177544455,
+        "tokens": 213
+      },
+      {
+        "title": "2.2 Multi-Project ACL Gate (Week 1 Fix)",
+        "relevance": 0.9319624336678853,
+        "tokens": 209
+      },
+      {
+        "title": "Context Plans (Context Optimization)",
+        "relevance": 0.9275557402609078,
+        "tokens": 82
+      },
+      {
+        "title": "Share Context Across Projects",
+        "relevance": 0.9094193170318143,
+        "tokens": 91
+      },
+      {
+        "title": "MCP Query Order (Shared Context First)",
+        "relevance": 0.898637826466737,
+        "tokens": 193
+      },
+      {
+        "title": "DELETE /api/teams/[teamId]/projects/[projectId]/members/[memberId]",
+        "relevance": 0.8881643784892331,
+        "tokens": 85
+      },
+      {
+        "title": "Feature 3: Multi-Project ACL Gate",
+        "relevance": 0.8779859572153209,
+        "tokens": 234
+      },
+      {
+        "title": "PATCH /api/teams/[teamId]/projects/[projectId]/members/[memberId]",
+        "relevance": 0.8680902698656843,
+        "tokens": 63
+      },
+      {
+        "title": "Team Context API",
+        "relevance": 0.8584656972379553,
+        "tokens": 49
+      },
+      {
+        "title": "PUT /api/teams/[teamId]/context/[contextId]",
+        "relevance": 0.8491012481947595,
+        "tokens": 99
+      },
+      {
+        "title": "GET /api/teams/[teamId]/context/[contextId]",
+        "relevance": 0.8399865177927157,
+        "tokens": 159
+      },
+      {
+        "title": "2. Use Team Context",
+        "relevance": 0.8311116487170415,
+        "tokens": 38
+      },
+      {
+        "title": "GET /api/teams/[teamId]/projects/[projectId]/members/[memberId]",
+        "relevance": 0.8224672957212549,
+        "tokens": 109
+      },
+      {
+        "title": "Shared Context Tools (Phase 7)",
+        "relevance": 0.8140445928022833,
+        "tokens": 316
+      },
+      {
+        "title": "Publication Schedule (2 per month)",
+        "relevance": 0.8058351228686021,
+        "tokens": 175
+      },
+      {
+        "title": "Create Team Context",
+        "relevance": 0.797830889683263,
+        "tokens": 32
+      },
+      {
+        "title": "GET /api/teams/[teamId]/permissions",
+        "relevance": 0.7900242918852162,
+        "tokens": 122
+      },
+      {
+        "title": "5.2 Multi-Agent Context Sharing",
+        "relevance": 0.782408098911512,
+        "tokens": 121
+      },
+      {
+        "title": "Pricing Plans (Quick Reference)",
+        "relevance": 0.7724237478900616,
+        "tokens": 7
+      },
+      {
+        "title": "2.1 Per-Project Access Control",
+        "relevance": 0.7677197267479398,
+        "tokens": 148
+      },
+      {
+        "title": "Per-Project Access (`ProjectMember.accessLevel`)",
+        "relevance": 0.7606347472337458,
+        "tokens": 70
+      },
+      {
+        "title": "Agents TEAM/ENTERPRISE Require Context Plan",
+        "relevance": 0.7537145346849985,
+        "tokens": 94
+      },
+      {
+        "title": "List Team Contexts",
+        "relevance": 0.7469534074821993,
+        "tokens": 32
+      },
+      {
+        "title": "POST /api/teams/[teamId]/context",
+        "relevance": 0.7403459422612819,
+        "tokens": 357
+      },
+      {
+        "title": "rlm_multi_project_query",
+        "relevance": 0.7338869594048796,
+        "tokens": 43
+      },
+      {
+        "title": "3. Per-Project MCP Configuration",
+        "relevance": 0.7275715095008418,
+        "tokens": 98
+      },
+      {
+        "title": "MCP Tools for Shared Context",
+        "relevance": 0.721394860693596,
+        "tokens": 123
+      },
+      {
+        "title": "TEAM/SHARED TOOLS",
+        "relevance": 0.7153524868604206,
+        "tokens": 249
+      },
+      {
+        "title": "Context Plans (Documentation Search)",
+        "relevance": 0.7094400565505395,
+        "tokens": 110
+      }
+    ],
+    "shared_context_removed": 0,
+    "total_tokens": 7612,
+    "query_term_coverage": 0.571
+  }
+]

@@ -1,0 +1,37 @@
+{
+  "benchmark_date": "2026-01-26T11:47:26",
+  "endpoint": "api.snipara.com",
+  "summary": {
+    "total_tests": 5,
+    "success_rate": "5/5",
+    "avg_latency_ms": 1571.0,
+    "min_latency_ms": 562.7,
+    "max_latency_ms": 4441.3,
+    "total_bytes": 305592,
+    "total_estimated_tokens": 67542
+  },
+  "tests": [
+    { "name": "Quick Ask", "tool": "rlm_ask", "latency_ms": 897.7, "grade": "B (Good)" },
+    { "name": "Pattern Search", "tool": "rlm_search", "latency_ms": 738.1, "grade": "B (Good)" },
+    { "name": "Project Stats", "tool": "rlm_stats", "latency_ms": 562.7, "grade": "B (Good)" },
+    { "name": "Memory Recall", "tool": "rlm_recall", "latency_ms": 4441.3, "grade": "D (Slow)" },
+    {
+      "name": "Section List",
+      "tool": "rlm_sections",
+      "latency_ms": 1215.2,
+      "grade": "C (Acceptable)"
+    }
+  ],
+  "observations": [
+    "rlm_stats is fastest (563ms) - good for quick project info",
+    "rlm_search is efficient (738ms) - pattern matching well optimized",
+    "rlm_ask has moderate latency (898ms) - semantic search overhead",
+    "rlm_recall is slowest (4441ms) - memory vector search needs optimization",
+    "rlm_sections returns most data (299KB) - consider pagination"
+  ],
+  "recommendations": [
+    "Cache rlm_sections results client-side",
+    "Investigate rlm_recall latency - vector DB query optimization needed",
+    "All tools succeed - API stability is good"
+  ]
+}

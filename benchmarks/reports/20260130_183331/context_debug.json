@@ -1,0 +1,1099 @@
+[
+  {
+    "task_id": "tech_stack",
+    "mode": "snipara_ctx_mem",
+    "query": "What is Snipara's tech stack?",
+    "sections": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 311
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 449
+      },
+      {
+        "title": "Feature Implementation Workflow (Snipara + RLM-Runtime)",
+        "relevance": 0.6266238855218771,
+        "tokens": 1672
+      }
+    ],
+    "total_tokens": 2819,
+    "search_mode": "hybrid"
+  },
+  {
+    "task_id": "core_value_prop",
+    "mode": "snipara_ctx_mem",
+    "query": "What is Snipara's core value proposition?",
+    "sections": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 311
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 449
+      },
+      {
+        "title": "Feature Implementation Workflow (Snipara + RLM-Runtime)",
+        "relevance": 0.569480388369517,
+        "tokens": 1672
+      }
+    ],
+    "total_tokens": 2819,
+    "search_mode": "hybrid"
+  },
+  {
+    "task_id": "mcp_tools",
+    "mode": "snipara_ctx_mem",
+    "query": "What MCP tools does Snipara expose?",
+    "sections": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 311
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 449
+      },
+      {
+        "title": "Use Snipara MCP for Documentation Queries",
+        "relevance": 0.655835170630833,
+        "tokens": 626
+      },
+      {
+        "title": "VS Code Extension",
+        "relevance": 0.6233875568389934,
+        "tokens": 124
+      },
+      {
+        "title": "Key Files Reference",
+        "relevance": 0.6113875568389934,
+        "tokens": 274
+      },
+      {
+        "title": "6. MCP Server Issues",
+        "relevance": 0.6067814735412635,
+        "tokens": 108
+      },
+      {
+        "title": "API & Authentication",
+        "relevance": 0.6041875568389934,
+        "tokens": 89
+      },
+      {
+        "title": "Architecture: Two Repositories, One Shared Schema",
+        "relevance": 0.5981663837084747,
+        "tokens": 274
+      },
+      {
+        "title": "Feature Implementation Workflow (Snipara + RLM-Runtime)",
+        "relevance": 0.5973441730346791,
+        "tokens": 159
+      }
+    ],
+    "total_tokens": 2801,
+    "search_mode": "hybrid"
+  },
+  {
+    "task_id": "pricing",
+    "mode": "snipara_ctx_mem",
+    "query": "What are Snipara's pricing tiers?",
+    "sections": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 311
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 449
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "relevance": 0.5810948724746704,
+        "tokens": 1581
+      }
+    ],
+    "total_tokens": 2728,
+    "search_mode": "hybrid"
+  },
+  {
+    "task_id": "architecture",
+    "mode": "snipara_ctx_mem",
+    "query": "Describe Snipara's three-component architecture.",
+    "sections": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 311
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 449
+      },
+      {
+        "title": "Architecture: Two Repositories, One Shared Schema",
+        "relevance": 0.5208801535702071,
+        "tokens": 274
+      },
+      {
+        "title": "1. Gather Context",
+        "relevance": 0.5178082069148771,
+        "tokens": 40
+      },
+      {
+        "title": "6. MCP Server Issues",
+        "relevance": 0.5176604312950868,
+        "tokens": 108
+      },
+      {
+        "title": "Feature Implementation Workflow (Snipara + RLM-Runtime)",
+        "relevance": 0.5138962778992164,
+        "tokens": 1270
+      }
+    ],
+    "total_tokens": 2839,
+    "search_mode": "hybrid"
+  },
+  {
+    "task_id": "token_budgeting",
+    "mode": "snipara_ctx_mem",
+    "query": "How does Snipara's token budgeting work?",
+    "sections": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 311
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 449
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "relevance": 0.598624554092424,
+        "tokens": 1581
+      }
+    ],
+    "total_tokens": 2728,
+    "search_mode": "hybrid"
+  },
+  {
+    "task_id": "shared_context",
+    "mode": "snipara_ctx_mem",
+    "query": "What are shared context collections and how do they work?",
+    "sections": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 311
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 449
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "relevance": 1.0,
+        "tokens": 1581
+      }
+    ],
+    "total_tokens": 2728,
+    "search_mode": "hybrid"
+  },
+  {
+    "task_id": "oauth_device_flow",
+    "mode": "snipara_ctx_mem",
+    "query": "How does OAuth Device Flow authentication work in Snipara?",
+    "sections": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 311
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 449
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 1639
+      }
+    ],
+    "total_tokens": 2786,
+    "search_mode": "hybrid"
+  },
+  {
+    "task_id": "database_models",
+    "mode": "snipara_ctx_mem",
+    "query": "What are the main database models in Snipara?",
+    "sections": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 311
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 449
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 1639
+      }
+    ],
+    "total_tokens": 2786,
+    "search_mode": "hybrid"
+  },
+  {
+    "task_id": "layered_architecture",
+    "mode": "snipara_ctx_mem",
+    "query": "What is the layered architecture pattern used in Snipara?",
+    "sections": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 311
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 449
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 1639
+      }
+    ],
+    "total_tokens": 2786,
+    "search_mode": "hybrid"
+  },
+  {
+    "task_id": "cost_benefit_analysis",
+    "mode": "snipara_ctx_mem",
+    "query": "If I have a 500K token codebase and my LLM has a 128K context window, how does Snipara help and what are the cost savings?",
+    "sections": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 311
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 449
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 1639
+      }
+    ],
+    "total_tokens": 2786,
+    "search_mode": "hybrid"
+  },
+  {
+    "task_id": "when_to_use_decompose",
+    "mode": "snipara_ctx_mem",
+    "query": "When should I use rlm_decompose vs rlm_context_query?",
+    "sections": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 311
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 449
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "relevance": 0.6096633254490309,
+        "tokens": 1581
+      }
+    ],
+    "total_tokens": 2728,
+    "search_mode": "hybrid"
+  },
+  {
+    "task_id": "search_mode_selection",
+    "mode": "snipara_ctx_mem",
+    "query": "What search mode should I use for different types of queries?",
+    "sections": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 311
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 449
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 1639
+      }
+    ],
+    "total_tokens": 2786,
+    "search_mode": "hybrid"
+  },
+  {
+    "task_id": "full_request_flow",
+    "mode": "snipara_ctx_mem",
+    "query": "Trace the full flow of an MCP request from a user's Claude Desktop to database query and back.",
+    "sections": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 311
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 449
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 1639
+      }
+    ],
+    "total_tokens": 2786,
+    "search_mode": "hybrid"
+  },
+  {
+    "task_id": "security_authentication_chain",
+    "mode": "snipara_ctx_mem",
+    "query": "What are all the authentication options available and how do they differ in security?",
+    "sections": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 311
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 449
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 1639
+      }
+    ],
+    "total_tokens": 2786,
+    "search_mode": "hybrid"
+  },
+  {
+    "task_id": "shared_context_budget_allocation",
+    "mode": "snipara_ctx_mem",
+    "query": "How does token budget allocation work when using shared context collections?",
+    "sections": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 311
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 449
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "relevance": 1.0,
+        "tokens": 1581
+      }
+    ],
+    "total_tokens": 2728,
+    "search_mode": "hybrid"
+  },
+  {
+    "task_id": "nonexistent_feature",
+    "mode": "snipara_ctx_mem",
+    "query": "How do I configure real-time collaborative editing in Snipara?",
+    "sections": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 311
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 449
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 1639
+      }
+    ],
+    "total_tokens": 2786,
+    "search_mode": "hybrid"
+  },
+  {
+    "task_id": "ambiguous_acronym",
+    "mode": "snipara_ctx_mem",
+    "query": "What does RLM stand for?",
+    "sections": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 311
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 449
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 0.93,
+        "tokens": 1639
+      }
+    ],
+    "total_tokens": 2786,
+    "search_mode": "hybrid"
+  },
+  {
+    "task_id": "version_specific",
+    "mode": "snipara_ctx_mem",
+    "query": "What version of Python is required for the MCP server?",
+    "sections": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 311
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 449
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 1639
+      }
+    ],
+    "total_tokens": 2786,
+    "search_mode": "hybrid"
+  },
+  {
+    "task_id": "error_handling",
+    "mode": "snipara_ctx_mem",
+    "query": "What happens when a user exceeds their query limit?",
+    "sections": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 311
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 449
+      },
+      {
+        "title": "Feature Implementation Workflow (Snipara + RLM-Runtime)",
+        "relevance": 0.5802097501504752,
+        "tokens": 1672
+      }
+    ],
+    "total_tokens": 2819,
+    "search_mode": "hybrid"
+  },
+  {
+    "task_id": "empty_context",
+    "mode": "snipara_ctx_mem",
+    "query": "What happens if no relevant documents are found for a query?",
+    "sections": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 311
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 449
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 1639
+      }
+    ],
+    "total_tokens": 2786,
+    "search_mode": "hybrid"
+  },
+  {
+    "task_id": "tech_stack",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "What is Snipara's tech stack?",
+    "sections": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 482
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 707
+      },
+      {
+        "title": "Feature Implementation Workflow (Snipara + RLM-Runtime)",
+        "relevance": 0.6266238855218771,
+        "tokens": 1672
+      },
+      {
+        "title": "5. Common Issues Checklist",
+        "relevance": 0.5673072761535645,
+        "tokens": 156
+      },
+      {
+        "title": "Use Snipara MCP for Documentation Queries",
+        "relevance": 0.5583549882385137,
+        "tokens": 626
+      },
+      {
+        "title": "6. MCP Server Issues",
+        "relevance": 0.5581247602775559,
+        "tokens": 108
+      },
+      {
+        "title": "3. Database Issues",
+        "relevance": 0.5485808361660944,
+        "tokens": 49
+      },
+      {
+        "title": "Local Development",
+        "relevance": 0.5458721744375133,
+        "tokens": 38
+      },
+      {
+        "title": "Local Development",
+        "relevance": 0.5458721744375133,
+        "tokens": 63
+      },
+      {
+        "title": "4. Environment Issues",
+        "relevance": 0.5437808361660945,
+        "tokens": 52
+      },
+      {
+        "title": "7. Railway/Deployment Issues",
+        "relevance": 0.5437247602775558,
+        "tokens": 44
+      }
+    ],
+    "total_tokens": 4384,
+    "search_mode": "hybrid"
+  },
+  {
+    "task_id": "core_value_prop",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "What is Snipara's core value proposition?",
+    "sections": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 482
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 707
+      },
+      {
+        "title": "Feature Implementation Workflow (Snipara + RLM-Runtime)",
+        "relevance": 0.569480388369517,
+        "tokens": 1672
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 0.534,
+        "tokens": 1119
+      }
+    ],
+    "total_tokens": 4367,
+    "search_mode": "hybrid"
+  },
+  {
+    "task_id": "mcp_tools",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "What MCP tools does Snipara expose?",
+    "sections": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 482
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 707
+      },
+      {
+        "title": "Use Snipara MCP for Documentation Queries",
+        "relevance": 0.655835170630833,
+        "tokens": 626
+      },
+      {
+        "title": "VS Code Extension",
+        "relevance": 0.6233875568389934,
+        "tokens": 124
+      },
+      {
+        "title": "Key Files Reference",
+        "relevance": 0.6113875568389934,
+        "tokens": 274
+      },
+      {
+        "title": "6. MCP Server Issues",
+        "relevance": 0.6067814735412635,
+        "tokens": 108
+      },
+      {
+        "title": "API & Authentication",
+        "relevance": 0.6041875568389934,
+        "tokens": 89
+      },
+      {
+        "title": "Architecture: Two Repositories, One Shared Schema",
+        "relevance": 0.5981663837084747,
+        "tokens": 274
+      },
+      {
+        "title": "Feature Implementation Workflow (Snipara + RLM-Runtime)",
+        "relevance": 0.5973441730346791,
+        "tokens": 1270
+      }
+    ],
+    "total_tokens": 4341,
+    "search_mode": "hybrid"
+  },
+  {
+    "task_id": "pricing",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "What are Snipara's pricing tiers?",
+    "sections": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 482
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 707
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "relevance": 0.5810948724746704,
+        "tokens": 1864
+      },
+      {
+        "title": "Architecture: Two Repositories, One Shared Schema",
+        "relevance": 0.5115679588575396,
+        "tokens": 274
+      },
+      {
+        "title": "Feature Implementation Workflow (Snipara + RLM-Runtime)",
+        "relevance": 0.505280260848999,
+        "tokens": 705
+      }
+    ],
+    "total_tokens": 4419,
+    "search_mode": "hybrid"
+  },
+  {
+    "task_id": "architecture",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "Describe Snipara's three-component architecture.",
+    "sections": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 482
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 707
+      },
+      {
+        "title": "Architecture: Two Repositories, One Shared Schema",
+        "relevance": 0.5208801535702071,
+        "tokens": 274
+      },
+      {
+        "title": "1. Gather Context",
+        "relevance": 0.5178082069148771,
+        "tokens": 40
+      },
+      {
+        "title": "6. MCP Server Issues",
+        "relevance": 0.5176604312950868,
+        "tokens": 108
+      },
+      {
+        "title": "Feature Implementation Workflow (Snipara + RLM-Runtime)",
+        "relevance": 0.5138962778992164,
+        "tokens": 1672
+      },
+      {
+        "title": "Use Snipara MCP for Documentation Queries",
+        "relevance": 0.5059853190669235,
+        "tokens": 626
+      },
+      {
+        "title": "MCP Server Changes = DUAL-REPO PUSH (MANDATORY)",
+        "relevance": 0.5021749939501331,
+        "tokens": 89
+      }
+    ],
+    "total_tokens": 4385,
+    "search_mode": "hybrid"
+  },
+  {
+    "task_id": "token_budgeting",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "How does Snipara's token budgeting work?",
+    "sections": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 482
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 707
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "relevance": 0.598624554092424,
+        "tokens": 1864
+      },
+      {
+        "title": "Claude Code Plugin",
+        "relevance": 0.5875016053528074,
+        "tokens": 178
+      },
+      {
+        "title": "Claude Code Plugin",
+        "relevance": 0.5875016053528074,
+        "tokens": 441
+      },
+      {
+        "title": "Use Snipara MCP for Documentation Queries",
+        "relevance": 0.5710542511766266,
+        "tokens": 364
+      }
+    ],
+    "total_tokens": 4423,
+    "search_mode": "hybrid"
+  },
+  {
+    "task_id": "shared_context",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "What are shared context collections and how do they work?",
+    "sections": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 482
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 707
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "relevance": 1.0,
+        "tokens": 1864
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 746
+      }
+    ],
+    "total_tokens": 4186,
+    "search_mode": "hybrid"
+  },
+  {
+    "task_id": "oauth_device_flow",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "How does OAuth Device Flow authentication work in Snipara?",
+    "sections": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 482
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 707
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 2550
+      }
+    ],
+    "total_tokens": 4126,
+    "search_mode": "hybrid"
+  },
+  {
+    "task_id": "database_models",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "What are the main database models in Snipara?",
+    "sections": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 482
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 707
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 2550
+      }
+    ],
+    "total_tokens": 4126,
+    "search_mode": "hybrid"
+  },
+  {
+    "task_id": "layered_architecture",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "What is the layered architecture pattern used in Snipara?",
+    "sections": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 482
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 707
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 2550
+      }
+    ],
+    "total_tokens": 4126,
+    "search_mode": "hybrid"
+  },
+  {
+    "task_id": "cost_benefit_analysis",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "If I have a 500K token codebase and my LLM has a 128K context window, how does Snipara help and what are the cost savings?",
+    "sections": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 482
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 707
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 2550
+      }
+    ],
+    "total_tokens": 4126,
+    "search_mode": "hybrid"
+  },
+  {
+    "task_id": "when_to_use_decompose",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "When should I use rlm_decompose vs rlm_context_query?",
+    "sections": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 482
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 707
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "relevance": 0.6096633254490309,
+        "tokens": 1864
+      },
+      {
+        "title": "Feature Implementation Workflow (Snipara + RLM-Runtime)",
+        "relevance": 0.6001910658245653,
+        "tokens": 967
+      }
+    ],
+    "total_tokens": 4407,
+    "search_mode": "hybrid"
+  },
+  {
+    "task_id": "search_mode_selection",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "What search mode should I use for different types of queries?",
+    "sections": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 482
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 707
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 2550
+      }
+    ],
+    "total_tokens": 4126,
+    "search_mode": "hybrid"
+  },
+  {
+    "task_id": "full_request_flow",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "Trace the full flow of an MCP request from a user's Claude Desktop to database query and back.",
+    "sections": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 482
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 707
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 2550
+      }
+    ],
+    "total_tokens": 4126,
+    "search_mode": "hybrid"
+  },
+  {
+    "task_id": "security_authentication_chain",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "What are all the authentication options available and how do they differ in security?",
+    "sections": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 482
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 707
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 2550
+      }
+    ],
+    "total_tokens": 4126,
+    "search_mode": "hybrid"
+  },
+  {
+    "task_id": "shared_context_budget_allocation",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "How does token budget allocation work when using shared context collections?",
+    "sections": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 482
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 707
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "relevance": 1.0,
+        "tokens": 1864
+      },
+      {
+        "title": "Feature Implementation Workflow (Snipara + RLM-Runtime)",
+        "relevance": 0.717887153695188,
+        "tokens": 967
+      }
+    ],
+    "total_tokens": 4407,
+    "search_mode": "hybrid"
+  },
+  {
+    "task_id": "nonexistent_feature",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "How do I configure real-time collaborative editing in Snipara?",
+    "sections": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 482
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 707
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 2550
+      }
+    ],
+    "total_tokens": 4126,
+    "search_mode": "hybrid"
+  }
+]

@@ -1,0 +1,407 @@
+{
+  "timestamp": "20260207_233029",
+  "provider": "openai",
+  "model": "gpt-4o",
+  "test_cases": 21,
+  "results": [
+    {
+      "test_case_id": "tech_stack",
+      "query": "What is Snipara's tech stack?",
+      "llm_only": {
+        "tokens": 7610,
+        "latency_ms": 8390,
+        "score": 5.0
+      },
+      "with_snipara": {
+        "tokens": 2205,
+        "latency_ms": 2837,
+        "score": 5.0
+      },
+      "rlm_runtime": {
+        "tokens": 2415,
+        "latency_ms": 5572,
+        "score": 5.0
+      }
+    },
+    {
+      "test_case_id": "core_value_prop",
+      "query": "What is Snipara's core value proposition?",
+      "llm_only": {
+        "tokens": 7442,
+        "latency_ms": 4064,
+        "score": 5.0
+      },
+      "with_snipara": {
+        "tokens": 466,
+        "latency_ms": 3333,
+        "score": 5.0
+      },
+      "rlm_runtime": {
+        "tokens": 397,
+        "latency_ms": 2691,
+        "score": 5.0
+      }
+    },
+    {
+      "test_case_id": "mcp_tools",
+      "query": "What MCP tools does Snipara expose?",
+      "llm_only": {
+        "tokens": 7559,
+        "latency_ms": 4889,
+        "score": 5.0
+      },
+      "with_snipara": {
+        "tokens": 1501,
+        "latency_ms": 4163,
+        "score": 5.0
+      },
+      "rlm_runtime": {
+        "tokens": 1660,
+        "latency_ms": 4604,
+        "score": 5.0
+      }
+    },
+    {
+      "test_case_id": "pricing",
+      "query": "What are Snipara's pricing tiers?",
+      "llm_only": {
+        "tokens": 7178,
+        "latency_ms": 1947,
+        "score": 5.0
+      },
+      "with_snipara": {
+        "tokens": 509,
+        "latency_ms": 1490,
+        "score": 5.0
+      },
+      "rlm_runtime": {
+        "tokens": 530,
+        "latency_ms": 1657,
+        "score": 5.0
+      }
+    },
+    {
+      "test_case_id": "architecture",
+      "query": "Describe Snipara's three-component architecture.",
+      "llm_only": {
+        "tokens": 7534,
+        "latency_ms": 7387,
+        "score": 5.0
+      },
+      "with_snipara": {
+        "tokens": 2027,
+        "latency_ms": 5747,
+        "score": 5.0
+      },
+      "rlm_runtime": {
+        "tokens": 2346,
+        "latency_ms": 7604,
+        "score": 5.0
+      }
+    },
+    {
+      "test_case_id": "token_budgeting",
+      "query": "How does Snipara's token budgeting work?",
+      "llm_only": {
+        "tokens": 7528,
+        "latency_ms": 5834,
+        "score": 5.0
+      },
+      "with_snipara": {
+        "tokens": 2849,
+        "latency_ms": 4417,
+        "score": 5.0
+      },
+      "rlm_runtime": {
+        "tokens": 2918,
+        "latency_ms": 8990,
+        "score": 5.0
+      }
+    },
+    {
+      "test_case_id": "shared_context",
+      "query": "What are shared context collections and how do they work?",
+      "llm_only": {
+        "tokens": 7685,
+        "latency_ms": 10088,
+        "score": 5.0
+      },
+      "with_snipara": {
+        "tokens": 636,
+        "latency_ms": 4659,
+        "score": 5.0
+      },
+      "rlm_runtime": {
+        "tokens": 879,
+        "latency_ms": 5429,
+        "score": 5.0
+      }
+    },
+    {
+      "test_case_id": "oauth_device_flow",
+      "query": "How does OAuth Device Flow authentication work in Snipara?",
+      "llm_only": {
+        "tokens": 7491,
+        "latency_ms": 5886,
+        "score": 5.0
+      },
+      "with_snipara": {
+        "tokens": 1186,
+        "latency_ms": 5300,
+        "score": 5.0
+      },
+      "rlm_runtime": {
+        "tokens": 1324,
+        "latency_ms": 7548,
+        "score": 5.0
+      }
+    },
+    {
+      "test_case_id": "database_models",
+      "query": "What are the main database models in Snipara?",
+      "llm_only": {
+        "tokens": 7432,
+        "latency_ms": 6202,
+        "score": 5.0
+      },
+      "with_snipara": {
+        "tokens": 1494,
+        "latency_ms": 3739,
+        "score": 5.0
+      },
+      "rlm_runtime": {
+        "tokens": 1745,
+        "latency_ms": 5806,
+        "score": 5.0
+      }
+    },
+    {
+      "test_case_id": "layered_architecture",
+      "query": "What is the layered architecture pattern used in Snipara?",
+      "llm_only": {
+        "tokens": 7673,
+        "latency_ms": 7973,
+        "score": 5.0
+      },
+      "with_snipara": {
+        "tokens": 962,
+        "latency_ms": 7677,
+        "score": 5.0
+      },
+      "rlm_runtime": {
+        "tokens": 1267,
+        "latency_ms": 10241,
+        "score": 5.0
+      }
+    },
+    {
+      "test_case_id": "cost_benefit_analysis",
+      "query": "If I have a 500K token codebase and my LLM has a 128K context window, how does Snipara help and what are the cost savings?",
+      "llm_only": {
+        "tokens": 7638,
+        "latency_ms": 7996,
+        "score": 5.0
+      },
+      "with_snipara": {
+        "tokens": 1327,
+        "latency_ms": 6916,
+        "score": 5.0
+      },
+      "rlm_runtime": {
+        "tokens": 1443,
+        "latency_ms": 7851,
+        "score": 5.0
+      }
+    },
+    {
+      "test_case_id": "when_to_use_decompose",
+      "query": "When should I use rlm_decompose vs rlm_context_query?",
+      "llm_only": {
+        "tokens": 7492,
+        "latency_ms": 5476,
+        "score": 5.0
+      },
+      "with_snipara": {
+        "tokens": 1185,
+        "latency_ms": 3785,
+        "score": 5.0
+      },
+      "rlm_runtime": {
+        "tokens": 1365,
+        "latency_ms": 4440,
+        "score": 5.0
+      }
+    },
+    {
+      "test_case_id": "search_mode_selection",
+      "query": "What search mode should I use for different types of queries?",
+      "llm_only": {
+        "tokens": 7589,
+        "latency_ms": 6647,
+        "score": 5.0
+      },
+      "with_snipara": {
+        "tokens": 2749,
+        "latency_ms": 7658,
+        "score": 5.0
+      },
+      "rlm_runtime": {
+        "tokens": 2788,
+        "latency_ms": 7793,
+        "score": 5.0
+      }
+    },
+    {
+      "test_case_id": "full_request_flow",
+      "query": "Trace the full flow of an MCP request from a user's Claude Desktop to database query and back.",
+      "llm_only": {
+        "tokens": 7749,
+        "latency_ms": 8498,
+        "score": 5.0
+      },
+      "with_snipara": {
+        "tokens": 2568,
+        "latency_ms": 6131,
+        "score": 5.0
+      },
+      "rlm_runtime": {
+        "tokens": 2689,
+        "latency_ms": 7665,
+        "score": 5.0
+      }
+    },
+    {
+      "test_case_id": "security_authentication_chain",
+      "query": "What are all the authentication options available and how do they differ in security?",
+      "llm_only": {
+        "tokens": 7425,
+        "latency_ms": 5137,
+        "score": 5.0
+      },
+      "with_snipara": {
+        "tokens": 750,
+        "latency_ms": 3550,
+        "score": 5.0
+      },
+      "rlm_runtime": {
+        "tokens": 919,
+        "latency_ms": 4949,
+        "score": 5.0
+      }
+    },
+    {
+      "test_case_id": "shared_context_budget_allocation",
+      "query": "How does token budget allocation work when using shared context collections?",
+      "llm_only": {
+        "tokens": 7573,
+        "latency_ms": 5817,
+        "score": 5.0
+      },
+      "with_snipara": {
+        "tokens": 1703,
+        "latency_ms": 3171,
+        "score": 5.0
+      },
+      "rlm_runtime": {
+        "tokens": 1907,
+        "latency_ms": 5390,
+        "score": 5.0
+      }
+    },
+    {
+      "test_case_id": "nonexistent_feature",
+      "query": "How do I configure real-time collaborative editing in Snipara?",
+      "llm_only": {
+        "tokens": 7452,
+        "latency_ms": 6444,
+        "score": 5.0
+      },
+      "with_snipara": {
+        "tokens": 1410,
+        "latency_ms": 3687,
+        "score": 5.0
+      },
+      "rlm_runtime": {
+        "tokens": 1746,
+        "latency_ms": 9077,
+        "score": 5.0
+      }
+    },
+    {
+      "test_case_id": "ambiguous_acronym",
+      "query": "What does RLM stand for?",
+      "llm_only": {
+        "tokens": 7237,
+        "latency_ms": 1571,
+        "score": 5.0
+      },
+      "with_snipara": {
+        "tokens": 959,
+        "latency_ms": 447,
+        "score": 5.0
+      },
+      "rlm_runtime": {
+        "tokens": 1002,
+        "latency_ms": 713,
+        "score": 5.0
+      }
+    },
+    {
+      "test_case_id": "version_specific",
+      "query": "What version of Python is required for the MCP server?",
+      "llm_only": {
+        "tokens": 7254,
+        "latency_ms": 2176,
+        "score": 5.0
+      },
+      "with_snipara": {
+        "tokens": 2678,
+        "latency_ms": 954,
+        "score": 5.0
+      },
+      "rlm_runtime": {
+        "tokens": 2702,
+        "latency_ms": 1245,
+        "score": 5.0
+      }
+    },
+    {
+      "test_case_id": "error_handling",
+      "query": "What happens when a user exceeds their query limit?",
+      "llm_only": {
+        "tokens": 7387,
+        "latency_ms": 4880,
+        "score": 5.0
+      },
+      "with_snipara": {
+        "tokens": 480,
+        "latency_ms": 1707,
+        "score": 5.0
+      },
+      "rlm_runtime": {
+        "tokens": 620,
+        "latency_ms": 2610,
+        "score": 5.0
+      }
+    },
+    {
+      "test_case_id": "empty_context",
+      "query": "What happens if no relevant documents are found for a query?",
+      "llm_only": {
+        "tokens": 7375,
+        "latency_ms": 5749,
+        "score": 5.0
+      },
+      "with_snipara": {
+        "tokens": 998,
+        "latency_ms": 2128,
+        "score": 5.0
+      },
+      "rlm_runtime": {
+        "tokens": 1309,
+        "latency_ms": 6866,
+        "score": 5.0
+      }
+    }
+  ]
+}

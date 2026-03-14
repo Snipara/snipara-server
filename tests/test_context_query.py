@@ -308,7 +308,7 @@ class TestSmartTruncation:
         content = "Important information here. More details follow. Even more content."
         result = engine._smart_truncate(content, 8)
 
-        # Should contain the beginning of the content and be truncated
+        # Should contain the beginning of the content
         assert result.startswith("Important")
         assert result.endswith("...")
 

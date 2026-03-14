@@ -129,7 +129,7 @@ git push origin main
 │  - Context optimization engine                                  │
 │       │                                                         │
 │       ▼                                                         │
-│  PostgreSQL (Neon)                                              │
+│  PostgreSQL (Vaultbrix)                                         │
 │  - Documents, users, queries, etc.                             │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -337,30 +337,30 @@ Section: "Core Value Proposition"
 
 **Implementation Details:**
 
-| Component | Location | Description |
-|-----------|----------|-------------|
-| `DocumentationIndex.ubiquitous_keywords` | `rlm_engine.py:432` | Field storing auto-detected keywords |
-| `_compute_ubiquitous_keywords()` | `rlm_engine.py:608` | Computes ubiquitous keywords from titles |
-| KEYWORD mode filter | `rlm_engine.py:1703-1737` | Filters sections in keyword search |
-| HYBRID mode filter | `rlm_engine.py:1844-1862` | Filters sections in hybrid search |
+| Component                                | Location                  | Description                              |
+| ---------------------------------------- | ------------------------- | ---------------------------------------- |
+| `DocumentationIndex.ubiquitous_keywords` | `rlm_engine.py:432`       | Field storing auto-detected keywords     |
+| `_compute_ubiquitous_keywords()`         | `rlm_engine.py:608`       | Computes ubiquitous keywords from titles |
+| KEYWORD mode filter                      | `rlm_engine.py:1703-1737` | Filters sections in keyword search       |
+| HYBRID mode filter                       | `rlm_engine.py:1844-1862` | Filters sections in hybrid search        |
 
 **Configuration:**
 
-| Parameter | Value | Description |
-|-----------|-------|-------------|
-| Frequency threshold | 40% | Keywords in >40% of titles are ubiquitous |
-| Min query keywords | 3 | Filter only applies to 3+ keyword queries |
-| Keyword score fallback | >50 | Keep section if raw keyword score exceeds this |
-| Semantic score fallback | >40 | Keep section if semantic score exceeds this |
+| Parameter               | Value | Description                                    |
+| ----------------------- | ----- | ---------------------------------------------- |
+| Frequency threshold     | 40%   | Keywords in >40% of titles are ubiquitous      |
+| Min query keywords      | 3     | Filter only applies to 3+ keyword queries      |
+| Keyword score fallback  | >50   | Keep section if raw keyword score exceeds this |
+| Semantic score fallback | >40   | Keep section if semantic score exceeds this    |
 
 **Benchmark Results:**
 
-| Metric | Before Fix | After Fix |
-|--------|-----------|-----------|
-| Precision@5 | ~60% | **92.4%** |
-| Recall | ~70% | **95.0%** |
-| Success Rate | ~80% | **100%** |
-| Rating | Good | **EXCELLENT** |
+| Metric       | Before Fix | After Fix     |
+| ------------ | ---------- | ------------- |
+| Precision@5  | ~60%       | **92.4%**     |
+| Recall       | ~70%       | **95.0%**     |
+| Success Rate | ~80%       | **100%**      |
+| Rating       | Good       | **EXCELLENT** |
 
 **Works for All Users:** Unlike hardcoded keywords, this auto-detection works for ANY project - users don't need to configure anything.
 

@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Snipara Benchmark Dashboard — 2026-01-31 15:23:15</title>
+<style>
+  :root { --bg: #0d1117; --card: #161b22; --border: #30363d; --text: #c9d1d9; --accent: #58a6ff; --green: #3fb950; --red: #f85149; --yellow: #d29922; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', monospace; background: var(--bg); color: var(--text); padding: 24px; }
+  h1 { color: var(--accent); margin-bottom: 4px; font-size: 1.5em; }
+  .meta { color: #8b949e; margin-bottom: 24px; font-size: 0.85em; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 32px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+  .card h3 { font-size: 0.9em; color: #8b949e; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .card .value { font-size: 2em; font-weight: 700; }
+  .card .value.green { color: var(--green); }
+  .card .value.yellow { color: var(--yellow); }
+  .card .value.red { color: var(--red); }
+  table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 0.85em; }
+  th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+  th { color: var(--accent); font-weight: 600; }
+  .pass { color: var(--green); } .fail { color: var(--red); }
+  .bar { display: inline-block; height: 14px; border-radius: 3px; }
+  .section { margin-top: 32px; }
+  .section h2 { color: var(--accent); font-size: 1.2em; margin-bottom: 12px; }
+</style>
+</head>
+<body>
+<h1>Snipara Benchmark Dashboard</h1>
+<p class="meta">Provider: openai &middot; Model: gpt-4o-mini &middot; Runs/task: 3 &middot; Temp: 0.0 &middot; 2026-01-31 15:23:15</p>
+
+<div id="app"></div>
+
+<script>
+const DATA = [
+  {
+    "suite": "docs-qa",
+    "mode": "llm_alone",
+    "cbs": 0.298,
+    "quality": 6.59,
+    "tokens": 8740,
+    "cost": 0.0014,
+    "latency_p50": 3955,
+    "latency_p95": 7161,
+    "success_rate": 0.619,
+    "hallucination": 0.234,
+    "precision": 0.105,
+    "recall": 0.621,
+    "tasks": [
+      {
+        "id": "tech_stack",
+        "quality": 8.55,
+        "latency": 2811,
+        "tokens": 8669,
+        "success": true,
+        "difficulty": "easy",
+        "category": "factual"
+      },
+      {
+        "id": "core_value_prop",
+        "quality": 8.5,
+        "latency": 2458,
+        "tokens": 8640,
+        "success": true,
+        "difficulty": "easy",
+        "category": "factual"
+      },
+      {
+        "id": "mcp_tools",
+        "quality": 7,
+        "latency": 6629,
+        "tokens": 8862,
+        "success": true,
+        "difficulty": "easy",
+        "category": "factual"
+      },
+      {
+        "id": "pricing",
+        "quality": 6.5,
+        "latency": 4185,
+        "tokens": 8736,
+        "success": false,
+        "difficulty": "easy",
+        "category": "factual"
+      },
+      {
+        "id": "architecture",
+        "quality": 3.4,
+        "latency": 3955,
+        "tokens": 8725,
+        "success": false,
+        "difficulty": "easy",
+        "category": "factual"
+      },
+      {
+        "id": "token_budgeting",
+        "quality": 7.1,
+        "latency": 6641,
+        "tokens": 8893,
+        "success": true,
+        "difficulty": "easy",
+        "category": "factual"
+      },
+      {
+        "id": "shared_context",
+        "quality": 8.5,
+        "latency": 5313,
+        "tokens": 8850,
+        "success": true,
+        "difficulty": "easy",
+        "category": "factual"
+      },
+      {
+        "id": "oauth_device_flow",
+        "quality": 8.5,
+        "latency": 7161,
+        "tokens": 8867,
+        "success": true,
+        "difficulty": "easy",
+        "category": "factual"
+      },
+      {
+        "id": "database_models",
+        "quality": 5.5,
+        "latency": 3571,
+        "tokens": 8638,
+        "success": false,
+        "difficulty": "easy",
+        "category": "factual"
+      },
+      {
+        "id": "layered_architecture",
+        "quality": 4,
+        "latency": 4049,
+        "tokens": 8768,
+        "success": false,
+        "difficulty": "easy",
+        "category": "factual"
+      },
+      {
+        "id": "cost_benefit_analysis",
+        "quality": 8.5,
+        "latency": 4185,
+        "tokens": 8771,
+        "success": true,
+        "difficulty": "hard",
+        "category": "reasoning"
+      },
+      {
+        "id": "when_to_use_decompose",
+        "quality": 8.1,
+        "latency": 3367,
+        "tokens": 8699,
+        "success": true,
+        "difficulty": "medium",
+        "category": "reasoning"
+      },
+      {
+        "id": "search_mode_selection",
+        "quality": 8.1,
+        "latency": 2853,
+        "tokens": 8710,
+        "success": true,
+        "difficulty": "medium",
+        "category": "reasoning"
+      },
+      {
+        "id": "full_request_flow",
+        "quality": 8,
+        "latency": 9408,
+        "tokens": 9038,
+        "success": true,
+        "difficulty": "hard",
+        "category": "multi_hop"
+      },
+      {
+        "id": "security_authentication_chain",
+        "quality": 8.1,
+        "latency": 7040,
+        "tokens": 8884,
+        "success": true,
+        "difficulty": "hard",
+        "category": "multi_hop"
+      },
+      {
+        "id": "shared_context_budget_allocation",
+        "quality": 9.5,
+        "latency": 4140,
+        "tokens": 8749,
+        "success": true,
+        "difficulty": "hard",
+        "category": "multi_hop"
+      },
+      {
+        "id": "nonexistent_feature",
+        "quality": 3.4,
+        "latency": 1729,
+        "tokens": 8618,
+        "success": false,
+        "difficulty": "medium",
+        "category": "edge_case"
+      },
+      {
+        "id": "ambiguous_acronym",
+        "quality": 3.5,
+        "latency": 864,
+        "tokens": 8553,
+        "success": false,
+        "difficulty": "easy",
+        "category": "edge_case"
+      },
+      {
+        "id": "version_specific",
+        "quality": 3.4,
+        "latency": 1684,
+        "tokens": 8621,
+        "success": false,
+        "difficulty": "easy",
+        "category": "edge_case"
+      },
+      {
+        "id": "error_handling",
+        "quality": 7.25,
+        "latency": 1823,
+        "tokens": 8622,
+        "success": true,
+        "difficulty": "medium",
+        "category": "edge_case"
+      },
+      {
+        "id": "empty_context",
+        "quality": 2.9,
+        "latency": 1707,
+        "tokens": 8629,
+        "success": false,
+        "difficulty": "medium",
+        "category": "edge_case"
+      }
+    ]
+  },
+  {
+    "suite": "docs-qa",
+    "mode": "snipara_ctx_mem",
+    "cbs": 0.465,
+    "quality": 5.35,
+    "tokens": 2890,
+    "cost": 0.00051,
+    "latency_p50": 2568,
+    "latency_p95": 5761,
+    "success_rate": 0.429,
+    "hallucination": 0.171,
+    "precision": 0.381,
+    "recall": 0.429,
+    "tasks": [
+      {
+        "id": "tech_stack",
+        "quality": 8.1,
+        "latency": 2568,
+        "tokens": 4375,
+        "success": true,
+        "difficulty": "easy",
+        "category": "factual"
+      },
+      {
+        "id": "core_value_prop",
+        "quality": 8,
+        "latency": 1954,
+        "tokens": 4142,
+        "success": true,
+        "difficulty": "easy",
+        "category": "factual"
+      },
+      {
+        "id": "mcp_tools",
+        "quality": 3.4,
+        "latency": 1047,
+        "tokens": 4159,
+        "success": false,
+        "difficulty": "easy",
+        "category": "factual"
+      },
+      {
+        "id": "pricing",
+        "quality": 6.1,
+        "latency": 2250,
+        "tokens": 383,
+        "success": false,
+        "difficulty": "easy",
+        "category": "factual"
+      },
+      {
+        "id": "architecture",
+        "quality": 4.1,
+        "latency": 3605,
+        "tokens": 4235,
+        "success": false,
+        "difficulty": "easy",
+        "category": "factual"
+      },
+      {
+        "id": "token_budgeting",
+        "quality": 4.1,
+        "latency": 2667,
+        "tokens": 3757,
+        "success": false,
+        "difficulty": "easy",
+        "category": "factual"
+      },
+      {
+        "id": "shared_context",
+        "quality": 8.1,
+        "latency": 2964,
+        "tokens": 4272,
+        "success": true,
+        "difficulty": "easy",
+        "category": "factual"
+      },
+      {
+        "id": "oauth_device_flow",
+        "quality": 8,
+        "latency": 4607,
+        "tokens": 4128,
+        "success": true,
+        "difficulty": "easy",
+        "category": "factual"
+      },
+      {
+        "id": "database_models",
+        "quality": 2.6,
+        "latency": 1647,
+        "tokens": 2630,
+        "success": false,
+        "difficulty": "easy",
+        "category": "factual"
+      },
+      {
+        "id": "layered_architecture",
+        "quality": 7.25,
+        "latency": 2465,
+        "tokens": 4485,
+        "success": true,
+        "difficulty": "easy",
+        "category": "factual"
+      },
+      {
+        "id": "cost_benefit_analysis",
+        "quality": 7.2,
+        "latency": 2914,
+        "tokens": 1961,
+        "success": true,
+        "difficulty": "hard",
+        "category": "reasoning"
+      },
+      {
+        "id": "when_to_use_decompose",
+        "quality": 7.25,
+        "latency": 3033,
+        "tokens": 4267,
+        "success": true,
+        "difficulty": "medium",
+        "category": "reasoning"
+      },
+      {
+        "id": "search_mode_selection",
+        "quality": 4,
+        "latency": 5761,
+        "tokens": 1029,
+        "success": false,
+        "difficulty": "medium",
+        "category": "reasoning"
+      },
+      {
+        "id": "full_request_flow",
+        "quality": 6,
+        "latency": 7751,
+        "tokens": 1998,
+        "success": false,
+        "difficulty": "hard",
+        "category": "multi_hop"
+      },
+      {
+        "id": "security_authentication_chain",
+        "quality": 8.1,
+        "latency": 5024,
+        "tokens": 4183,
+        "success": true,
+        "difficulty": "hard",
+        "category": "multi_hop"
+      },
+      {
+        "id": "shared_context_budget_allocation",
+        "quality": 4.1,
+        "latency": 2134,
+        "tokens": 1708,
+        "success": false,
+        "difficulty": "hard",
+        "category": "multi_hop"
+      },
+      {
+        "id": "nonexistent_feature",
+        "quality": 0,
+        "latency": 3693,
+        "tokens": 412,
+        "success": false,
+        "difficulty": "medium",
+        "category": "edge_case"
+      },
+      {
+        "id": "ambiguous_acronym",
+        "quality": 3.5,
+        "latency": 626,
+        "tokens": 366,
+        "success": false,
+        "difficulty": "easy",
+        "category": "edge_case"
+      },
+      {
+        "id": "version_specific",
+        "quality": 0,
+        "latency": 1223,
+        "tokens": 234,
+        "success": false,
+        "difficulty": "easy",
+        "category": "edge_case"
+      },
+      {
+        "id": "error_handling",
+        "quality": 7.25,
+        "latency": 1510,
+        "tokens": 3788,
+        "success": true,
+        "difficulty": "medium",
+        "category": "edge_case"
+      },
+      {
+        "id": "empty_context",
+        "quality": 5.3,
+        "latency": 1849,
+        "tokens": 4179,
+        "success": false,
+        "difficulty": "medium",
+        "category": "edge_case"
+      }
+    ]
+  },
+  {
+    "suite": "docs-qa",
+    "mode": "snipara_ctx_mem_runtime",
+    "cbs": 0.428,
+    "quality": 6.28,
+    "tokens": 3747,
+    "cost": 0.0007,
+    "latency_p50": 7750,
+    "latency_p95": 12910,
+    "success_rate": 0.524,
+    "hallucination": 0.238,
+    "precision": 0.381,
+    "recall": 0.472,
+    "tasks": [
+      {
+        "id": "tech_stack",
+        "quality": 8.55,
+        "latency": 4307,
+        "tokens": 5655,
+        "success": true,
+        "difficulty": "easy",
+        "category": "factual"
+      },
+      {
+        "id": "core_value_prop",
+        "quality": 9.5,
+        "latency": 2902,
+        "tokens": 5416,
+        "success": true,
+        "difficulty": "easy",
+        "category": "factual"
+      },
+      {
+        "id": "mcp_tools",
+        "quality": 2.9,
+        "latency": 5929,
+        "tokens": 5601,
+        "success": false,
+        "difficulty": "easy",
+        "category": "factual"
+      },
+      {
+        "id": "pricing",
+        "quality": 6.1,
+        "latency": 2939,
+        "tokens": 445,
+        "success": false,
+        "difficulty": "easy",
+        "category": "factual"
+      },
+      {
+        "id": "architecture",
+        "quality": 4.1,
+        "latency": 6027,
+        "tokens": 5245,
+        "success": false,
+        "difficulty": "easy",
+        "category": "factual"
+      },
+      {
+        "id": "token_budgeting",
+        "quality": 4.75,
+        "latency": 7744,
+        "tokens": 4018,
+        "success": false,
+        "difficulty": "easy",
+        "category": "factual"
+      },
+      {
+        "id": "shared_context",
+        "quality": 9,
+        "latency": 7750,
+        "tokens": 5756,
+        "success": true,
+        "difficulty": "easy",
+        "category": "factual"
+      },
+      {
+        "id": "oauth_device_flow",
+        "quality": 8,
+        "latency": 11697,
+        "tokens": 5746,
+        "success": true,
+        "difficulty": "easy",
+        "category": "factual"
+      },
+      {
+        "id": "database_models",
+        "quality": 2.85,
+        "latency": 2653,
+        "tokens": 2685,
+        "success": false,
+        "difficulty": "easy",
+        "category": "factual"
+      },
+      {
+        "id": "layered_architecture",
+        "quality": 8,
+        "latency": 4674,
+        "tokens": 5669,
+        "success": true,
+        "difficulty": "easy",
+        "category": "factual"
+      },
+      {
+        "id": "cost_benefit_analysis",
+        "quality": 8.1,
+        "latency": 8910,
+        "tokens": 3204,
+        "success": true,
+        "difficulty": "hard",
+        "category": "reasoning"
+      },
+      {
+        "id": "when_to_use_decompose",
+        "quality": 8.5,
+        "latency": 8595,
+        "tokens": 5737,
+        "success": true,
+        "difficulty": "medium",
+        "category": "reasoning"
+      },
+      {
+        "id": "search_mode_selection",
+        "quality": 5.5,
+        "latency": 8277,
+        "tokens": 1137,
+        "success": false,
+        "difficulty": "medium",
+        "category": "reasoning"
+      },
+      {
+        "id": "full_request_flow",
+        "quality": 6,
+        "latency": 12910,
+        "tokens": 2916,
+        "success": false,
+        "difficulty": "hard",
+        "category": "multi_hop"
+      },
+      {
+        "id": "security_authentication_chain",
+        "quality": 8,
+        "latency": 17791,
+        "tokens": 4892,
+        "success": true,
+        "difficulty": "hard",
+        "category": "multi_hop"
+      },
+      {
+        "id": "shared_context_budget_allocation",
+        "quality": 9.5,
+        "latency": 8095,
+        "tokens": 2216,
+        "success": true,
+        "difficulty": "hard",
+        "category": "multi_hop"
+      },
+      {
+        "id": "nonexistent_feature",
+        "quality": 0,
+        "latency": 8182,
+        "tokens": 559,
+        "success": false,
+        "difficulty": "medium",
+        "category": "edge_case"
+      },
+      {
+        "id": "ambiguous_acronym",
+        "quality": 3.5,
+        "latency": 1627,
+        "tokens": 384,
+        "success": false,
+        "difficulty": "easy",
+        "category": "edge_case"
+      },
+      {
+        "id": "version_specific",
+        "quality": 2.9,
+        "latency": 3327,
+        "tokens": 302,
+        "success": false,
+        "difficulty": "easy",
+        "category": "edge_case"
+      },
+      {
+        "id": "error_handling",
+        "quality": 8,
+        "latency": 11579,
+        "tokens": 5509,
+        "success": true,
+        "difficulty": "medium",
+        "category": "edge_case"
+      },
+      {
+        "id": "empty_context",
+        "quality": 8.1,
+        "latency": 10130,
+        "tokens": 5603,
+        "success": true,
+        "difficulty": "medium",
+        "category": "edge_case"
+      }
+    ]
+  },
+  {
+    "suite": "memory",
+    "mode": "snipara_ctx_mem",
+    "cbs": 0.487,
+    "quality": 8.3,
+    "tokens": 5319,
+    "cost": 0.00085,
+    "latency_p50": 4459,
+    "latency_p95": 6907,
+    "success_rate": 0.75,
+    "hallucination": 0.25,
+    "precision": 0.0,
+    "recall": 0.5,
+    "tasks": [
+      {
+        "id": "mem_store_recall",
+        "quality": 9.75,
+        "latency": 3243,
+        "tokens": 5898,
+        "success": true,
+        "difficulty": "easy",
+        "category": "memory"
+      },
+      {
+        "id": "mem_decision_log",
+        "quality": 8.5,
+        "latency": 4459,
+        "tokens": 5606,
+        "success": true,
+        "difficulty": "medium",
+        "category": "memory"
+      },
+      {
+        "id": "mem_shared_std",
+        "quality": 8.1,
+        "latency": 6907,
+        "tokens": 6061,
+        "success": true,
+        "difficulty": "medium",
+        "category": "shared"
+      },
+      {
+        "id": "multi_turn_refine",
+        "quality": 6.85,
+        "latency": 3273,
+        "tokens": 3710,
+        "success": false,
+        "difficulty": "medium",
+        "category": "multi-turn"
+      }
+    ]
+  },
+  {
+    "suite": "memory",
+    "mode": "snipara_ctx_mem_runtime",
+    "cbs": 0.273,
+    "quality": 6.79,
+    "tokens": 3994,
+    "cost": 0.00071,
+    "latency_p50": 9950,
+    "latency_p95": 16682,
+    "success_rate": 0.5,
+    "hallucination": 0.25,
+    "precision": 0.0,
+    "recall": 0.25,
+    "tasks": [
+      {
+        "id": "mem_store_recall",
+        "quality": 9.75,
+        "latency": 6173,
+        "tokens": 7546,
+        "success": true,
+        "difficulty": "easy",
+        "category": "memory"
+      },
+      {
+        "id": "mem_decision_log",
+        "quality": 9.5,
+        "latency": 16682,
+        "tokens": 7661,
+        "success": true,
+        "difficulty": "medium",
+        "category": "memory"
+      },
+      {
+        "id": "mem_shared_std",
+        "quality": 5,
+        "latency": 9950,
+        "tokens": 529,
+        "success": false,
+        "difficulty": "medium",
+        "category": "shared"
+      },
+      {
+        "id": "multi_turn_refine",
+        "quality": 2.9,
+        "latency": 3175,
+        "tokens": 239,
+        "success": false,
+        "difficulty": "medium",
+        "category": "multi-turn"
+      }
+    ]
+  },
+  {
+    "suite": "coding",
+    "mode": "llm_alone",
+    "cbs": 0.466,
+    "quality": 7.77,
+    "tokens": 8950,
+    "cost": 0.00152,
+    "latency_p50": 6380,
+    "latency_p95": 30713,
+    "success_rate": 0.667,
+    "hallucination": 0.0,
+    "precision": 0.0,
+    "recall": 0.667,
+    "tasks": [
+      {
+        "id": "add_api_endpoint",
+        "quality": 9.7,
+        "latency": 30713,
+        "tokens": 9236,
+        "success": true,
+        "difficulty": "medium",
+        "category": "coding"
+      },
+      {
+        "id": "fix_type_error",
+        "quality": 3.85,
+        "latency": 5540,
+        "tokens": 8775,
+        "success": false,
+        "difficulty": "easy",
+        "category": "coding"
+      },
+      {
+        "id": "add_unit_test",
+        "quality": 9.75,
+        "latency": 6380,
+        "tokens": 8840,
+        "success": true,
+        "difficulty": "easy",
+        "category": "coding"
+      }
+    ]
+  },
+  {
+    "suite": "coding",
+    "mode": "snipara_ctx_mem",
+    "cbs": 0.693,
+    "quality": 7.83,
+    "tokens": 411,
+    "cost": 0.00022,
+    "latency_p50": 4815,
+    "latency_p95": 10140,
+    "success_rate": 0.667,
+    "hallucination": 0.0,
+    "precision": 0.0,
+    "recall": 0.0,
+    "tasks": [
+      {
+        "id": "add_api_endpoint",
+        "quality": 9.5,
+        "latency": 10140,
+        "tokens": 689,
+        "success": true,
+        "difficulty": "medium",
+        "category": "coding"
+      },
+      {
+        "id": "fix_type_error",
+        "quality": 6,
+        "latency": 2955,
+        "tokens": 198,
+        "success": false,
+        "difficulty": "easy",
+        "category": "coding"
+      },
+      {
+        "id": "add_unit_test",
+        "quality": 8,
+        "latency": 4815,
+        "tokens": 346,
+        "success": true,
+        "difficulty": "easy",
+        "category": "coding"
+      }
+    ]
+  },
+  {
+    "suite": "coding",
+    "mode": "snipara_ctx_mem_runtime",
+    "cbs": 0.762,
+    "quality": 8.35,
+    "tokens": 487,
+    "cost": 0.00025,
+    "latency_p50": 7065,
+    "latency_p95": 10759,
+    "success_rate": 1.0,
+    "hallucination": 0.0,
+    "precision": 0.0,
+    "recall": 0.0,
+    "tasks": [
+      {
+        "id": "add_api_endpoint",
+        "quality": 9,
+        "latency": 10759,
+        "tokens": 706,
+        "success": true,
+        "difficulty": "medium",
+        "category": "coding"
+      },
+      {
+        "id": "fix_type_error",
+        "quality": 7.5,
+        "latency": 2839,
+        "tokens": 222,
+        "success": true,
+        "difficulty": "easy",
+        "category": "coding"
+      },
+      {
+        "id": "add_unit_test",
+        "quality": 8.55,
+        "latency": 7065,
+        "tokens": 533,
+        "success": true,
+        "difficulty": "easy",
+        "category": "coding"
+      }
+    ]
+  }
+];
+
+const app = document.getElementById('app');
+
+// --- CBS Cards ---
+const modes = [...new Set(DATA.map(d => d.mode))];
+const suites = [...new Set(DATA.map(d => d.suite))];
+
+let html = '<div class="grid">';
+for (const d of DATA) {
+  const cls = d.cbs >= 0.7 ? 'green' : d.cbs >= 0.4 ? 'yellow' : 'red';
+  html += `<div class="card">
+    <h3>${d.suite} — ${d.mode}</h3>
+    <div class="value ${cls}">${d.cbs.toFixed(3)}</div>
+    <div style="margin-top:8px;font-size:0.8em;color:#8b949e">
+      Quality ${d.quality.toFixed(1)} &middot; Success ${(d.success_rate*100).toFixed(0)}% &middot; Halluc ${(d.hallucination*100).toFixed(1)}%
+    </div>
+  </div>`;
+}
+html += '</div>';
+
+// --- Comparison Table ---
+for (const suite of suites) {
+  const rows = DATA.filter(d => d.suite === suite);
+  if (!rows.length) continue;
+  html += `<div class="section"><h2>${suite}</h2><table>
+    <tr><th>Mode</th><th>CBS</th><th>Quality</th><th>Tokens</th><th>Cost</th><th>p50 ms</th><th>p95 ms</th><th>Success</th><th>Halluc</th><th>Prec@5</th></tr>`;
+  for (const r of rows) {
+    html += `<tr>
+      <td>${r.mode}</td>
+      <td>${r.cbs.toFixed(3)}</td>
+      <td>${r.quality.toFixed(2)}</td>
+      <td>${r.tokens}</td>
+      <td>$${r.cost.toFixed(5)}</td>
+      <td>${r.latency_p50}</td>
+      <td>${r.latency_p95}</td>
+      <td>${(r.success_rate*100).toFixed(0)}%</td>
+      <td>${(r.hallucination*100).toFixed(1)}%</td>
+      <td>${(r.precision*100).toFixed(0)}%</td>
+    </tr>`;
+  }
+  html += '</table>';
+
+  // Per-task breakdown
+  const ref = rows[0];
+  html += '<table style="margin-top:12px"><tr><th>Task</th><th>Diff</th>';
+  for (const r of rows) html += `<th>${r.mode}</th>`;
+  html += '</tr>';
+  for (let i = 0; i < ref.tasks.length; i++) {
+    html += `<tr><td>${ref.tasks[i].id}</td><td>${ref.tasks[i].difficulty}</td>`;
+    for (const r of rows) {
+      const t = r.tasks[i];
+      const cls = t.success ? 'pass' : 'fail';
+      html += `<td class="${cls}">${t.quality.toFixed(1)}</td>`;
+    }
+    html += '</tr>';
+  }
+  html += '</table></div>';
+}
+
+app.innerHTML = html;
+</script>
+</body>
+</html>

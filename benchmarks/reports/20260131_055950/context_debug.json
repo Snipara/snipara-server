@@ -1,0 +1,2794 @@
+[
+  {
+    "task_id": "tech_stack",
+    "mode": "snipara_ctx_mem",
+    "query": "tech stack Next.js PostgreSQL FastAPI framework database deployment",
+    "original_query": "What is Snipara's tech stack?",
+    "search_mode": "keyword",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 673
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 919
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 0.435,
+        "tokens": 3747
+      }
+    ],
+    "sections_filtered": [],
+    "shared_context_removed": 3,
+    "total_tokens": 5726
+  },
+  {
+    "task_id": "core_value_prop",
+    "mode": "snipara_ctx_mem",
+    "query": "core value proposition context optimization 90% reduction LLM-agnostic business model",
+    "original_query": "What is Snipara's core value proposition?",
+    "search_mode": "keyword",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 673
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 919
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 3747
+      }
+    ],
+    "sections_filtered": [],
+    "shared_context_removed": 3,
+    "total_tokens": 5726
+  },
+  {
+    "task_id": "mcp_tools",
+    "mode": "snipara_ctx_mem",
+    "query": "MCP tools rlm_context_query rlm_decompose rlm_search rlm_multi_query exposed",
+    "original_query": "What MCP tools does Snipara expose?",
+    "search_mode": "keyword",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 673
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 919
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 0.945,
+        "tokens": 3747
+      }
+    ],
+    "sections_filtered": [],
+    "shared_context_removed": 3,
+    "total_tokens": 5726
+  },
+  {
+    "task_id": "pricing",
+    "mode": "snipara_ctx_mem",
+    "query": "pricing plans tiers free pro team enterprise queries per month cost",
+    "original_query": "What are Snipara's pricing tiers?",
+    "search_mode": "keyword",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 673
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 919
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 3747
+      }
+    ],
+    "sections_filtered": [],
+    "shared_context_removed": 3,
+    "total_tokens": 5726
+  },
+  {
+    "task_id": "architecture",
+    "mode": "snipara_ctx_mem",
+    "query": "architecture components snipara-mcp FastAPI server web app deployment Railway Vercel",
+    "original_query": "Describe Snipara's three-component architecture.",
+    "search_mode": "keyword",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 673
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 919
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 3747
+      }
+    ],
+    "sections_filtered": [],
+    "shared_context_removed": 3,
+    "total_tokens": 5726
+  },
+  {
+    "task_id": "token_budgeting",
+    "mode": "snipara_ctx_mem",
+    "query": "token budget algorithm context optimization greedy selection truncation shared context budget",
+    "original_query": "How does Snipara's token budgeting work?",
+    "search_mode": "keyword",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 673
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 919
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 3747
+      }
+    ],
+    "sections_filtered": [],
+    "shared_context_removed": 3,
+    "total_tokens": 5726
+  },
+  {
+    "task_id": "shared_context",
+    "mode": "snipara_ctx_mem",
+    "query": "What are shared context collections and how do they work?",
+    "original_query": "What are shared context collections and how do they work?",
+    "search_mode": "keyword",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 673
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 919
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 3747
+      }
+    ],
+    "sections_filtered": [],
+    "shared_context_removed": 3,
+    "total_tokens": 5726
+  },
+  {
+    "task_id": "oauth_device_flow",
+    "mode": "snipara_ctx_mem",
+    "query": "OAuth device flow authentication RFC 8628 snipara-mcp-login tokens CLI",
+    "original_query": "How does OAuth Device Flow authentication work in Snipara?",
+    "search_mode": "keyword",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 673
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 919
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 3747
+      }
+    ],
+    "sections_filtered": [],
+    "shared_context_removed": 3,
+    "total_tokens": 5726
+  },
+  {
+    "task_id": "database_models",
+    "mode": "snipara_ctx_mem",
+    "query": "database models Prisma schema User Team Project Document ApiKey Subscription",
+    "original_query": "What are the main database models in Snipara?",
+    "search_mode": "keyword",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 673
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 919
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 3747
+      }
+    ],
+    "sections_filtered": [],
+    "shared_context_removed": 3,
+    "total_tokens": 5726
+  },
+  {
+    "task_id": "layered_architecture",
+    "mode": "snipara_ctx_mem",
+    "query": "layered architecture pattern route handlers services repository lib/jobs lib/services lib/db",
+    "original_query": "What is the layered architecture pattern used in Snipara?",
+    "search_mode": "keyword",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 673
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 919
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 0.715,
+        "tokens": 3747
+      }
+    ],
+    "sections_filtered": [],
+    "shared_context_removed": 3,
+    "total_tokens": 5726
+  },
+  {
+    "task_id": "cost_benefit_analysis",
+    "mode": "snipara_ctx_mem",
+    "query": "If I have a 500K token codebase and my LLM has a 128K context window, how does Snipara help and what are the cost savings?",
+    "decompose_used": true,
+    "sub_queries": ["token", "codebase", "llm", "context", "window", "snipara", "cost", "savings"],
+    "sections_filtered": [
+      {
+        "title": "Project Overview",
+        "tokens": 96
+      },
+      {
+        "title": "Project Overview",
+        "tokens": 106
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "tokens": 138
+      },
+      {
+        "title": "Coding Standards",
+        "tokens": 4
+      },
+      {
+        "title": "Coding Standards",
+        "tokens": 26
+      },
+      {
+        "title": "Use Snipara MCP for Documentation Queries",
+        "tokens": 159
+      },
+      {
+        "title": "Product Philosophy",
+        "tokens": 207
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "tokens": 138
+      },
+      {
+        "title": "Task",
+        "tokens": 65
+      },
+      {
+        "title": "9. Tremor Charts (Need Fixed Heights)",
+        "tokens": 54
+      },
+      {
+        "title": "Task",
+        "tokens": 51
+      },
+      {
+        "title": "AI Coding Agent Instructions for Snipara",
+        "tokens": 10
+      },
+      {
+        "title": "Feature Implementation Workflow (Snipara + RLM-Runtime)",
+        "tokens": 159
+      },
+      {
+        "title": "Project Overview",
+        "tokens": 96
+      },
+      {
+        "title": "Project Overview",
+        "tokens": 106
+      },
+      {
+        "title": "1. Token Efficiency",
+        "tokens": 83
+      },
+      {
+        "title": "Architecture: Two Repositories, One Shared Schema",
+        "tokens": 127
+      }
+    ]
+  },
+  {
+    "task_id": "when_to_use_decompose",
+    "mode": "snipara_ctx_mem",
+    "query": "When should I use rlm_decompose vs rlm_context_query?",
+    "original_query": "When should I use rlm_decompose vs rlm_context_query?",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 673
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 919
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "relevance": 0.6096633254490309,
+        "tokens": 1864
+      },
+      {
+        "title": "Feature Implementation Workflow (Snipara + RLM-Runtime)",
+        "relevance": 0.6001910658245653,
+        "tokens": 1672
+      },
+      {
+        "title": "4. Empty States",
+        "relevance": 0.5654497470170721,
+        "tokens": 34
+      },
+      {
+        "title": "5. Accessibility",
+        "relevance": 0.5654497470170721,
+        "tokens": 54
+      },
+      {
+        "title": "TypeScript Architecture Layers",
+        "relevance": 0.5622594998163156,
+        "tokens": 151
+      },
+      {
+        "title": "3. Loading States",
+        "relevance": 0.5606497470170722,
+        "tokens": 53
+      },
+      {
+        "title": "Architecture: Two Repositories, One Shared Schema",
+        "relevance": 0.5552629554748573,
+        "tokens": 214
+      }
+    ],
+    "sections_filtered": [
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "relevance": 0.6096633254490309,
+        "tokens": 1864
+      },
+      {
+        "title": "Feature Implementation Workflow (Snipara + RLM-Runtime)",
+        "relevance": 0.6001910658245653,
+        "tokens": 1672
+      },
+      {
+        "title": "4. Empty States",
+        "relevance": 0.5654497470170721,
+        "tokens": 34
+      },
+      {
+        "title": "5. Accessibility",
+        "relevance": 0.5654497470170721,
+        "tokens": 54
+      },
+      {
+        "title": "TypeScript Architecture Layers",
+        "relevance": 0.5622594998163156,
+        "tokens": 151
+      },
+      {
+        "title": "3. Loading States",
+        "relevance": 0.5606497470170722,
+        "tokens": 53
+      },
+      {
+        "title": "Architecture: Two Repositories, One Shared Schema",
+        "relevance": 0.5552629554748573,
+        "tokens": 214
+      }
+    ],
+    "shared_context_removed": 2,
+    "total_tokens": 6021
+  },
+  {
+    "task_id": "search_mode_selection",
+    "mode": "snipara_ctx_mem",
+    "query": "What search mode should I use for different types of queries?",
+    "original_query": "What search mode should I use for different types of queries?",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 673
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 919
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 3747
+      }
+    ],
+    "sections_filtered": [],
+    "shared_context_removed": 3,
+    "total_tokens": 5726
+  },
+  {
+    "task_id": "full_request_flow",
+    "mode": "snipara_ctx_mem",
+    "query": "Trace the full flow of an MCP request from a user's Claude Desktop to database query and back.",
+    "decompose_used": true,
+    "sub_queries": [
+      "trace",
+      "full",
+      "flow",
+      "mcp",
+      "request",
+      "user",
+      "claude",
+      "desktop",
+      "database",
+      "query"
+    ],
+    "sections_filtered": [
+      {
+        "title": "Feature Implementation Workflow (Snipara + RLM-Runtime)",
+        "tokens": 344
+      },
+      {
+        "title": "Feature Implementation Workflow (Snipara + RLM-Runtime)",
+        "tokens": 137
+      },
+      {
+        "title": "Core Workflows",
+        "tokens": 149
+      },
+      {
+        "title": "6. MCP Server Issues",
+        "tokens": 108
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "tokens": 138
+      },
+      {
+        "title": "Use Snipara MCP for Documentation Queries",
+        "tokens": 148
+      },
+      {
+        "title": "Claude Code Plugin",
+        "tokens": 150
+      },
+      {
+        "title": "5. Common Issues Checklist",
+        "tokens": 153
+      },
+      {
+        "title": "Database Queries",
+        "tokens": 64
+      },
+      {
+        "title": "Database Migration",
+        "tokens": 56
+      },
+      {
+        "title": "Feature Implementation Workflow (Snipara + RLM-Runtime)",
+        "tokens": 137
+      }
+    ]
+  },
+  {
+    "task_id": "security_authentication_chain",
+    "mode": "snipara_ctx_mem",
+    "query": "What are all the authentication options available and how do they differ in security?",
+    "decompose_used": true,
+    "sub_queries": ["authentication", "options", "available", "differ", "security"],
+    "sections_filtered": [
+      {
+        "title": "MCP Authentication (Quick Reference)",
+        "tokens": 181
+      },
+      {
+        "title": "Authentication",
+        "tokens": 65
+      },
+      {
+        "title": "Authentication",
+        "tokens": 86
+      },
+      {
+        "title": "Authentication",
+        "tokens": 65
+      },
+      {
+        "title": "Authentication",
+        "tokens": 113
+      },
+      {
+        "title": "Authentication",
+        "tokens": 3
+      },
+      {
+        "title": "Authentication",
+        "tokens": 31
+      },
+      {
+        "title": "Authentication",
+        "tokens": 16
+      },
+      {
+        "title": "Authentication",
+        "tokens": 58
+      },
+      {
+        "title": "Authentication",
+        "tokens": 40
+      },
+      {
+        "title": "Authentication",
+        "tokens": 22
+      },
+      {
+        "title": "Authentication",
+        "tokens": 42
+      },
+      {
+        "title": "Feature Implementation Workflow (Snipara + RLM-Runtime)",
+        "tokens": 159
+      },
+      {
+        "title": "Naming Conventions",
+        "tokens": 107
+      },
+      {
+        "title": "Line Limits",
+        "tokens": 29
+      },
+      {
+        "title": "Line Limits",
+        "tokens": 86
+      },
+      {
+        "title": "Naming Conventions",
+        "tokens": 5
+      },
+      {
+        "title": "External Dependencies & Integration Points",
+        "tokens": 156
+      },
+      {
+        "title": "Development Workflows",
+        "tokens": 5
+      },
+      {
+        "title": "7. Railway/Deployment Issues",
+        "tokens": 44
+      },
+      {
+        "title": "Task",
+        "tokens": 65
+      },
+      {
+        "title": "Task",
+        "tokens": 51
+      },
+      {
+        "title": "8. DaisyUI Patterns",
+        "tokens": 109
+      },
+      {
+        "title": "Feature Implementation Workflow (Snipara + RLM-Runtime)",
+        "tokens": 696
+      },
+      {
+        "title": "5. Common Issues Checklist",
+        "tokens": 156
+      },
+      {
+        "title": "Monorepo Structure & Build System",
+        "tokens": 217
+      },
+      {
+        "title": "TypeScript Architecture Layers",
+        "tokens": 151
+      },
+      {
+        "title": "Debugging Workflow",
+        "tokens": 5
+      },
+      {
+        "title": "1. Gather Context",
+        "tokens": 40
+      },
+      {
+        "title": "2. Check Logs",
+        "tokens": 54
+      },
+      {
+        "title": "External Dependencies & Integration Points",
+        "tokens": 74
+      },
+      {
+        "title": "Testing",
+        "tokens": 41
+      },
+      {
+        "title": "Project-Specific Conventions",
+        "tokens": 7
+      },
+      {
+        "title": "Testing",
+        "tokens": 3
+      },
+      {
+        "title": "External Dependencies & Integration Points",
+        "tokens": 156
+      },
+      {
+        "title": "Development Workflows",
+        "tokens": 5
+      },
+      {
+        "title": "Project Overview",
+        "tokens": 96
+      },
+      {
+        "title": "Architecture: Two Repositories, One Shared Schema",
+        "tokens": 274
+      },
+      {
+        "title": "Project Overview",
+        "tokens": 106
+      }
+    ]
+  },
+  {
+    "task_id": "shared_context_budget_allocation",
+    "mode": "snipara_ctx_mem",
+    "query": "How does token budget allocation work when using shared context collections?",
+    "decompose_used": true,
+    "sub_queries": [
+      "token",
+      "budget",
+      "allocation",
+      "using",
+      "shared",
+      "context",
+      "collections",
+      "token budget",
+      "budget allocation"
+    ],
+    "sections_filtered": [
+      {
+        "title": "Project Overview",
+        "tokens": 96
+      },
+      {
+        "title": "Project Overview",
+        "tokens": 106
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "tokens": 138
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "tokens": 138
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "tokens": 138
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "tokens": 138
+      },
+      {
+        "title": "Architecture: Two Repositories, One Shared Schema",
+        "tokens": 190
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "tokens": 138
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "tokens": 138
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "tokens": 138
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "tokens": 138
+      }
+    ]
+  },
+  {
+    "task_id": "nonexistent_feature",
+    "mode": "snipara_ctx_mem",
+    "query": "Snipara overview features capabilities context optimization what we do",
+    "original_query": "How do I configure real-time collaborative editing in Snipara?",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 673
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 919
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 0.922,
+        "tokens": 3747
+      }
+    ],
+    "sections_filtered": [],
+    "shared_context_removed": 3,
+    "total_tokens": 5726
+  },
+  {
+    "task_id": "ambiguous_acronym",
+    "mode": "snipara_ctx_mem",
+    "query": "RLM rlm_ tools MCP server engine runtime project name",
+    "original_query": "What does RLM stand for?",
+    "search_mode": "keyword",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 673
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 919
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 3747
+      }
+    ],
+    "sections_filtered": [],
+    "shared_context_removed": 3,
+    "total_tokens": 5726
+  },
+  {
+    "task_id": "version_specific",
+    "mode": "snipara_ctx_mem",
+    "query": "Python version required MCP server pyproject.toml requires-python 3.11",
+    "original_query": "What version of Python is required for the MCP server?",
+    "search_mode": "keyword",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 673
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 919
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 3747
+      }
+    ],
+    "sections_filtered": [],
+    "shared_context_removed": 3,
+    "total_tokens": 5726
+  },
+  {
+    "task_id": "error_handling",
+    "mode": "snipara_ctx_mem",
+    "query": "query limit exceeded usage limits LimitsInfo pricing plans free pro team",
+    "original_query": "What happens when a user exceeds their query limit?",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 673
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 919
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 3747
+      }
+    ],
+    "sections_filtered": [],
+    "shared_context_removed": 3,
+    "total_tokens": 5726
+  },
+  {
+    "task_id": "empty_context",
+    "mode": "snipara_ctx_mem",
+    "query": "rlm_context_query empty sections no documents found response suggestions",
+    "original_query": "What happens if no relevant documents are found for a query?",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 673
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 919
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "relevance": 0.603772109392774,
+        "tokens": 1864
+      },
+      {
+        "title": "Tech Stack",
+        "relevance": 0.5681450051046917,
+        "tokens": 49
+      },
+      {
+        "title": "Tech Stack",
+        "relevance": 0.5681450051046917,
+        "tokens": 124
+      },
+      {
+        "title": "Tech Stack",
+        "relevance": 0.5681450051046917,
+        "tokens": 4
+      },
+      {
+        "title": "Tech Stack",
+        "relevance": 0.5681450051046917,
+        "tokens": 113
+      },
+      {
+        "title": "Monorepo Structure & Build System",
+        "relevance": 0.550549027963023,
+        "tokens": 217
+      },
+      {
+        "title": "\u26a0\ufe0f Test 2: Anti-Scan Protection",
+        "relevance": 0.5461650297488372,
+        "tokens": 327
+      },
+      {
+        "title": "TypeScript Architecture Layers",
+        "relevance": 0.545749027963023,
+        "tokens": 151
+      },
+      {
+        "title": "\u2705 Test 1: Database Schema Verification",
+        "relevance": 0.5413650297488373,
+        "tokens": 152
+      },
+      {
+        "title": "Feature Implementation Workflow (Snipara + RLM-Runtime)",
+        "relevance": 0.538886773526103,
+        "tokens": 967
+      }
+    ],
+    "sections_filtered": [
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "relevance": 0.603772109392774,
+        "tokens": 1864
+      },
+      {
+        "title": "Tech Stack",
+        "relevance": 0.5681450051046917,
+        "tokens": 49
+      },
+      {
+        "title": "Tech Stack",
+        "relevance": 0.5681450051046917,
+        "tokens": 124
+      },
+      {
+        "title": "Tech Stack",
+        "relevance": 0.5681450051046917,
+        "tokens": 4
+      },
+      {
+        "title": "Tech Stack",
+        "relevance": 0.5681450051046917,
+        "tokens": 113
+      },
+      {
+        "title": "Monorepo Structure & Build System",
+        "relevance": 0.550549027963023,
+        "tokens": 217
+      },
+      {
+        "title": "\u26a0\ufe0f Test 2: Anti-Scan Protection",
+        "relevance": 0.5461650297488372,
+        "tokens": 327
+      },
+      {
+        "title": "TypeScript Architecture Layers",
+        "relevance": 0.545749027963023,
+        "tokens": 151
+      },
+      {
+        "title": "\u2705 Test 1: Database Schema Verification",
+        "relevance": 0.5413650297488373,
+        "tokens": 152
+      },
+      {
+        "title": "Feature Implementation Workflow (Snipara + RLM-Runtime)",
+        "relevance": 0.538886773526103,
+        "tokens": 967
+      }
+    ],
+    "shared_context_removed": 2,
+    "total_tokens": 5947
+  },
+  {
+    "task_id": "tech_stack",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "tech stack Next.js PostgreSQL FastAPI framework database deployment",
+    "original_query": "What is Snipara's tech stack?",
+    "search_mode": "keyword",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 850
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 1164
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 0.435,
+        "tokens": 5170
+      }
+    ],
+    "sections_filtered": [],
+    "shared_context_removed": 3,
+    "total_tokens": 7571
+  },
+  {
+    "task_id": "core_value_prop",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "core value proposition context optimization 90% reduction LLM-agnostic business model",
+    "original_query": "What is Snipara's core value proposition?",
+    "search_mode": "keyword",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 850
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 1164
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 5170
+      }
+    ],
+    "sections_filtered": [],
+    "shared_context_removed": 3,
+    "total_tokens": 7571
+  },
+  {
+    "task_id": "mcp_tools",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "MCP tools rlm_context_query rlm_decompose rlm_search rlm_multi_query exposed",
+    "original_query": "What MCP tools does Snipara expose?",
+    "search_mode": "keyword",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 850
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 1164
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 0.945,
+        "tokens": 5170
+      }
+    ],
+    "sections_filtered": [],
+    "shared_context_removed": 3,
+    "total_tokens": 7571
+  },
+  {
+    "task_id": "pricing",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "pricing plans tiers free pro team enterprise queries per month cost",
+    "original_query": "What are Snipara's pricing tiers?",
+    "search_mode": "keyword",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 850
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 1164
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 5170
+      }
+    ],
+    "sections_filtered": [],
+    "shared_context_removed": 3,
+    "total_tokens": 7571
+  },
+  {
+    "task_id": "architecture",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "architecture components snipara-mcp FastAPI server web app deployment Railway Vercel",
+    "original_query": "Describe Snipara's three-component architecture.",
+    "search_mode": "keyword",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 850
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 1164
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 5170
+      }
+    ],
+    "sections_filtered": [],
+    "shared_context_removed": 3,
+    "total_tokens": 7571
+  },
+  {
+    "task_id": "token_budgeting",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "token budget algorithm context optimization greedy selection truncation shared context budget",
+    "original_query": "How does Snipara's token budgeting work?",
+    "search_mode": "keyword",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 850
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 1164
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 5170
+      }
+    ],
+    "sections_filtered": [],
+    "shared_context_removed": 3,
+    "total_tokens": 7571
+  },
+  {
+    "task_id": "shared_context",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "What are shared context collections and how do they work?",
+    "original_query": "What are shared context collections and how do they work?",
+    "search_mode": "keyword",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 850
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 1164
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 5170
+      }
+    ],
+    "sections_filtered": [],
+    "shared_context_removed": 3,
+    "total_tokens": 7571
+  },
+  {
+    "task_id": "oauth_device_flow",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "OAuth device flow authentication RFC 8628 snipara-mcp-login tokens CLI",
+    "original_query": "How does OAuth Device Flow authentication work in Snipara?",
+    "search_mode": "keyword",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 850
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 1164
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 5170
+      }
+    ],
+    "sections_filtered": [],
+    "shared_context_removed": 3,
+    "total_tokens": 7571
+  },
+  {
+    "task_id": "database_models",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "database models Prisma schema User Team Project Document ApiKey Subscription",
+    "original_query": "What are the main database models in Snipara?",
+    "search_mode": "keyword",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 850
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 1164
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 5170
+      }
+    ],
+    "sections_filtered": [],
+    "shared_context_removed": 3,
+    "total_tokens": 7571
+  },
+  {
+    "task_id": "layered_architecture",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "layered architecture pattern route handlers services repository lib/jobs lib/services lib/db",
+    "original_query": "What is the layered architecture pattern used in Snipara?",
+    "search_mode": "keyword",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 850
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 1164
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 0.715,
+        "tokens": 5170
+      }
+    ],
+    "sections_filtered": [],
+    "shared_context_removed": 3,
+    "total_tokens": 7571
+  },
+  {
+    "task_id": "cost_benefit_analysis",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "If I have a 500K token codebase and my LLM has a 128K context window, how does Snipara help and what are the cost savings?",
+    "decompose_used": true,
+    "sub_queries": ["token", "codebase", "llm", "context", "window", "snipara", "cost", "savings"],
+    "sections_filtered": [
+      {
+        "title": "Project Overview",
+        "tokens": 96
+      },
+      {
+        "title": "Project Overview",
+        "tokens": 106
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "tokens": 363
+      },
+      {
+        "title": "Coding Standards",
+        "tokens": 4
+      },
+      {
+        "title": "Coding Standards",
+        "tokens": 26
+      },
+      {
+        "title": "Use Snipara MCP for Documentation Queries",
+        "tokens": 316
+      },
+      {
+        "title": "Product Philosophy",
+        "tokens": 207
+      },
+      {
+        "title": "Feature Implementation Workflow (Snipara + RLM-Runtime)",
+        "tokens": 137
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "tokens": 309
+      },
+      {
+        "title": "Task",
+        "tokens": 65
+      },
+      {
+        "title": "9. Tremor Charts (Need Fixed Heights)",
+        "tokens": 54
+      },
+      {
+        "title": "Task",
+        "tokens": 51
+      },
+      {
+        "title": "AI Coding Agent Instructions for Snipara",
+        "tokens": 10
+      },
+      {
+        "title": "Project Overview",
+        "tokens": 96
+      },
+      {
+        "title": "Architecture: Two Repositories, One Shared Schema",
+        "tokens": 68
+      },
+      {
+        "title": "Feature Implementation Workflow (Snipara + RLM-Runtime)",
+        "tokens": 344
+      },
+      {
+        "title": "Project Overview",
+        "tokens": 96
+      },
+      {
+        "title": "Project Overview",
+        "tokens": 106
+      },
+      {
+        "title": "2. Touch Targets",
+        "tokens": 40
+      },
+      {
+        "title": "3. Loading States",
+        "tokens": 53
+      },
+      {
+        "title": "4. Empty States",
+        "tokens": 34
+      },
+      {
+        "title": "1. Token Efficiency",
+        "tokens": 83
+      },
+      {
+        "title": "Architecture: Two Repositories, One Shared Schema",
+        "tokens": 263
+      }
+    ]
+  },
+  {
+    "task_id": "when_to_use_decompose",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "When should I use rlm_decompose vs rlm_context_query?",
+    "original_query": "When should I use rlm_decompose vs rlm_context_query?",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 850
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 1164
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "relevance": 0.6096633881129861,
+        "tokens": 1864
+      },
+      {
+        "title": "Feature Implementation Workflow (Snipara + RLM-Runtime)",
+        "relevance": 0.600190953981338,
+        "tokens": 1672
+      },
+      {
+        "title": "4. Empty States",
+        "relevance": 0.5654497265905393,
+        "tokens": 34
+      },
+      {
+        "title": "5. Accessibility",
+        "relevance": 0.5654497265905393,
+        "tokens": 54
+      },
+      {
+        "title": "TypeScript Architecture Layers",
+        "relevance": 0.5622594792955651,
+        "tokens": 151
+      },
+      {
+        "title": "3. Loading States",
+        "relevance": 0.5606497265905392,
+        "tokens": 53
+      },
+      {
+        "title": "Architecture: Two Repositories, One Shared Schema",
+        "relevance": 0.5552628465727384,
+        "tokens": 274
+      },
+      {
+        "title": "5. Common Issues Checklist",
+        "relevance": 0.5548582844053684,
+        "tokens": 156
+      },
+      {
+        "title": "1. Responsiveness (Mobile-First)",
+        "relevance": 0.5521886304126538,
+        "tokens": 76
+      },
+      {
+        "title": "VS Code Extension",
+        "relevance": 0.54807448883057,
+        "tokens": 124
+      },
+      {
+        "title": "Important: Use uvx, not local Python",
+        "relevance": 0.5429346841735501,
+        "tokens": 120
+      },
+      {
+        "title": "TypeScript Strict Mode (Required)",
+        "relevance": 0.5404482622146644,
+        "tokens": 59
+      },
+      {
+        "title": "Line Limits",
+        "relevance": 0.5356482622146644,
+        "tokens": 29
+      },
+      {
+        "title": "Line Limits",
+        "relevance": 0.5356482622146644,
+        "tokens": 86
+      },
+      {
+        "title": "6. Whitespace Optimization",
+        "relevance": 0.5267783352600545,
+        "tokens": 64
+      },
+      {
+        "title": "Key Files Reference",
+        "relevance": 0.5264744888305699,
+        "tokens": 274
+      },
+      {
+        "title": "Task",
+        "relevance": 0.5248541849168658,
+        "tokens": 65
+      }
+    ],
+    "sections_filtered": [
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "relevance": 0.6096633881129861,
+        "tokens": 1864
+      },
+      {
+        "title": "Feature Implementation Workflow (Snipara + RLM-Runtime)",
+        "relevance": 0.600190953981338,
+        "tokens": 1672
+      },
+      {
+        "title": "4. Empty States",
+        "relevance": 0.5654497265905393,
+        "tokens": 34
+      },
+      {
+        "title": "5. Accessibility",
+        "relevance": 0.5654497265905393,
+        "tokens": 54
+      },
+      {
+        "title": "TypeScript Architecture Layers",
+        "relevance": 0.5622594792955651,
+        "tokens": 151
+      },
+      {
+        "title": "3. Loading States",
+        "relevance": 0.5606497265905392,
+        "tokens": 53
+      },
+      {
+        "title": "Architecture: Two Repositories, One Shared Schema",
+        "relevance": 0.5552628465727384,
+        "tokens": 274
+      },
+      {
+        "title": "5. Common Issues Checklist",
+        "relevance": 0.5548582844053684,
+        "tokens": 156
+      },
+      {
+        "title": "1. Responsiveness (Mobile-First)",
+        "relevance": 0.5521886304126538,
+        "tokens": 76
+      },
+      {
+        "title": "VS Code Extension",
+        "relevance": 0.54807448883057,
+        "tokens": 124
+      },
+      {
+        "title": "Important: Use uvx, not local Python",
+        "relevance": 0.5429346841735501,
+        "tokens": 120
+      },
+      {
+        "title": "TypeScript Strict Mode (Required)",
+        "relevance": 0.5404482622146644,
+        "tokens": 59
+      },
+      {
+        "title": "Line Limits",
+        "relevance": 0.5356482622146644,
+        "tokens": 29
+      },
+      {
+        "title": "Line Limits",
+        "relevance": 0.5356482622146644,
+        "tokens": 86
+      },
+      {
+        "title": "6. Whitespace Optimization",
+        "relevance": 0.5267783352600545,
+        "tokens": 64
+      },
+      {
+        "title": "Key Files Reference",
+        "relevance": 0.5264744888305699,
+        "tokens": 274
+      },
+      {
+        "title": "Task",
+        "relevance": 0.5248541849168658,
+        "tokens": 65
+      }
+    ],
+    "shared_context_removed": 2,
+    "total_tokens": 7556
+  },
+  {
+    "task_id": "search_mode_selection",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "What search mode should I use for different types of queries?",
+    "original_query": "What search mode should I use for different types of queries?",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 850
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 1164
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 5170
+      }
+    ],
+    "sections_filtered": [],
+    "shared_context_removed": 3,
+    "total_tokens": 7571
+  },
+  {
+    "task_id": "full_request_flow",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "Trace the full flow of an MCP request from a user's Claude Desktop to database query and back.",
+    "decompose_used": true,
+    "sub_queries": [
+      "trace",
+      "full",
+      "flow",
+      "mcp",
+      "request",
+      "user",
+      "claude",
+      "desktop",
+      "database",
+      "query"
+    ],
+    "sections_filtered": [
+      {
+        "title": "Feature Implementation Workflow (Snipara + RLM-Runtime)",
+        "tokens": 439
+      },
+      {
+        "title": "Feature Implementation Workflow (Snipara + RLM-Runtime)",
+        "tokens": 159
+      },
+      {
+        "title": "Core Workflows",
+        "tokens": 149
+      },
+      {
+        "title": "Core Workflows",
+        "tokens": 76
+      },
+      {
+        "title": "6. MCP Server Issues",
+        "tokens": 108
+      },
+      {
+        "title": "Summary Storage Tools",
+        "tokens": 74
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "tokens": 138
+      },
+      {
+        "title": "Use Snipara MCP for Documentation Queries",
+        "tokens": 159
+      },
+      {
+        "title": "Claude Code Plugin",
+        "tokens": 178
+      },
+      {
+        "title": "5. Common Issues Checklist",
+        "tokens": 156
+      },
+      {
+        "title": "6. MCP Server Issues",
+        "tokens": 70
+      },
+      {
+        "title": "Database Queries",
+        "tokens": 64
+      },
+      {
+        "title": "Database Migration",
+        "tokens": 56
+      },
+      {
+        "title": "Architecture: Two Repositories, One Shared Schema",
+        "tokens": 108
+      },
+      {
+        "title": "Feature Implementation Workflow (Snipara + RLM-Runtime)",
+        "tokens": 159
+      }
+    ]
+  },
+  {
+    "task_id": "security_authentication_chain",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "What are all the authentication options available and how do they differ in security?",
+    "decompose_used": true,
+    "sub_queries": ["authentication", "options", "available", "differ", "security"],
+    "sections_filtered": [
+      {
+        "title": "MCP Authentication (Quick Reference)",
+        "tokens": 181
+      },
+      {
+        "title": "Authentication",
+        "tokens": 65
+      },
+      {
+        "title": "Authentication",
+        "tokens": 86
+      },
+      {
+        "title": "Authentication",
+        "tokens": 65
+      },
+      {
+        "title": "Authentication",
+        "tokens": 113
+      },
+      {
+        "title": "Authentication",
+        "tokens": 3
+      },
+      {
+        "title": "Authentication",
+        "tokens": 31
+      },
+      {
+        "title": "Naming Conventions",
+        "tokens": 107
+      },
+      {
+        "title": "Line Limits",
+        "tokens": 29
+      },
+      {
+        "title": "Line Limits",
+        "tokens": 86
+      },
+      {
+        "title": "Naming Conventions",
+        "tokens": 5
+      },
+      {
+        "title": "External Dependencies & Integration Points",
+        "tokens": 156
+      },
+      {
+        "title": "Development Workflows",
+        "tokens": 5
+      },
+      {
+        "title": "7. Railway/Deployment Issues",
+        "tokens": 44
+      },
+      {
+        "title": "Task",
+        "tokens": 65
+      },
+      {
+        "title": "Task",
+        "tokens": 51
+      },
+      {
+        "title": "8. DaisyUI Patterns",
+        "tokens": 109
+      },
+      {
+        "title": "9. Tremor Charts (Need Fixed Heights)",
+        "tokens": 54
+      },
+      {
+        "title": "Review Checklist",
+        "tokens": 4
+      },
+      {
+        "title": "1. Responsiveness (Mobile-First)",
+        "tokens": 76
+      },
+      {
+        "title": "2. Touch Targets",
+        "tokens": 40
+      },
+      {
+        "title": "3. Loading States",
+        "tokens": 53
+      },
+      {
+        "title": "4. Empty States",
+        "tokens": 34
+      },
+      {
+        "title": "Feature Implementation Workflow (Snipara + RLM-Runtime)",
+        "tokens": 893
+      },
+      {
+        "title": "5. Common Issues Checklist",
+        "tokens": 156
+      },
+      {
+        "title": "Monorepo Structure & Build System",
+        "tokens": 217
+      },
+      {
+        "title": "TypeScript Architecture Layers",
+        "tokens": 151
+      },
+      {
+        "title": "Debugging Workflow",
+        "tokens": 5
+      },
+      {
+        "title": "1. Gather Context",
+        "tokens": 40
+      },
+      {
+        "title": "2. Check Logs",
+        "tokens": 54
+      },
+      {
+        "title": "External Dependencies & Integration Points",
+        "tokens": 156
+      },
+      {
+        "title": "Development Workflows",
+        "tokens": 5
+      },
+      {
+        "title": "Feature Implementation Workflow (Snipara + RLM-Runtime)",
+        "tokens": 137
+      },
+      {
+        "title": "Testing",
+        "tokens": 41
+      },
+      {
+        "title": "Project-Specific Conventions",
+        "tokens": 7
+      },
+      {
+        "title": "Testing",
+        "tokens": 3
+      },
+      {
+        "title": "External Dependencies & Integration Points",
+        "tokens": 156
+      },
+      {
+        "title": "Development Workflows",
+        "tokens": 5
+      },
+      {
+        "title": "Project Overview",
+        "tokens": 96
+      },
+      {
+        "title": "Architecture: Two Repositories, One Shared Schema",
+        "tokens": 274
+      },
+      {
+        "title": "Project Overview",
+        "tokens": 106
+      },
+      {
+        "title": "Feature Implementation Workflow (Snipara + RLM-Runtime)",
+        "tokens": 159
+      }
+    ]
+  },
+  {
+    "task_id": "shared_context_budget_allocation",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "How does token budget allocation work when using shared context collections?",
+    "decompose_used": true,
+    "sub_queries": [
+      "token",
+      "budget",
+      "allocation",
+      "using",
+      "shared",
+      "context",
+      "collections",
+      "token budget",
+      "budget allocation"
+    ],
+    "sections_filtered": [
+      {
+        "title": "Project Overview",
+        "tokens": 96
+      },
+      {
+        "title": "Project Overview",
+        "tokens": 106
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "tokens": 287
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "tokens": 138
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "tokens": 138
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "tokens": 138
+      },
+      {
+        "title": "Architecture: Two Repositories, One Shared Schema",
+        "tokens": 271
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "tokens": 138
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "tokens": 138
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "tokens": 138
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "tokens": 138
+      }
+    ]
+  },
+  {
+    "task_id": "nonexistent_feature",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "Snipara overview features capabilities context optimization what we do",
+    "original_query": "How do I configure real-time collaborative editing in Snipara?",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 850
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 1164
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 0.922,
+        "tokens": 5170
+      }
+    ],
+    "sections_filtered": [],
+    "shared_context_removed": 3,
+    "total_tokens": 7571
+  },
+  {
+    "task_id": "ambiguous_acronym",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "RLM rlm_ tools MCP server engine runtime project name",
+    "original_query": "What does RLM stand for?",
+    "search_mode": "keyword",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 850
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 1164
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 5170
+      }
+    ],
+    "sections_filtered": [],
+    "shared_context_removed": 3,
+    "total_tokens": 7571
+  },
+  {
+    "task_id": "version_specific",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "Python version required MCP server pyproject.toml requires-python 3.11",
+    "original_query": "What version of Python is required for the MCP server?",
+    "search_mode": "keyword",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 850
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 1164
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 5170
+      }
+    ],
+    "sections_filtered": [],
+    "shared_context_removed": 3,
+    "total_tokens": 7571
+  },
+  {
+    "task_id": "error_handling",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "query limit exceeded usage limits LimitsInfo pricing plans free pro team",
+    "original_query": "What happens when a user exceeds their query limit?",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 850
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 1164
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 5170
+      }
+    ],
+    "sections_filtered": [],
+    "shared_context_removed": 3,
+    "total_tokens": 7571
+  },
+  {
+    "task_id": "empty_context",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "rlm_context_query empty sections no documents found response suggestions",
+    "original_query": "What happens if no relevant documents are found for a query?",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 850
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 1164
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "relevance": 0.603772109392774,
+        "tokens": 1864
+      },
+      {
+        "title": "Tech Stack",
+        "relevance": 0.5681450051046917,
+        "tokens": 49
+      },
+      {
+        "title": "Tech Stack",
+        "relevance": 0.5681450051046917,
+        "tokens": 124
+      },
+      {
+        "title": "Tech Stack",
+        "relevance": 0.5681450051046917,
+        "tokens": 4
+      },
+      {
+        "title": "Tech Stack",
+        "relevance": 0.5681450051046917,
+        "tokens": 113
+      },
+      {
+        "title": "Monorepo Structure & Build System",
+        "relevance": 0.550549027963023,
+        "tokens": 217
+      },
+      {
+        "title": "\u26a0\ufe0f Test 2: Anti-Scan Protection",
+        "relevance": 0.5461650297488372,
+        "tokens": 327
+      },
+      {
+        "title": "TypeScript Architecture Layers",
+        "relevance": 0.545749027963023,
+        "tokens": 151
+      },
+      {
+        "title": "\u2705 Test 1: Database Schema Verification",
+        "relevance": 0.5413650297488373,
+        "tokens": 152
+      },
+      {
+        "title": "Feature Implementation Workflow (Snipara + RLM-Runtime)",
+        "relevance": 0.538886773526103,
+        "tokens": 1672
+      },
+      {
+        "title": "Important: Use uvx, not local Python",
+        "relevance": 0.5387104983116394,
+        "tokens": 120
+      },
+      {
+        "title": "6. Whitespace Optimization",
+        "relevance": 0.537968536052277,
+        "tokens": 64
+      },
+      {
+        "title": "4. Empty States",
+        "relevance": 0.5357342295010727,
+        "tokens": 34
+      },
+      {
+        "title": "MCP tools not showing up",
+        "relevance": 0.5339104983116393,
+        "tokens": 60
+      },
+      {
+        "title": "Feature 1: Security Audit Logging",
+        "relevance": 0.5298762631260291,
+        "tokens": 247
+      }
+    ],
+    "sections_filtered": [
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "relevance": 0.603772109392774,
+        "tokens": 1864
+      },
+      {
+        "title": "Tech Stack",
+        "relevance": 0.5681450051046917,
+        "tokens": 49
+      },
+      {
+        "title": "Tech Stack",
+        "relevance": 0.5681450051046917,
+        "tokens": 124
+      },
+      {
+        "title": "Tech Stack",
+        "relevance": 0.5681450051046917,
+        "tokens": 4
+      },
+      {
+        "title": "Tech Stack",
+        "relevance": 0.5681450051046917,
+        "tokens": 113
+      },
+      {
+        "title": "Monorepo Structure & Build System",
+        "relevance": 0.550549027963023,
+        "tokens": 217
+      },
+      {
+        "title": "\u26a0\ufe0f Test 2: Anti-Scan Protection",
+        "relevance": 0.5461650297488372,
+        "tokens": 327
+      },
+      {
+        "title": "TypeScript Architecture Layers",
+        "relevance": 0.545749027963023,
+        "tokens": 151
+      },
+      {
+        "title": "\u2705 Test 1: Database Schema Verification",
+        "relevance": 0.5413650297488373,
+        "tokens": 152
+      },
+      {
+        "title": "Feature Implementation Workflow (Snipara + RLM-Runtime)",
+        "relevance": 0.538886773526103,
+        "tokens": 1672
+      },
+      {
+        "title": "Important: Use uvx, not local Python",
+        "relevance": 0.5387104983116394,
+        "tokens": 120
+      },
+      {
+        "title": "6. Whitespace Optimization",
+        "relevance": 0.537968536052277,
+        "tokens": 64
+      },
+      {
+        "title": "4. Empty States",
+        "relevance": 0.5357342295010727,
+        "tokens": 34
+      },
+      {
+        "title": "MCP tools not showing up",
+        "relevance": 0.5339104983116393,
+        "tokens": 60
+      },
+      {
+        "title": "Feature 1: Security Audit Logging",
+        "relevance": 0.5298762631260291,
+        "tokens": 247
+      }
+    ],
+    "shared_context_removed": 2,
+    "total_tokens": 7599
+  },
+  {
+    "task_id": "mem_store_recall",
+    "mode": "snipara_ctx_mem",
+    "query": "I prefer using PostgreSQL. Remember this. Now, what database should we use for the new project?",
+    "original_query": "I prefer using PostgreSQL. Remember this. Now, what database should we use for the new project?",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 673
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 919
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 3747
+      }
+    ],
+    "sections_filtered": [],
+    "shared_context_removed": 3,
+    "total_tokens": 5726
+  },
+  {
+    "task_id": "mem_decision_log",
+    "mode": "snipara_ctx_mem",
+    "query": "We decided to use OAuth Device Flow for CLI authentication. Why did we make that decision?",
+    "original_query": "We decided to use OAuth Device Flow for CLI authentication. Why did we make that decision?",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 673
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 919
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 3747
+      }
+    ],
+    "sections_filtered": [],
+    "shared_context_removed": 3,
+    "total_tokens": 5726
+  },
+  {
+    "task_id": "mem_shared_std",
+    "mode": "snipara_ctx_mem",
+    "query": "What coding standards should I follow when adding a new API endpoint?",
+    "original_query": "What coding standards should I follow when adding a new API endpoint?",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 673
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 919
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "relevance": 0.7228702343127204,
+        "tokens": 1864
+      },
+      {
+        "title": "Feature Implementation Workflow (Snipara + RLM-Runtime)",
+        "relevance": 0.5742698353612262,
+        "tokens": 1672
+      },
+      {
+        "title": "Adding a New API Route",
+        "relevance": 0.5394441081378404,
+        "tokens": 74
+      },
+      {
+        "title": "AI Coding Agent Instructions for Snipara",
+        "relevance": 0.5261747182846069,
+        "tokens": 10
+      },
+      {
+        "title": "When to Use Snipara Tools",
+        "relevance": 0.5245478642150124,
+        "tokens": 173
+      },
+      {
+        "title": "When to Use Snipara MCP",
+        "relevance": 0.5245478642150124,
+        "tokens": 72
+      },
+      {
+        "title": "When to use Snipara vs Local Tools",
+        "relevance": 0.5245478642150124,
+        "tokens": 176
+      }
+    ],
+    "sections_filtered": [
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "relevance": 0.7228702343127204,
+        "tokens": 1864
+      },
+      {
+        "title": "Feature Implementation Workflow (Snipara + RLM-Runtime)",
+        "relevance": 0.5742698353612262,
+        "tokens": 1672
+      },
+      {
+        "title": "Adding a New API Route",
+        "relevance": 0.5394441081378404,
+        "tokens": 74
+      },
+      {
+        "title": "AI Coding Agent Instructions for Snipara",
+        "relevance": 0.5261747182846069,
+        "tokens": 10
+      },
+      {
+        "title": "When to Use Snipara Tools",
+        "relevance": 0.5245478642150124,
+        "tokens": 173
+      },
+      {
+        "title": "When to Use Snipara MCP",
+        "relevance": 0.5245478642150124,
+        "tokens": 72
+      },
+      {
+        "title": "When to use Snipara vs Local Tools",
+        "relevance": 0.5245478642150124,
+        "tokens": 176
+      }
+    ],
+    "shared_context_removed": 2,
+    "total_tokens": 6020
+  },
+  {
+    "task_id": "multi_turn_refine",
+    "mode": "snipara_ctx_mem",
+    "query": "What is Snipara's pricing? Actually, focus only on the Team tier details.",
+    "original_query": "What is Snipara's pricing? Actually, focus only on the Team tier details.",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 673
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 919
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 3747
+      }
+    ],
+    "sections_filtered": [],
+    "shared_context_removed": 3,
+    "total_tokens": 5726
+  },
+  {
+    "task_id": "mem_store_recall",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "I prefer using PostgreSQL. Remember this. Now, what database should we use for the new project?",
+    "original_query": "I prefer using PostgreSQL. Remember this. Now, what database should we use for the new project?",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 850
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 1164
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 5170
+      }
+    ],
+    "sections_filtered": [],
+    "shared_context_removed": 3,
+    "total_tokens": 7571
+  },
+  {
+    "task_id": "mem_decision_log",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "We decided to use OAuth Device Flow for CLI authentication. Why did we make that decision?",
+    "original_query": "We decided to use OAuth Device Flow for CLI authentication. Why did we make that decision?",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 850
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 1164
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 5170
+      }
+    ],
+    "sections_filtered": [],
+    "shared_context_removed": 3,
+    "total_tokens": 7571
+  },
+  {
+    "task_id": "mem_shared_std",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "What coding standards should I follow when adding a new API endpoint?",
+    "original_query": "What coding standards should I follow when adding a new API endpoint?",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 850
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 1164
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "relevance": 0.7228702343127204,
+        "tokens": 1864
+      },
+      {
+        "title": "Feature Implementation Workflow (Snipara + RLM-Runtime)",
+        "relevance": 0.5742698353612262,
+        "tokens": 1672
+      },
+      {
+        "title": "Adding a New API Route",
+        "relevance": 0.5394441081378404,
+        "tokens": 74
+      },
+      {
+        "title": "AI Coding Agent Instructions for Snipara",
+        "relevance": 0.5261747182846069,
+        "tokens": 10
+      },
+      {
+        "title": "When to Use Snipara Tools",
+        "relevance": 0.5245478642150124,
+        "tokens": 173
+      },
+      {
+        "title": "When to Use Snipara MCP",
+        "relevance": 0.5245478642150124,
+        "tokens": 72
+      },
+      {
+        "title": "When to use Snipara vs Local Tools",
+        "relevance": 0.5245478642150124,
+        "tokens": 195
+      },
+      {
+        "title": "Shared Context Tools",
+        "relevance": 0.5240396639191509,
+        "tokens": 196
+      },
+      {
+        "title": "Shared Context Tools (Phase 7)",
+        "relevance": 0.5240396639191509,
+        "tokens": 316
+      },
+      {
+        "title": "Task",
+        "relevance": 0.5237940041896116,
+        "tokens": 65
+      },
+      {
+        "title": "Task",
+        "relevance": 0.5237940041896116,
+        "tokens": 51
+      },
+      {
+        "title": "6. MCP Server Issues",
+        "relevance": 0.5120810142517089,
+        "tokens": 108
+      },
+      {
+        "title": "Tech Stack",
+        "relevance": 0.5087116538896183,
+        "tokens": 49
+      },
+      {
+        "title": "Tech Stack",
+        "relevance": 0.5087116538896183,
+        "tokens": 124
+      },
+      {
+        "title": "Tech Stack",
+        "relevance": 0.5087116538896183,
+        "tokens": 4
+      },
+      {
+        "title": "Tech Stack",
+        "relevance": 0.5087116538896183,
+        "tokens": 113
+      },
+      {
+        "title": "External Dependencies & Integration Points",
+        "relevance": 0.5086120994455882,
+        "tokens": 112
+      }
+    ],
+    "sections_filtered": [
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "relevance": 0.7228702343127204,
+        "tokens": 1864
+      },
+      {
+        "title": "Feature Implementation Workflow (Snipara + RLM-Runtime)",
+        "relevance": 0.5742698353612262,
+        "tokens": 1672
+      },
+      {
+        "title": "Adding a New API Route",
+        "relevance": 0.5394441081378404,
+        "tokens": 74
+      },
+      {
+        "title": "AI Coding Agent Instructions for Snipara",
+        "relevance": 0.5261747182846069,
+        "tokens": 10
+      },
+      {
+        "title": "When to Use Snipara Tools",
+        "relevance": 0.5245478642150124,
+        "tokens": 173
+      },
+      {
+        "title": "When to Use Snipara MCP",
+        "relevance": 0.5245478642150124,
+        "tokens": 72
+      },
+      {
+        "title": "When to use Snipara vs Local Tools",
+        "relevance": 0.5245478642150124,
+        "tokens": 195
+      },
+      {
+        "title": "Shared Context Tools",
+        "relevance": 0.5240396639191509,
+        "tokens": 196
+      },
+      {
+        "title": "Shared Context Tools (Phase 7)",
+        "relevance": 0.5240396639191509,
+        "tokens": 316
+      },
+      {
+        "title": "Task",
+        "relevance": 0.5237940041896116,
+        "tokens": 65
+      },
+      {
+        "title": "Task",
+        "relevance": 0.5237940041896116,
+        "tokens": 51
+      },
+      {
+        "title": "6. MCP Server Issues",
+        "relevance": 0.5120810142517089,
+        "tokens": 108
+      },
+      {
+        "title": "Tech Stack",
+        "relevance": 0.5087116538896183,
+        "tokens": 49
+      },
+      {
+        "title": "Tech Stack",
+        "relevance": 0.5087116538896183,
+        "tokens": 124
+      },
+      {
+        "title": "Tech Stack",
+        "relevance": 0.5087116538896183,
+        "tokens": 4
+      },
+      {
+        "title": "Tech Stack",
+        "relevance": 0.5087116538896183,
+        "tokens": 113
+      },
+      {
+        "title": "External Dependencies & Integration Points",
+        "relevance": 0.5086120994455882,
+        "tokens": 112
+      }
+    ],
+    "shared_context_removed": 2,
+    "total_tokens": 7599
+  },
+  {
+    "task_id": "multi_turn_refine",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "What is Snipara's pricing? Actually, focus only on the Team tier details.",
+    "original_query": "What is Snipara's pricing? Actually, focus only on the Team tier details.",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 850
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 1164
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 5170
+      }
+    ],
+    "sections_filtered": [],
+    "shared_context_removed": 3,
+    "total_tokens": 7571
+  },
+  {
+    "task_id": "add_api_endpoint",
+    "mode": "snipara_ctx_mem",
+    "query": "Write a Next.js API route handler at app/api/users/route.ts that returns a list of users from Prisma with Zod validation on query params.",
+    "original_query": "Write a Next.js API route handler at app/api/users/route.ts that returns a list of users from Prisma with Zod validation on query params.",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 673
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 919
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 3747
+      }
+    ],
+    "sections_filtered": [],
+    "shared_context_removed": 3,
+    "total_tokens": 5726
+  },
+  {
+    "task_id": "fix_type_error",
+    "mode": "snipara_ctx_mem",
+    "query": "Fix this TypeScript: function getUser(id) { return db.users.find(u => u.id === id); }. The parameter needs a type annotation.",
+    "original_query": "Fix this TypeScript: function getUser(id) { return db.users.find(u => u.id === id); }. The parameter needs a type annotation.",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 673
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 919
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 3747
+      }
+    ],
+    "sections_filtered": [],
+    "shared_context_removed": 3,
+    "total_tokens": 5726
+  },
+  {
+    "task_id": "add_unit_test",
+    "mode": "snipara_ctx_mem",
+    "query": "Write a unit test for a function calculatePrice(quantity: number, unitPrice: number): number that returns quantity * unitPrice.",
+    "original_query": "Write a unit test for a function calculatePrice(quantity: number, unitPrice: number): number that returns quantity * unitPrice.",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 673
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 919
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 0.742,
+        "tokens": 3747
+      }
+    ],
+    "sections_filtered": [],
+    "shared_context_removed": 3,
+    "total_tokens": 5726
+  },
+  {
+    "task_id": "add_api_endpoint",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "Write a Next.js API route handler at app/api/users/route.ts that returns a list of users from Prisma with Zod validation on query params.",
+    "original_query": "Write a Next.js API route handler at app/api/users/route.ts that returns a list of users from Prisma with Zod validation on query params.",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 850
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 1164
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 5170
+      }
+    ],
+    "sections_filtered": [],
+    "shared_context_removed": 3,
+    "total_tokens": 7571
+  },
+  {
+    "task_id": "fix_type_error",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "Fix this TypeScript: function getUser(id) { return db.users.find(u => u.id === id); }. The parameter needs a type annotation.",
+    "original_query": "Fix this TypeScript: function getUser(id) { return db.users.find(u => u.id === id); }. The parameter needs a type annotation.",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 850
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 1164
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 1.0,
+        "tokens": 5170
+      }
+    ],
+    "sections_filtered": [],
+    "shared_context_removed": 3,
+    "total_tokens": 7571
+  },
+  {
+    "task_id": "add_unit_test",
+    "mode": "snipara_ctx_mem_runtime",
+    "query": "Write a unit test for a function calculatePrice(quantity: number, unitPrice: number): number that returns quantity * unitPrice.",
+    "original_query": "Write a unit test for a function calculatePrice(quantity: number, unitPrice: number): number that returns quantity * unitPrice.",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 850
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 1164
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 0.742,
+        "tokens": 5170
+      }
+    ],
+    "sections_filtered": [],
+    "shared_context_removed": 3,
+    "total_tokens": 7571
+  }
+]

@@ -1,0 +1,7236 @@
+[
+  {
+    "task_id": "tech_stack",
+    "mode": "snipara_ctx_mem",
+    "query": "tech stack Next.js PostgreSQL FastAPI framework database deployment",
+    "original_query": "What is Snipara's tech stack?",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "Tech Stack",
+        "relevance": 1.0,
+        "tokens": 113
+      },
+      {
+        "title": "Database Changes",
+        "relevance": 0.9409929023692811,
+        "tokens": 44
+      },
+      {
+        "title": "External Dependencies & Integration Points",
+        "relevance": 0.8615346589068358,
+        "tokens": 156
+      },
+      {
+        "title": "Architecture & Technical",
+        "relevance": 0.8566379651073028,
+        "tokens": 261
+      },
+      {
+        "title": "NextAuth.js Configuration",
+        "relevance": 0.8527117806292381,
+        "tokens": 19
+      },
+      {
+        "title": "Architecture: Two Repositories, One Shared Schema",
+        "relevance": 0.8516843365253078,
+        "tokens": 274
+      },
+      {
+        "title": "Next.js Web App (`apps/web/`)",
+        "relevance": 0.8412975912975914,
+        "tokens": 171
+      },
+      {
+        "title": "Prisma Schema",
+        "relevance": 0.8302400953825587,
+        "tokens": 348
+      },
+      {
+        "title": "1. \"Cannot connect to database\"",
+        "relevance": 0.8195228301110654,
+        "tokens": 146
+      },
+      {
+        "title": "Phase 1: Foundation \u2705",
+        "relevance": 0.8091303304538598,
+        "tokens": 111
+      },
+      {
+        "title": "1.2 Database Setup",
+        "relevance": 0.7990480546670188,
+        "tokens": 333
+      },
+      {
+        "title": "snipara-fastapi \u2192 Railway",
+        "relevance": 0.7892623164033199,
+        "tokens": 227
+      },
+      {
+        "title": "Json Field Handling",
+        "relevance": 0.7797602227269748,
+        "tokens": 116
+      },
+      {
+        "title": "CLAUDE.md - Snipara FastAPI Server",
+        "relevance": 0.7705296174413823,
+        "tokens": 51
+      },
+      {
+        "title": "Database Migration",
+        "relevance": 0.7699568303260572,
+        "tokens": 56
+      },
+      {
+        "title": "Understanding the Deployment",
+        "relevance": 0.7615590292060881,
+        "tokens": 158
+      },
+      {
+        "title": "\u2705 Test 1: Database Schema Verification",
+        "relevance": 0.7608664323050874,
+        "tokens": 152
+      },
+      {
+        "title": "PostgreSQL Tuning",
+        "relevance": 0.7443551613575788,
+        "tokens": 258
+      },
+      {
+        "title": "Zip Download Contents",
+        "relevance": 0.7361019544843075,
+        "tokens": 455
+      },
+      {
+        "title": "C. Database Schema",
+        "relevance": 0.7202471097014441,
+        "tokens": 32
+      },
+      {
+        "title": "Monorepo Structure & Build System",
+        "relevance": 0.7144729364252691,
+        "tokens": 217
+      },
+      {
+        "title": "Database Security",
+        "relevance": 0.7126285479226656,
+        "tokens": 87
+      },
+      {
+        "title": "Deployment Flow",
+        "relevance": 0.7052053338818045,
+        "tokens": 58
+      },
+      {
+        "title": "Custom Integration",
+        "relevance": 0.6979700493103322,
+        "tokens": 333
+      },
+      {
+        "title": "Backend",
+        "relevance": 0.690915646853147,
+        "tokens": 58
+      },
+      {
+        "title": "Repo 2: snipara-fastapi (Separate Repository)",
+        "relevance": 0.6840354271726821,
+        "tokens": 175
+      },
+      {
+        "title": "Code Changes",
+        "relevance": 0.6707723530898585,
+        "tokens": 93
+      },
+      {
+        "title": "GET /api/debug",
+        "relevance": 0.6643776566570685,
+        "tokens": 230
+      },
+      {
+        "title": "Sync Checklist",
+        "relevance": 0.6581334236697559,
+        "tokens": 138
+      },
+      {
+        "title": "`.claude/settings.json` (Project Settings)",
+        "relevance": 0.6460755944528764,
+        "tokens": 80
+      },
+      {
+        "title": "Deployment Architecture",
+        "relevance": 0.64025221102427,
+        "tokens": 208
+      },
+      {
+        "title": "2. Backend API (`snipara-fastapi` sur GitHub)",
+        "relevance": 0.6345596901446208,
+        "tokens": 264
+      },
+      {
+        "title": "Application Tuning",
+        "relevance": 0.628993669728964,
+        "tokens": 131
+      },
+      {
+        "title": "7. Railway/Deployment Issues",
+        "relevance": 0.626520104778772,
+        "tokens": 44
+      },
+      {
+        "title": "\u2705 Test 5: Dual-Repo Deployment Status",
+        "relevance": 0.6235499794323324,
+        "tokens": 158
+      },
+      {
+        "title": "\u2705 Pre-Deployment Verification (COMPLETED)",
+        "relevance": 0.618224630229106,
+        "tokens": 76
+      },
+      {
+        "title": "Advanced Features (Enterprise)",
+        "relevance": 0.6161751025991793,
+        "tokens": 594
+      },
+      {
+        "title": "Generate .mcp.json (Local)",
+        "relevance": 0.6130138046646586,
+        "tokens": 202
+      },
+      {
+        "title": "PostgreSQL with pgvector",
+        "relevance": 0.6029212583082553,
+        "tokens": 170
+      },
+      {
+        "title": "Error Handler",
+        "relevance": 0.5980326811668724,
+        "tokens": 181
+      },
+      {
+        "title": "Kubernetes Deployment",
+        "relevance": 0.5932448994304664,
+        "tokens": 81
+      },
+      {
+        "title": "1.1 Project Setup",
+        "relevance": 0.5885548275254158,
+        "tokens": 148
+      }
+    ],
+    "sections_filtered": [
+      {
+        "title": "Tech Stack",
+        "relevance": 1.0,
+        "tokens": 113
+      },
+      {
+        "title": "Database Changes",
+        "relevance": 0.9409929023692811,
+        "tokens": 44
+      },
+      {
+        "title": "External Dependencies & Integration Points",
+        "relevance": 0.8615346589068358,
+        "tokens": 156
+      },
+      {
+        "title": "Architecture & Technical",
+        "relevance": 0.8566379651073028,
+        "tokens": 261
+      },
+      {
+        "title": "Architecture: Two Repositories, One Shared Schema",
+        "relevance": 0.8516843365253078,
+        "tokens": 274
+      },
+      {
+        "title": "Next.js Web App (`apps/web/`)",
+        "relevance": 0.8412975912975914,
+        "tokens": 171
+      },
+      {
+        "title": "Prisma Schema",
+        "relevance": 0.8302400953825587,
+        "tokens": 348
+      },
+      {
+        "title": "1. \"Cannot connect to database\"",
+        "relevance": 0.8195228301110654,
+        "tokens": 146
+      },
+      {
+        "title": "Phase 1: Foundation \u2705",
+        "relevance": 0.8091303304538598,
+        "tokens": 111
+      },
+      {
+        "title": "1.2 Database Setup",
+        "relevance": 0.7990480546670188,
+        "tokens": 333
+      },
+      {
+        "title": "snipara-fastapi \u2192 Railway",
+        "relevance": 0.7892623164033199,
+        "tokens": 227
+      },
+      {
+        "title": "Json Field Handling",
+        "relevance": 0.7797602227269748,
+        "tokens": 116
+      },
+      {
+        "title": "CLAUDE.md - Snipara FastAPI Server",
+        "relevance": 0.7705296174413823,
+        "tokens": 51
+      },
+      {
+        "title": "Database Migration",
+        "relevance": 0.7699568303260572,
+        "tokens": 56
+      },
+      {
+        "title": "Understanding the Deployment",
+        "relevance": 0.7615590292060881,
+        "tokens": 158
+      },
+      {
+        "title": "\u2705 Test 1: Database Schema Verification",
+        "relevance": 0.7608664323050874,
+        "tokens": 152
+      },
+      {
+        "title": "PostgreSQL Tuning",
+        "relevance": 0.7443551613575788,
+        "tokens": 258
+      },
+      {
+        "title": "Zip Download Contents",
+        "relevance": 0.7361019544843075,
+        "tokens": 455
+      },
+      {
+        "title": "C. Database Schema",
+        "relevance": 0.7202471097014441,
+        "tokens": 32
+      },
+      {
+        "title": "Monorepo Structure & Build System",
+        "relevance": 0.7144729364252691,
+        "tokens": 217
+      },
+      {
+        "title": "Database Security",
+        "relevance": 0.7126285479226656,
+        "tokens": 87
+      },
+      {
+        "title": "Deployment Flow",
+        "relevance": 0.7052053338818045,
+        "tokens": 58
+      },
+      {
+        "title": "Custom Integration",
+        "relevance": 0.6979700493103322,
+        "tokens": 333
+      },
+      {
+        "title": "Backend",
+        "relevance": 0.690915646853147,
+        "tokens": 58
+      },
+      {
+        "title": "Repo 2: snipara-fastapi (Separate Repository)",
+        "relevance": 0.6840354271726821,
+        "tokens": 175
+      },
+      {
+        "title": "Code Changes",
+        "relevance": 0.6707723530898585,
+        "tokens": 93
+      },
+      {
+        "title": "GET /api/debug",
+        "relevance": 0.6643776566570685,
+        "tokens": 230
+      },
+      {
+        "title": "Sync Checklist",
+        "relevance": 0.6581334236697559,
+        "tokens": 138
+      },
+      {
+        "title": "`.claude/settings.json` (Project Settings)",
+        "relevance": 0.6460755944528764,
+        "tokens": 80
+      },
+      {
+        "title": "Deployment Architecture",
+        "relevance": 0.64025221102427,
+        "tokens": 208
+      },
+      {
+        "title": "2. Backend API (`snipara-fastapi` sur GitHub)",
+        "relevance": 0.6345596901446208,
+        "tokens": 264
+      },
+      {
+        "title": "Application Tuning",
+        "relevance": 0.628993669728964,
+        "tokens": 131
+      },
+      {
+        "title": "7. Railway/Deployment Issues",
+        "relevance": 0.626520104778772,
+        "tokens": 44
+      },
+      {
+        "title": "\u2705 Test 5: Dual-Repo Deployment Status",
+        "relevance": 0.6235499794323324,
+        "tokens": 158
+      },
+      {
+        "title": "\u2705 Pre-Deployment Verification (COMPLETED)",
+        "relevance": 0.618224630229106,
+        "tokens": 76
+      },
+      {
+        "title": "Advanced Features (Enterprise)",
+        "relevance": 0.6161751025991793,
+        "tokens": 594
+      },
+      {
+        "title": "Generate .mcp.json (Local)",
+        "relevance": 0.6130138046646586,
+        "tokens": 202
+      },
+      {
+        "title": "PostgreSQL with pgvector",
+        "relevance": 0.6029212583082553,
+        "tokens": 170
+      },
+      {
+        "title": "Error Handler",
+        "relevance": 0.5980326811668724,
+        "tokens": 181
+      },
+      {
+        "title": "Kubernetes Deployment",
+        "relevance": 0.5932448994304664,
+        "tokens": 81
+      },
+      {
+        "title": "1.1 Project Setup",
+        "relevance": 0.5885548275254158,
+        "tokens": 148
+      }
+    ],
+    "shared_context_removed": 1,
+    "total_tokens": 7603,
+    "query_term_coverage": 1.0
+  },
+  {
+    "task_id": "core_value_prop",
+    "mode": "snipara_ctx_mem",
+    "query": "core value proposition context optimization 90% reduction LLM-agnostic business model",
+    "original_query": "What is Snipara's core value proposition?",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "Context Plans (Context Optimization)",
+        "relevance": 1.0,
+        "tokens": 82
+      },
+      {
+        "title": "Context Optimization Engine (Phase 4) \ud83d\udea7 IN PROGRESS",
+        "relevance": 1.0,
+        "tokens": 103
+      },
+      {
+        "title": "Project Overview",
+        "relevance": 1.0,
+        "tokens": 106
+      },
+      {
+        "title": "Product Philosophy",
+        "relevance": 1.0,
+        "tokens": 207
+      },
+      {
+        "title": "Business Model Comparison",
+        "relevance": 1.0,
+        "tokens": 143
+      },
+      {
+        "title": "Core Value Proposition",
+        "relevance": 0.9868584301945931,
+        "tokens": 5
+      },
+      {
+        "title": "Solution: Context Optimization as a Service",
+        "relevance": 0.9741340530814214,
+        "tokens": 134
+      },
+      {
+        "title": "Phase 4: Context Optimization Engine (Week 7-9) \u2705 COMPLETE",
+        "relevance": 0.9618073127530364,
+        "tokens": 40
+      },
+      {
+        "title": "2. With Snipara Context Optimization",
+        "relevance": 0.9382744448533922,
+        "tokens": 116
+      },
+      {
+        "title": "Primary Tool (Context Optimization)",
+        "relevance": 0.9270348661550546,
+        "tokens": 188
+      },
+      {
+        "title": "Snipara's Value Proposition in RLM",
+        "relevance": 0.9161258633007858,
+        "tokens": 11
+      },
+      {
+        "title": "MCP Server (Context Optimization Engine)",
+        "relevance": 0.895242914979757,
+        "tokens": 74
+      },
+      {
+        "title": "Session Context Tools",
+        "relevance": 0.8850427153817841,
+        "tokens": 90
+      },
+      {
+        "title": "1.2 Update Existing Models",
+        "relevance": 0.875520130454341,
+        "tokens": 88
+      },
+      {
+        "title": "Endpoints",
+        "relevance": 0.8660640008873606,
+        "tokens": 114
+      },
+      {
+        "title": "Example: JavaScript/TypeScript",
+        "relevance": 0.8568634423897581,
+        "tokens": 337
+      },
+      {
+        "title": "Session Context",
+        "relevance": 0.8479082321187583,
+        "tokens": 97
+      },
+      {
+        "title": "Recursive Context Architecture (Near-Infinite Context)",
+        "relevance": 0.8391886852759428,
+        "tokens": 45
+      },
+      {
+        "title": "Comparison: Full RLM vs RLM SaaS",
+        "relevance": 0.8306956201693043,
+        "tokens": 178
+      },
+      {
+        "title": "How RLM Achieves Near-Infinite Context",
+        "relevance": 0.8224203259628361,
+        "tokens": 319
+      },
+      {
+        "title": "Core Strengths to Leverage",
+        "relevance": 0.8143545328755188,
+        "tokens": 102
+      },
+      {
+        "title": "5.2 Multi-Agent Context Sharing",
+        "relevance": 0.8064903846153846,
+        "tokens": 121
+      },
+      {
+        "title": "PUT /api/teams/[teamId]/context/[contextId]",
+        "relevance": 0.7988204128555004,
+        "tokens": 99
+      },
+      {
+        "title": "Context Query Pattern",
+        "relevance": 0.7913375135775648,
+        "tokens": 86
+      },
+      {
+        "title": "Competitive Advantages",
+        "relevance": 0.7840349251256036,
+        "tokens": 129
+      },
+      {
+        "title": "Recursive Context Tools (Near-Infinite Context)",
+        "relevance": 0.7699452250535841,
+        "tokens": 524
+      },
+      {
+        "title": "GET /api/teams/[teamId]/context/[contextId]",
+        "relevance": 0.763146125600226,
+        "tokens": 159
+      },
+      {
+        "title": "Prisma Python Client Model Names",
+        "relevance": 0.7565033272837266,
+        "tokens": 188
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "relevance": 0.7454377232674446,
+        "tokens": 1864
+      },
+      {
+        "title": "Agents TEAM/ENTERPRISE Require Context Plan",
+        "relevance": 0.7436655597507164,
+        "tokens": 94
+      },
+      {
+        "title": "Snipara MCP Server",
+        "relevance": 0.7374606387764282,
+        "tokens": 259
+      },
+      {
+        "title": "Get Context Details",
+        "relevance": 0.7313920896916848,
+        "tokens": 27
+      },
+      {
+        "title": "6.2 Updated Context Query Tool",
+        "relevance": 0.7254554655870444,
+        "tokens": 396
+      },
+      {
+        "title": "Delete Context",
+        "relevance": 0.7196465108179879,
+        "tokens": 29
+      },
+      {
+        "title": "Update Context",
+        "relevance": 0.7139611508312516,
+        "tokens": 30
+      },
+      {
+        "title": "Prisma Python Syntax Notes",
+        "relevance": 0.7083954826337098,
+        "tokens": 114
+      },
+      {
+        "title": "Audit Logging",
+        "relevance": 0.70294576585695,
+        "tokens": 77
+      },
+      {
+        "title": "Quick Overview",
+        "relevance": 0.6976084143745563,
+        "tokens": 173
+      },
+      {
+        "title": "Article #9: Context Persistence Strategies",
+        "relevance": 0.6923799884326199,
+        "tokens": 127
+      },
+      {
+        "title": "Database Models",
+        "relevance": 0.6872571872571872,
+        "tokens": 85
+      }
+    ],
+    "sections_filtered": [
+      {
+        "title": "Context Plans (Context Optimization)",
+        "relevance": 1.0,
+        "tokens": 82
+      },
+      {
+        "title": "Context Optimization Engine (Phase 4) \ud83d\udea7 IN PROGRESS",
+        "relevance": 1.0,
+        "tokens": 103
+      },
+      {
+        "title": "Project Overview",
+        "relevance": 1.0,
+        "tokens": 106
+      },
+      {
+        "title": "Product Philosophy",
+        "relevance": 1.0,
+        "tokens": 207
+      },
+      {
+        "title": "Business Model Comparison",
+        "relevance": 1.0,
+        "tokens": 143
+      },
+      {
+        "title": "Solution: Context Optimization as a Service",
+        "relevance": 0.9741340530814214,
+        "tokens": 134
+      },
+      {
+        "title": "Phase 4: Context Optimization Engine (Week 7-9) \u2705 COMPLETE",
+        "relevance": 0.9618073127530364,
+        "tokens": 40
+      },
+      {
+        "title": "2. With Snipara Context Optimization",
+        "relevance": 0.9382744448533922,
+        "tokens": 116
+      },
+      {
+        "title": "Primary Tool (Context Optimization)",
+        "relevance": 0.9270348661550546,
+        "tokens": 188
+      },
+      {
+        "title": "MCP Server (Context Optimization Engine)",
+        "relevance": 0.895242914979757,
+        "tokens": 74
+      },
+      {
+        "title": "Session Context Tools",
+        "relevance": 0.8850427153817841,
+        "tokens": 90
+      },
+      {
+        "title": "1.2 Update Existing Models",
+        "relevance": 0.875520130454341,
+        "tokens": 88
+      },
+      {
+        "title": "Endpoints",
+        "relevance": 0.8660640008873606,
+        "tokens": 114
+      },
+      {
+        "title": "Example: JavaScript/TypeScript",
+        "relevance": 0.8568634423897581,
+        "tokens": 337
+      },
+      {
+        "title": "Session Context",
+        "relevance": 0.8479082321187583,
+        "tokens": 97
+      },
+      {
+        "title": "Recursive Context Architecture (Near-Infinite Context)",
+        "relevance": 0.8391886852759428,
+        "tokens": 45
+      },
+      {
+        "title": "Comparison: Full RLM vs RLM SaaS",
+        "relevance": 0.8306956201693043,
+        "tokens": 178
+      },
+      {
+        "title": "How RLM Achieves Near-Infinite Context",
+        "relevance": 0.8224203259628361,
+        "tokens": 319
+      },
+      {
+        "title": "Core Strengths to Leverage",
+        "relevance": 0.8143545328755188,
+        "tokens": 102
+      },
+      {
+        "title": "5.2 Multi-Agent Context Sharing",
+        "relevance": 0.8064903846153846,
+        "tokens": 121
+      },
+      {
+        "title": "PUT /api/teams/[teamId]/context/[contextId]",
+        "relevance": 0.7988204128555004,
+        "tokens": 99
+      },
+      {
+        "title": "Context Query Pattern",
+        "relevance": 0.7913375135775648,
+        "tokens": 86
+      },
+      {
+        "title": "Competitive Advantages",
+        "relevance": 0.7840349251256036,
+        "tokens": 129
+      },
+      {
+        "title": "Recursive Context Tools (Near-Infinite Context)",
+        "relevance": 0.7699452250535841,
+        "tokens": 524
+      },
+      {
+        "title": "GET /api/teams/[teamId]/context/[contextId]",
+        "relevance": 0.763146125600226,
+        "tokens": 159
+      },
+      {
+        "title": "Prisma Python Client Model Names",
+        "relevance": 0.7565033272837266,
+        "tokens": 188
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "relevance": 0.7454377232674446,
+        "tokens": 1864
+      },
+      {
+        "title": "Agents TEAM/ENTERPRISE Require Context Plan",
+        "relevance": 0.7436655597507164,
+        "tokens": 94
+      },
+      {
+        "title": "Snipara MCP Server",
+        "relevance": 0.7374606387764282,
+        "tokens": 259
+      },
+      {
+        "title": "Get Context Details",
+        "relevance": 0.7313920896916848,
+        "tokens": 27
+      },
+      {
+        "title": "6.2 Updated Context Query Tool",
+        "relevance": 0.7254554655870444,
+        "tokens": 396
+      },
+      {
+        "title": "Delete Context",
+        "relevance": 0.7196465108179879,
+        "tokens": 29
+      },
+      {
+        "title": "Update Context",
+        "relevance": 0.7139611508312516,
+        "tokens": 30
+      },
+      {
+        "title": "Prisma Python Syntax Notes",
+        "relevance": 0.7083954826337098,
+        "tokens": 114
+      },
+      {
+        "title": "Audit Logging",
+        "relevance": 0.70294576585695,
+        "tokens": 77
+      },
+      {
+        "title": "Quick Overview",
+        "relevance": 0.6976084143745563,
+        "tokens": 173
+      },
+      {
+        "title": "Article #9: Context Persistence Strategies",
+        "relevance": 0.6923799884326199,
+        "tokens": 127
+      },
+      {
+        "title": "Database Models",
+        "relevance": 0.6872571872571872,
+        "tokens": 85
+      }
+    ],
+    "shared_context_removed": 2,
+    "total_tokens": 7556,
+    "query_term_coverage": 0.667
+  },
+  {
+    "task_id": "mcp_tools",
+    "mode": "snipara_ctx_mem",
+    "query": "MCP tools rlm_context_query rlm_decompose rlm_search rlm_multi_query exposed",
+    "original_query": "What MCP tools does Snipara expose?",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "MCP Tools Exposed",
+        "relevance": 1.0,
+        "tokens": 17
+      },
+      {
+        "title": "Article #6: 39 MCP Tools for AI-Assisted Development",
+        "relevance": 0.9866981831664812,
+        "tokens": 178
+      },
+      {
+        "title": "MCP Tools Reference",
+        "relevance": 0.9738186462324393,
+        "tokens": 36
+      },
+      {
+        "title": "MCP Tools Complete Reference",
+        "relevance": 0.9613415948275862,
+        "tokens": 72
+      },
+      {
+        "title": "Snipara MCP Tools (39 total)",
+        "relevance": 0.9492484526967284,
+        "tokens": 118
+      },
+      {
+        "title": "MCP Tools (when using as MCP server)",
+        "relevance": 0.937521769418321,
+        "tokens": 80
+      },
+      {
+        "title": "MCP tools not showing up",
+        "relevance": 0.9261451363870303,
+        "tokens": 60
+      },
+      {
+        "title": "MCP Tools",
+        "relevance": 0.915103110209601,
+        "tokens": 4
+      },
+      {
+        "title": "MCP Tools for Memory",
+        "relevance": 0.9043811427619523,
+        "tokens": 144
+      },
+      {
+        "title": "Using MCP Tools",
+        "relevance": 0.8939655172413794,
+        "tokens": 108
+      },
+      {
+        "title": "MCP Tools for Shared Context",
+        "relevance": 0.8838432896227941,
+        "tokens": 123
+      },
+      {
+        "title": "6. MCP Server Issues",
+        "relevance": 0.8792918408220132,
+        "tokens": 108
+      },
+      {
+        "title": "1. Client MCP (`snipara-mcp` sur PyPI)",
+        "relevance": 0.8740022349936143,
+        "tokens": 143
+      },
+      {
+        "title": "MCP Servers (`.mcp.json`)",
+        "relevance": 0.8644307982994803,
+        "tokens": 109
+      },
+      {
+        "title": "Per-Project MCP Configuration",
+        "relevance": 0.8551180490835663,
+        "tokens": 275
+      },
+      {
+        "title": "5.3 Agent Toolkit Registry",
+        "relevance": 0.8460536398467433,
+        "tokens": 103
+      },
+      {
+        "title": "When Updating MCP Client:",
+        "relevance": 0.8372277676950998,
+        "tokens": 118
+      },
+      {
+        "title": "\"Snipara tools not available\"",
+        "relevance": 0.8286311389759665,
+        "tokens": 71
+      },
+      {
+        "title": "VS Code + GitHub Copilot - MCP Support (No Hooks Yet)",
+        "relevance": 0.820254936634247,
+        "tokens": 462
+      },
+      {
+        "title": "MCP Server (monorepo: apps/mcp-server/)",
+        "relevance": 0.8120907900480138,
+        "tokens": 68
+      },
+      {
+        "title": "3.2 MCP Proxy Endpoint",
+        "relevance": 0.8041307471264366,
+        "tokens": 408
+      },
+      {
+        "title": "Client MCP (snipara-mcp)",
+        "relevance": 0.7981245145669935,
+        "tokens": 64
+      },
+      {
+        "title": "Article #5: The 5 Most Common MCP Mistakes",
+        "relevance": 0.7963672484745281,
+        "tokens": 144
+      },
+      {
+        "title": "Generate .mcp.json (Local)",
+        "relevance": 0.7887931034482757,
+        "tokens": 202
+      },
+      {
+        "title": "Article #4: MCP Integration Deep Dive",
+        "relevance": 0.7814014679407285,
+        "tokens": 143
+      },
+      {
+        "title": "3. Manual Tool Registration",
+        "relevance": 0.7741858237547892,
+        "tokens": 127
+      },
+      {
+        "title": "Manual registration",
+        "relevance": 0.7671399594320486,
+        "tokens": 52
+      },
+      {
+        "title": "Issue 2: MCP Server Name Mismatch",
+        "relevance": 0.7602579524191393,
+        "tokens": 65
+      },
+      {
+        "title": "Manual Tool Registration",
+        "relevance": 0.7535341524639979,
+        "tokens": 95
+      },
+      {
+        "title": "VS Code + Copilot (MCP Only)",
+        "relevance": 0.7469631661442006,
+        "tokens": 149
+      },
+      {
+        "title": "Pillar A \u2014 Claude Code & MCP Mastery (Highest ROI)",
+        "relevance": 0.7405398424383313,
+        "tokens": 113
+      },
+      {
+        "title": "1. Clear the uvx cache",
+        "relevance": 0.7342592592592593,
+        "tokens": 71
+      },
+      {
+        "title": "Publier une nouvelle version du client MCP",
+        "relevance": 0.7281167108753315,
+        "tokens": 183
+      },
+      {
+        "title": "2. Restart your MCP client",
+        "relevance": 0.7162279075516005,
+        "tokens": 41
+      },
+      {
+        "title": "Context Tools (Documentation Queries)",
+        "relevance": 0.7104732208363902,
+        "tokens": 67
+      },
+      {
+        "title": "Recursive Context Tools (Near-Infinite Context)",
+        "relevance": 0.7102561512212643,
+        "tokens": 524
+      },
+      {
+        "title": "1. MCP Transport Dual Header Support",
+        "relevance": 0.7048396854204476,
+        "tokens": 64
+      },
+      {
+        "title": "FREE Tier Tools (always available)",
+        "relevance": 0.6993235153256704,
+        "tokens": 83
+      },
+      {
+        "title": "Key Files",
+        "relevance": 0.693921080696765,
+        "tokens": 188
+      },
+      {
+        "title": "First-Query Tool Tips",
+        "relevance": 0.6886288998357963,
+        "tokens": 265
+      },
+      {
+        "title": "Architecture: Two Repositories, One Shared Schema",
+        "relevance": 0.6859514687100892,
+        "tokens": 274
+      },
+      {
+        "title": "Integration with rlm-runtime",
+        "relevance": 0.6783620689655172,
+        "tokens": 100
+      },
+      {
+        "title": "Document Sync Tools (Phase 10)",
+        "relevance": 0.6733811312165698,
+        "tokens": 18
+      },
+      {
+        "title": "Snipara MCP Server",
+        "relevance": 0.6684978589136804,
+        "tokens": 259
+      },
+      {
+        "title": "Use Snipara MCP for Documentation Queries",
+        "relevance": 0.6637094074322062,
+        "tokens": 626
+      },
+      {
+        "title": "Python Standards (MCP Server)",
+        "relevance": 0.6590130415561448,
+        "tokens": 23
+      },
+      {
+        "title": "MCP Server Security Features",
+        "relevance": 0.6544061302681992,
+        "tokens": 45
+      },
+      {
+        "title": "MCP Protocol",
+        "relevance": 0.6498861418347428,
+        "tokens": 69
+      },
+      {
+        "title": "3. Per-Project MCP Configuration",
+        "relevance": 0.645450639166398,
+        "tokens": 98
+      },
+      {
+        "title": "Debugging Commands",
+        "relevance": 0.6410972754363559,
+        "tokens": 133
+      },
+      {
+        "title": "Open Source (RLMMCP)",
+        "relevance": 0.6368237899398923,
+        "tokens": 27
+      },
+      {
+        "title": "API & Authentication",
+        "relevance": 0.6342099166541061,
+        "tokens": 89
+      }
+    ],
+    "sections_filtered": [
+      {
+        "title": "Article #6: 39 MCP Tools for AI-Assisted Development",
+        "relevance": 0.9866981831664812,
+        "tokens": 178
+      },
+      {
+        "title": "MCP Tools Reference",
+        "relevance": 0.9738186462324393,
+        "tokens": 36
+      },
+      {
+        "title": "MCP Tools Complete Reference",
+        "relevance": 0.9613415948275862,
+        "tokens": 72
+      },
+      {
+        "title": "Snipara MCP Tools (39 total)",
+        "relevance": 0.9492484526967284,
+        "tokens": 118
+      },
+      {
+        "title": "MCP Tools (when using as MCP server)",
+        "relevance": 0.937521769418321,
+        "tokens": 80
+      },
+      {
+        "title": "MCP tools not showing up",
+        "relevance": 0.9261451363870303,
+        "tokens": 60
+      },
+      {
+        "title": "MCP Tools for Memory",
+        "relevance": 0.9043811427619523,
+        "tokens": 144
+      },
+      {
+        "title": "Using MCP Tools",
+        "relevance": 0.8939655172413794,
+        "tokens": 108
+      },
+      {
+        "title": "MCP Tools for Shared Context",
+        "relevance": 0.8838432896227941,
+        "tokens": 123
+      },
+      {
+        "title": "6. MCP Server Issues",
+        "relevance": 0.8792918408220132,
+        "tokens": 108
+      },
+      {
+        "title": "1. Client MCP (`snipara-mcp` sur PyPI)",
+        "relevance": 0.8740022349936143,
+        "tokens": 143
+      },
+      {
+        "title": "MCP Servers (`.mcp.json`)",
+        "relevance": 0.8644307982994803,
+        "tokens": 109
+      },
+      {
+        "title": "Per-Project MCP Configuration",
+        "relevance": 0.8551180490835663,
+        "tokens": 275
+      },
+      {
+        "title": "5.3 Agent Toolkit Registry",
+        "relevance": 0.8460536398467433,
+        "tokens": 103
+      },
+      {
+        "title": "When Updating MCP Client:",
+        "relevance": 0.8372277676950998,
+        "tokens": 118
+      },
+      {
+        "title": "\"Snipara tools not available\"",
+        "relevance": 0.8286311389759665,
+        "tokens": 71
+      },
+      {
+        "title": "VS Code + GitHub Copilot - MCP Support (No Hooks Yet)",
+        "relevance": 0.820254936634247,
+        "tokens": 462
+      },
+      {
+        "title": "MCP Server (monorepo: apps/mcp-server/)",
+        "relevance": 0.8120907900480138,
+        "tokens": 68
+      },
+      {
+        "title": "3.2 MCP Proxy Endpoint",
+        "relevance": 0.8041307471264366,
+        "tokens": 408
+      },
+      {
+        "title": "Client MCP (snipara-mcp)",
+        "relevance": 0.7981245145669935,
+        "tokens": 64
+      },
+      {
+        "title": "Article #5: The 5 Most Common MCP Mistakes",
+        "relevance": 0.7963672484745281,
+        "tokens": 144
+      },
+      {
+        "title": "Generate .mcp.json (Local)",
+        "relevance": 0.7887931034482757,
+        "tokens": 202
+      },
+      {
+        "title": "Article #4: MCP Integration Deep Dive",
+        "relevance": 0.7814014679407285,
+        "tokens": 143
+      },
+      {
+        "title": "3. Manual Tool Registration",
+        "relevance": 0.7741858237547892,
+        "tokens": 127
+      },
+      {
+        "title": "Manual registration",
+        "relevance": 0.7671399594320486,
+        "tokens": 52
+      },
+      {
+        "title": "Issue 2: MCP Server Name Mismatch",
+        "relevance": 0.7602579524191393,
+        "tokens": 65
+      },
+      {
+        "title": "Manual Tool Registration",
+        "relevance": 0.7535341524639979,
+        "tokens": 95
+      },
+      {
+        "title": "VS Code + Copilot (MCP Only)",
+        "relevance": 0.7469631661442006,
+        "tokens": 149
+      },
+      {
+        "title": "Pillar A \u2014 Claude Code & MCP Mastery (Highest ROI)",
+        "relevance": 0.7405398424383313,
+        "tokens": 113
+      },
+      {
+        "title": "1. Clear the uvx cache",
+        "relevance": 0.7342592592592593,
+        "tokens": 71
+      },
+      {
+        "title": "Publier une nouvelle version du client MCP",
+        "relevance": 0.7281167108753315,
+        "tokens": 183
+      },
+      {
+        "title": "2. Restart your MCP client",
+        "relevance": 0.7162279075516005,
+        "tokens": 41
+      },
+      {
+        "title": "Context Tools (Documentation Queries)",
+        "relevance": 0.7104732208363902,
+        "tokens": 67
+      },
+      {
+        "title": "Recursive Context Tools (Near-Infinite Context)",
+        "relevance": 0.7102561512212643,
+        "tokens": 524
+      },
+      {
+        "title": "1. MCP Transport Dual Header Support",
+        "relevance": 0.7048396854204476,
+        "tokens": 64
+      },
+      {
+        "title": "FREE Tier Tools (always available)",
+        "relevance": 0.6993235153256704,
+        "tokens": 83
+      },
+      {
+        "title": "Key Files",
+        "relevance": 0.693921080696765,
+        "tokens": 188
+      },
+      {
+        "title": "First-Query Tool Tips",
+        "relevance": 0.6886288998357963,
+        "tokens": 265
+      },
+      {
+        "title": "Architecture: Two Repositories, One Shared Schema",
+        "relevance": 0.6859514687100892,
+        "tokens": 274
+      },
+      {
+        "title": "Integration with rlm-runtime",
+        "relevance": 0.6783620689655172,
+        "tokens": 100
+      },
+      {
+        "title": "Snipara MCP Server",
+        "relevance": 0.6684978589136804,
+        "tokens": 259
+      },
+      {
+        "title": "Use Snipara MCP for Documentation Queries",
+        "relevance": 0.6637094074322062,
+        "tokens": 626
+      },
+      {
+        "title": "Python Standards (MCP Server)",
+        "relevance": 0.6590130415561448,
+        "tokens": 23
+      },
+      {
+        "title": "MCP Server Security Features",
+        "relevance": 0.6544061302681992,
+        "tokens": 45
+      },
+      {
+        "title": "MCP Protocol",
+        "relevance": 0.6498861418347428,
+        "tokens": 69
+      },
+      {
+        "title": "3. Per-Project MCP Configuration",
+        "relevance": 0.645450639166398,
+        "tokens": 98
+      },
+      {
+        "title": "Debugging Commands",
+        "relevance": 0.6410972754363559,
+        "tokens": 133
+      },
+      {
+        "title": "Open Source (RLMMCP)",
+        "relevance": 0.6368237899398923,
+        "tokens": 27
+      },
+      {
+        "title": "API & Authentication",
+        "relevance": 0.6342099166541061,
+        "tokens": 89
+      }
+    ],
+    "shared_context_removed": 3,
+    "total_tokens": 7602,
+    "query_term_coverage": 1.0
+  },
+  {
+    "task_id": "pricing",
+    "mode": "snipara_ctx_mem",
+    "query": "Snipara pricing plans $0 $19 $49 $499 FREE PRO TEAM ENTERPRISE hosted context queries month",
+    "original_query": "What are Snipara's pricing tiers?",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "relevance": 1.0,
+        "tokens": 1864
+      },
+      {
+        "title": "Context Plans (Context Optimization)",
+        "relevance": 1.0,
+        "tokens": 82
+      },
+      {
+        "title": "Agents TEAM/ENTERPRISE Require Context Plan",
+        "relevance": 0.9729576078471304,
+        "tokens": 94
+      },
+      {
+        "title": "Use Snipara MCP for Documentation Queries",
+        "relevance": 0.9678124999999999,
+        "tokens": 626
+      },
+      {
+        "title": "POST /api/teams/[teamId]/projects/[projectId]/members",
+        "relevance": 0.9473775017253279,
+        "tokens": 213
+      },
+      {
+        "title": "Hosted Plans",
+        "relevance": 0.9351869824016563,
+        "tokens": 117
+      },
+      {
+        "title": "PUT /api/teams/[teamId]/context/[contextId]",
+        "relevance": 0.9233715559802517,
+        "tokens": 99
+      },
+      {
+        "title": "DELETE /api/teams/[teamId]/projects/[projectId]/members/[memberId]",
+        "relevance": 0.9119141727837381,
+        "tokens": 85
+      },
+      {
+        "title": "`docs/PRICING.md` \u2014 Self-Hosted Strategy",
+        "relevance": 0.9007988010259262,
+        "tokens": 158
+      },
+      {
+        "title": "PATCH /api/teams/[teamId]/projects/[projectId]/members/[memberId]",
+        "relevance": 0.8795346115761995,
+        "tokens": 63
+      },
+      {
+        "title": "GET /api/teams/[teamId]/context/[contextId]",
+        "relevance": 0.8693581780538302,
+        "tokens": 159
+      },
+      {
+        "title": "Snipara Pricing Plans",
+        "relevance": 0.8594684046306827,
+        "tokens": 7
+      },
+      {
+        "title": "GET /api/teams/[teamId]/projects/[projectId]/members/[memberId]",
+        "relevance": 0.849853347135956,
+        "tokens": 109
+      },
+      {
+        "title": "Share Context Across Projects",
+        "relevance": 0.8405017158739612,
+        "tokens": 91
+      },
+      {
+        "title": "Context Plans (Documentation Search)",
+        "relevance": 0.8314028314028313,
+        "tokens": 136
+      },
+      {
+        "title": "Pricing Plans (Quick Reference)",
+        "relevance": 0.8225834439114014,
+        "tokens": 7
+      },
+      {
+        "title": "Team Context API",
+        "relevance": 0.8225465838509316,
+        "tokens": 49
+      },
+      {
+        "title": "2. Use Team Context",
+        "relevance": 0.8139233954451346,
+        "tokens": 38
+      },
+      {
+        "title": "List Team Contexts",
+        "relevance": 0.8055241859589686,
+        "tokens": 32
+      },
+      {
+        "title": "Create Team Context",
+        "relevance": 0.7973403408186017,
+        "tokens": 32
+      },
+      {
+        "title": "POST /api/teams/[teamId]/context",
+        "relevance": 0.7893636816311554,
+        "tokens": 357
+      },
+      {
+        "title": "8.2 Project Shared Context Manager",
+        "relevance": 0.7815864389233954,
+        "tokens": 1384
+      },
+      {
+        "title": "Article #10: Team Collaboration with Shared Context",
+        "relevance": 0.7740012268997777,
+        "tokens": 142
+      },
+      {
+        "title": "MCP Proxy (Team)",
+        "relevance": 0.7666010200474674,
+        "tokens": 34
+      },
+      {
+        "title": "Team SSO (Enterprise)",
+        "relevance": 0.7593791314325626,
+        "tokens": 30
+      },
+      {
+        "title": "Snipara Agents - Standalone Product",
+        "relevance": 0.7523291925465838,
+        "tokens": 241
+      },
+      {
+        "title": "2. With Snipara Context Optimization",
+        "relevance": 0.7387211709759738,
+        "tokens": 116
+      },
+      {
+        "title": "2. Free tier prominent",
+        "relevance": 0.732151781252231,
+        "tokens": 45
+      },
+      {
+        "title": "Shared Context (Team+)",
+        "relevance": 0.7257316958403915,
+        "tokens": 98
+      },
+      {
+        "title": "Context Tools (Documentation Queries)",
+        "relevance": 0.7194558820108405,
+        "tokens": 67
+      },
+      {
+        "title": "Pattern 3: User Prompt Context Enrichment",
+        "relevance": 0.7133195307108351,
+        "tokens": 63
+      },
+      {
+        "title": "Project Shared Contexts",
+        "relevance": 0.7073180442745659,
+        "tokens": 16
+      },
+      {
+        "title": "`docs/SELF_HOSTED_ENTERPRISE.md` \u2014 Deployment Guide Update",
+        "relevance": 0.7014470249347375,
+        "tokens": 134
+      },
+      {
+        "title": "What Snipara Provides (That Open Source Doesn't)",
+        "relevance": 0.6957022640753356,
+        "tokens": 188
+      },
+      {
+        "title": "Agents Plans (Memory & Swarms)",
+        "relevance": 0.6947470202857369,
+        "tokens": 164
+      },
+      {
+        "title": "snipara-server (19 files changed)",
+        "relevance": 0.690079732170389,
+        "tokens": 67
+      }
+    ],
+    "sections_filtered": [
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "relevance": 1.0,
+        "tokens": 1864
+      },
+      {
+        "title": "Context Plans (Context Optimization)",
+        "relevance": 1.0,
+        "tokens": 82
+      },
+      {
+        "title": "Agents TEAM/ENTERPRISE Require Context Plan",
+        "relevance": 0.9729576078471304,
+        "tokens": 94
+      },
+      {
+        "title": "Use Snipara MCP for Documentation Queries",
+        "relevance": 0.9678124999999999,
+        "tokens": 626
+      },
+      {
+        "title": "POST /api/teams/[teamId]/projects/[projectId]/members",
+        "relevance": 0.9473775017253279,
+        "tokens": 213
+      },
+      {
+        "title": "Hosted Plans",
+        "relevance": 0.9351869824016563,
+        "tokens": 117
+      },
+      {
+        "title": "PUT /api/teams/[teamId]/context/[contextId]",
+        "relevance": 0.9233715559802517,
+        "tokens": 99
+      },
+      {
+        "title": "DELETE /api/teams/[teamId]/projects/[projectId]/members/[memberId]",
+        "relevance": 0.9119141727837381,
+        "tokens": 85
+      },
+      {
+        "title": "`docs/PRICING.md` \u2014 Self-Hosted Strategy",
+        "relevance": 0.9007988010259262,
+        "tokens": 158
+      },
+      {
+        "title": "PATCH /api/teams/[teamId]/projects/[projectId]/members/[memberId]",
+        "relevance": 0.8795346115761995,
+        "tokens": 63
+      },
+      {
+        "title": "GET /api/teams/[teamId]/context/[contextId]",
+        "relevance": 0.8693581780538302,
+        "tokens": 159
+      },
+      {
+        "title": "GET /api/teams/[teamId]/projects/[projectId]/members/[memberId]",
+        "relevance": 0.849853347135956,
+        "tokens": 109
+      },
+      {
+        "title": "Share Context Across Projects",
+        "relevance": 0.8405017158739612,
+        "tokens": 91
+      },
+      {
+        "title": "Context Plans (Documentation Search)",
+        "relevance": 0.8314028314028313,
+        "tokens": 136
+      },
+      {
+        "title": "Team Context API",
+        "relevance": 0.8225465838509316,
+        "tokens": 49
+      },
+      {
+        "title": "2. Use Team Context",
+        "relevance": 0.8139233954451346,
+        "tokens": 38
+      },
+      {
+        "title": "List Team Contexts",
+        "relevance": 0.8055241859589686,
+        "tokens": 32
+      },
+      {
+        "title": "Create Team Context",
+        "relevance": 0.7973403408186017,
+        "tokens": 32
+      },
+      {
+        "title": "POST /api/teams/[teamId]/context",
+        "relevance": 0.7893636816311554,
+        "tokens": 357
+      },
+      {
+        "title": "8.2 Project Shared Context Manager",
+        "relevance": 0.7815864389233954,
+        "tokens": 1384
+      },
+      {
+        "title": "Article #10: Team Collaboration with Shared Context",
+        "relevance": 0.7740012268997777,
+        "tokens": 142
+      },
+      {
+        "title": "MCP Proxy (Team)",
+        "relevance": 0.7666010200474674,
+        "tokens": 34
+      },
+      {
+        "title": "Team SSO (Enterprise)",
+        "relevance": 0.7593791314325626,
+        "tokens": 30
+      },
+      {
+        "title": "Snipara Agents - Standalone Product",
+        "relevance": 0.7523291925465838,
+        "tokens": 241
+      },
+      {
+        "title": "2. With Snipara Context Optimization",
+        "relevance": 0.7387211709759738,
+        "tokens": 116
+      },
+      {
+        "title": "2. Free tier prominent",
+        "relevance": 0.732151781252231,
+        "tokens": 45
+      },
+      {
+        "title": "Shared Context (Team+)",
+        "relevance": 0.7257316958403915,
+        "tokens": 98
+      },
+      {
+        "title": "Context Tools (Documentation Queries)",
+        "relevance": 0.7194558820108405,
+        "tokens": 67
+      },
+      {
+        "title": "Pattern 3: User Prompt Context Enrichment",
+        "relevance": 0.7133195307108351,
+        "tokens": 63
+      },
+      {
+        "title": "`docs/SELF_HOSTED_ENTERPRISE.md` \u2014 Deployment Guide Update",
+        "relevance": 0.7014470249347375,
+        "tokens": 134
+      },
+      {
+        "title": "What Snipara Provides (That Open Source Doesn't)",
+        "relevance": 0.6957022640753356,
+        "tokens": 188
+      },
+      {
+        "title": "Agents Plans (Memory & Swarms)",
+        "relevance": 0.6947470202857369,
+        "tokens": 164
+      },
+      {
+        "title": "snipara-server (19 files changed)",
+        "relevance": 0.690079732170389,
+        "tokens": 67
+      }
+    ],
+    "shared_context_removed": 3,
+    "total_tokens": 7603,
+    "query_term_coverage": 1.0
+  },
+  {
+    "task_id": "architecture",
+    "mode": "snipara_ctx_mem",
+    "query": "architecture components snipara-mcp FastAPI server web app deployment Railway Vercel",
+    "original_query": "Describe Snipara's three-component architecture.",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "6. MCP Server Issues",
+        "relevance": 1.0,
+        "tokens": 108
+      },
+      {
+        "title": "Snipara MCP Server - Architecture & Deployment",
+        "relevance": 1.0,
+        "tokens": 11
+      },
+      {
+        "title": "snipara-fastapi \u2192 Railway",
+        "relevance": 0.9869455645161289,
+        "tokens": 227
+      },
+      {
+        "title": "7. Railway/Deployment Issues",
+        "relevance": 0.9842251392121009,
+        "tokens": 44
+      },
+      {
+        "title": "MCP Server (monorepo: apps/mcp-server/)",
+        "relevance": 0.9743055555555554,
+        "tokens": 68
+      },
+      {
+        "title": "Snipara MCP Server",
+        "relevance": 0.962060546875,
+        "tokens": 259
+      },
+      {
+        "title": "CLAUDE.md - Snipara FastAPI Server",
+        "relevance": 0.9501923076923078,
+        "tokens": 51
+      },
+      {
+        "title": "MCP Server (`apps/mcp-server/`)",
+        "relevance": 0.938683712121212,
+        "tokens": 128
+      },
+      {
+        "title": "1. Client MCP (`snipara-mcp` sur PyPI)",
+        "relevance": 0.9275186567164178,
+        "tokens": 143
+      },
+      {
+        "title": "2. Backend API (`snipara-fastapi` sur GitHub)",
+        "relevance": 0.9166819852941177,
+        "tokens": 264
+      },
+      {
+        "title": "MCP Server Changes = DUAL-REPO PUSH (MANDATORY)",
+        "relevance": 0.906159420289855,
+        "tokens": 379
+      },
+      {
+        "title": "MCP Server Security Features",
+        "relevance": 0.8959375,
+        "tokens": 45
+      },
+      {
+        "title": "Option 1: Vercel + Railway (Recommended)",
+        "relevance": 0.8860035211267605,
+        "tokens": 143
+      },
+      {
+        "title": "MCP Servers (`.mcp.json`)",
+        "relevance": 0.8763454861111112,
+        "tokens": 109
+      },
+      {
+        "title": "Repo 2: snipara-fastapi (Separate Repository)",
+        "relevance": 0.8669520547945204,
+        "tokens": 175
+      },
+      {
+        "title": "Modifying MCP Server",
+        "relevance": 0.8578124999999999,
+        "tokens": 64
+      },
+      {
+        "title": "Snipara MCP Architecture",
+        "relevance": 0.8489166666666667,
+        "tokens": 7
+      },
+      {
+        "title": "Use Snipara MCP for Documentation Queries",
+        "relevance": 0.8449055989583332,
+        "tokens": 626
+      },
+      {
+        "title": "Snipara Deployment Architecture",
+        "relevance": 0.8402549342105263,
+        "tokens": 7
+      },
+      {
+        "title": "Client MCP (snipara-mcp)",
+        "relevance": 0.8318181818181817,
+        "tokens": 64
+      },
+      {
+        "title": "Issue 2: MCP Server Name Mismatch",
+        "relevance": 0.8235977564102563,
+        "tokens": 65
+      },
+      {
+        "title": "Next.js Web App (`apps/web/`)",
+        "relevance": 0.8155854430379746,
+        "tokens": 171
+      },
+      {
+        "title": "MCP Server (Railway)",
+        "relevance": 0.8077734375,
+        "tokens": 36
+      },
+      {
+        "title": "Web App (Vercel)",
+        "relevance": 0.8001543209876543,
+        "tokens": 55
+      },
+      {
+        "title": "Python Standards (MCP Server)",
+        "relevance": 0.7927210365853657,
+        "tokens": 23
+      },
+      {
+        "title": "Deployment Architecture",
+        "relevance": 0.7783854166666667,
+        "tokens": 208
+      },
+      {
+        "title": "RLM MCP Server",
+        "relevance": 0.771470588235294,
+        "tokens": 21
+      },
+      {
+        "title": "3.1 MCP Server Setup",
+        "relevance": 0.7647165697674418,
+        "tokens": 610
+      },
+      {
+        "title": "`apps/web/src/app/(public)/self-hosted/page.tsx` \u2014 Major Rewrite",
+        "relevance": 0.758117816091954,
+        "tokens": 211
+      },
+      {
+        "title": "Architecture: Two Repositories, One Shared Schema",
+        "relevance": 0.7550725446428571,
+        "tokens": 274
+      },
+      {
+        "title": "MCP Server Implementation",
+        "relevance": 0.751669034090909,
+        "tokens": 668
+      },
+      {
+        "title": "`apps/web/src/app/(marketing)/page.tsx` \u2014 Callout Update",
+        "relevance": 0.7453651685393258,
+        "tokens": 71
+      },
+      {
+        "title": "Standalone MCP server",
+        "relevance": 0.7392013888888889,
+        "tokens": 14
+      },
+      {
+        "title": "MCP Server Authentication",
+        "relevance": 0.7331730769230768,
+        "tokens": 83
+      },
+      {
+        "title": "D\u00e9ployer le Dashboard Web (Railway)",
+        "relevance": 0.7272758152173913,
+        "tokens": 81
+      },
+      {
+        "title": "Agents Page (`apps/web/src/app/(marketing)/agents/page.tsx`)",
+        "relevance": 0.721505376344086,
+        "tokens": 127
+      },
+      {
+        "title": "Snipara monorepo (web changes)",
+        "relevance": 0.710328947368421,
+        "tokens": 167
+      },
+      {
+        "title": "MCP Tools (when using as MCP server)",
+        "relevance": 0.7049153645833333,
+        "tokens": 80
+      },
+      {
+        "title": "Billing Page (`apps/web/src/app/(dashboard)/dashboard/billing/page.tsx`)",
+        "relevance": 0.6996134020618555,
+        "tokens": 53
+      },
+      {
+        "title": "Docs Layout (`apps/web/src/app/(public)/docs/layout.tsx`)",
+        "relevance": 0.6944196428571427,
+        "tokens": 64
+      },
+      {
+        "title": "Agents Dashboard (`apps/web/src/app/(dashboard)/dashboard/agents/page.tsx`)",
+        "relevance": 0.689330808080808,
+        "tokens": 59
+      },
+      {
+        "title": "Dashboard Layout (`apps/web/src/app/(dashboard)/layout.tsx`)",
+        "relevance": 0.68434375,
+        "tokens": 60
+      },
+      {
+        "title": "MCP Server (Context Optimization Engine)",
+        "relevance": 0.6794554455445544,
+        "tokens": 74
+      },
+      {
+        "title": "snipara-server (19 files changed)",
+        "relevance": 0.6746629901960784,
+        "tokens": 293
+      },
+      {
+        "title": "Device Page (monorepo: apps/web/)",
+        "relevance": 0.6699635922330097,
+        "tokens": 33
+      },
+      {
+        "title": "Landing Page (`apps/web/src/app/(marketing)/page.tsx`)",
+        "relevance": 0.6653545673076923,
+        "tokens": 186
+      },
+      {
+        "title": "Update snipara-mcp Package",
+        "relevance": 0.6608333333333333,
+        "tokens": 394
+      }
+    ],
+    "sections_filtered": [
+      {
+        "title": "6. MCP Server Issues",
+        "relevance": 1.0,
+        "tokens": 108
+      },
+      {
+        "title": "snipara-fastapi \u2192 Railway",
+        "relevance": 0.9869455645161289,
+        "tokens": 227
+      },
+      {
+        "title": "7. Railway/Deployment Issues",
+        "relevance": 0.9842251392121009,
+        "tokens": 44
+      },
+      {
+        "title": "MCP Server (monorepo: apps/mcp-server/)",
+        "relevance": 0.9743055555555554,
+        "tokens": 68
+      },
+      {
+        "title": "Snipara MCP Server",
+        "relevance": 0.962060546875,
+        "tokens": 259
+      },
+      {
+        "title": "CLAUDE.md - Snipara FastAPI Server",
+        "relevance": 0.9501923076923078,
+        "tokens": 51
+      },
+      {
+        "title": "MCP Server (`apps/mcp-server/`)",
+        "relevance": 0.938683712121212,
+        "tokens": 128
+      },
+      {
+        "title": "1. Client MCP (`snipara-mcp` sur PyPI)",
+        "relevance": 0.9275186567164178,
+        "tokens": 143
+      },
+      {
+        "title": "2. Backend API (`snipara-fastapi` sur GitHub)",
+        "relevance": 0.9166819852941177,
+        "tokens": 264
+      },
+      {
+        "title": "MCP Server Changes = DUAL-REPO PUSH (MANDATORY)",
+        "relevance": 0.906159420289855,
+        "tokens": 379
+      },
+      {
+        "title": "MCP Server Security Features",
+        "relevance": 0.8959375,
+        "tokens": 45
+      },
+      {
+        "title": "Option 1: Vercel + Railway (Recommended)",
+        "relevance": 0.8860035211267605,
+        "tokens": 143
+      },
+      {
+        "title": "MCP Servers (`.mcp.json`)",
+        "relevance": 0.8763454861111112,
+        "tokens": 109
+      },
+      {
+        "title": "Repo 2: snipara-fastapi (Separate Repository)",
+        "relevance": 0.8669520547945204,
+        "tokens": 175
+      },
+      {
+        "title": "Modifying MCP Server",
+        "relevance": 0.8578124999999999,
+        "tokens": 64
+      },
+      {
+        "title": "Use Snipara MCP for Documentation Queries",
+        "relevance": 0.8449055989583332,
+        "tokens": 626
+      },
+      {
+        "title": "Client MCP (snipara-mcp)",
+        "relevance": 0.8318181818181817,
+        "tokens": 64
+      },
+      {
+        "title": "Issue 2: MCP Server Name Mismatch",
+        "relevance": 0.8235977564102563,
+        "tokens": 65
+      },
+      {
+        "title": "Next.js Web App (`apps/web/`)",
+        "relevance": 0.8155854430379746,
+        "tokens": 171
+      },
+      {
+        "title": "MCP Server (Railway)",
+        "relevance": 0.8077734375,
+        "tokens": 36
+      },
+      {
+        "title": "Web App (Vercel)",
+        "relevance": 0.8001543209876543,
+        "tokens": 55
+      },
+      {
+        "title": "Python Standards (MCP Server)",
+        "relevance": 0.7927210365853657,
+        "tokens": 23
+      },
+      {
+        "title": "Deployment Architecture",
+        "relevance": 0.7783854166666667,
+        "tokens": 208
+      },
+      {
+        "title": "RLM MCP Server",
+        "relevance": 0.771470588235294,
+        "tokens": 21
+      },
+      {
+        "title": "3.1 MCP Server Setup",
+        "relevance": 0.7647165697674418,
+        "tokens": 610
+      },
+      {
+        "title": "`apps/web/src/app/(public)/self-hosted/page.tsx` \u2014 Major Rewrite",
+        "relevance": 0.758117816091954,
+        "tokens": 211
+      },
+      {
+        "title": "Architecture: Two Repositories, One Shared Schema",
+        "relevance": 0.7550725446428571,
+        "tokens": 274
+      },
+      {
+        "title": "MCP Server Implementation",
+        "relevance": 0.751669034090909,
+        "tokens": 668
+      },
+      {
+        "title": "`apps/web/src/app/(marketing)/page.tsx` \u2014 Callout Update",
+        "relevance": 0.7453651685393258,
+        "tokens": 71
+      },
+      {
+        "title": "MCP Server Authentication",
+        "relevance": 0.7331730769230768,
+        "tokens": 83
+      },
+      {
+        "title": "D\u00e9ployer le Dashboard Web (Railway)",
+        "relevance": 0.7272758152173913,
+        "tokens": 81
+      },
+      {
+        "title": "Agents Page (`apps/web/src/app/(marketing)/agents/page.tsx`)",
+        "relevance": 0.721505376344086,
+        "tokens": 127
+      },
+      {
+        "title": "Snipara monorepo (web changes)",
+        "relevance": 0.710328947368421,
+        "tokens": 167
+      },
+      {
+        "title": "MCP Tools (when using as MCP server)",
+        "relevance": 0.7049153645833333,
+        "tokens": 80
+      },
+      {
+        "title": "Billing Page (`apps/web/src/app/(dashboard)/dashboard/billing/page.tsx`)",
+        "relevance": 0.6996134020618555,
+        "tokens": 53
+      },
+      {
+        "title": "Docs Layout (`apps/web/src/app/(public)/docs/layout.tsx`)",
+        "relevance": 0.6944196428571427,
+        "tokens": 64
+      },
+      {
+        "title": "Agents Dashboard (`apps/web/src/app/(dashboard)/dashboard/agents/page.tsx`)",
+        "relevance": 0.689330808080808,
+        "tokens": 59
+      },
+      {
+        "title": "Dashboard Layout (`apps/web/src/app/(dashboard)/layout.tsx`)",
+        "relevance": 0.68434375,
+        "tokens": 60
+      },
+      {
+        "title": "MCP Server (Context Optimization Engine)",
+        "relevance": 0.6794554455445544,
+        "tokens": 74
+      },
+      {
+        "title": "snipara-server (19 files changed)",
+        "relevance": 0.6746629901960784,
+        "tokens": 293
+      },
+      {
+        "title": "Device Page (monorepo: apps/web/)",
+        "relevance": 0.6699635922330097,
+        "tokens": 33
+      },
+      {
+        "title": "Landing Page (`apps/web/src/app/(marketing)/page.tsx`)",
+        "relevance": 0.6653545673076923,
+        "tokens": 186
+      },
+      {
+        "title": "Update snipara-mcp Package",
+        "relevance": 0.6608333333333333,
+        "tokens": 394
+      }
+    ],
+    "shared_context_removed": 4,
+    "total_tokens": 7499,
+    "query_term_coverage": 0.333
+  },
+  {
+    "task_id": "token_budgeting",
+    "mode": "snipara_ctx_mem",
+    "query": "rlm_context_query max_tokens token budget algorithm greedy selection smart truncation sentence boundaries section ranking",
+    "original_query": "How does Snipara's token budgeting work?",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "4.1 Token Budgeting & Metadata Response",
+        "relevance": 1.0,
+        "tokens": 635
+      },
+      {
+        "title": "Article #3: Understanding Token Budgets: A Practical Guide",
+        "relevance": 0.9865714370038071,
+        "tokens": 133
+      },
+      {
+        "title": "Token Budget Algorithm",
+        "relevance": 0.973569177594795,
+        "tokens": 132
+      },
+      {
+        "title": "Phase 5: Token Budget Allocator (Est. 1 day)",
+        "relevance": 0.9609732387923147,
+        "tokens": 15
+      },
+      {
+        "title": "Context Query Implementation",
+        "relevance": 0.9487648673376029,
+        "tokens": 587
+      },
+      {
+        "title": "6.2 Updated Context Query Tool",
+        "relevance": 0.9369264465330338,
+        "tokens": 396
+      },
+      {
+        "title": "5.1 Budget Allocation Logic",
+        "relevance": 0.9254414114241236,
+        "tokens": 922
+      },
+      {
+        "title": "Recursive Tools Implementation",
+        "relevance": 0.9142941714654755,
+        "tokens": 1005
+      },
+      {
+        "title": "Token Revocation",
+        "relevance": 0.9034700399114257,
+        "tokens": 113
+      },
+      {
+        "title": "1. Token Efficiency (`--token-efficiency`)",
+        "relevance": 0.8929551692589205,
+        "tokens": 87
+      },
+      {
+        "title": "Token Management UI",
+        "relevance": 0.8827364921459221,
+        "tokens": 45
+      },
+      {
+        "title": "Primary Tool: `rlm_context_query`",
+        "relevance": 0.8728016671749518,
+        "tokens": 329
+      },
+      {
+        "title": "Token Refresh",
+        "relevance": 0.8631390291894872,
+        "tokens": 123
+      },
+      {
+        "title": "POST /api/oauth/token",
+        "relevance": 0.8537375435820083,
+        "tokens": 87
+      },
+      {
+        "title": "Cost Tracking",
+        "relevance": 0.8445867642573954,
+        "tokens": 122
+      },
+      {
+        "title": "Solution 2: Remove OAuth Tokens (Force API Key)",
+        "relevance": 0.8356767949150092,
+        "tokens": 65
+      },
+      {
+        "title": "1. Token Efficiency",
+        "relevance": 0.8269982533477501,
+        "tokens": 83
+      },
+      {
+        "title": "Token Efficiency",
+        "relevance": 0.8187254373387048,
+        "tokens": 70
+      },
+      {
+        "title": "DELETE /api/settings/tokens/[tokenId]",
+        "relevance": 0.8185422384873436,
+        "tokens": 38
+      },
+      {
+        "title": "Context Optimization Engine (Phase 4) \ud83d\udea7 IN PROGRESS",
+        "relevance": 0.8103002999525171,
+        "tokens": 103
+      },
+      {
+        "title": "6.1 Merged Context Retrieval",
+        "relevance": 0.8022644098810612,
+        "tokens": 1285
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "relevance": 0.7999045516103577,
+        "tokens": 540
+      }
+    ],
+    "sections_filtered": [
+      {
+        "title": "4.1 Token Budgeting & Metadata Response",
+        "relevance": 1.0,
+        "tokens": 635
+      },
+      {
+        "title": "Article #3: Understanding Token Budgets: A Practical Guide",
+        "relevance": 0.9865714370038071,
+        "tokens": 133
+      },
+      {
+        "title": "Token Budget Algorithm",
+        "relevance": 0.973569177594795,
+        "tokens": 132
+      },
+      {
+        "title": "Context Query Implementation",
+        "relevance": 0.9487648673376029,
+        "tokens": 587
+      },
+      {
+        "title": "6.2 Updated Context Query Tool",
+        "relevance": 0.9369264465330338,
+        "tokens": 396
+      },
+      {
+        "title": "5.1 Budget Allocation Logic",
+        "relevance": 0.9254414114241236,
+        "tokens": 922
+      },
+      {
+        "title": "Recursive Tools Implementation",
+        "relevance": 0.9142941714654755,
+        "tokens": 1005
+      },
+      {
+        "title": "Token Revocation",
+        "relevance": 0.9034700399114257,
+        "tokens": 113
+      },
+      {
+        "title": "1. Token Efficiency (`--token-efficiency`)",
+        "relevance": 0.8929551692589205,
+        "tokens": 87
+      },
+      {
+        "title": "Token Management UI",
+        "relevance": 0.8827364921459221,
+        "tokens": 45
+      },
+      {
+        "title": "Primary Tool: `rlm_context_query`",
+        "relevance": 0.8728016671749518,
+        "tokens": 329
+      },
+      {
+        "title": "Token Refresh",
+        "relevance": 0.8631390291894872,
+        "tokens": 123
+      },
+      {
+        "title": "POST /api/oauth/token",
+        "relevance": 0.8537375435820083,
+        "tokens": 87
+      },
+      {
+        "title": "Cost Tracking",
+        "relevance": 0.8445867642573954,
+        "tokens": 122
+      },
+      {
+        "title": "Solution 2: Remove OAuth Tokens (Force API Key)",
+        "relevance": 0.8356767949150092,
+        "tokens": 65
+      },
+      {
+        "title": "1. Token Efficiency",
+        "relevance": 0.8269982533477501,
+        "tokens": 83
+      },
+      {
+        "title": "Token Efficiency",
+        "relevance": 0.8187254373387048,
+        "tokens": 70
+      },
+      {
+        "title": "DELETE /api/settings/tokens/[tokenId]",
+        "relevance": 0.8185422384873436,
+        "tokens": 38
+      },
+      {
+        "title": "Context Optimization Engine (Phase 4) \ud83d\udea7 IN PROGRESS",
+        "relevance": 0.8103002999525171,
+        "tokens": 103
+      },
+      {
+        "title": "6.1 Merged Context Retrieval",
+        "relevance": 0.8022644098810612,
+        "tokens": 1285
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "relevance": 0.7999045516103577,
+        "tokens": 540
+      }
+    ],
+    "shared_context_removed": 1,
+    "total_tokens": 7311,
+    "query_term_coverage": 1.0
+  },
+  {
+    "task_id": "shared_context",
+    "mode": "snipara_ctx_mem",
+    "query": "shared context collections reusable documentation coding standards GLOBAL TEAM USER scopes MANDATORY BEST_PRACTICES GUIDELINES REFERENCE categories linked projects",
+    "original_query": "What are shared context collections and how do they work?",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "relevance": 1.0,
+        "tokens": 1864
+      },
+      {
+        "title": "Shared Context Tools (Phase 7)",
+        "relevance": 1.0,
+        "tokens": 316
+      },
+      {
+        "title": "Coding Standards",
+        "relevance": 0.9223986497986494,
+        "tokens": 26
+      },
+      {
+        "title": "Article #10: Team Collaboration with Shared Context",
+        "relevance": 0.898495431116853,
+        "tokens": 142
+      },
+      {
+        "title": "Shared Context (Team+)",
+        "relevance": 0.8864552913363927,
+        "tokens": 98
+      },
+      {
+        "title": "Example 5: Team Standards (TEAM plan)",
+        "relevance": 0.8634864092936684,
+        "tokens": 85
+      },
+      {
+        "title": "GET /api/teams/[teamId]/context/[contextId]",
+        "relevance": 0.8525239883187317,
+        "tokens": 159
+      },
+      {
+        "title": "\ud83d\udc65 Team Standards (Auto-Enforce Rules)",
+        "relevance": 0.8418888037908081,
+        "tokens": 182
+      },
+      {
+        "title": "1. Team-Wide Coding Standards",
+        "relevance": 0.8315664188078234,
+        "tokens": 107
+      },
+      {
+        "title": "Share Context Across Projects",
+        "relevance": 0.821543233389563,
+        "tokens": 91
+      },
+      {
+        "title": "POST /api/teams/[teamId]/context",
+        "relevance": 0.8118064246975386,
+        "tokens": 357
+      },
+      {
+        "title": "Team Context API",
+        "relevance": 0.8023438923066979,
+        "tokens": 49
+      },
+      {
+        "title": "Complete Reference Documentation",
+        "relevance": 0.7940170094191404,
+        "tokens": 237
+      },
+      {
+        "title": "2. Use Team Context",
+        "relevance": 0.7931442080378251,
+        "tokens": 38
+      },
+      {
+        "title": "MCP Query Order (Shared Context First)",
+        "relevance": 0.7841965699133049,
+        "tokens": 193
+      },
+      {
+        "title": "PUT /api/teams/[teamId]/context/[contextId]",
+        "relevance": 0.7754907598462042,
+        "tokens": 99
+      },
+      {
+        "title": "1.1 Shared Context Marketplace",
+        "relevance": 0.767017104714226,
+        "tokens": 167
+      },
+      {
+        "title": "MCP Tools for Shared Context",
+        "relevance": 0.7587664405067739,
+        "tokens": 123
+      },
+      {
+        "title": "Shared Context Collections - Implementation Plan",
+        "relevance": 0.7507300792657489,
+        "tokens": 8
+      },
+      {
+        "title": "Create Team Context",
+        "relevance": 0.7428997785693656,
+        "tokens": 32
+      },
+      {
+        "title": "rlm_shared_context",
+        "relevance": 0.73526771333365,
+        "tokens": 37
+      },
+      {
+        "title": "Agents TEAM/ENTERPRISE Require Context Plan",
+        "relevance": 0.7278264497288276,
+        "tokens": 94
+      },
+      {
+        "title": "List Team Contexts",
+        "relevance": 0.720568921027828,
+        "tokens": 32
+      },
+      {
+        "title": "POST /api/teams/[teamId]/projects/[projectId]/members",
+        "relevance": 0.7134884052219747,
+        "tokens": 213
+      },
+      {
+        "title": "Feature Documentation (Quick Reference)",
+        "relevance": 0.7065785042548165,
+        "tokens": 209
+      },
+      {
+        "title": "TEAM/SHARED TOOLS",
+        "relevance": 0.6998331247392574,
+        "tokens": 249
+      },
+      {
+        "title": "8.2 Project Shared Context Manager",
+        "relevance": 0.693246460035829,
+        "tokens": 1384
+      },
+      {
+        "title": "Project Shared Contexts",
+        "relevance": 0.6868129735813178,
+        "tokens": 16
+      },
+      {
+        "title": "DELETE /api/teams/[teamId]/projects/[projectId]/members/[memberId]",
+        "relevance": 0.68052738336714,
+        "tokens": 85
+      },
+      {
+        "title": "GET /api/teams/[teamId]/projects/[projectId]/members/[memberId]",
+        "relevance": 0.6743846474760116,
+        "tokens": 109
+      },
+      {
+        "title": "Shared Context",
+        "relevance": 0.6683799505936727,
+        "tokens": 58
+      },
+      {
+        "title": "PATCH /api/teams/[teamId]/projects/[projectId]/members/[memberId]",
+        "relevance": 0.6625086914198303,
+        "tokens": 63
+      },
+      {
+        "title": "Context Tools (Documentation Queries)",
+        "relevance": 0.6567664709091493,
+        "tokens": 67
+      },
+      {
+        "title": "Pattern 3: User Prompt Context Enrichment",
+        "relevance": 0.6511490812791351,
+        "tokens": 63
+      },
+      {
+        "title": "Shared Collections",
+        "relevance": 0.6350064773949894,
+        "tokens": 4
+      },
+      {
+        "title": "Group 4: Shared Context Tools",
+        "relevance": 0.6298498122653317,
+        "tokens": 9
+      },
+      {
+        "title": "Complete Tool Reference (For Power Users)",
+        "relevance": 0.6247994701280382,
+        "tokens": 9
+      },
+      {
+        "title": "GET /api/shared-collections/[collectionId]/documents",
+        "relevance": 0.619852196197628,
+        "tokens": 82
+      },
+      {
+        "title": "Team Context",
+        "relevance": 0.615004867195105,
+        "tokens": 4
+      }
+    ],
+    "sections_filtered": [
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "relevance": 1.0,
+        "tokens": 1864
+      },
+      {
+        "title": "Shared Context Tools (Phase 7)",
+        "relevance": 1.0,
+        "tokens": 316
+      },
+      {
+        "title": "Coding Standards",
+        "relevance": 0.9223986497986494,
+        "tokens": 26
+      },
+      {
+        "title": "Article #10: Team Collaboration with Shared Context",
+        "relevance": 0.898495431116853,
+        "tokens": 142
+      },
+      {
+        "title": "Shared Context (Team+)",
+        "relevance": 0.8864552913363927,
+        "tokens": 98
+      },
+      {
+        "title": "Example 5: Team Standards (TEAM plan)",
+        "relevance": 0.8634864092936684,
+        "tokens": 85
+      },
+      {
+        "title": "GET /api/teams/[teamId]/context/[contextId]",
+        "relevance": 0.8525239883187317,
+        "tokens": 159
+      },
+      {
+        "title": "\ud83d\udc65 Team Standards (Auto-Enforce Rules)",
+        "relevance": 0.8418888037908081,
+        "tokens": 182
+      },
+      {
+        "title": "1. Team-Wide Coding Standards",
+        "relevance": 0.8315664188078234,
+        "tokens": 107
+      },
+      {
+        "title": "Share Context Across Projects",
+        "relevance": 0.821543233389563,
+        "tokens": 91
+      },
+      {
+        "title": "POST /api/teams/[teamId]/context",
+        "relevance": 0.8118064246975386,
+        "tokens": 357
+      },
+      {
+        "title": "Team Context API",
+        "relevance": 0.8023438923066979,
+        "tokens": 49
+      },
+      {
+        "title": "Complete Reference Documentation",
+        "relevance": 0.7940170094191404,
+        "tokens": 237
+      },
+      {
+        "title": "2. Use Team Context",
+        "relevance": 0.7931442080378251,
+        "tokens": 38
+      },
+      {
+        "title": "MCP Query Order (Shared Context First)",
+        "relevance": 0.7841965699133049,
+        "tokens": 193
+      },
+      {
+        "title": "PUT /api/teams/[teamId]/context/[contextId]",
+        "relevance": 0.7754907598462042,
+        "tokens": 99
+      },
+      {
+        "title": "1.1 Shared Context Marketplace",
+        "relevance": 0.767017104714226,
+        "tokens": 167
+      },
+      {
+        "title": "MCP Tools for Shared Context",
+        "relevance": 0.7587664405067739,
+        "tokens": 123
+      },
+      {
+        "title": "Create Team Context",
+        "relevance": 0.7428997785693656,
+        "tokens": 32
+      },
+      {
+        "title": "rlm_shared_context",
+        "relevance": 0.73526771333365,
+        "tokens": 37
+      },
+      {
+        "title": "Agents TEAM/ENTERPRISE Require Context Plan",
+        "relevance": 0.7278264497288276,
+        "tokens": 94
+      },
+      {
+        "title": "List Team Contexts",
+        "relevance": 0.720568921027828,
+        "tokens": 32
+      },
+      {
+        "title": "POST /api/teams/[teamId]/projects/[projectId]/members",
+        "relevance": 0.7134884052219747,
+        "tokens": 213
+      },
+      {
+        "title": "Feature Documentation (Quick Reference)",
+        "relevance": 0.7065785042548165,
+        "tokens": 209
+      },
+      {
+        "title": "TEAM/SHARED TOOLS",
+        "relevance": 0.6998331247392574,
+        "tokens": 249
+      },
+      {
+        "title": "8.2 Project Shared Context Manager",
+        "relevance": 0.693246460035829,
+        "tokens": 1384
+      },
+      {
+        "title": "DELETE /api/teams/[teamId]/projects/[projectId]/members/[memberId]",
+        "relevance": 0.68052738336714,
+        "tokens": 85
+      },
+      {
+        "title": "GET /api/teams/[teamId]/projects/[projectId]/members/[memberId]",
+        "relevance": 0.6743846474760116,
+        "tokens": 109
+      },
+      {
+        "title": "Shared Context",
+        "relevance": 0.6683799505936727,
+        "tokens": 58
+      },
+      {
+        "title": "PATCH /api/teams/[teamId]/projects/[projectId]/members/[memberId]",
+        "relevance": 0.6625086914198303,
+        "tokens": 63
+      },
+      {
+        "title": "Context Tools (Documentation Queries)",
+        "relevance": 0.6567664709091493,
+        "tokens": 67
+      },
+      {
+        "title": "Pattern 3: User Prompt Context Enrichment",
+        "relevance": 0.6511490812791351,
+        "tokens": 63
+      },
+      {
+        "title": "GET /api/shared-collections/[collectionId]/documents",
+        "relevance": 0.619852196197628,
+        "tokens": 82
+      }
+    ],
+    "shared_context_removed": 6,
+    "total_tokens": 7556,
+    "query_term_coverage": 1.0
+  },
+  {
+    "task_id": "oauth_device_flow",
+    "mode": "snipara_ctx_mem",
+    "query": "OAuth device flow authentication RFC 8628 snipara-mcp-login tokens CLI",
+    "original_query": "How does OAuth Device Flow authentication work in Snipara?",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "Use Snipara MCP for Documentation Queries",
+        "relevance": 1.0,
+        "tokens": 626
+      },
+      {
+        "title": "OAuth Device Flow (MCP Authentication)",
+        "relevance": 1.0,
+        "tokens": 46
+      },
+      {
+        "title": "1. Client MCP (`snipara-mcp` sur PyPI)",
+        "relevance": 0.9862923072851889,
+        "tokens": 143
+      },
+      {
+        "title": "Client MCP (snipara-mcp)",
+        "relevance": 0.9730197794184668,
+        "tokens": 64
+      },
+      {
+        "title": "Solution 1: Use SNIPARA_IGNORE_OAUTH Environment Variable (Recommended)",
+        "relevance": 0.96016201804758,
+        "tokens": 163
+      },
+      {
+        "title": "OAuth Device Flow",
+        "relevance": 0.9476998801034897,
+        "tokens": 12
+      },
+      {
+        "title": "2. SNIPARA_IGNORE_OAUTH Environment Variable",
+        "relevance": 0.9356153827031597,
+        "tokens": 56
+      },
+      {
+        "title": "Solution 2: Remove OAuth Tokens (Force API Key)",
+        "relevance": 0.923891616568511,
+        "tokens": 65
+      },
+      {
+        "title": "Feature Implementation Workflow (Snipara + RLM-Runtime)",
+        "relevance": 0.9155570685409564,
+        "tokens": 1672
+      },
+      {
+        "title": "When Updating MCP Client:",
+        "relevance": 0.9125126670848815,
+        "tokens": 118
+      },
+      {
+        "title": "POST /api/oauth/device/code",
+        "relevance": 0.901463542223966,
+        "tokens": 121
+      },
+      {
+        "title": "MCP Server Authentication",
+        "relevance": 0.8907301066447908,
+        "tokens": 83
+      },
+      {
+        "title": "MCP Authentication (Quick Reference)",
+        "relevance": 0.8802990213636207,
+        "tokens": 181
+      },
+      {
+        "title": "MCP vs Inject API Authentication",
+        "relevance": 0.8701576884513719,
+        "tokens": 302
+      },
+      {
+        "title": "Snipara MCP Server",
+        "relevance": 0.8602942002764449,
+        "tokens": 259
+      },
+      {
+        "title": "POST /api/oauth/device/token",
+        "relevance": 0.8506972928630024,
+        "tokens": 141
+      },
+      {
+        "title": "Publier une nouvelle version du client MCP",
+        "relevance": 0.8413563029805852,
+        "tokens": 183
+      },
+      {
+        "title": "1.2 OAuth Token Authentication",
+        "relevance": 0.8322611286213895,
+        "tokens": 113
+      },
+      {
+        "title": "10. New Device Login",
+        "relevance": 0.8234021925572377,
+        "tokens": 218
+      },
+      {
+        "title": "Update snipara-mcp Package",
+        "relevance": 0.8147704086998592,
+        "tokens": 1335
+      },
+      {
+        "title": "Authentication Flow",
+        "relevance": 0.806357151016085,
+        "tokens": 61
+      },
+      {
+        "title": "Installer le client MCP localement (dev)",
+        "relevance": 0.7981542247744052,
+        "tokens": 43
+      },
+      {
+        "title": "2. Restart your MCP client",
+        "relevance": 0.790153839921409,
+        "tokens": 41
+      },
+      {
+        "title": "Snipara MCP Tools (39 total)",
+        "relevance": 0.7823485864062906,
+        "tokens": 118
+      },
+      {
+        "title": "MCP Authentication",
+        "relevance": 0.774731411289127,
+        "tokens": 14
+      },
+      {
+        "title": "Snipara Workflow Modes (Internal)",
+        "relevance": 0.7672955974842768,
+        "tokens": 27
+      },
+      {
+        "title": "Configure any MCP client to connect to localhost",
+        "relevance": 0.7529427475818915,
+        "tokens": 701
+      }
+    ],
+    "sections_filtered": [
+      {
+        "title": "Use Snipara MCP for Documentation Queries",
+        "relevance": 1.0,
+        "tokens": 626
+      },
+      {
+        "title": "OAuth Device Flow (MCP Authentication)",
+        "relevance": 1.0,
+        "tokens": 46
+      },
+      {
+        "title": "1. Client MCP (`snipara-mcp` sur PyPI)",
+        "relevance": 0.9862923072851889,
+        "tokens": 143
+      },
+      {
+        "title": "Client MCP (snipara-mcp)",
+        "relevance": 0.9730197794184668,
+        "tokens": 64
+      },
+      {
+        "title": "Solution 1: Use SNIPARA_IGNORE_OAUTH Environment Variable (Recommended)",
+        "relevance": 0.96016201804758,
+        "tokens": 163
+      },
+      {
+        "title": "2. SNIPARA_IGNORE_OAUTH Environment Variable",
+        "relevance": 0.9356153827031597,
+        "tokens": 56
+      },
+      {
+        "title": "Solution 2: Remove OAuth Tokens (Force API Key)",
+        "relevance": 0.923891616568511,
+        "tokens": 65
+      },
+      {
+        "title": "Feature Implementation Workflow (Snipara + RLM-Runtime)",
+        "relevance": 0.9155570685409564,
+        "tokens": 1672
+      },
+      {
+        "title": "When Updating MCP Client:",
+        "relevance": 0.9125126670848815,
+        "tokens": 118
+      },
+      {
+        "title": "POST /api/oauth/device/code",
+        "relevance": 0.901463542223966,
+        "tokens": 121
+      },
+      {
+        "title": "MCP Server Authentication",
+        "relevance": 0.8907301066447908,
+        "tokens": 83
+      },
+      {
+        "title": "MCP Authentication (Quick Reference)",
+        "relevance": 0.8802990213636207,
+        "tokens": 181
+      },
+      {
+        "title": "MCP vs Inject API Authentication",
+        "relevance": 0.8701576884513719,
+        "tokens": 302
+      },
+      {
+        "title": "Snipara MCP Server",
+        "relevance": 0.8602942002764449,
+        "tokens": 259
+      },
+      {
+        "title": "POST /api/oauth/device/token",
+        "relevance": 0.8506972928630024,
+        "tokens": 141
+      },
+      {
+        "title": "Publier une nouvelle version du client MCP",
+        "relevance": 0.8413563029805852,
+        "tokens": 183
+      },
+      {
+        "title": "1.2 OAuth Token Authentication",
+        "relevance": 0.8322611286213895,
+        "tokens": 113
+      },
+      {
+        "title": "10. New Device Login",
+        "relevance": 0.8234021925572377,
+        "tokens": 218
+      },
+      {
+        "title": "Update snipara-mcp Package",
+        "relevance": 0.8147704086998592,
+        "tokens": 1335
+      },
+      {
+        "title": "Authentication Flow",
+        "relevance": 0.806357151016085,
+        "tokens": 61
+      },
+      {
+        "title": "Installer le client MCP localement (dev)",
+        "relevance": 0.7981542247744052,
+        "tokens": 43
+      },
+      {
+        "title": "2. Restart your MCP client",
+        "relevance": 0.790153839921409,
+        "tokens": 41
+      },
+      {
+        "title": "Snipara MCP Tools (39 total)",
+        "relevance": 0.7823485864062906,
+        "tokens": 118
+      },
+      {
+        "title": "Snipara Workflow Modes (Internal)",
+        "relevance": 0.7672955974842768,
+        "tokens": 27
+      },
+      {
+        "title": "Configure any MCP client to connect to localhost",
+        "relevance": 0.7529427475818915,
+        "tokens": 701
+      }
+    ],
+    "shared_context_removed": 2,
+    "total_tokens": 7302,
+    "query_term_coverage": 1.0
+  },
+  {
+    "task_id": "database_models",
+    "mode": "snipara_ctx_mem",
+    "query": "database models Prisma schema User Team Project Document ApiKey Subscription",
+    "original_query": "What are the main database models in Snipara?",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "RLM SaaS - Project Documentation",
+        "relevance": 1.0,
+        "tokens": 9
+      },
+      {
+        "title": "Prisma Schema",
+        "relevance": 0.9994297933000713,
+        "tokens": 348
+      },
+      {
+        "title": "C. Database Schema",
+        "relevance": 0.9859747545582047,
+        "tokens": 32
+      },
+      {
+        "title": "POST /api/teams/[teamId]/projects/[projectId]/members",
+        "relevance": 0.9729468599033817,
+        "tokens": 213
+      },
+      {
+        "title": "DELETE /api/projects/[projectId]/documents/[documentId]",
+        "relevance": 0.9603260869565219,
+        "tokens": 53
+      },
+      {
+        "title": "DELETE /api/teams/[teamId]/projects/[projectId]/members/[memberId]",
+        "relevance": 0.9480936454849498,
+        "tokens": 85
+      },
+      {
+        "title": "PATCH /api/projects/[projectId]/documents/[documentId]",
+        "relevance": 0.9362318840579711,
+        "tokens": 57
+      },
+      {
+        "title": "PATCH /api/teams/[teamId]/projects/[projectId]/members/[memberId]",
+        "relevance": 0.9247242050616482,
+        "tokens": 63
+      },
+      {
+        "title": "Database Models",
+        "relevance": 0.9135549872122762,
+        "tokens": 85
+      },
+      {
+        "title": "GET /api/teams/[teamId]/projects/[projectId]/members/[memberId]",
+        "relevance": 0.9027095148078135,
+        "tokens": 109
+      },
+      {
+        "title": "\u2705 Test 1: Database Schema Verification",
+        "relevance": 0.8921739130434783,
+        "tokens": 152
+      },
+      {
+        "title": "POST /api/projects/[projectId]/documents/[documentId]/versions/[version]/restore",
+        "relevance": 0.8819350887936312,
+        "tokens": 71
+      },
+      {
+        "title": "GET /api/projects/[projectId]/documents/[documentId]/versions/[version]",
+        "relevance": 0.8719806763285025,
+        "tokens": 83
+      },
+      {
+        "title": "Database Migration",
+        "relevance": 0.8700307219662058,
+        "tokens": 56
+      },
+      {
+        "title": "1.1 New Prisma Models",
+        "relevance": 0.8622989874925551,
+        "tokens": 1214
+      },
+      {
+        "title": "Database Schema Addition",
+        "relevance": 0.852878965922444,
+        "tokens": 251
+      },
+      {
+        "title": "PATCH `/api/admin/users/[id]/subscription`",
+        "relevance": 0.8437101449275363,
+        "tokens": 125
+      },
+      {
+        "title": "Database (Prisma)",
+        "relevance": 0.8260869565217392,
+        "tokens": 6
+      },
+      {
+        "title": "Phase 1: Database Schema (Est. 1-2 days)",
+        "relevance": 0.817614269788183,
+        "tokens": 16
+      },
+      {
+        "title": "Database Schema",
+        "relevance": 0.8093560814529444,
+        "tokens": 1077
+      },
+      {
+        "title": "1.2 Database Setup",
+        "relevance": 0.8013043478260868,
+        "tokens": 333
+      },
+      {
+        "title": "2.2 Multi-Project ACL Gate (Week 1 Fix)",
+        "relevance": 0.7934514224369296,
+        "tokens": 209
+      },
+      {
+        "title": "Database Changes",
+        "relevance": 0.7906923076923076,
+        "tokens": 44
+      },
+      {
+        "title": "2.3 Project Management",
+        "relevance": 0.7857900318133615,
+        "tokens": 561
+      },
+      {
+        "title": "Team API Key Fallback",
+        "relevance": 0.7783132530120482,
+        "tokens": 198
+      },
+      {
+        "title": "Team API Key Management",
+        "relevance": 0.7710144927536231,
+        "tokens": 90
+      },
+      {
+        "title": "2.4 Team Management",
+        "relevance": 0.7638874680306904,
+        "tokens": 460
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "relevance": 0.7630394596516175,
+        "tokens": 1058
+      }
+    ],
+    "sections_filtered": [
+      {
+        "title": "Prisma Schema",
+        "relevance": 0.9994297933000713,
+        "tokens": 348
+      },
+      {
+        "title": "C. Database Schema",
+        "relevance": 0.9859747545582047,
+        "tokens": 32
+      },
+      {
+        "title": "POST /api/teams/[teamId]/projects/[projectId]/members",
+        "relevance": 0.9729468599033817,
+        "tokens": 213
+      },
+      {
+        "title": "DELETE /api/projects/[projectId]/documents/[documentId]",
+        "relevance": 0.9603260869565219,
+        "tokens": 53
+      },
+      {
+        "title": "DELETE /api/teams/[teamId]/projects/[projectId]/members/[memberId]",
+        "relevance": 0.9480936454849498,
+        "tokens": 85
+      },
+      {
+        "title": "PATCH /api/projects/[projectId]/documents/[documentId]",
+        "relevance": 0.9362318840579711,
+        "tokens": 57
+      },
+      {
+        "title": "PATCH /api/teams/[teamId]/projects/[projectId]/members/[memberId]",
+        "relevance": 0.9247242050616482,
+        "tokens": 63
+      },
+      {
+        "title": "Database Models",
+        "relevance": 0.9135549872122762,
+        "tokens": 85
+      },
+      {
+        "title": "GET /api/teams/[teamId]/projects/[projectId]/members/[memberId]",
+        "relevance": 0.9027095148078135,
+        "tokens": 109
+      },
+      {
+        "title": "\u2705 Test 1: Database Schema Verification",
+        "relevance": 0.8921739130434783,
+        "tokens": 152
+      },
+      {
+        "title": "POST /api/projects/[projectId]/documents/[documentId]/versions/[version]/restore",
+        "relevance": 0.8819350887936312,
+        "tokens": 71
+      },
+      {
+        "title": "GET /api/projects/[projectId]/documents/[documentId]/versions/[version]",
+        "relevance": 0.8719806763285025,
+        "tokens": 83
+      },
+      {
+        "title": "Database Migration",
+        "relevance": 0.8700307219662058,
+        "tokens": 56
+      },
+      {
+        "title": "1.1 New Prisma Models",
+        "relevance": 0.8622989874925551,
+        "tokens": 1214
+      },
+      {
+        "title": "Database Schema Addition",
+        "relevance": 0.852878965922444,
+        "tokens": 251
+      },
+      {
+        "title": "PATCH `/api/admin/users/[id]/subscription`",
+        "relevance": 0.8437101449275363,
+        "tokens": 125
+      },
+      {
+        "title": "Database Schema",
+        "relevance": 0.8093560814529444,
+        "tokens": 1077
+      },
+      {
+        "title": "1.2 Database Setup",
+        "relevance": 0.8013043478260868,
+        "tokens": 333
+      },
+      {
+        "title": "2.2 Multi-Project ACL Gate (Week 1 Fix)",
+        "relevance": 0.7934514224369296,
+        "tokens": 209
+      },
+      {
+        "title": "Database Changes",
+        "relevance": 0.7906923076923076,
+        "tokens": 44
+      },
+      {
+        "title": "2.3 Project Management",
+        "relevance": 0.7857900318133615,
+        "tokens": 561
+      },
+      {
+        "title": "Team API Key Fallback",
+        "relevance": 0.7783132530120482,
+        "tokens": 198
+      },
+      {
+        "title": "Team API Key Management",
+        "relevance": 0.7710144927536231,
+        "tokens": 90
+      },
+      {
+        "title": "2.4 Team Management",
+        "relevance": 0.7638874680306904,
+        "tokens": 460
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "relevance": 0.7630394596516175,
+        "tokens": 1058
+      }
+    ],
+    "shared_context_removed": 3,
+    "total_tokens": 7454,
+    "query_term_coverage": 0.667
+  },
+  {
+    "task_id": "layered_architecture",
+    "mode": "snipara_ctx_mem",
+    "query": "layered architecture pattern route handlers services repository lib/jobs lib/services lib/db",
+    "original_query": "What is the layered architecture pattern used in Snipara?",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "TypeScript Architecture Layers",
+        "relevance": 1.0,
+        "tokens": 151
+      },
+      {
+        "title": "Adding a New API Route",
+        "relevance": 1.0,
+        "tokens": 74
+      },
+      {
+        "title": "Project Structure",
+        "relevance": 0.994549418604651,
+        "tokens": 204
+      },
+      {
+        "title": "Database Queries",
+        "relevance": 0.9663194444444444,
+        "tokens": 64
+      },
+      {
+        "title": "Repository Pattern",
+        "relevance": 0.9566173530587766,
+        "tokens": 141
+      },
+      {
+        "title": "Services Pattern",
+        "relevance": 0.9438926042486231,
+        "tokens": 161
+      },
+      {
+        "title": "Helper: `lib/auth/require-admin.ts`",
+        "relevance": 0.9315718157181572,
+        "tokens": 230
+      },
+      {
+        "title": "Component Library Usage",
+        "relevance": 0.9196360518292682,
+        "tokens": 5
+      },
+      {
+        "title": "Route Handler Pattern",
+        "relevance": 0.9080675422138837,
+        "tokens": 119
+      },
+      {
+        "title": "Services mis \u00e0 jour",
+        "relevance": 0.896849593495935,
+        "tokens": 206
+      },
+      {
+        "title": "Critical: Dual-Repository Architecture",
+        "relevance": 0.8859665089188205,
+        "tokens": 8
+      },
+      {
+        "title": "Architecture: Two Repositories, One Shared Schema",
+        "relevance": 0.881094527363184,
+        "tokens": 274
+      },
+      {
+        "title": "Use Case 2: \"I work on 10 microservices\"",
+        "relevance": 0.8754035150645625,
+        "tokens": 97
+      },
+      {
+        "title": "Phase 2: Repository & API Foundation",
+        "relevance": 0.8651466949452103,
+        "tokens": 67
+      },
+      {
+        "title": "Layer Hierarchy",
+        "relevance": 0.845499828237719,
+        "tokens": 227
+      },
+      {
+        "title": "API Routes (9 files)",
+        "relevance": 0.826929502171734,
+        "tokens": 170
+      },
+      {
+        "title": "The Problem",
+        "relevance": 0.8093495934959349,
+        "tokens": 167
+      },
+      {
+        "title": "Discovery API Routes",
+        "relevance": 0.8009066110397945,
+        "tokens": 116
+      },
+      {
+        "title": "External Dependencies & Integration Points",
+        "relevance": 0.7882719494047618,
+        "tokens": 156
+      },
+      {
+        "title": "7.2 Project Linking Routes",
+        "relevance": 0.7846701063164478,
+        "tokens": 640
+      },
+      {
+        "title": "Files to Modify",
+        "relevance": 0.7768601420191417,
+        "tokens": 122
+      },
+      {
+        "title": "Discovery Key Files",
+        "relevance": 0.7692454268292682,
+        "tokens": 137
+      },
+      {
+        "title": "3. Database Issues",
+        "relevance": 0.7662213740458015,
+        "tokens": 49
+      },
+      {
+        "title": "Repository Queries (3 files)",
+        "relevance": 0.7618187292984041,
+        "tokens": 61
+      },
+      {
+        "title": "From API Routes",
+        "relevance": 0.7545731707317073,
+        "tokens": 114
+      },
+      {
+        "title": "7.1 Collection Management Routes",
+        "relevance": 0.7475022039377021,
+        "tokens": 501
+      },
+      {
+        "title": "15. Implemented Files Reference",
+        "relevance": 0.740599593495935,
+        "tokens": 391
+      },
+      {
+        "title": "Prisma Python Client Model Names",
+        "relevance": 0.7338593974175035,
+        "tokens": 188
+      },
+      {
+        "title": "Line Limits",
+        "relevance": 0.7309137408436471,
+        "tokens": 86
+      },
+      {
+        "title": "1.5 Local REPL with Sandboxing",
+        "relevance": 0.7272759500850823,
+        "tokens": 1430
+      },
+      {
+        "title": "Key Files for Common Tasks",
+        "relevance": 0.7208438463694982,
+        "tokens": 88
+      },
+      {
+        "title": "2. Files to Create",
+        "relevance": 0.7145579268292682,
+        "tokens": 199
+      },
+      {
+        "title": "Correct Usage (auth.py)",
+        "relevance": 0.7084132639079199,
+        "tokens": 123
+      },
+      {
+        "title": "Common Task Patterns",
+        "relevance": 0.7033482142857143,
+        "tokens": 5
+      },
+      {
+        "title": "Repository Structure",
+        "relevance": 0.7024051490514905,
+        "tokens": 158
+      },
+      {
+        "title": "Import Ordering",
+        "relevance": 0.6965290806754222,
+        "tokens": 142
+      },
+      {
+        "title": "Key Files",
+        "relevance": 0.6907807529162249,
+        "tokens": 137
+      }
+    ],
+    "sections_filtered": [
+      {
+        "title": "TypeScript Architecture Layers",
+        "relevance": 1.0,
+        "tokens": 151
+      },
+      {
+        "title": "Adding a New API Route",
+        "relevance": 1.0,
+        "tokens": 74
+      },
+      {
+        "title": "Project Structure",
+        "relevance": 0.994549418604651,
+        "tokens": 204
+      },
+      {
+        "title": "Database Queries",
+        "relevance": 0.9663194444444444,
+        "tokens": 64
+      },
+      {
+        "title": "Repository Pattern",
+        "relevance": 0.9566173530587766,
+        "tokens": 141
+      },
+      {
+        "title": "Services Pattern",
+        "relevance": 0.9438926042486231,
+        "tokens": 161
+      },
+      {
+        "title": "Helper: `lib/auth/require-admin.ts`",
+        "relevance": 0.9315718157181572,
+        "tokens": 230
+      },
+      {
+        "title": "Route Handler Pattern",
+        "relevance": 0.9080675422138837,
+        "tokens": 119
+      },
+      {
+        "title": "Services mis \u00e0 jour",
+        "relevance": 0.896849593495935,
+        "tokens": 206
+      },
+      {
+        "title": "Architecture: Two Repositories, One Shared Schema",
+        "relevance": 0.881094527363184,
+        "tokens": 274
+      },
+      {
+        "title": "Use Case 2: \"I work on 10 microservices\"",
+        "relevance": 0.8754035150645625,
+        "tokens": 97
+      },
+      {
+        "title": "Phase 2: Repository & API Foundation",
+        "relevance": 0.8651466949452103,
+        "tokens": 67
+      },
+      {
+        "title": "Layer Hierarchy",
+        "relevance": 0.845499828237719,
+        "tokens": 227
+      },
+      {
+        "title": "API Routes (9 files)",
+        "relevance": 0.826929502171734,
+        "tokens": 170
+      },
+      {
+        "title": "The Problem",
+        "relevance": 0.8093495934959349,
+        "tokens": 167
+      },
+      {
+        "title": "Discovery API Routes",
+        "relevance": 0.8009066110397945,
+        "tokens": 116
+      },
+      {
+        "title": "External Dependencies & Integration Points",
+        "relevance": 0.7882719494047618,
+        "tokens": 156
+      },
+      {
+        "title": "7.2 Project Linking Routes",
+        "relevance": 0.7846701063164478,
+        "tokens": 640
+      },
+      {
+        "title": "Files to Modify",
+        "relevance": 0.7768601420191417,
+        "tokens": 122
+      },
+      {
+        "title": "Discovery Key Files",
+        "relevance": 0.7692454268292682,
+        "tokens": 137
+      },
+      {
+        "title": "3. Database Issues",
+        "relevance": 0.7662213740458015,
+        "tokens": 49
+      },
+      {
+        "title": "Repository Queries (3 files)",
+        "relevance": 0.7618187292984041,
+        "tokens": 61
+      },
+      {
+        "title": "From API Routes",
+        "relevance": 0.7545731707317073,
+        "tokens": 114
+      },
+      {
+        "title": "7.1 Collection Management Routes",
+        "relevance": 0.7475022039377021,
+        "tokens": 501
+      },
+      {
+        "title": "15. Implemented Files Reference",
+        "relevance": 0.740599593495935,
+        "tokens": 391
+      },
+      {
+        "title": "Prisma Python Client Model Names",
+        "relevance": 0.7338593974175035,
+        "tokens": 188
+      },
+      {
+        "title": "Line Limits",
+        "relevance": 0.7309137408436471,
+        "tokens": 86
+      },
+      {
+        "title": "1.5 Local REPL with Sandboxing",
+        "relevance": 0.7272759500850823,
+        "tokens": 1430
+      },
+      {
+        "title": "Key Files for Common Tasks",
+        "relevance": 0.7208438463694982,
+        "tokens": 88
+      },
+      {
+        "title": "2. Files to Create",
+        "relevance": 0.7145579268292682,
+        "tokens": 199
+      },
+      {
+        "title": "Correct Usage (auth.py)",
+        "relevance": 0.7084132639079199,
+        "tokens": 123
+      },
+      {
+        "title": "Repository Structure",
+        "relevance": 0.7024051490514905,
+        "tokens": 158
+      },
+      {
+        "title": "Import Ordering",
+        "relevance": 0.6965290806754222,
+        "tokens": 142
+      },
+      {
+        "title": "Key Files",
+        "relevance": 0.6907807529162249,
+        "tokens": 137
+      }
+    ],
+    "shared_context_removed": 3,
+    "total_tokens": 7604,
+    "query_term_coverage": 0.75
+  },
+  {
+    "task_id": "cost_benefit_analysis",
+    "mode": "snipara_ctx_mem",
+    "query": "Snipara 90% context reduction 500K tokens 5K tokens context window LLM cost savings token budget optimization",
+    "original_query": "If I have a 500K token codebase and my LLM has a 128K context window, how does Snipara help and what are the cost savings?",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "Context Plans (Context Optimization)",
+        "relevance": 1.0,
+        "tokens": 82
+      },
+      {
+        "title": "Article #1: From 500K to 5K Tokens (PUBLISHED)",
+        "relevance": 1.0,
+        "tokens": 45
+      },
+      {
+        "title": "Solution: Context Optimization as a Service",
+        "relevance": 0.9869013711333378,
+        "tokens": 134
+      },
+      {
+        "title": "Solution 2: Remove OAuth Tokens (Force API Key)",
+        "relevance": 0.974218571754506,
+        "tokens": 65
+      },
+      {
+        "title": "Context Query Implementation",
+        "relevance": 0.9619321098562628,
+        "tokens": 587
+      },
+      {
+        "title": "2. With Snipara Context Optimization",
+        "relevance": 0.9500236929395041,
+        "tokens": 116
+      },
+      {
+        "title": "4.1 Token Budgeting & Metadata Response",
+        "relevance": 0.9384761371414347,
+        "tokens": 635
+      },
+      {
+        "title": "6.2 Updated Context Query Tool",
+        "relevance": 0.927273284501517,
+        "tokens": 396
+      },
+      {
+        "title": "Primary Tool (Context Optimization)",
+        "relevance": 0.9163999275274791,
+        "tokens": 188
+      },
+      {
+        "title": "Article #3: Understanding Token Budgets: A Practical Guide",
+        "relevance": 0.9058417403208047,
+        "tokens": 133
+      },
+      {
+        "title": "GET /api/settings/tokens",
+        "relevance": 0.8955852156057496,
+        "tokens": 108
+      },
+      {
+        "title": "Recursive Context Tools (Near-Infinite Context)",
+        "relevance": 0.8856176070798507,
+        "tokens": 524
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "relevance": 0.8747376960488658,
+        "tokens": 1864
+      },
+      {
+        "title": "Context Query Pattern",
+        "relevance": 0.8665016455233326,
+        "tokens": 86
+      },
+      {
+        "title": "MCP Query Order (Shared Context First)",
+        "relevance": 0.8573311504523004,
+        "tokens": 193
+      },
+      {
+        "title": "DELETE /api/settings/tokens/[tokenId]",
+        "relevance": 0.8484052019164955,
+        "tokens": 38
+      },
+      {
+        "title": "Phase 4: Context Optimization Engine (Week 7-9) \u2705 COMPLETE",
+        "relevance": 0.8397141467632119,
+        "tokens": 40
+      },
+      {
+        "title": "Context Optimization Engine (Phase 4) \ud83d\udea7 IN PROGRESS",
+        "relevance": 0.8312488333022213,
+        "tokens": 103
+      },
+      {
+        "title": "Primary Tool: `rlm_context_query`",
+        "relevance": 0.8230005791607433,
+        "tokens": 329
+      },
+      {
+        "title": "Session Context",
+        "relevance": 0.8149611415798091,
+        "tokens": 97
+      },
+      {
+        "title": "Pillar B \u2014 Context Engineering (Anti-RAG Positioning)",
+        "relevance": 0.8071226899383983,
+        "tokens": 109
+      },
+      {
+        "title": "Recursive Context Architecture (Near-Infinite Context)",
+        "relevance": 0.7994777803128248,
+        "tokens": 45
+      },
+      {
+        "title": "5.2 Multi-Agent Context Sharing",
+        "relevance": 0.7920193318976311,
+        "tokens": 121
+      },
+      {
+        "title": "MCP Server (Context Optimization Engine)",
+        "relevance": 0.7847406051309963,
+        "tokens": 74
+      },
+      {
+        "title": "PUT /api/teams/[teamId]/context/[contextId]",
+        "relevance": 0.7776351813826146,
+        "tokens": 99
+      },
+      {
+        "title": "Example: Context-Aware Code Generation",
+        "relevance": 0.7706969440753714,
+        "tokens": 183
+      },
+      {
+        "title": "6.1 Merged Context Retrieval",
+        "relevance": 0.7639200611241107,
+        "tokens": 451
+      }
+    ],
+    "sections_filtered": [
+      {
+        "title": "Context Plans (Context Optimization)",
+        "relevance": 1.0,
+        "tokens": 82
+      },
+      {
+        "title": "Article #1: From 500K to 5K Tokens (PUBLISHED)",
+        "relevance": 1.0,
+        "tokens": 45
+      },
+      {
+        "title": "Solution: Context Optimization as a Service",
+        "relevance": 0.9869013711333378,
+        "tokens": 134
+      },
+      {
+        "title": "Solution 2: Remove OAuth Tokens (Force API Key)",
+        "relevance": 0.974218571754506,
+        "tokens": 65
+      },
+      {
+        "title": "Context Query Implementation",
+        "relevance": 0.9619321098562628,
+        "tokens": 587
+      },
+      {
+        "title": "2. With Snipara Context Optimization",
+        "relevance": 0.9500236929395041,
+        "tokens": 116
+      },
+      {
+        "title": "4.1 Token Budgeting & Metadata Response",
+        "relevance": 0.9384761371414347,
+        "tokens": 635
+      },
+      {
+        "title": "6.2 Updated Context Query Tool",
+        "relevance": 0.927273284501517,
+        "tokens": 396
+      },
+      {
+        "title": "Primary Tool (Context Optimization)",
+        "relevance": 0.9163999275274791,
+        "tokens": 188
+      },
+      {
+        "title": "Article #3: Understanding Token Budgets: A Practical Guide",
+        "relevance": 0.9058417403208047,
+        "tokens": 133
+      },
+      {
+        "title": "GET /api/settings/tokens",
+        "relevance": 0.8955852156057496,
+        "tokens": 108
+      },
+      {
+        "title": "Recursive Context Tools (Near-Infinite Context)",
+        "relevance": 0.8856176070798507,
+        "tokens": 524
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "relevance": 0.8747376960488658,
+        "tokens": 1864
+      },
+      {
+        "title": "Context Query Pattern",
+        "relevance": 0.8665016455233326,
+        "tokens": 86
+      },
+      {
+        "title": "MCP Query Order (Shared Context First)",
+        "relevance": 0.8573311504523004,
+        "tokens": 193
+      },
+      {
+        "title": "DELETE /api/settings/tokens/[tokenId]",
+        "relevance": 0.8484052019164955,
+        "tokens": 38
+      },
+      {
+        "title": "Phase 4: Context Optimization Engine (Week 7-9) \u2705 COMPLETE",
+        "relevance": 0.8397141467632119,
+        "tokens": 40
+      },
+      {
+        "title": "Context Optimization Engine (Phase 4) \ud83d\udea7 IN PROGRESS",
+        "relevance": 0.8312488333022213,
+        "tokens": 103
+      },
+      {
+        "title": "Primary Tool: `rlm_context_query`",
+        "relevance": 0.8230005791607433,
+        "tokens": 329
+      },
+      {
+        "title": "Session Context",
+        "relevance": 0.8149611415798091,
+        "tokens": 97
+      },
+      {
+        "title": "Pillar B \u2014 Context Engineering (Anti-RAG Positioning)",
+        "relevance": 0.8071226899383983,
+        "tokens": 109
+      },
+      {
+        "title": "Recursive Context Architecture (Near-Infinite Context)",
+        "relevance": 0.7994777803128248,
+        "tokens": 45
+      },
+      {
+        "title": "5.2 Multi-Agent Context Sharing",
+        "relevance": 0.7920193318976311,
+        "tokens": 121
+      },
+      {
+        "title": "MCP Server (Context Optimization Engine)",
+        "relevance": 0.7847406051309963,
+        "tokens": 74
+      },
+      {
+        "title": "PUT /api/teams/[teamId]/context/[contextId]",
+        "relevance": 0.7776351813826146,
+        "tokens": 99
+      },
+      {
+        "title": "Example: Context-Aware Code Generation",
+        "relevance": 0.7706969440753714,
+        "tokens": 183
+      },
+      {
+        "title": "6.1 Merged Context Retrieval",
+        "relevance": 0.7639200611241107,
+        "tokens": 451
+      }
+    ],
+    "shared_context_removed": 0,
+    "total_tokens": 7241,
+    "query_term_coverage": 0.7
+  },
+  {
+    "task_id": "when_to_use_decompose",
+    "mode": "snipara_ctx_mem",
+    "query": "rlm_decompose rlm_context_query when to use complex simple sub-queries MCP tools",
+    "original_query": "When should I use rlm_decompose vs rlm_context_query?",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "Use Snipara MCP for Documentation Queries",
+        "relevance": 1.0,
+        "tokens": 626
+      },
+      {
+        "title": "Article #6: 39 MCP Tools for AI-Assisted Development",
+        "relevance": 1.0,
+        "tokens": 178
+      },
+      {
+        "title": "MCP Tools Reference",
+        "relevance": 0.9866981831664812,
+        "tokens": 36
+      },
+      {
+        "title": "MCP tools not showing up",
+        "relevance": 0.9801203765104626,
+        "tokens": 60
+      },
+      {
+        "title": "When to use Snipara vs Local Tools",
+        "relevance": 0.9738186462324393,
+        "tokens": 195
+      },
+      {
+        "title": "MCP Tools (when using as MCP server)",
+        "relevance": 0.9613415948275862,
+        "tokens": 80
+      },
+      {
+        "title": "Summary Storage Tools (Phase 4.6)",
+        "relevance": 0.9562577182483137,
+        "tokens": 293
+      },
+      {
+        "title": "Snipara MCP Tools (39 total)",
+        "relevance": 0.937521769418321,
+        "tokens": 118
+      },
+      {
+        "title": "When to Use Each MCP",
+        "relevance": 0.9261451363870303,
+        "tokens": 135
+      },
+      {
+        "title": "POWER USER TOOLS",
+        "relevance": 0.915103110209601,
+        "tokens": 126
+      },
+      {
+        "title": "When NOT to Use RLM Runtime",
+        "relevance": 0.9043811427619523,
+        "tokens": 41
+      },
+      {
+        "title": "Recursive Context Tools (Near-Infinite Context)",
+        "relevance": 0.9036511996260905,
+        "tokens": 524
+      },
+      {
+        "title": "MCP Tools Exposed",
+        "relevance": 0.8939655172413794,
+        "tokens": 17
+      },
+      {
+        "title": "PRIMARY TOOLS (Use These First)",
+        "relevance": 0.8838432896227941,
+        "tokens": 178
+      },
+      {
+        "title": "MCP Tools Complete Reference",
+        "relevance": 0.8740022349936143,
+        "tokens": 72
+      },
+      {
+        "title": "Recursive Tools Implementation",
+        "relevance": 0.8644307982994803,
+        "tokens": 1005
+      },
+      {
+        "title": "Quick Reference: When to Use Each Tool",
+        "relevance": 0.8551180490835663,
+        "tokens": 10
+      },
+      {
+        "title": "MCP Server Changes = DUAL-REPO PUSH (MANDATORY)",
+        "relevance": 0.8520411186159497,
+        "tokens": 379
+      },
+      {
+        "title": "MCP Tools for Memory",
+        "relevance": 0.8460536398467433,
+        "tokens": 144
+      },
+      {
+        "title": "Context Tools (Documentation Queries)",
+        "relevance": 0.8372277676950998,
+        "tokens": 67
+      },
+      {
+        "title": "When to Use RLM Runtime",
+        "relevance": 0.8120907900480138,
+        "tokens": 45
+      },
+      {
+        "title": "Using MCP Tools",
+        "relevance": 0.8041307471264366,
+        "tokens": 108
+      },
+      {
+        "title": "When Updating MCP Client:",
+        "relevance": 0.7963672484745281,
+        "tokens": 118
+      },
+      {
+        "title": "Primary Tools",
+        "relevance": 0.7887931034482757,
+        "tokens": 71
+      },
+      {
+        "title": "MCP Tools",
+        "relevance": 0.7741858237547892,
+        "tokens": 4
+      },
+      {
+        "title": "Available Tools (Programmatic API)",
+        "relevance": 0.7671399594320486,
+        "tokens": 461
+      },
+      {
+        "title": "Configure any MCP client to connect to localhost",
+        "relevance": 0.7602579524191393,
+        "tokens": 1758
+      },
+      {
+        "title": "Shared Context Tools (Phase 7)",
+        "relevance": 0.7542193486590036,
+        "tokens": 316
+      }
+    ],
+    "sections_filtered": [
+      {
+        "title": "Use Snipara MCP for Documentation Queries",
+        "relevance": 1.0,
+        "tokens": 626
+      },
+      {
+        "title": "Article #6: 39 MCP Tools for AI-Assisted Development",
+        "relevance": 1.0,
+        "tokens": 178
+      },
+      {
+        "title": "MCP Tools Reference",
+        "relevance": 0.9866981831664812,
+        "tokens": 36
+      },
+      {
+        "title": "MCP tools not showing up",
+        "relevance": 0.9801203765104626,
+        "tokens": 60
+      },
+      {
+        "title": "When to use Snipara vs Local Tools",
+        "relevance": 0.9738186462324393,
+        "tokens": 195
+      },
+      {
+        "title": "MCP Tools (when using as MCP server)",
+        "relevance": 0.9613415948275862,
+        "tokens": 80
+      },
+      {
+        "title": "Summary Storage Tools (Phase 4.6)",
+        "relevance": 0.9562577182483137,
+        "tokens": 293
+      },
+      {
+        "title": "Snipara MCP Tools (39 total)",
+        "relevance": 0.937521769418321,
+        "tokens": 118
+      },
+      {
+        "title": "When to Use Each MCP",
+        "relevance": 0.9261451363870303,
+        "tokens": 135
+      },
+      {
+        "title": "POWER USER TOOLS",
+        "relevance": 0.915103110209601,
+        "tokens": 126
+      },
+      {
+        "title": "When NOT to Use RLM Runtime",
+        "relevance": 0.9043811427619523,
+        "tokens": 41
+      },
+      {
+        "title": "Recursive Context Tools (Near-Infinite Context)",
+        "relevance": 0.9036511996260905,
+        "tokens": 524
+      },
+      {
+        "title": "PRIMARY TOOLS (Use These First)",
+        "relevance": 0.8838432896227941,
+        "tokens": 178
+      },
+      {
+        "title": "MCP Tools Complete Reference",
+        "relevance": 0.8740022349936143,
+        "tokens": 72
+      },
+      {
+        "title": "Recursive Tools Implementation",
+        "relevance": 0.8644307982994803,
+        "tokens": 1005
+      },
+      {
+        "title": "MCP Server Changes = DUAL-REPO PUSH (MANDATORY)",
+        "relevance": 0.8520411186159497,
+        "tokens": 379
+      },
+      {
+        "title": "MCP Tools for Memory",
+        "relevance": 0.8460536398467433,
+        "tokens": 144
+      },
+      {
+        "title": "Context Tools (Documentation Queries)",
+        "relevance": 0.8372277676950998,
+        "tokens": 67
+      },
+      {
+        "title": "When to Use RLM Runtime",
+        "relevance": 0.8120907900480138,
+        "tokens": 45
+      },
+      {
+        "title": "Using MCP Tools",
+        "relevance": 0.8041307471264366,
+        "tokens": 108
+      },
+      {
+        "title": "When Updating MCP Client:",
+        "relevance": 0.7963672484745281,
+        "tokens": 118
+      },
+      {
+        "title": "Primary Tools",
+        "relevance": 0.7887931034482757,
+        "tokens": 71
+      },
+      {
+        "title": "Available Tools (Programmatic API)",
+        "relevance": 0.7671399594320486,
+        "tokens": 461
+      },
+      {
+        "title": "Configure any MCP client to connect to localhost",
+        "relevance": 0.7602579524191393,
+        "tokens": 1758
+      },
+      {
+        "title": "Shared Context Tools (Phase 7)",
+        "relevance": 0.7542193486590036,
+        "tokens": 316
+      }
+    ],
+    "shared_context_removed": 3,
+    "total_tokens": 7561,
+    "query_term_coverage": 1.0
+  },
+  {
+    "task_id": "search_mode_selection",
+    "mode": "snipara_ctx_mem",
+    "query": "search mode keyword semantic hybrid embeddings context optimization features",
+    "original_query": "What search mode should I use for different types of queries?",
+    "search_mode": "hybrid (original query)",
+    "sections_raw": [
+      {
+        "title": "[BEST_PRACTICES] Coding Standards",
+        "relevance": 1.0,
+        "tokens": 673
+      },
+      {
+        "title": "[BEST_PRACTICES] Best coding practises",
+        "relevance": 1.0,
+        "tokens": 919
+      },
+      {
+        "title": "Use Snipara MCP for Documentation Queries",
+        "relevance": 1.0,
+        "tokens": 626
+      },
+      {
+        "title": "TypeScript Strict Mode (Required)",
+        "relevance": 0.9815370631573181,
+        "tokens": 59
+      },
+      {
+        "title": "Article #12: What Snipara Is Not (And Who It's Not For)",
+        "relevance": 0.8581648525628338,
+        "tokens": 182
+      },
+      {
+        "title": "Search Modes Reference",
+        "relevance": 0.8469311520109063,
+        "tokens": 24
+      },
+      {
+        "title": "Option 1: Docker Compose (Recommended for < 100 users)",
+        "relevance": 0.8255007078810759,
+        "tokens": 67
+      },
+      {
+        "title": "When to Use Each Mode",
+        "relevance": 0.8152725413645657,
+        "tokens": 86
+      },
+      {
+        "title": "Template for Use Case Articles",
+        "relevance": 0.8053496932515336,
+        "tokens": 56
+      },
+      {
+        "title": "Language Model Tools (Copilot) \u2014 4 of 14",
+        "relevance": 0.7957186936124141,
+        "tokens": 100
+      },
+      {
+        "title": "Use Case 3: \"AI keeps forgetting my preferences\"",
+        "relevance": 0.7863668533831242,
+        "tokens": 116
+      },
+      {
+        "title": "Search Modes",
+        "relevance": 0.7772822085889569,
+        "tokens": 57
+      },
+      {
+        "title": "Before Starting Work",
+        "relevance": 0.7770969504981688,
+        "tokens": 111
+      },
+      {
+        "title": "User runs: rlm-aider sync before aider session",
+        "relevance": 0.7684534692819491,
+        "tokens": 12
+      },
+      {
+        "title": "Complete Tool Reference (For Power Users)",
+        "relevance": 0.7598699727334696,
+        "tokens": 9
+      },
+      {
+        "title": "P2 - Medium Priority (Should have for launch)",
+        "relevance": 0.7515216404739893,
+        "tokens": 109
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 0.7433989388161166,
+        "tokens": 2342
+      }
+    ],
+    "sections_filtered": [
+      {
+        "title": "Use Snipara MCP for Documentation Queries",
+        "relevance": 1.0,
+        "tokens": 626
+      },
+      {
+        "title": "TypeScript Strict Mode (Required)",
+        "relevance": 0.9815370631573181,
+        "tokens": 59
+      },
+      {
+        "title": "Article #12: What Snipara Is Not (And Who It's Not For)",
+        "relevance": 0.8581648525628338,
+        "tokens": 182
+      },
+      {
+        "title": "Search Modes Reference",
+        "relevance": 0.8469311520109063,
+        "tokens": 24
+      },
+      {
+        "title": "Option 1: Docker Compose (Recommended for < 100 users)",
+        "relevance": 0.8255007078810759,
+        "tokens": 67
+      },
+      {
+        "title": "When to Use Each Mode",
+        "relevance": 0.8152725413645657,
+        "tokens": 86
+      },
+      {
+        "title": "Template for Use Case Articles",
+        "relevance": 0.8053496932515336,
+        "tokens": 56
+      },
+      {
+        "title": "Language Model Tools (Copilot) \u2014 4 of 14",
+        "relevance": 0.7957186936124141,
+        "tokens": 100
+      },
+      {
+        "title": "Use Case 3: \"AI keeps forgetting my preferences\"",
+        "relevance": 0.7863668533831242,
+        "tokens": 116
+      },
+      {
+        "title": "Search Modes",
+        "relevance": 0.7772822085889569,
+        "tokens": 57
+      },
+      {
+        "title": "Before Starting Work",
+        "relevance": 0.7770969504981688,
+        "tokens": 111
+      },
+      {
+        "title": "P2 - Medium Priority (Should have for launch)",
+        "relevance": 0.7515216404739893,
+        "tokens": 109
+      }
+    ],
+    "shared_context_removed": 5,
+    "total_tokens": 5944,
+    "query_term_coverage": 0.857
+  },
+  {
+    "task_id": "full_request_flow",
+    "mode": "snipara_ctx_mem",
+    "query": "Trace the full flow of an MCP request from a user's Claude Desktop to database query and back.",
+    "original_query": "Trace the full flow of an MCP request from a user's Claude Desktop to database query and back.",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "MCP Server Changes = DUAL-REPO PUSH (MANDATORY)",
+        "relevance": 1.0,
+        "tokens": 379
+      },
+      {
+        "title": "Claude Desktop",
+        "relevance": 1.0,
+        "tokens": 122
+      },
+      {
+        "title": "Claude Code (Full Automation)",
+        "relevance": 0.974961064525239,
+        "tokens": 373
+      },
+      {
+        "title": "\ud83d\udc65 Team Standards (Auto-Enforce Rules)",
+        "relevance": 0.9487937536718024,
+        "tokens": 182
+      },
+      {
+        "title": "Article #3: Understanding Token Budgets: A Practical Guide",
+        "relevance": 0.9242367388708854,
+        "tokens": 133
+      },
+      {
+        "title": "Configure any MCP client to connect to localhost",
+        "relevance": 0.9125163454431748,
+        "tokens": 1758
+      },
+      {
+        "title": "Advanced Query Tools (Pro+)",
+        "relevance": 0.9011458145058436,
+        "tokens": 159
+      },
+      {
+        "title": "OAuth Device Flow (MCP Authentication)",
+        "relevance": 0.8901097109490225,
+        "tokens": 46
+      },
+      {
+        "title": "Why a REPL (and Example)",
+        "relevance": 0.879393494451819,
+        "tokens": 256
+      },
+      {
+        "title": "Pre-Commit Checks (MANDATORY)",
+        "relevance": 0.8772263525733774,
+        "tokens": 130
+      },
+      {
+        "title": "Article #6: 39 MCP Tools for AI-Assisted Development",
+        "relevance": 0.8689834555688216,
+        "tokens": 178
+      },
+      {
+        "title": "New Commands to Add",
+        "relevance": 0.8588666572177394,
+        "tokens": 92
+      },
+      {
+        "title": "Sprint 2: Docker Sandbox + CLI Setup",
+        "relevance": 0.8490308810430762,
+        "tokens": 149
+      },
+      {
+        "title": "First-Query Tool Tips",
+        "relevance": 0.8394645781882669,
+        "tokens": 265
+      },
+      {
+        "title": "POWER USER TOOLS",
+        "relevance": 0.8350152439024392,
+        "tokens": 126
+      },
+      {
+        "title": "1.6 The Orchestrator",
+        "relevance": 0.8301568240592632,
+        "tokens": 2056
+      },
+      {
+        "title": "Pillar A \u2014 Claude Code & MCP Mastery (Highest ROI)",
+        "relevance": 0.8210972767070329,
+        "tokens": 113
+      },
+      {
+        "title": "Database Backup",
+        "relevance": 0.8122761384956507,
+        "tokens": 268
+      },
+      {
+        "title": "Understanding the Deployment",
+        "relevance": 0.8036841207572916,
+        "tokens": 158
+      },
+      {
+        "title": "Snipara MCP Tools (39 total)",
+        "relevance": 0.7953124111660698,
+        "tokens": 118
+      },
+      {
+        "title": "Cross-Channel Comparison: VS Code Extension vs Claude Code Plugin",
+        "relevance": 0.7871526435898155,
+        "tokens": 147
+      }
+    ],
+    "sections_filtered": [
+      {
+        "title": "MCP Server Changes = DUAL-REPO PUSH (MANDATORY)",
+        "relevance": 1.0,
+        "tokens": 379
+      },
+      {
+        "title": "Claude Desktop",
+        "relevance": 1.0,
+        "tokens": 122
+      },
+      {
+        "title": "Claude Code (Full Automation)",
+        "relevance": 0.974961064525239,
+        "tokens": 373
+      },
+      {
+        "title": "\ud83d\udc65 Team Standards (Auto-Enforce Rules)",
+        "relevance": 0.9487937536718024,
+        "tokens": 182
+      },
+      {
+        "title": "Article #3: Understanding Token Budgets: A Practical Guide",
+        "relevance": 0.9242367388708854,
+        "tokens": 133
+      },
+      {
+        "title": "Configure any MCP client to connect to localhost",
+        "relevance": 0.9125163454431748,
+        "tokens": 1758
+      },
+      {
+        "title": "Advanced Query Tools (Pro+)",
+        "relevance": 0.9011458145058436,
+        "tokens": 159
+      },
+      {
+        "title": "OAuth Device Flow (MCP Authentication)",
+        "relevance": 0.8901097109490225,
+        "tokens": 46
+      },
+      {
+        "title": "Why a REPL (and Example)",
+        "relevance": 0.879393494451819,
+        "tokens": 256
+      },
+      {
+        "title": "Pre-Commit Checks (MANDATORY)",
+        "relevance": 0.8772263525733774,
+        "tokens": 130
+      },
+      {
+        "title": "Article #6: 39 MCP Tools for AI-Assisted Development",
+        "relevance": 0.8689834555688216,
+        "tokens": 178
+      },
+      {
+        "title": "New Commands to Add",
+        "relevance": 0.8588666572177394,
+        "tokens": 92
+      },
+      {
+        "title": "Sprint 2: Docker Sandbox + CLI Setup",
+        "relevance": 0.8490308810430762,
+        "tokens": 149
+      },
+      {
+        "title": "First-Query Tool Tips",
+        "relevance": 0.8394645781882669,
+        "tokens": 265
+      },
+      {
+        "title": "POWER USER TOOLS",
+        "relevance": 0.8350152439024392,
+        "tokens": 126
+      },
+      {
+        "title": "1.6 The Orchestrator",
+        "relevance": 0.8301568240592632,
+        "tokens": 2056
+      },
+      {
+        "title": "Pillar A \u2014 Claude Code & MCP Mastery (Highest ROI)",
+        "relevance": 0.8210972767070329,
+        "tokens": 113
+      },
+      {
+        "title": "Database Backup",
+        "relevance": 0.8122761384956507,
+        "tokens": 268
+      },
+      {
+        "title": "Understanding the Deployment",
+        "relevance": 0.8036841207572916,
+        "tokens": 158
+      },
+      {
+        "title": "Snipara MCP Tools (39 total)",
+        "relevance": 0.7953124111660698,
+        "tokens": 118
+      },
+      {
+        "title": "Cross-Channel Comparison: VS Code Extension vs Claude Code Plugin",
+        "relevance": 0.7871526435898155,
+        "tokens": 147
+      }
+    ],
+    "shared_context_removed": 0,
+    "total_tokens": 7604,
+    "query_term_coverage": 1.0
+  },
+  {
+    "task_id": "security_authentication_chain",
+    "mode": "snipara_ctx_mem",
+    "query": "authentication methods API key OAuth device flow MCP auth NextAuth SHA-256 hash tokens.json 0600 permissions access token refresh token",
+    "original_query": "What are all the authentication options available and how do they differ in security?",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "Solution 2: Remove OAuth Tokens (Force API Key)",
+        "relevance": 1.0,
+        "tokens": 65
+      },
+      {
+        "title": "POST /api/oauth/device/token",
+        "relevance": 0.986776098552197,
+        "tokens": 141
+      },
+      {
+        "title": "OAuth Device Flow (MCP Authentication)",
+        "relevance": 0.9739720034995625,
+        "tokens": 46
+      },
+      {
+        "title": "POST /api/oauth/token",
+        "relevance": 0.9615680364173228,
+        "tokens": 87
+      },
+      {
+        "title": "1.2 OAuth Token Authentication",
+        "relevance": 0.9495457298606904,
+        "tokens": 113
+      },
+      {
+        "title": "1.1 API Key Authentication",
+        "relevance": 0.937887735623956,
+        "tokens": 188
+      },
+      {
+        "title": "MCP vs Inject API Authentication",
+        "relevance": 0.9265777412151839,
+        "tokens": 302
+      },
+      {
+        "title": "MCP Server Authentication",
+        "relevance": 0.9156003937007874,
+        "tokens": 83
+      },
+      {
+        "title": "DELETE /api/settings/tokens/[tokenId]",
+        "relevance": 0.9049412301723153,
+        "tokens": 38
+      },
+      {
+        "title": "GET /api/settings/tokens",
+        "relevance": 0.8945866141732283,
+        "tokens": 108
+      },
+      {
+        "title": "Invalid OAuth Token (HTTP 401)",
+        "relevance": 0.8845236774980592,
+        "tokens": 51
+      },
+      {
+        "title": "MCP Authentication (Quick Reference)",
+        "relevance": 0.8747402668416449,
+        "tokens": 181
+      },
+      {
+        "title": "API & Authentication",
+        "relevance": 0.8652248948333512,
+        "tokens": 89
+      },
+      {
+        "title": "Token Refresh",
+        "relevance": 0.8559666950414981,
+        "tokens": 123
+      },
+      {
+        "title": "OAuth Tokens",
+        "relevance": 0.8469553805774278,
+        "tokens": 4
+      },
+      {
+        "title": "auth.py - validate_api_key()",
+        "relevance": 0.838181205967675,
+        "tokens": 167
+      },
+      {
+        "title": "Issue 1: OAuth Token Caching",
+        "relevance": 0.8296349319971367,
+        "tokens": 46
+      },
+      {
+        "title": "Authentication Methods",
+        "relevance": 0.8213077932566121,
+        "tokens": 102
+      },
+      {
+        "title": "POST /api/oauth/device/code",
+        "relevance": 0.8131914681550881,
+        "tokens": 121
+      },
+      {
+        "title": "GET /api/oauth/device/authorize",
+        "relevance": 0.8052780511811022,
+        "tokens": 37
+      },
+      {
+        "title": "1.3 Team API Key Authentication",
+        "relevance": 0.7975600272188198,
+        "tokens": 87
+      },
+      {
+        "title": "POST /api/oauth/revoke",
+        "relevance": 0.7900302477434222,
+        "tokens": 64
+      },
+      {
+        "title": "OAuth Device Flow",
+        "relevance": 0.7826819087373115,
+        "tokens": 12
+      },
+      {
+        "title": "Step 4: Poll for Token",
+        "relevance": 0.775508530183727,
+        "tokens": 458
+      },
+      {
+        "title": "Token Revocation",
+        "relevance": 0.7685039370078739,
+        "tokens": 113
+      },
+      {
+        "title": "Token Management UI",
+        "relevance": 0.7616622413477385,
+        "tokens": 45
+      },
+      {
+        "title": "Solution 1: Use SNIPARA_IGNORE_OAUTH Environment Variable (Recommended)",
+        "relevance": 0.7549778260476061,
+        "tokens": 163
+      },
+      {
+        "title": "Authentication & Authorization",
+        "relevance": 0.7484453292770222,
+        "tokens": 190
+      },
+      {
+        "title": "Team API Key Fallback",
+        "relevance": 0.742059630186676,
+        "tokens": 198
+      },
+      {
+        "title": "Team API Key Management",
+        "relevance": 0.7358158355205598,
+        "tokens": 90
+      },
+      {
+        "title": "Token Format",
+        "relevance": 0.7297092671108417,
+        "tokens": 109
+      },
+      {
+        "title": "Generate .mcp.json (Local)",
+        "relevance": 0.7237354501882917,
+        "tokens": 202
+      },
+      {
+        "title": "Issue: OAuth 500 Error",
+        "relevance": 0.7178901024468715,
+        "tokens": 92
+      },
+      {
+        "title": "Troubleshooting API Key Issues",
+        "relevance": 0.7121691238063326,
+        "tokens": 111
+      },
+      {
+        "title": "Project API Keys",
+        "relevance": 0.706568586821384,
+        "tokens": 471
+      },
+      {
+        "title": "MCP Authentication",
+        "relevance": 0.7010847276902886,
+        "tokens": 14
+      },
+      {
+        "title": "2. SNIPARA_IGNORE_OAUTH Environment Variable",
+        "relevance": 0.6957139378196282,
+        "tokens": 56
+      },
+      {
+        "title": "1. Token Efficiency (`--token-efficiency`)",
+        "relevance": 0.6904527559055118,
+        "tokens": 87
+      },
+      {
+        "title": "4.1 Token Budgeting & Metadata Response",
+        "relevance": 0.6852978604947109,
+        "tokens": 635
+      },
+      {
+        "title": "POST /api/teams/[teamId]/api-keys",
+        "relevance": 0.680246062992126,
+        "tokens": 105
+      },
+      {
+        "title": "Team API Keys",
+        "relevance": 0.6752943010836516,
+        "tokens": 243
+      },
+      {
+        "title": "Missing Authentication (HTTP 401)",
+        "relevance": 0.6704396325459318,
+        "tokens": 144
+      },
+      {
+        "title": "2. \"Invalid API key\" errors",
+        "relevance": 0.6656792294167113,
+        "tokens": 133
+      },
+      {
+        "title": "Article #3: Understanding Token Budgets: A Practical Guide",
+        "relevance": 0.6610103725015141,
+        "tokens": 133
+      },
+      {
+        "title": "Article #1: From 500K to 5K Tokens (PUBLISHED)",
+        "relevance": 0.6564304461942256,
+        "tokens": 45
+      },
+      {
+        "title": "API Key Types",
+        "relevance": 0.6519369335908484,
+        "tokens": 94
+      },
+      {
+        "title": "Authentication Reference",
+        "relevance": 0.6475274118772536,
+        "tokens": 20
+      },
+      {
+        "title": "API Key Actions",
+        "relevance": 0.6431995479731701,
+        "tokens": 52
+      },
+      {
+        "title": "2. Missing X-API-Key Header Support",
+        "relevance": 0.6389510944159502,
+        "tokens": 76
+      },
+      {
+        "title": "POST /api/invites/[token]",
+        "relevance": 0.6347798854688618,
+        "tokens": 58
+      },
+      {
+        "title": "OAuth Connection",
+        "relevance": 0.6306838334397389,
+        "tokens": 87
+      },
+      {
+        "title": "GET /api/teams/[teamId]/api-keys",
+        "relevance": 0.6266609251968503,
+        "tokens": 121
+      },
+      {
+        "title": "1.3 Authentication",
+        "relevance": 0.6227092188697652,
+        "tokens": 239
+      },
+      {
+        "title": "Auth0 OAuth",
+        "relevance": 0.6188268407238569,
+        "tokens": 64
+      },
+      {
+        "title": "1. Token Efficiency",
+        "relevance": 0.6150119821978773,
+        "tokens": 83
+      },
+      {
+        "title": "MCP Servers (`.mcp.json`)",
+        "relevance": 0.6112628970947597,
+        "tokens": 109
+      },
+      {
+        "title": "Why Two OAuth Apps?",
+        "relevance": 0.6075778989164815,
+        "tokens": 76
+      }
+    ],
+    "sections_filtered": [
+      {
+        "title": "Solution 2: Remove OAuth Tokens (Force API Key)",
+        "relevance": 1.0,
+        "tokens": 65
+      },
+      {
+        "title": "POST /api/oauth/device/token",
+        "relevance": 0.986776098552197,
+        "tokens": 141
+      },
+      {
+        "title": "OAuth Device Flow (MCP Authentication)",
+        "relevance": 0.9739720034995625,
+        "tokens": 46
+      },
+      {
+        "title": "POST /api/oauth/token",
+        "relevance": 0.9615680364173228,
+        "tokens": 87
+      },
+      {
+        "title": "1.2 OAuth Token Authentication",
+        "relevance": 0.9495457298606904,
+        "tokens": 113
+      },
+      {
+        "title": "1.1 API Key Authentication",
+        "relevance": 0.937887735623956,
+        "tokens": 188
+      },
+      {
+        "title": "MCP vs Inject API Authentication",
+        "relevance": 0.9265777412151839,
+        "tokens": 302
+      },
+      {
+        "title": "MCP Server Authentication",
+        "relevance": 0.9156003937007874,
+        "tokens": 83
+      },
+      {
+        "title": "DELETE /api/settings/tokens/[tokenId]",
+        "relevance": 0.9049412301723153,
+        "tokens": 38
+      },
+      {
+        "title": "GET /api/settings/tokens",
+        "relevance": 0.8945866141732283,
+        "tokens": 108
+      },
+      {
+        "title": "Invalid OAuth Token (HTTP 401)",
+        "relevance": 0.8845236774980592,
+        "tokens": 51
+      },
+      {
+        "title": "MCP Authentication (Quick Reference)",
+        "relevance": 0.8747402668416449,
+        "tokens": 181
+      },
+      {
+        "title": "API & Authentication",
+        "relevance": 0.8652248948333512,
+        "tokens": 89
+      },
+      {
+        "title": "Token Refresh",
+        "relevance": 0.8559666950414981,
+        "tokens": 123
+      },
+      {
+        "title": "auth.py - validate_api_key()",
+        "relevance": 0.838181205967675,
+        "tokens": 167
+      },
+      {
+        "title": "Issue 1: OAuth Token Caching",
+        "relevance": 0.8296349319971367,
+        "tokens": 46
+      },
+      {
+        "title": "Authentication Methods",
+        "relevance": 0.8213077932566121,
+        "tokens": 102
+      },
+      {
+        "title": "POST /api/oauth/device/code",
+        "relevance": 0.8131914681550881,
+        "tokens": 121
+      },
+      {
+        "title": "GET /api/oauth/device/authorize",
+        "relevance": 0.8052780511811022,
+        "tokens": 37
+      },
+      {
+        "title": "1.3 Team API Key Authentication",
+        "relevance": 0.7975600272188198,
+        "tokens": 87
+      },
+      {
+        "title": "POST /api/oauth/revoke",
+        "relevance": 0.7900302477434222,
+        "tokens": 64
+      },
+      {
+        "title": "Step 4: Poll for Token",
+        "relevance": 0.775508530183727,
+        "tokens": 458
+      },
+      {
+        "title": "Token Revocation",
+        "relevance": 0.7685039370078739,
+        "tokens": 113
+      },
+      {
+        "title": "Token Management UI",
+        "relevance": 0.7616622413477385,
+        "tokens": 45
+      },
+      {
+        "title": "Solution 1: Use SNIPARA_IGNORE_OAUTH Environment Variable (Recommended)",
+        "relevance": 0.7549778260476061,
+        "tokens": 163
+      },
+      {
+        "title": "Authentication & Authorization",
+        "relevance": 0.7484453292770222,
+        "tokens": 190
+      },
+      {
+        "title": "Team API Key Fallback",
+        "relevance": 0.742059630186676,
+        "tokens": 198
+      },
+      {
+        "title": "Team API Key Management",
+        "relevance": 0.7358158355205598,
+        "tokens": 90
+      },
+      {
+        "title": "Token Format",
+        "relevance": 0.7297092671108417,
+        "tokens": 109
+      },
+      {
+        "title": "Generate .mcp.json (Local)",
+        "relevance": 0.7237354501882917,
+        "tokens": 202
+      },
+      {
+        "title": "Issue: OAuth 500 Error",
+        "relevance": 0.7178901024468715,
+        "tokens": 92
+      },
+      {
+        "title": "Troubleshooting API Key Issues",
+        "relevance": 0.7121691238063326,
+        "tokens": 111
+      },
+      {
+        "title": "Project API Keys",
+        "relevance": 0.706568586821384,
+        "tokens": 471
+      },
+      {
+        "title": "2. SNIPARA_IGNORE_OAUTH Environment Variable",
+        "relevance": 0.6957139378196282,
+        "tokens": 56
+      },
+      {
+        "title": "1. Token Efficiency (`--token-efficiency`)",
+        "relevance": 0.6904527559055118,
+        "tokens": 87
+      },
+      {
+        "title": "4.1 Token Budgeting & Metadata Response",
+        "relevance": 0.6852978604947109,
+        "tokens": 635
+      },
+      {
+        "title": "POST /api/teams/[teamId]/api-keys",
+        "relevance": 0.680246062992126,
+        "tokens": 105
+      },
+      {
+        "title": "Team API Keys",
+        "relevance": 0.6752943010836516,
+        "tokens": 243
+      },
+      {
+        "title": "Missing Authentication (HTTP 401)",
+        "relevance": 0.6704396325459318,
+        "tokens": 144
+      },
+      {
+        "title": "2. \"Invalid API key\" errors",
+        "relevance": 0.6656792294167113,
+        "tokens": 133
+      },
+      {
+        "title": "Article #3: Understanding Token Budgets: A Practical Guide",
+        "relevance": 0.6610103725015141,
+        "tokens": 133
+      },
+      {
+        "title": "Article #1: From 500K to 5K Tokens (PUBLISHED)",
+        "relevance": 0.6564304461942256,
+        "tokens": 45
+      },
+      {
+        "title": "API Key Types",
+        "relevance": 0.6519369335908484,
+        "tokens": 94
+      },
+      {
+        "title": "Authentication Reference",
+        "relevance": 0.6475274118772536,
+        "tokens": 20
+      },
+      {
+        "title": "API Key Actions",
+        "relevance": 0.6431995479731701,
+        "tokens": 52
+      },
+      {
+        "title": "2. Missing X-API-Key Header Support",
+        "relevance": 0.6389510944159502,
+        "tokens": 76
+      },
+      {
+        "title": "POST /api/invites/[token]",
+        "relevance": 0.6347798854688618,
+        "tokens": 58
+      },
+      {
+        "title": "OAuth Connection",
+        "relevance": 0.6306838334397389,
+        "tokens": 87
+      },
+      {
+        "title": "GET /api/teams/[teamId]/api-keys",
+        "relevance": 0.6266609251968503,
+        "tokens": 121
+      },
+      {
+        "title": "1.3 Authentication",
+        "relevance": 0.6227092188697652,
+        "tokens": 239
+      },
+      {
+        "title": "Auth0 OAuth",
+        "relevance": 0.6188268407238569,
+        "tokens": 64
+      },
+      {
+        "title": "1. Token Efficiency",
+        "relevance": 0.6150119821978773,
+        "tokens": 83
+      },
+      {
+        "title": "MCP Servers (`.mcp.json`)",
+        "relevance": 0.6112628970947597,
+        "tokens": 109
+      },
+      {
+        "title": "Why Two OAuth Apps?",
+        "relevance": 0.6075778989164815,
+        "tokens": 76
+      }
+    ],
+    "shared_context_removed": 3,
+    "total_tokens": 7567,
+    "query_term_coverage": 0.667
+  },
+  {
+    "task_id": "shared_context_budget_allocation",
+    "mode": "snipara_ctx_mem",
+    "query": "shared context collections document categories MANDATORY 40% BEST_PRACTICES 30% GUIDELINES 20% REFERENCE 10% budget allocation priority",
+    "original_query": "How does token budget allocation work when using shared context collections?",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "relevance": 1.0,
+        "tokens": 1864
+      },
+      {
+        "title": "Feature Documentation (Quick Reference)",
+        "relevance": 0.9929588676164017,
+        "tokens": 209
+      },
+      {
+        "title": "Complete Reference Documentation",
+        "relevance": 0.9096412206538101,
+        "tokens": 237
+      },
+      {
+        "title": "Article #10: Team Collaboration with Shared Context",
+        "relevance": 0.8887889399084221,
+        "tokens": 142
+      },
+      {
+        "title": "MCP Query Order (Shared Context First)",
+        "relevance": 0.8767804137869927,
+        "tokens": 193
+      },
+      {
+        "title": "Shared Context Tools (Phase 7)",
+        "relevance": 0.8651471541068579,
+        "tokens": 316
+      },
+      {
+        "title": "5.1 Budget Allocation Logic",
+        "relevance": 0.8538718408784198,
+        "tokens": 922
+      },
+      {
+        "title": "Shared Context (Team+)",
+        "relevance": 0.8429382038084191,
+        "tokens": 98
+      },
+      {
+        "title": "Document Categories",
+        "relevance": 0.8323309439643886,
+        "tokens": 114
+      },
+      {
+        "title": "GET /api/shared-collections/[collectionId]/documents",
+        "relevance": 0.822035662351065,
+        "tokens": 82
+      },
+      {
+        "title": "Shared Context Collections - Implementation Plan",
+        "relevance": 0.8120387946975476,
+        "tokens": 8
+      },
+      {
+        "title": "rlm_upload_shared_document",
+        "relevance": 0.8023275518341308,
+        "tokens": 56
+      },
+      {
+        "title": "1.1 Shared Context Marketplace",
+        "relevance": 0.7928898651077116,
+        "tokens": 167
+      },
+      {
+        "title": "MCP Tools for Shared Context",
+        "relevance": 0.7837143363459153,
+        "tokens": 123
+      },
+      {
+        "title": "8.2 Project Shared Context Manager",
+        "relevance": 0.7661072406138196,
+        "tokens": 1384
+      },
+      {
+        "title": "Project Shared Contexts",
+        "relevance": 0.7576558346624135,
+        "tokens": 16
+      },
+      {
+        "title": "Shared Context",
+        "relevance": 0.7494268341307816,
+        "tokens": 58
+      },
+      {
+        "title": "Context Tools (Documentation Queries)",
+        "relevance": 0.7414115738726983,
+        "tokens": 67
+      },
+      {
+        "title": "rlm_shared_context",
+        "relevance": 0.733601833108412,
+        "tokens": 37
+      },
+      {
+        "title": "Document Sync Tools (Phase 10)",
+        "relevance": 0.7259898073001836,
+        "tokens": 18
+      },
+      {
+        "title": "Context Plans (Documentation Search)",
+        "relevance": 0.7185680821371611,
+        "tokens": 136
+      },
+      {
+        "title": "Shared Collections",
+        "relevance": 0.7113296094472996,
+        "tokens": 4
+      },
+      {
+        "title": "Group 4: Shared Context Tools",
+        "relevance": 0.7042676848718249,
+        "tokens": 9
+      },
+      {
+        "title": "Latest Results (January 2026)",
+        "relevance": 0.7019778624569042,
+        "tokens": 211
+      },
+      {
+        "title": "DELETE /api/shared-collections/[collectionId]",
+        "relevance": 0.6906482589048379,
+        "tokens": 41
+      },
+      {
+        "title": "PATCH /api/shared-collections/[collectionId]",
+        "relevance": 0.6840788887325264,
+        "tokens": 51
+      },
+      {
+        "title": "POST /api/shared-collections/[collectionId]/discover",
+        "relevance": 0.6776622946107339,
+        "tokens": 83
+      },
+      {
+        "title": "Recursive Context Tools (Near-Infinite Context)",
+        "relevance": 0.6753145316804406,
+        "tokens": 524
+      }
+    ],
+    "sections_filtered": [
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "relevance": 1.0,
+        "tokens": 1864
+      },
+      {
+        "title": "Feature Documentation (Quick Reference)",
+        "relevance": 0.9929588676164017,
+        "tokens": 209
+      },
+      {
+        "title": "Complete Reference Documentation",
+        "relevance": 0.9096412206538101,
+        "tokens": 237
+      },
+      {
+        "title": "Article #10: Team Collaboration with Shared Context",
+        "relevance": 0.8887889399084221,
+        "tokens": 142
+      },
+      {
+        "title": "MCP Query Order (Shared Context First)",
+        "relevance": 0.8767804137869927,
+        "tokens": 193
+      },
+      {
+        "title": "Shared Context Tools (Phase 7)",
+        "relevance": 0.8651471541068579,
+        "tokens": 316
+      },
+      {
+        "title": "5.1 Budget Allocation Logic",
+        "relevance": 0.8538718408784198,
+        "tokens": 922
+      },
+      {
+        "title": "Shared Context (Team+)",
+        "relevance": 0.8429382038084191,
+        "tokens": 98
+      },
+      {
+        "title": "Document Categories",
+        "relevance": 0.8323309439643886,
+        "tokens": 114
+      },
+      {
+        "title": "GET /api/shared-collections/[collectionId]/documents",
+        "relevance": 0.822035662351065,
+        "tokens": 82
+      },
+      {
+        "title": "rlm_upload_shared_document",
+        "relevance": 0.8023275518341308,
+        "tokens": 56
+      },
+      {
+        "title": "1.1 Shared Context Marketplace",
+        "relevance": 0.7928898651077116,
+        "tokens": 167
+      },
+      {
+        "title": "MCP Tools for Shared Context",
+        "relevance": 0.7837143363459153,
+        "tokens": 123
+      },
+      {
+        "title": "8.2 Project Shared Context Manager",
+        "relevance": 0.7661072406138196,
+        "tokens": 1384
+      },
+      {
+        "title": "Shared Context",
+        "relevance": 0.7494268341307816,
+        "tokens": 58
+      },
+      {
+        "title": "Context Tools (Documentation Queries)",
+        "relevance": 0.7414115738726983,
+        "tokens": 67
+      },
+      {
+        "title": "rlm_shared_context",
+        "relevance": 0.733601833108412,
+        "tokens": 37
+      },
+      {
+        "title": "Context Plans (Documentation Search)",
+        "relevance": 0.7185680821371611,
+        "tokens": 136
+      },
+      {
+        "title": "Latest Results (January 2026)",
+        "relevance": 0.7019778624569042,
+        "tokens": 211
+      },
+      {
+        "title": "DELETE /api/shared-collections/[collectionId]",
+        "relevance": 0.6906482589048379,
+        "tokens": 41
+      },
+      {
+        "title": "PATCH /api/shared-collections/[collectionId]",
+        "relevance": 0.6840788887325264,
+        "tokens": 51
+      },
+      {
+        "title": "POST /api/shared-collections/[collectionId]/discover",
+        "relevance": 0.6776622946107339,
+        "tokens": 83
+      },
+      {
+        "title": "Recursive Context Tools (Near-Infinite Context)",
+        "relevance": 0.6753145316804406,
+        "tokens": 524
+      }
+    ],
+    "shared_context_removed": 5,
+    "total_tokens": 7566,
+    "query_term_coverage": 1.0
+  },
+  {
+    "task_id": "nonexistent_feature",
+    "mode": "snipara_ctx_mem",
+    "query": "Snipara overview features capabilities context optimization what we do",
+    "original_query": "How do I configure real-time collaborative editing in Snipara?",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "Use Snipara MCP for Documentation Queries",
+        "relevance": 1.0,
+        "tokens": 626
+      },
+      {
+        "title": "2. With Snipara Context Optimization",
+        "relevance": 0.9812743545142701,
+        "tokens": 116
+      },
+      {
+        "title": "Windows PowerShell: Run Local Docker REPL",
+        "relevance": 0.9686024054917108,
+        "tokens": 228
+      },
+      {
+        "title": "Phase 4: Context Optimization Engine (Week 7-9) \u2705 COMPLETE",
+        "relevance": 0.9563327405651058,
+        "tokens": 40
+      },
+      {
+        "title": "What Snipara Provides (That Open Source Doesn't)",
+        "relevance": 0.944446502667457,
+        "tokens": 188
+      },
+      {
+        "title": "Article #12: What Snipara Is Not (And Who It's Not For)",
+        "relevance": 0.932925995166659,
+        "tokens": 182
+      },
+      {
+        "title": "Context Tools (Documentation Queries)",
+        "relevance": 0.9109166674039405,
+        "tokens": 67
+      },
+      {
+        "title": "Solution: Context Optimization as a Service",
+        "relevance": 0.9003975033997001,
+        "tokens": 134
+      },
+      {
+        "title": "This generates .rlm-context.md with relevant docs",
+        "relevance": 0.8901832426999304,
+        "tokens": 602
+      },
+      {
+        "title": "Snipara monorepo (web changes)",
+        "relevance": 0.8802608180201541,
+        "tokens": 167
+      },
+      {
+        "title": "Sprint 3: Docker Sandbox (Week 4)",
+        "relevance": 0.8706178982609348,
+        "tokens": 934
+      },
+      {
+        "title": "Context Plans (Context Optimization)",
+        "relevance": 0.8612428373839163,
+        "tokens": 82
+      },
+      {
+        "title": "Primary Tool (Context Optimization)",
+        "relevance": 0.8521246274898295,
+        "tokens": 188
+      },
+      {
+        "title": "Article #2: Why RAG Feels Broken (And What Context Engineering Fixes)",
+        "relevance": 0.8432528557009884,
+        "tokens": 152
+      },
+      {
+        "title": "Docs Layout (`apps/web/src/app/(public)/docs/layout.tsx`)",
+        "relevance": 0.8346176644931832,
+        "tokens": 64
+      },
+      {
+        "title": "Phase 2: Core Features (Week 3-4)",
+        "relevance": 0.8262097151592674,
+        "tokens": 14
+      },
+      {
+        "title": "Core Capabilities (Pick What You Need)",
+        "relevance": 0.8180201541197392,
+        "tokens": 10
+      },
+      {
+        "title": "Sprint 2: Snipara Tool Bridge (Week 3)",
+        "relevance": 0.8100405818248142,
+        "tokens": 15
+      },
+      {
+        "title": "Phase 3: Website Updates (Snipara Monorepo)",
+        "relevance": 0.8022630240183681,
+        "tokens": 15
+      },
+      {
+        "title": "7. What Not To Do",
+        "relevance": 0.7946799051570835,
+        "tokens": 38
+      },
+      {
+        "title": "Context Features by Plan",
+        "relevance": 0.7872840237985466,
+        "tokens": 291
+      },
+      {
+        "title": "MCP Server (Context Optimization Engine)",
+        "relevance": 0.7800685297902179,
+        "tokens": 74
+      },
+      {
+        "title": "Context Optimization Engine (Phase 4) \ud83d\udea7 IN PROGRESS",
+        "relevance": 0.7730269031073911,
+        "tokens": 103
+      },
+      {
+        "title": "Context Plans (Documentation Search)",
+        "relevance": 0.7661529342027268,
+        "tokens": 136
+      },
+      {
+        "title": "Language Model Tools (Copilot) \u2014 4 of 14",
+        "relevance": 0.759440705742878,
+        "tokens": 100
+      },
+      {
+        "title": "Upgrade Process",
+        "relevance": 0.752884575619305,
+        "tokens": 528
+      },
+      {
+        "title": "Project Overview",
+        "relevance": 0.7516510235329108,
+        "tokens": 106
+      },
+      {
+        "title": "Option A: Traefik (Recommended for Docker)",
+        "relevance": 0.7464791611307565,
+        "tokens": 404
+      },
+      {
+        "title": "Deployment Steps",
+        "relevance": 0.7402193242442204,
+        "tokens": 484
+      },
+      {
+        "title": "Step 1: Create the Hook Script",
+        "relevance": 0.7341001578495167,
+        "tokens": 716
+      },
+      {
+        "title": "6.2 Updated Context Query Tool",
+        "relevance": 0.7281169729302509,
+        "tokens": 396
+      }
+    ],
+    "sections_filtered": [
+      {
+        "title": "Use Snipara MCP for Documentation Queries",
+        "relevance": 1.0,
+        "tokens": 626
+      },
+      {
+        "title": "2. With Snipara Context Optimization",
+        "relevance": 0.9812743545142701,
+        "tokens": 116
+      },
+      {
+        "title": "Windows PowerShell: Run Local Docker REPL",
+        "relevance": 0.9686024054917108,
+        "tokens": 228
+      },
+      {
+        "title": "Phase 4: Context Optimization Engine (Week 7-9) \u2705 COMPLETE",
+        "relevance": 0.9563327405651058,
+        "tokens": 40
+      },
+      {
+        "title": "What Snipara Provides (That Open Source Doesn't)",
+        "relevance": 0.944446502667457,
+        "tokens": 188
+      },
+      {
+        "title": "Article #12: What Snipara Is Not (And Who It's Not For)",
+        "relevance": 0.932925995166659,
+        "tokens": 182
+      },
+      {
+        "title": "Context Tools (Documentation Queries)",
+        "relevance": 0.9109166674039405,
+        "tokens": 67
+      },
+      {
+        "title": "Solution: Context Optimization as a Service",
+        "relevance": 0.9003975033997001,
+        "tokens": 134
+      },
+      {
+        "title": "This generates .rlm-context.md with relevant docs",
+        "relevance": 0.8901832426999304,
+        "tokens": 602
+      },
+      {
+        "title": "Snipara monorepo (web changes)",
+        "relevance": 0.8802608180201541,
+        "tokens": 167
+      },
+      {
+        "title": "Sprint 3: Docker Sandbox (Week 4)",
+        "relevance": 0.8706178982609348,
+        "tokens": 934
+      },
+      {
+        "title": "Context Plans (Context Optimization)",
+        "relevance": 0.8612428373839163,
+        "tokens": 82
+      },
+      {
+        "title": "Primary Tool (Context Optimization)",
+        "relevance": 0.8521246274898295,
+        "tokens": 188
+      },
+      {
+        "title": "Article #2: Why RAG Feels Broken (And What Context Engineering Fixes)",
+        "relevance": 0.8432528557009884,
+        "tokens": 152
+      },
+      {
+        "title": "Docs Layout (`apps/web/src/app/(public)/docs/layout.tsx`)",
+        "relevance": 0.8346176644931832,
+        "tokens": 64
+      },
+      {
+        "title": "7. What Not To Do",
+        "relevance": 0.7946799051570835,
+        "tokens": 38
+      },
+      {
+        "title": "Context Features by Plan",
+        "relevance": 0.7872840237985466,
+        "tokens": 291
+      },
+      {
+        "title": "MCP Server (Context Optimization Engine)",
+        "relevance": 0.7800685297902179,
+        "tokens": 74
+      },
+      {
+        "title": "Context Optimization Engine (Phase 4) \ud83d\udea7 IN PROGRESS",
+        "relevance": 0.7730269031073911,
+        "tokens": 103
+      },
+      {
+        "title": "Context Plans (Documentation Search)",
+        "relevance": 0.7661529342027268,
+        "tokens": 136
+      },
+      {
+        "title": "Language Model Tools (Copilot) \u2014 4 of 14",
+        "relevance": 0.759440705742878,
+        "tokens": 100
+      },
+      {
+        "title": "Upgrade Process",
+        "relevance": 0.752884575619305,
+        "tokens": 528
+      },
+      {
+        "title": "Project Overview",
+        "relevance": 0.7516510235329108,
+        "tokens": 106
+      },
+      {
+        "title": "Option A: Traefik (Recommended for Docker)",
+        "relevance": 0.7464791611307565,
+        "tokens": 404
+      },
+      {
+        "title": "Deployment Steps",
+        "relevance": 0.7402193242442204,
+        "tokens": 484
+      },
+      {
+        "title": "Step 1: Create the Hook Script",
+        "relevance": 0.7341001578495167,
+        "tokens": 716
+      },
+      {
+        "title": "6.2 Updated Context Query Tool",
+        "relevance": 0.7281169729302509,
+        "tokens": 396
+      }
+    ],
+    "shared_context_removed": 4,
+    "total_tokens": 7596,
+    "query_term_coverage": 0.5
+  },
+  {
+    "task_id": "ambiguous_acronym",
+    "mode": "snipara_ctx_mem",
+    "query": "RLM rlm_ prefix internal project name tools rlm_context_query rlm_search rlm_decompose MCP server RLM-Runtime",
+    "original_query": "What does RLM stand for?",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "Feature Implementation Workflow (Snipara + RLM-Runtime)",
+        "relevance": 1.0,
+        "tokens": 1672
+      },
+      {
+        "title": "RLM-Runtime Tools (all missing)",
+        "relevance": 1.0,
+        "tokens": 112
+      },
+      {
+        "title": "Task Queue (rlm_task_create / rlm_task_claim / rlm_task_complete)",
+        "relevance": 0.986717267552182,
+        "tokens": 281
+      },
+      {
+        "title": "Integration with rlm-runtime",
+        "relevance": 0.9738562091503268,
+        "tokens": 100
+      },
+      {
+        "title": "Phase 8: RLM Runtime (Open Source) \u2705",
+        "relevance": 0.9613970588235294,
+        "tokens": 430
+      },
+      {
+        "title": "Usage with RLM Runtime",
+        "relevance": 0.9493212669683256,
+        "tokens": 105
+      },
+      {
+        "title": "Run as local MCP server (proxies to RLM cloud)",
+        "relevance": 0.9376114081996434,
+        "tokens": 28
+      },
+      {
+        "title": "RLM MCP Server",
+        "relevance": 0.9152249134948096,
+        "tokens": 21
+      },
+      {
+        "title": "Article #6: 39 MCP Tools for AI-Assisted Development",
+        "relevance": 0.9045183290707587,
+        "tokens": 178
+      },
+      {
+        "title": "rlm-runtime Installation",
+        "relevance": 0.8941176470588235,
+        "tokens": 98
+      },
+      {
+        "title": "Shared State (rlm_state_get / rlm_state_set)",
+        "relevance": 0.8840099420049709,
+        "tokens": 318
+      },
+      {
+        "title": "Option 3: With RLM Runtime Integration",
+        "relevance": 0.8741830065359477,
+        "tokens": 54
+      },
+      {
+        "title": "Resource Claims (rlm_claim / rlm_release)",
+        "relevance": 0.8646253021756647,
+        "tokens": 393
+      },
+      {
+        "title": "Recursive Language Models (RLM) Runtime",
+        "relevance": 0.8553259141494434,
+        "tokens": 50
+      },
+      {
+        "title": "With RLM Runtime integration",
+        "relevance": 0.8462745098039215,
+        "tokens": 990
+      },
+      {
+        "title": "rlm_search",
+        "relevance": 0.8374613003095973,
+        "tokens": 40
+      },
+      {
+        "title": "rlm_multi_project_query",
+        "relevance": 0.8288770053475936,
+        "tokens": 43
+      },
+      {
+        "title": "RLM Runtime Integration (New in 1.4.0)",
+        "relevance": 0.8205128205128205,
+        "tokens": 58
+      },
+      {
+        "title": "Issue 2: MCP Server Name Mismatch",
+        "relevance": 0.8123603871928518,
+        "tokens": 65
+      },
+      {
+        "title": "Snipara MCP Tools (39 total)",
+        "relevance": 0.8044117647058822,
+        "tokens": 118
+      },
+      {
+        "title": "MCP Tools for Memory",
+        "relevance": 0.7966594045025416,
+        "tokens": 144
+      },
+      {
+        "title": "Open Source (RLMMCP)",
+        "relevance": 0.7890961262553801,
+        "tokens": 27
+      },
+      {
+        "title": "rlm_decompose",
+        "relevance": 0.781715095676825,
+        "tokens": 42
+      },
+      {
+        "title": "rlm_context_query",
+        "relevance": 0.7745098039215685,
+        "tokens": 51
+      },
+      {
+        "title": "Primary Tool: `rlm_context_query`",
+        "relevance": 0.7674740484429065,
+        "tokens": 329
+      },
+      {
+        "title": "1. Package Rename: `@rlm-saas/*` \u2192 `@snipara/*`",
+        "relevance": 0.7606019151846785,
+        "tokens": 179
+      },
+      {
+        "title": "MCP Servers (`.mcp.json`)",
+        "relevance": 0.7538877620013522,
+        "tokens": 109
+      },
+      {
+        "title": "Implementation in RLM MCP Server",
+        "relevance": 0.747326203208556,
+        "tokens": 108
+      },
+      {
+        "title": "3. Per-Project MCP Configuration",
+        "relevance": 0.7409120951751486,
+        "tokens": 98
+      },
+      {
+        "title": "RLM Runtime + Snipara Integration Guide",
+        "relevance": 0.7346405228758168,
+        "tokens": 37
+      },
+      {
+        "title": "Sprint 1: Minimal RLM Runtime (Local + Single Provider)",
+        "relevance": 0.7285067873303167,
+        "tokens": 241
+      },
+      {
+        "title": "rlm_context",
+        "relevance": 0.7225063938618925,
+        "tokens": 37
+      },
+      {
+        "title": "Comparison: Full RLM vs RLM SaaS",
+        "relevance": 0.7166350411132194,
+        "tokens": 178
+      },
+      {
+        "title": "Event Broadcasting (rlm_broadcast)",
+        "relevance": 0.7108886107634542,
+        "tokens": 107
+      },
+      {
+        "title": "Per-Project MCP Configuration",
+        "relevance": 0.7052631578947367,
+        "tokens": 275
+      },
+      {
+        "title": "6. MCP Server Issues",
+        "relevance": 0.7009076836476216,
+        "tokens": 88
+      }
+    ],
+    "sections_filtered": [
+      {
+        "title": "Feature Implementation Workflow (Snipara + RLM-Runtime)",
+        "relevance": 1.0,
+        "tokens": 1672
+      },
+      {
+        "title": "RLM-Runtime Tools (all missing)",
+        "relevance": 1.0,
+        "tokens": 112
+      },
+      {
+        "title": "Task Queue (rlm_task_create / rlm_task_claim / rlm_task_complete)",
+        "relevance": 0.986717267552182,
+        "tokens": 281
+      },
+      {
+        "title": "Integration with rlm-runtime",
+        "relevance": 0.9738562091503268,
+        "tokens": 100
+      },
+      {
+        "title": "Phase 8: RLM Runtime (Open Source) \u2705",
+        "relevance": 0.9613970588235294,
+        "tokens": 430
+      },
+      {
+        "title": "Usage with RLM Runtime",
+        "relevance": 0.9493212669683256,
+        "tokens": 105
+      },
+      {
+        "title": "Run as local MCP server (proxies to RLM cloud)",
+        "relevance": 0.9376114081996434,
+        "tokens": 28
+      },
+      {
+        "title": "RLM MCP Server",
+        "relevance": 0.9152249134948096,
+        "tokens": 21
+      },
+      {
+        "title": "Article #6: 39 MCP Tools for AI-Assisted Development",
+        "relevance": 0.9045183290707587,
+        "tokens": 178
+      },
+      {
+        "title": "rlm-runtime Installation",
+        "relevance": 0.8941176470588235,
+        "tokens": 98
+      },
+      {
+        "title": "Shared State (rlm_state_get / rlm_state_set)",
+        "relevance": 0.8840099420049709,
+        "tokens": 318
+      },
+      {
+        "title": "Option 3: With RLM Runtime Integration",
+        "relevance": 0.8741830065359477,
+        "tokens": 54
+      },
+      {
+        "title": "Resource Claims (rlm_claim / rlm_release)",
+        "relevance": 0.8646253021756647,
+        "tokens": 393
+      },
+      {
+        "title": "Recursive Language Models (RLM) Runtime",
+        "relevance": 0.8553259141494434,
+        "tokens": 50
+      },
+      {
+        "title": "With RLM Runtime integration",
+        "relevance": 0.8462745098039215,
+        "tokens": 990
+      },
+      {
+        "title": "rlm_search",
+        "relevance": 0.8374613003095973,
+        "tokens": 40
+      },
+      {
+        "title": "rlm_multi_project_query",
+        "relevance": 0.8288770053475936,
+        "tokens": 43
+      },
+      {
+        "title": "RLM Runtime Integration (New in 1.4.0)",
+        "relevance": 0.8205128205128205,
+        "tokens": 58
+      },
+      {
+        "title": "Issue 2: MCP Server Name Mismatch",
+        "relevance": 0.8123603871928518,
+        "tokens": 65
+      },
+      {
+        "title": "Snipara MCP Tools (39 total)",
+        "relevance": 0.8044117647058822,
+        "tokens": 118
+      },
+      {
+        "title": "MCP Tools for Memory",
+        "relevance": 0.7966594045025416,
+        "tokens": 144
+      },
+      {
+        "title": "Open Source (RLMMCP)",
+        "relevance": 0.7890961262553801,
+        "tokens": 27
+      },
+      {
+        "title": "rlm_decompose",
+        "relevance": 0.781715095676825,
+        "tokens": 42
+      },
+      {
+        "title": "rlm_context_query",
+        "relevance": 0.7745098039215685,
+        "tokens": 51
+      },
+      {
+        "title": "Primary Tool: `rlm_context_query`",
+        "relevance": 0.7674740484429065,
+        "tokens": 329
+      },
+      {
+        "title": "1. Package Rename: `@rlm-saas/*` \u2192 `@snipara/*`",
+        "relevance": 0.7606019151846785,
+        "tokens": 179
+      },
+      {
+        "title": "MCP Servers (`.mcp.json`)",
+        "relevance": 0.7538877620013522,
+        "tokens": 109
+      },
+      {
+        "title": "Implementation in RLM MCP Server",
+        "relevance": 0.747326203208556,
+        "tokens": 108
+      },
+      {
+        "title": "3. Per-Project MCP Configuration",
+        "relevance": 0.7409120951751486,
+        "tokens": 98
+      },
+      {
+        "title": "RLM Runtime + Snipara Integration Guide",
+        "relevance": 0.7346405228758168,
+        "tokens": 37
+      },
+      {
+        "title": "Sprint 1: Minimal RLM Runtime (Local + Single Provider)",
+        "relevance": 0.7285067873303167,
+        "tokens": 241
+      },
+      {
+        "title": "rlm_context",
+        "relevance": 0.7225063938618925,
+        "tokens": 37
+      },
+      {
+        "title": "Comparison: Full RLM vs RLM SaaS",
+        "relevance": 0.7166350411132194,
+        "tokens": 178
+      },
+      {
+        "title": "Event Broadcasting (rlm_broadcast)",
+        "relevance": 0.7108886107634542,
+        "tokens": 107
+      },
+      {
+        "title": "Per-Project MCP Configuration",
+        "relevance": 0.7052631578947367,
+        "tokens": 275
+      },
+      {
+        "title": "6. MCP Server Issues",
+        "relevance": 0.7009076836476216,
+        "tokens": 88
+      }
+    ],
+    "shared_context_removed": 0,
+    "total_tokens": 7600,
+    "query_term_coverage": 1.0
+  },
+  {
+    "task_id": "version_specific",
+    "mode": "snipara_ctx_mem",
+    "query": "Python version required MCP server FastAPI 3.10",
+    "original_query": "What version of Python is required for the MCP server?",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "6. MCP Server Issues",
+        "relevance": 1.0,
+        "tokens": 108
+      },
+      {
+        "title": "Modifying MCP Server",
+        "relevance": 1.0,
+        "tokens": 64
+      },
+      {
+        "title": "Architecture: Two Repositories, One Shared Schema",
+        "relevance": 1.0,
+        "tokens": 274
+      },
+      {
+        "title": "MCP Server Changes = DUAL-REPO PUSH (MANDATORY)",
+        "relevance": 1.0,
+        "tokens": 379
+      },
+      {
+        "title": "Python Standards (MCP Server)",
+        "relevance": 0.9976147006248759,
+        "tokens": 23
+      },
+      {
+        "title": "MCP Server (monorepo: apps/mcp-server/)",
+        "relevance": 0.9844835102065358,
+        "tokens": 68
+      },
+      {
+        "title": "Publier une nouvelle version du client MCP",
+        "relevance": 0.9717691829760795,
+        "tokens": 183
+      },
+      {
+        "title": "MCP Server Security Features",
+        "relevance": 0.959452178471575,
+        "tokens": 45
+      },
+      {
+        "title": "MCP Server (`apps/mcp-server/`)",
+        "relevance": 0.9475141587210553,
+        "tokens": 128
+      },
+      {
+        "title": "Snipara MCP Server",
+        "relevance": 0.9359378971447937,
+        "tokens": 259
+      },
+      {
+        "title": "MCP Servers (`.mcp.json`)",
+        "relevance": 0.9247071956155847,
+        "tokens": 109
+      },
+      {
+        "title": "3.1 MCP Server Setup",
+        "relevance": 0.9138068088372349,
+        "tokens": 610
+      },
+      {
+        "title": "Issue 2: MCP Server Name Mismatch",
+        "relevance": 0.9032223752988371,
+        "tokens": 65
+      },
+      {
+        "title": "RLM MCP Server",
+        "relevance": 0.8929403541472507,
+        "tokens": 21
+      },
+      {
+        "title": "MCP Tools (when using as MCP server)",
+        "relevance": 0.8732331469400435,
+        "tokens": 80
+      },
+      {
+        "title": "MCP Server Implementation",
+        "relevance": 0.8637844859502866,
+        "tokens": 668
+      },
+      {
+        "title": "CLAUDE.md - Snipara FastAPI Server",
+        "relevance": 0.854591194176469,
+        "tokens": 51
+      },
+      {
+        "title": "MCP Server (Context Optimization Engine)",
+        "relevance": 0.8284440396509362,
+        "tokens": 74
+      },
+      {
+        "title": "MCP Server Authentication",
+        "relevance": 0.820175281382178,
+        "tokens": 83
+      },
+      {
+        "title": "Standalone MCP server",
+        "relevance": 0.8121158587657932,
+        "tokens": 14
+      },
+      {
+        "title": "MCP server not connecting",
+        "relevance": 0.8042579217148184,
+        "tokens": 63
+      },
+      {
+        "title": "Snipara MCP Server - Architecture & Deployment",
+        "relevance": 0.7965940078009044,
+        "tokens": 11
+      },
+      {
+        "title": "Run as local MCP server (proxies to RLM cloud)",
+        "relevance": 0.7891170186165981,
+        "tokens": 28
+      },
+      {
+        "title": "Phase 6: MCP Server Integration (Est. 2-3 days)",
+        "relevance": 0.7818201978463716,
+        "tokens": 17
+      },
+      {
+        "title": "Implementation in RLM MCP Server",
+        "relevance": 0.7746971109040075,
+        "tokens": 108
+      },
+      {
+        "title": "MCP Server (Railway)",
+        "relevance": 0.767741626007346,
+        "tokens": 36
+      },
+      {
+        "title": "3. MCP Server Build Configuration",
+        "relevance": 0.7609478965733979,
+        "tokens": 84
+      },
+      {
+        "title": "1. Client MCP (`snipara-mcp` sur PyPI)",
+        "relevance": 0.7543103448275862,
+        "tokens": 143
+      },
+      {
+        "title": "Required for Production",
+        "relevance": 0.747823646530543,
+        "tokens": 231
+      },
+      {
+        "title": "Key Files",
+        "relevance": 0.7414827167345571,
+        "tokens": 188
+      },
+      {
+        "title": "GET /api/projects/[projectId]/documents/[documentId]/versions/[version]",
+        "relevance": 0.7352826964895931,
+        "tokens": 83
+      },
+      {
+        "title": "When Updating MCP Client:",
+        "relevance": 0.7232870051460756,
+        "tokens": 118
+      },
+      {
+        "title": "2. Backend API (`snipara-fastapi` sur GitHub)",
+        "relevance": 0.7174826383669543,
+        "tokens": 264
+      },
+      {
+        "title": "Per-Project MCP Configuration",
+        "relevance": 0.7118017687533461,
+        "tokens": 275
+      },
+      {
+        "title": "POST /api/projects/[projectId]/documents/[documentId]/versions/[version]/restore",
+        "relevance": 0.7062404963947613,
+        "tokens": 71
+      },
+      {
+        "title": "Structure du Monorepo",
+        "relevance": 0.7007950838769804,
+        "tokens": 200
+      },
+      {
+        "title": "Key Files to Reference",
+        "relevance": 0.6974291364535268,
+        "tokens": 159
+      },
+      {
+        "title": "3. R\u00e9indexer les embeddings existants",
+        "relevance": 0.695461947905958,
+        "tokens": 67
+      },
+      {
+        "title": "3.2 MCP Proxy Endpoint",
+        "relevance": 0.6902376514445482,
+        "tokens": 408
+      },
+      {
+        "title": "Windsurf Cascade - NOW HAS HOOKS \u2705",
+        "relevance": 0.6851188963257928,
+        "tokens": 430
+      },
+      {
+        "title": "Generate .mcp.json (Local)",
+        "relevance": 0.6801025163094129,
+        "tokens": 202
+      },
+      {
+        "title": "Repo 2: snipara-fastapi (Separate Repository)",
+        "relevance": 0.6751854705507828,
+        "tokens": 175
+      },
+      {
+        "title": "4.2 Version Hash Computation",
+        "relevance": 0.670364837454087,
+        "tokens": 138
+      },
+      {
+        "title": "Debugging Commands",
+        "relevance": 0.6656378088835404,
+        "tokens": 133
+      },
+      {
+        "title": "Important: Use uvx, not local Python",
+        "relevance": 0.6610016847085812,
+        "tokens": 120
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 0.6564538676607643,
+        "tokens": 150
+      }
+    ],
+    "sections_filtered": [
+      {
+        "title": "6. MCP Server Issues",
+        "relevance": 1.0,
+        "tokens": 108
+      },
+      {
+        "title": "Modifying MCP Server",
+        "relevance": 1.0,
+        "tokens": 64
+      },
+      {
+        "title": "Architecture: Two Repositories, One Shared Schema",
+        "relevance": 1.0,
+        "tokens": 274
+      },
+      {
+        "title": "MCP Server Changes = DUAL-REPO PUSH (MANDATORY)",
+        "relevance": 1.0,
+        "tokens": 379
+      },
+      {
+        "title": "Python Standards (MCP Server)",
+        "relevance": 0.9976147006248759,
+        "tokens": 23
+      },
+      {
+        "title": "MCP Server (monorepo: apps/mcp-server/)",
+        "relevance": 0.9844835102065358,
+        "tokens": 68
+      },
+      {
+        "title": "Publier une nouvelle version du client MCP",
+        "relevance": 0.9717691829760795,
+        "tokens": 183
+      },
+      {
+        "title": "MCP Server Security Features",
+        "relevance": 0.959452178471575,
+        "tokens": 45
+      },
+      {
+        "title": "MCP Server (`apps/mcp-server/`)",
+        "relevance": 0.9475141587210553,
+        "tokens": 128
+      },
+      {
+        "title": "Snipara MCP Server",
+        "relevance": 0.9359378971447937,
+        "tokens": 259
+      },
+      {
+        "title": "MCP Servers (`.mcp.json`)",
+        "relevance": 0.9247071956155847,
+        "tokens": 109
+      },
+      {
+        "title": "3.1 MCP Server Setup",
+        "relevance": 0.9138068088372349,
+        "tokens": 610
+      },
+      {
+        "title": "Issue 2: MCP Server Name Mismatch",
+        "relevance": 0.9032223752988371,
+        "tokens": 65
+      },
+      {
+        "title": "RLM MCP Server",
+        "relevance": 0.8929403541472507,
+        "tokens": 21
+      },
+      {
+        "title": "MCP Tools (when using as MCP server)",
+        "relevance": 0.8732331469400435,
+        "tokens": 80
+      },
+      {
+        "title": "MCP Server Implementation",
+        "relevance": 0.8637844859502866,
+        "tokens": 668
+      },
+      {
+        "title": "CLAUDE.md - Snipara FastAPI Server",
+        "relevance": 0.854591194176469,
+        "tokens": 51
+      },
+      {
+        "title": "MCP Server (Context Optimization Engine)",
+        "relevance": 0.8284440396509362,
+        "tokens": 74
+      },
+      {
+        "title": "MCP Server Authentication",
+        "relevance": 0.820175281382178,
+        "tokens": 83
+      },
+      {
+        "title": "MCP server not connecting",
+        "relevance": 0.8042579217148184,
+        "tokens": 63
+      },
+      {
+        "title": "Run as local MCP server (proxies to RLM cloud)",
+        "relevance": 0.7891170186165981,
+        "tokens": 28
+      },
+      {
+        "title": "Implementation in RLM MCP Server",
+        "relevance": 0.7746971109040075,
+        "tokens": 108
+      },
+      {
+        "title": "MCP Server (Railway)",
+        "relevance": 0.767741626007346,
+        "tokens": 36
+      },
+      {
+        "title": "3. MCP Server Build Configuration",
+        "relevance": 0.7609478965733979,
+        "tokens": 84
+      },
+      {
+        "title": "1. Client MCP (`snipara-mcp` sur PyPI)",
+        "relevance": 0.7543103448275862,
+        "tokens": 143
+      },
+      {
+        "title": "Required for Production",
+        "relevance": 0.747823646530543,
+        "tokens": 231
+      },
+      {
+        "title": "Key Files",
+        "relevance": 0.7414827167345571,
+        "tokens": 188
+      },
+      {
+        "title": "GET /api/projects/[projectId]/documents/[documentId]/versions/[version]",
+        "relevance": 0.7352826964895931,
+        "tokens": 83
+      },
+      {
+        "title": "When Updating MCP Client:",
+        "relevance": 0.7232870051460756,
+        "tokens": 118
+      },
+      {
+        "title": "2. Backend API (`snipara-fastapi` sur GitHub)",
+        "relevance": 0.7174826383669543,
+        "tokens": 264
+      },
+      {
+        "title": "Per-Project MCP Configuration",
+        "relevance": 0.7118017687533461,
+        "tokens": 275
+      },
+      {
+        "title": "POST /api/projects/[projectId]/documents/[documentId]/versions/[version]/restore",
+        "relevance": 0.7062404963947613,
+        "tokens": 71
+      },
+      {
+        "title": "Structure du Monorepo",
+        "relevance": 0.7007950838769804,
+        "tokens": 200
+      },
+      {
+        "title": "Key Files to Reference",
+        "relevance": 0.6974291364535268,
+        "tokens": 159
+      },
+      {
+        "title": "3. R\u00e9indexer les embeddings existants",
+        "relevance": 0.695461947905958,
+        "tokens": 67
+      },
+      {
+        "title": "3.2 MCP Proxy Endpoint",
+        "relevance": 0.6902376514445482,
+        "tokens": 408
+      },
+      {
+        "title": "Windsurf Cascade - NOW HAS HOOKS \u2705",
+        "relevance": 0.6851188963257928,
+        "tokens": 430
+      },
+      {
+        "title": "Generate .mcp.json (Local)",
+        "relevance": 0.6801025163094129,
+        "tokens": 202
+      },
+      {
+        "title": "Repo 2: snipara-fastapi (Separate Repository)",
+        "relevance": 0.6751854705507828,
+        "tokens": 175
+      },
+      {
+        "title": "4.2 Version Hash Computation",
+        "relevance": 0.670364837454087,
+        "tokens": 138
+      },
+      {
+        "title": "Debugging Commands",
+        "relevance": 0.6656378088835404,
+        "tokens": 133
+      },
+      {
+        "title": "Important: Use uvx, not local Python",
+        "relevance": 0.6610016847085812,
+        "tokens": 120
+      }
+    ],
+    "shared_context_removed": 4,
+    "total_tokens": 7604,
+    "query_term_coverage": 1.0
+  },
+  {
+    "task_id": "error_handling",
+    "mode": "snipara_ctx_mem",
+    "query": "query limit exceeded usage limits rate limit pricing plans free pro team 429",
+    "original_query": "What happens when a user exceeds their query limit?",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "Per-Minute Rate Limits",
+        "relevance": 1.0,
+        "tokens": 141
+      },
+      {
+        "title": "Usage Limits & Rate Limiting",
+        "relevance": 0.9865542521994135,
+        "tokens": 8
+      },
+      {
+        "title": "Line Limits",
+        "relevance": 0.9853505802707929,
+        "tokens": 86
+      },
+      {
+        "title": "Rate Limit Headers",
+        "relevance": 0.9735353535353535,
+        "tokens": 98
+      },
+      {
+        "title": "What Happens When Limits Are Exceeded",
+        "relevance": 0.9609232954545455,
+        "tokens": 198
+      },
+      {
+        "title": "429 Rate Limited",
+        "relevance": 0.9486993006993006,
+        "tokens": 46
+      },
+      {
+        "title": "Rate Limits",
+        "relevance": 0.9368457300275481,
+        "tokens": 49
+      },
+      {
+        "title": "Usage Limits",
+        "relevance": 0.9253459972862957,
+        "tokens": 101
+      },
+      {
+        "title": "Query Limits",
+        "relevance": 0.9141844919786096,
+        "tokens": 61
+      },
+      {
+        "title": "Plan Limits",
+        "relevance": 0.9033465085638999,
+        "tokens": 87
+      },
+      {
+        "title": "Handling Rate Limits",
+        "relevance": 0.8928181818181818,
+        "tokens": 53
+      },
+      {
+        "title": "3.3 Rate Limit Enforcement Points",
+        "relevance": 0.8825864276568501,
+        "tokens": 113
+      },
+      {
+        "title": "Pricing & Limits",
+        "relevance": 0.8726388888888889,
+        "tokens": 5
+      },
+      {
+        "title": "Usage Limits & Enforcement",
+        "relevance": 0.8629638854296389,
+        "tokens": 6
+      },
+      {
+        "title": "Pricing Plans (Quick Reference)",
+        "relevance": 0.8606690184815186,
+        "tokens": 7
+      },
+      {
+        "title": "3.1 Redis-Based Rate Limiting",
+        "relevance": 0.8535503685503685,
+        "tokens": 94
+      },
+      {
+        "title": "Rate Limit Response",
+        "relevance": 0.8443878787878788,
+        "tokens": 58
+      },
+      {
+        "title": "Memory Limits by Plan",
+        "relevance": 0.8354665071770334,
+        "tokens": 94
+      },
+      {
+        "title": "2. Rate Limiting Silently Disabled",
+        "relevance": 0.8267768595041322,
+        "tokens": 102
+      },
+      {
+        "title": "Swarm Limits by Plan",
+        "relevance": 0.8183100233100232,
+        "tokens": 98
+      },
+      {
+        "title": "Recommendations When Hitting Limits",
+        "relevance": 0.8100575373993095,
+        "tokens": 63
+      },
+      {
+        "title": "Limits by Plan",
+        "relevance": 0.8020113636363636,
+        "tokens": 79
+      },
+      {
+        "title": "Plan Limits (Snipara Agents)",
+        "relevance": 0.7941638608305275,
+        "tokens": 116
+      },
+      {
+        "title": "POST /api/teams/[teamId]/projects/[projectId]/members",
+        "relevance": 0.7865077605321507,
+        "tokens": 213
+      },
+      {
+        "title": "Team Plan (Limited View)",
+        "relevance": 0.7790361445783133,
+        "tokens": 50
+      },
+      {
+        "title": "3. Rate Limiting",
+        "relevance": 0.7717424242424242,
+        "tokens": 19
+      },
+      {
+        "title": "DELETE /api/teams/[teamId]/projects/[projectId]/members/[memberId]",
+        "relevance": 0.7646203208556149,
+        "tokens": 85
+      },
+      {
+        "title": "PATCH /api/teams/[teamId]/projects/[projectId]/members/[memberId]",
+        "relevance": 0.757663847780127,
+        "tokens": 63
+      },
+      {
+        "title": "Limits and Safety",
+        "relevance": 0.7508672936259143,
+        "tokens": 44
+      },
+      {
+        "title": "Rate Limiting",
+        "relevance": 0.7442252066115702,
+        "tokens": 5
+      },
+      {
+        "title": "GET /api/teams/[teamId]/projects/[projectId]/members/[memberId]",
+        "relevance": 0.737732379979571,
+        "tokens": 109
+      },
+      {
+        "title": "9.2 JSON Payload Limits",
+        "relevance": 0.7313838383838385,
+        "tokens": 36
+      },
+      {
+        "title": "File Limits",
+        "relevance": 0.7251748251748252,
+        "tokens": 49
+      },
+      {
+        "title": "MCP Proxy (Team)",
+        "relevance": 0.7191007905138339,
+        "tokens": 34
+      },
+      {
+        "title": "rlm_multi_project_query",
+        "relevance": 0.7131573802541544,
+        "tokens": 43
+      },
+      {
+        "title": "Advanced Query Tools (Pro+)",
+        "relevance": 0.7016459330143542,
+        "tokens": 159
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "relevance": 0.6991792374292375,
+        "tokens": 1864
+      },
+      {
+        "title": "Query Tools (All Plans)",
+        "relevance": 0.6960700757575757,
+        "tokens": 195
+      },
+      {
+        "title": "Connection limit par worker",
+        "relevance": 0.6906091846298033,
+        "tokens": 112
+      },
+      {
+        "title": "10. Usage Tracking & Billing Protection",
+        "relevance": 0.6852597402597403,
+        "tokens": 21
+      },
+      {
+        "title": "`docs/PRICING.md` \u2014 Self-Hosted Strategy",
+        "relevance": 0.680018365472911,
+        "tokens": 158
+      },
+      {
+        "title": "Limitations",
+        "relevance": 0.6748818181818181,
+        "tokens": 25
+      },
+      {
+        "title": "2. Free tier prominent",
+        "relevance": 0.6698469846984697,
+        "tokens": 45
+      },
+      {
+        "title": "Snipara Pricing Plans",
+        "relevance": 0.6649108734402851,
+        "tokens": 7
+      },
+      {
+        "title": "Plan Limitations",
+        "relevance": 0.6600706090026479,
+        "tokens": 5
+      },
+      {
+        "title": "AGENTS_PLANS Config (add to stripe.ts)",
+        "relevance": 0.6506666666666666,
+        "tokens": 150
+      },
+      {
+        "title": "Pricing Configuration",
+        "relevance": 0.646097770154374,
+        "tokens": 486
+      },
+      {
+        "title": "Projects Router",
+        "relevance": 0.6416142735768905,
+        "tokens": 115
+      },
+      {
+        "title": "Team Router",
+        "relevance": 0.6372138047138047,
+        "tokens": 112
+      },
+      {
+        "title": "Agents Plans (Memory & Swarms)",
+        "relevance": 0.636512554112554,
+        "tokens": 164
+      },
+      {
+        "title": "5.3 Event Types",
+        "relevance": 0.6328940783986655,
+        "tokens": 259
+      },
+      {
+        "title": "Example: Check Usage",
+        "relevance": 0.6286528925619834,
+        "tokens": 104
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 0.6244881244881245,
+        "tokens": 610
+      }
+    ],
+    "sections_filtered": [
+      {
+        "title": "Per-Minute Rate Limits",
+        "relevance": 1.0,
+        "tokens": 141
+      },
+      {
+        "title": "Line Limits",
+        "relevance": 0.9853505802707929,
+        "tokens": 86
+      },
+      {
+        "title": "Rate Limit Headers",
+        "relevance": 0.9735353535353535,
+        "tokens": 98
+      },
+      {
+        "title": "What Happens When Limits Are Exceeded",
+        "relevance": 0.9609232954545455,
+        "tokens": 198
+      },
+      {
+        "title": "429 Rate Limited",
+        "relevance": 0.9486993006993006,
+        "tokens": 46
+      },
+      {
+        "title": "Rate Limits",
+        "relevance": 0.9368457300275481,
+        "tokens": 49
+      },
+      {
+        "title": "Usage Limits",
+        "relevance": 0.9253459972862957,
+        "tokens": 101
+      },
+      {
+        "title": "Query Limits",
+        "relevance": 0.9141844919786096,
+        "tokens": 61
+      },
+      {
+        "title": "Plan Limits",
+        "relevance": 0.9033465085638999,
+        "tokens": 87
+      },
+      {
+        "title": "Handling Rate Limits",
+        "relevance": 0.8928181818181818,
+        "tokens": 53
+      },
+      {
+        "title": "3.3 Rate Limit Enforcement Points",
+        "relevance": 0.8825864276568501,
+        "tokens": 113
+      },
+      {
+        "title": "3.1 Redis-Based Rate Limiting",
+        "relevance": 0.8535503685503685,
+        "tokens": 94
+      },
+      {
+        "title": "Rate Limit Response",
+        "relevance": 0.8443878787878788,
+        "tokens": 58
+      },
+      {
+        "title": "Memory Limits by Plan",
+        "relevance": 0.8354665071770334,
+        "tokens": 94
+      },
+      {
+        "title": "2. Rate Limiting Silently Disabled",
+        "relevance": 0.8267768595041322,
+        "tokens": 102
+      },
+      {
+        "title": "Swarm Limits by Plan",
+        "relevance": 0.8183100233100232,
+        "tokens": 98
+      },
+      {
+        "title": "Recommendations When Hitting Limits",
+        "relevance": 0.8100575373993095,
+        "tokens": 63
+      },
+      {
+        "title": "Limits by Plan",
+        "relevance": 0.8020113636363636,
+        "tokens": 79
+      },
+      {
+        "title": "Plan Limits (Snipara Agents)",
+        "relevance": 0.7941638608305275,
+        "tokens": 116
+      },
+      {
+        "title": "POST /api/teams/[teamId]/projects/[projectId]/members",
+        "relevance": 0.7865077605321507,
+        "tokens": 213
+      },
+      {
+        "title": "Team Plan (Limited View)",
+        "relevance": 0.7790361445783133,
+        "tokens": 50
+      },
+      {
+        "title": "DELETE /api/teams/[teamId]/projects/[projectId]/members/[memberId]",
+        "relevance": 0.7646203208556149,
+        "tokens": 85
+      },
+      {
+        "title": "PATCH /api/teams/[teamId]/projects/[projectId]/members/[memberId]",
+        "relevance": 0.757663847780127,
+        "tokens": 63
+      },
+      {
+        "title": "Limits and Safety",
+        "relevance": 0.7508672936259143,
+        "tokens": 44
+      },
+      {
+        "title": "GET /api/teams/[teamId]/projects/[projectId]/members/[memberId]",
+        "relevance": 0.737732379979571,
+        "tokens": 109
+      },
+      {
+        "title": "9.2 JSON Payload Limits",
+        "relevance": 0.7313838383838385,
+        "tokens": 36
+      },
+      {
+        "title": "File Limits",
+        "relevance": 0.7251748251748252,
+        "tokens": 49
+      },
+      {
+        "title": "MCP Proxy (Team)",
+        "relevance": 0.7191007905138339,
+        "tokens": 34
+      },
+      {
+        "title": "rlm_multi_project_query",
+        "relevance": 0.7131573802541544,
+        "tokens": 43
+      },
+      {
+        "title": "Advanced Query Tools (Pro+)",
+        "relevance": 0.7016459330143542,
+        "tokens": 159
+      },
+      {
+        "title": "Team Best Practices with Shared Context Collections",
+        "relevance": 0.6991792374292375,
+        "tokens": 1864
+      },
+      {
+        "title": "Query Tools (All Plans)",
+        "relevance": 0.6960700757575757,
+        "tokens": 195
+      },
+      {
+        "title": "Connection limit par worker",
+        "relevance": 0.6906091846298033,
+        "tokens": 112
+      },
+      {
+        "title": "10. Usage Tracking & Billing Protection",
+        "relevance": 0.6852597402597403,
+        "tokens": 21
+      },
+      {
+        "title": "`docs/PRICING.md` \u2014 Self-Hosted Strategy",
+        "relevance": 0.680018365472911,
+        "tokens": 158
+      },
+      {
+        "title": "Limitations",
+        "relevance": 0.6748818181818181,
+        "tokens": 25
+      },
+      {
+        "title": "2. Free tier prominent",
+        "relevance": 0.6698469846984697,
+        "tokens": 45
+      },
+      {
+        "title": "AGENTS_PLANS Config (add to stripe.ts)",
+        "relevance": 0.6506666666666666,
+        "tokens": 150
+      },
+      {
+        "title": "Pricing Configuration",
+        "relevance": 0.646097770154374,
+        "tokens": 486
+      },
+      {
+        "title": "Projects Router",
+        "relevance": 0.6416142735768905,
+        "tokens": 115
+      },
+      {
+        "title": "Team Router",
+        "relevance": 0.6372138047138047,
+        "tokens": 112
+      },
+      {
+        "title": "Agents Plans (Memory & Swarms)",
+        "relevance": 0.636512554112554,
+        "tokens": 164
+      },
+      {
+        "title": "5.3 Event Types",
+        "relevance": 0.6328940783986655,
+        "tokens": 259
+      },
+      {
+        "title": "Example: Check Usage",
+        "relevance": 0.6286528925619834,
+        "tokens": 104
+      }
+    ],
+    "shared_context_removed": 9,
+    "total_tokens": 7500,
+    "query_term_coverage": 1.0
+  },
+  {
+    "task_id": "empty_context",
+    "mode": "snipara_ctx_mem",
+    "query": "rlm_context_query empty sections array total_tokens zero no-results response suggestions alternative query formulations",
+    "original_query": "What happens if no relevant documents are found for a query?",
+    "search_mode": "hybrid",
+    "sections_raw": [
+      {
+        "title": "Your First Query (Try This Now)",
+        "relevance": 1.0,
+        "tokens": 98
+      },
+      {
+        "title": "Primary Tool: `rlm_context_query`",
+        "relevance": 0.9865714370038071,
+        "tokens": 329
+      },
+      {
+        "title": "rlm_context_query",
+        "relevance": 0.973569177594795,
+        "tokens": 51
+      },
+      {
+        "title": "Example Response (No Tasks)",
+        "relevance": 0.9609732387923147,
+        "tokens": 67
+      },
+      {
+        "title": "4. Empty States",
+        "relevance": 0.9518576169725231,
+        "tokens": 34
+      },
+      {
+        "title": "Alternative: Direct HTTP (No Local Install)",
+        "relevance": 0.9487648673376029,
+        "tokens": 111
+      },
+      {
+        "title": "Context Query Implementation",
+        "relevance": 0.9369264465330338,
+        "tokens": 587
+      },
+      {
+        "title": "Article #12: What Snipara Is Not (And Who It's Not For)",
+        "relevance": 0.9254414114241236,
+        "tokens": 182
+      },
+      {
+        "title": "Recursive Tools Implementation",
+        "relevance": 0.9142941714654755,
+        "tokens": 1005
+      },
+      {
+        "title": "Client Capabilities Matrix (Updated January 2026)",
+        "relevance": 0.9034700399114257,
+        "tokens": 510
+      },
+      {
+        "title": "4.2 Semantic Search (Embeddings)",
+        "relevance": 0.8929551692589205,
+        "tokens": 3747
+      }
+    ],
+    "sections_filtered": [
+      {
+        "title": "Your First Query (Try This Now)",
+        "relevance": 1.0,
+        "tokens": 98
+      },
+      {
+        "title": "Primary Tool: `rlm_context_query`",
+        "relevance": 0.9865714370038071,
+        "tokens": 329
+      },
+      {
+        "title": "rlm_context_query",
+        "relevance": 0.973569177594795,
+        "tokens": 51
+      },
+      {
+        "title": "Example Response (No Tasks)",
+        "relevance": 0.9609732387923147,
+        "tokens": 67
+      },
+      {
+        "title": "4. Empty States",
+        "relevance": 0.9518576169725231,
+        "tokens": 34
+      },
+      {
+        "title": "Alternative: Direct HTTP (No Local Install)",
+        "relevance": 0.9487648673376029,
+        "tokens": 111
+      },
+      {
+        "title": "Context Query Implementation",
+        "relevance": 0.9369264465330338,
+        "tokens": 587
+      },
+      {
+        "title": "Article #12: What Snipara Is Not (And Who It's Not For)",
+        "relevance": 0.9254414114241236,
+        "tokens": 182
+      },
+      {
+        "title": "Recursive Tools Implementation",
+        "relevance": 0.9142941714654755,
+        "tokens": 1005
+      },
+      {
+        "title": "Client Capabilities Matrix (Updated January 2026)",
+        "relevance": 0.9034700399114257,
+        "tokens": 510
+      }
+    ],
+    "shared_context_removed": 1,
+    "total_tokens": 7117,
+    "query_term_coverage": 0.6
+  }
+]

@@ -1,0 +1,330 @@
+{
+  "benchmark_name": "hallucination",
+  "num_cases": 10,
+  "mean_with_snipara": {
+    "grounded_claims": 8.2,
+    "response_length": 1148.3,
+    "ungrounded_claims": 4.2,
+    "grounding_rate": 0.5562,
+    "total_claims": 12.4,
+    "hallucination_rate": 0.4438,
+    "high_confidence_claims": 0.0
+  },
+  "mean_without_snipara": {
+    "grounded_claims": 16.9,
+    "response_length": 1635.6,
+    "ungrounded_claims": 2.3,
+    "grounding_rate": 0.8827999999999999,
+    "total_claims": 19.2,
+    "hallucination_rate": 0.1172,
+    "high_confidence_claims": 0.0
+  },
+  "mean_improvement": {
+    "hallucination_reduction_pct": -26.619999999999997,
+    "hallucination_reduction": -0.3268,
+    "grounding_improvement": -0.3268
+  },
+  "summary": "Hallucination Detection: needs improvement\n  With Snipara:\n    - Hallucination rate: 44.4%\n    - Grounding rate: 55.6%\n  Without Snipara:\n    - Hallucination rate: 11.7%\n    - Grounding rate: 88.3%\n  Hallucination reduced by: -26.6%",
+  "results": [
+    {
+      "benchmark_name": "hallucination",
+      "test_case": "tech_stack",
+      "timestamp": "2026-01-23T08:55:33.855502",
+      "with_snipara": {
+        "total_claims": 3,
+        "grounded_claims": 2,
+        "ungrounded_claims": 1,
+        "grounding_rate": 0.667,
+        "hallucination_rate": 0.333,
+        "high_confidence_claims": 0,
+        "response_length": 740
+      },
+      "without_snipara": {
+        "total_claims": 16,
+        "grounded_claims": 13,
+        "ungrounded_claims": 3,
+        "grounding_rate": 0.812,
+        "hallucination_rate": 0.188,
+        "high_confidence_claims": 0,
+        "response_length": 864
+      },
+      "improvement": {
+        "hallucination_reduction": -0.146,
+        "grounding_improvement": -0.146,
+        "hallucination_reduction_pct": -14.6
+      },
+      "latency_ms": 39187.15786933899,
+      "error": null
+    },
+    {
+      "benchmark_name": "hallucination",
+      "test_case": "core_value_prop",
+      "timestamp": "2026-01-23T08:56:12.601833",
+      "with_snipara": {
+        "total_claims": 13,
+        "grounded_claims": 7,
+        "ungrounded_claims": 6,
+        "grounding_rate": 0.538,
+        "hallucination_rate": 0.462,
+        "high_confidence_claims": 0,
+        "response_length": 901
+      },
+      "without_snipara": {
+        "total_claims": 4,
+        "grounded_claims": 4,
+        "ungrounded_claims": 0,
+        "grounding_rate": 1.0,
+        "hallucination_rate": 0.0,
+        "high_confidence_claims": 0,
+        "response_length": 978
+      },
+      "improvement": {
+        "hallucination_reduction": -0.462,
+        "grounding_improvement": -0.462,
+        "hallucination_reduction_pct": 0
+      },
+      "latency_ms": 38746.28973007202,
+      "error": null
+    },
+    {
+      "benchmark_name": "hallucination",
+      "test_case": "mcp_tools",
+      "timestamp": "2026-01-23T08:57:02.728138",
+      "with_snipara": {
+        "total_claims": 19,
+        "grounded_claims": 18,
+        "ungrounded_claims": 1,
+        "grounding_rate": 0.947,
+        "hallucination_rate": 0.053,
+        "high_confidence_claims": 0,
+        "response_length": 1314
+      },
+      "without_snipara": {
+        "total_claims": 23,
+        "grounded_claims": 23,
+        "ungrounded_claims": 0,
+        "grounding_rate": 1.0,
+        "hallucination_rate": 0.0,
+        "high_confidence_claims": 0,
+        "response_length": 1652
+      },
+      "improvement": {
+        "hallucination_reduction": -0.053,
+        "grounding_improvement": -0.053,
+        "hallucination_reduction_pct": 0
+      },
+      "latency_ms": 50126.27601623535,
+      "error": null
+    },
+    {
+      "benchmark_name": "hallucination",
+      "test_case": "pricing",
+      "timestamp": "2026-01-23T08:57:31.118562",
+      "with_snipara": {
+        "total_claims": 9,
+        "grounded_claims": 5,
+        "ungrounded_claims": 4,
+        "grounding_rate": 0.556,
+        "hallucination_rate": 0.444,
+        "high_confidence_claims": 0,
+        "response_length": 308
+      },
+      "without_snipara": {
+        "total_claims": 13,
+        "grounded_claims": 10,
+        "ungrounded_claims": 3,
+        "grounding_rate": 0.769,
+        "hallucination_rate": 0.231,
+        "high_confidence_claims": 0,
+        "response_length": 443
+      },
+      "improvement": {
+        "hallucination_reduction": -0.214,
+        "grounding_improvement": -0.214,
+        "hallucination_reduction_pct": -21.4
+      },
+      "latency_ms": 28390.427112579346,
+      "error": null
+    },
+    {
+      "benchmark_name": "hallucination",
+      "test_case": "architecture",
+      "timestamp": "2026-01-23T08:58:40.078312",
+      "with_snipara": {
+        "total_claims": 15,
+        "grounded_claims": 7,
+        "ungrounded_claims": 8,
+        "grounding_rate": 0.467,
+        "hallucination_rate": 0.533,
+        "high_confidence_claims": 0,
+        "response_length": 1597
+      },
+      "without_snipara": {
+        "total_claims": 34,
+        "grounded_claims": 25,
+        "ungrounded_claims": 9,
+        "grounding_rate": 0.735,
+        "hallucination_rate": 0.265,
+        "high_confidence_claims": 0,
+        "response_length": 1966
+      },
+      "improvement": {
+        "hallucination_reduction": -0.269,
+        "grounding_improvement": -0.269,
+        "hallucination_reduction_pct": -26.9
+      },
+      "latency_ms": 68959.75399017334,
+      "error": null
+    },
+    {
+      "benchmark_name": "hallucination",
+      "test_case": "token_budgeting",
+      "timestamp": "2026-01-23T08:59:25.796518",
+      "with_snipara": {
+        "total_claims": 1,
+        "grounded_claims": 0,
+        "ungrounded_claims": 1,
+        "grounding_rate": 0.0,
+        "hallucination_rate": 1.0,
+        "high_confidence_claims": 0,
+        "response_length": 1300
+      },
+      "without_snipara": {
+        "total_claims": 9,
+        "grounded_claims": 8,
+        "ungrounded_claims": 1,
+        "grounding_rate": 0.889,
+        "hallucination_rate": 0.111,
+        "high_confidence_claims": 0,
+        "response_length": 1923
+      },
+      "improvement": {
+        "hallucination_reduction": -0.889,
+        "grounding_improvement": -0.889,
+        "hallucination_reduction_pct": -88.9
+      },
+      "latency_ms": 45718.21212768555,
+      "error": null
+    },
+    {
+      "benchmark_name": "hallucination",
+      "test_case": "shared_context",
+      "timestamp": "2026-01-23T09:00:35.104745",
+      "with_snipara": {
+        "total_claims": 22,
+        "grounded_claims": 20,
+        "ungrounded_claims": 2,
+        "grounding_rate": 0.909,
+        "hallucination_rate": 0.091,
+        "high_confidence_claims": 0,
+        "response_length": 1189
+      },
+      "without_snipara": {
+        "total_claims": 32,
+        "grounded_claims": 32,
+        "ungrounded_claims": 0,
+        "grounding_rate": 1.0,
+        "hallucination_rate": 0.0,
+        "high_confidence_claims": 0,
+        "response_length": 3064
+      },
+      "improvement": {
+        "hallucination_reduction": -0.091,
+        "grounding_improvement": -0.091,
+        "hallucination_reduction_pct": 0
+      },
+      "latency_ms": 69308.21394920349,
+      "error": null
+    },
+    {
+      "benchmark_name": "hallucination",
+      "test_case": "oauth_device_flow",
+      "timestamp": "2026-01-23T09:01:27.548395",
+      "with_snipara": {
+        "total_claims": 11,
+        "grounded_claims": 6,
+        "ungrounded_claims": 5,
+        "grounding_rate": 0.545,
+        "hallucination_rate": 0.455,
+        "high_confidence_claims": 0,
+        "response_length": 1273
+      },
+      "without_snipara": {
+        "total_claims": 17,
+        "grounded_claims": 13,
+        "ungrounded_claims": 4,
+        "grounding_rate": 0.765,
+        "hallucination_rate": 0.235,
+        "high_confidence_claims": 0,
+        "response_length": 2036
+      },
+      "improvement": {
+        "hallucination_reduction": -0.219,
+        "grounding_improvement": -0.219,
+        "hallucination_reduction_pct": -21.9
+      },
+      "latency_ms": 52443.64023208618,
+      "error": null
+    },
+    {
+      "benchmark_name": "hallucination",
+      "test_case": "database_models",
+      "timestamp": "2026-01-23T09:02:23.565346",
+      "with_snipara": {
+        "total_claims": 25,
+        "grounded_claims": 15,
+        "ungrounded_claims": 10,
+        "grounding_rate": 0.6,
+        "hallucination_rate": 0.4,
+        "high_confidence_claims": 0,
+        "response_length": 1355
+      },
+      "without_snipara": {
+        "total_claims": 24,
+        "grounded_claims": 23,
+        "ungrounded_claims": 1,
+        "grounding_rate": 0.958,
+        "hallucination_rate": 0.042,
+        "high_confidence_claims": 0,
+        "response_length": 1393
+      },
+      "improvement": {
+        "hallucination_reduction": -0.358,
+        "grounding_improvement": -0.358,
+        "hallucination_reduction_pct": -35.8
+      },
+      "latency_ms": 56016.96419715881,
+      "error": null
+    },
+    {
+      "benchmark_name": "hallucination",
+      "test_case": "layered_architecture",
+      "timestamp": "2026-01-23T09:03:06.258415",
+      "with_snipara": {
+        "total_claims": 6,
+        "grounded_claims": 2,
+        "ungrounded_claims": 4,
+        "grounding_rate": 0.333,
+        "hallucination_rate": 0.667,
+        "high_confidence_claims": 0,
+        "response_length": 1506
+      },
+      "without_snipara": {
+        "total_claims": 20,
+        "grounded_claims": 18,
+        "ungrounded_claims": 2,
+        "grounding_rate": 0.9,
+        "hallucination_rate": 0.1,
+        "high_confidence_claims": 0,
+        "response_length": 2037
+      },
+      "improvement": {
+        "hallucination_reduction": -0.567,
+        "grounding_improvement": -0.567,
+        "hallucination_reduction_pct": -56.7
+      },
+      "latency_ms": 42693.05109977722,
+      "error": null
+    }
+  ]
+}

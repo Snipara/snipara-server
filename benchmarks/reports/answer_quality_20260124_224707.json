@@ -1,0 +1,768 @@
+{
+  "benchmark_name": "answer_quality",
+  "num_cases": 21,
+  "mean_with_snipara": {
+    "correctness": 0.0,
+    "clarity": 0.0,
+    "overall": 0.0,
+    "relevance": 0.0,
+    "completeness": 0.0,
+    "issues_count": 1.0,
+    "faithfulness": 0.0
+  },
+  "mean_without_snipara": {
+    "correctness": 0.0,
+    "clarity": 0.0,
+    "overall": 0.0,
+    "relevance": 0.0,
+    "completeness": 0.0,
+    "issues_count": 1.0,
+    "faithfulness": 0.0
+  },
+  "mean_improvement": {
+    "faithfulness_improvement": 0.0,
+    "completeness_improvement": 0.0,
+    "clarity_improvement": 0.0,
+    "relevance_improvement": 0.0,
+    "overall_improvement": 0.0,
+    "correctness_improvement": 0.0
+  },
+  "summary": "Answer Quality: needs improvement (0.0/10)\n  With Snipara:\n    - Correctness: 0.0/10\n    - Completeness: 0.0/10\n    - Faithfulness: 0.0/10\n  Without Snipara:\n    - Overall: 0.0/10\n  Quality improvement: +0.0 points",
+  "results": [
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "tech_stack",
+      "timestamp": "2026-01-24T22:46:51.919115",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 404 - {'error': {'message': 'The model `claude-sonnet-4-20250514` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': Non..."
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 404 - {'error': {'message': 'The model `claude-sonnet-4-20250514` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': Non..."
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 919.4290637969971,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "core_value_prop",
+      "timestamp": "2026-01-24T22:46:52.725084",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 404 - {'error': {'message': 'The model `claude-sonnet-4-20250514` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': Non..."
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 404 - {'error': {'message': 'The model `claude-sonnet-4-20250514` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': Non..."
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 805.9666156768799,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "mcp_tools",
+      "timestamp": "2026-01-24T22:46:53.592948",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 404 - {'error': {'message': 'The model `claude-sonnet-4-20250514` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': Non..."
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 404 - {'error': {'message': 'The model `claude-sonnet-4-20250514` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': Non..."
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 867.8610324859619,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "pricing",
+      "timestamp": "2026-01-24T22:46:54.582191",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 404 - {'error': {'message': 'The model `claude-sonnet-4-20250514` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': Non..."
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 404 - {'error': {'message': 'The model `claude-sonnet-4-20250514` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': Non..."
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 989.2427921295166,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "architecture",
+      "timestamp": "2026-01-24T22:46:55.358977",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 404 - {'error': {'message': 'The model `claude-sonnet-4-20250514` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': Non..."
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 404 - {'error': {'message': 'The model `claude-sonnet-4-20250514` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': Non..."
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 776.7801284790039,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "token_budgeting",
+      "timestamp": "2026-01-24T22:46:56.074276",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 404 - {'error': {'message': 'The model `claude-sonnet-4-20250514` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': Non..."
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 404 - {'error': {'message': 'The model `claude-sonnet-4-20250514` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': Non..."
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 715.2998447418213,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "shared_context",
+      "timestamp": "2026-01-24T22:46:56.875244",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 404 - {'error': {'message': 'The model `claude-sonnet-4-20250514` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': Non..."
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 404 - {'error': {'message': 'The model `claude-sonnet-4-20250514` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': Non..."
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 800.9641170501709,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "oauth_device_flow",
+      "timestamp": "2026-01-24T22:46:57.646899",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 404 - {'error': {'message': 'The model `claude-sonnet-4-20250514` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': Non..."
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 404 - {'error': {'message': 'The model `claude-sonnet-4-20250514` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': Non..."
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 771.6522216796875,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "database_models",
+      "timestamp": "2026-01-24T22:46:58.402994",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 404 - {'error': {'message': 'The model `claude-sonnet-4-20250514` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': Non..."
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 404 - {'error': {'message': 'The model `claude-sonnet-4-20250514` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': Non..."
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 756.0889720916748,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "layered_architecture",
+      "timestamp": "2026-01-24T22:46:59.156677",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 404 - {'error': {'message': 'The model `claude-sonnet-4-20250514` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': Non..."
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 404 - {'error': {'message': 'The model `claude-sonnet-4-20250514` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': Non..."
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 753.680944442749,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "cost_benefit_analysis",
+      "timestamp": "2026-01-24T22:46:59.890949",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 404 - {'error': {'message': 'The model `claude-sonnet-4-20250514` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': Non..."
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 404 - {'error': {'message': 'The model `claude-sonnet-4-20250514` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': Non..."
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 734.2872619628906,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "when_to_use_decompose",
+      "timestamp": "2026-01-24T22:47:00.601886",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 404 - {'error': {'message': 'The model `claude-sonnet-4-20250514` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': Non..."
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 404 - {'error': {'message': 'The model `claude-sonnet-4-20250514` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': Non..."
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 710.9136581420898,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "search_mode_selection",
+      "timestamp": "2026-01-24T22:47:01.409907",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 404 - {'error': {'message': 'The model `claude-sonnet-4-20250514` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': Non..."
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 404 - {'error': {'message': 'The model `claude-sonnet-4-20250514` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': Non..."
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 808.0220222473145,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "full_request_flow",
+      "timestamp": "2026-01-24T22:47:02.090638",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 404 - {'error': {'message': 'The model `claude-sonnet-4-20250514` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': Non..."
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 404 - {'error': {'message': 'The model `claude-sonnet-4-20250514` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': Non..."
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 680.7260513305664,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "security_authentication_chain",
+      "timestamp": "2026-01-24T22:47:02.871608",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 404 - {'error': {'message': 'The model `claude-sonnet-4-20250514` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': Non..."
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 404 - {'error': {'message': 'The model `claude-sonnet-4-20250514` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': Non..."
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 780.968189239502,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "shared_context_budget_allocation",
+      "timestamp": "2026-01-24T22:47:03.624093",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 404 - {'error': {'message': 'The model `claude-sonnet-4-20250514` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': Non..."
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 404 - {'error': {'message': 'The model `claude-sonnet-4-20250514` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': Non..."
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 752.4881362915039,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "nonexistent_feature",
+      "timestamp": "2026-01-24T22:47:04.345884",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 404 - {'error': {'message': 'The model `claude-sonnet-4-20250514` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': Non..."
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 404 - {'error': {'message': 'The model `claude-sonnet-4-20250514` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': Non..."
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 721.7791080474854,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "ambiguous_acronym",
+      "timestamp": "2026-01-24T22:47:05.127298",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 404 - {'error': {'message': 'The model `claude-sonnet-4-20250514` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': Non..."
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 404 - {'error': {'message': 'The model `claude-sonnet-4-20250514` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': Non..."
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 781.419038772583,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "version_specific",
+      "timestamp": "2026-01-24T22:47:05.891217",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 404 - {'error': {'message': 'The model `claude-sonnet-4-20250514` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': Non..."
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 404 - {'error': {'message': 'The model `claude-sonnet-4-20250514` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': Non..."
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 763.9162540435791,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "error_handling",
+      "timestamp": "2026-01-24T22:47:06.619610",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 404 - {'error': {'message': 'The model `claude-sonnet-4-20250514` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': Non..."
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 404 - {'error': {'message': 'The model `claude-sonnet-4-20250514` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': Non..."
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 728.3840179443359,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "empty_context",
+      "timestamp": "2026-01-24T22:47:07.311083",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 404 - {'error': {'message': 'The model `claude-sonnet-4-20250514` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': Non..."
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: Error code: 404 - {'error': {'message': 'The model `claude-sonnet-4-20250514` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': Non..."
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 691.478967666626,
+      "error": null
+    }
+  ]
+}

@@ -1,0 +1,768 @@
+{
+  "benchmark_name": "answer_quality",
+  "num_cases": 21,
+  "mean_with_snipara": {
+    "issues_count": 1.0,
+    "overall": 0.0,
+    "faithfulness": 0.0,
+    "correctness": 0.0,
+    "relevance": 0.0,
+    "clarity": 0.0,
+    "completeness": 0.0
+  },
+  "mean_without_snipara": {
+    "issues_count": 1.0,
+    "overall": 0.0,
+    "faithfulness": 0.0,
+    "correctness": 0.0,
+    "relevance": 0.0,
+    "clarity": 0.0,
+    "completeness": 0.0
+  },
+  "mean_improvement": {
+    "correctness_improvement": 0.0,
+    "clarity_improvement": 0.0,
+    "relevance_improvement": 0.0,
+    "completeness_improvement": 0.0,
+    "faithfulness_improvement": 0.0,
+    "overall_improvement": 0.0
+  },
+  "summary": "Answer Quality: needs improvement (0.0/10)\n  With Snipara:\n    - Correctness: 0.0/10\n    - Completeness: 0.0/10\n    - Faithfulness: 0.0/10\n  Without Snipara:\n    - Overall: 0.0/10\n  Quality improvement: +0.0 points",
+  "results": [
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "tech_stack",
+      "timestamp": "2026-01-28T12:17:52.379591",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: 404 page not found"
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: 404 page not found"
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 3086.3029956817627,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "core_value_prop",
+      "timestamp": "2026-01-28T12:17:54.114188",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: 404 page not found"
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: 404 page not found"
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 1734.6160411834717,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "mcp_tools",
+      "timestamp": "2026-01-28T12:17:55.739639",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: 404 page not found"
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: 404 page not found"
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 1625.4298686981201,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "pricing",
+      "timestamp": "2026-01-28T12:17:57.341667",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: 404 page not found"
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: 404 page not found"
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 1602.0262241363525,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "architecture",
+      "timestamp": "2026-01-28T12:17:58.915482",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: 404 page not found"
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: 404 page not found"
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 1573.8129615783691,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "token_budgeting",
+      "timestamp": "2026-01-28T12:18:00.655891",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: 404 page not found"
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: 404 page not found"
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 1740.4038906097412,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "shared_context",
+      "timestamp": "2026-01-28T12:18:02.231849",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: 404 page not found"
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: 404 page not found"
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 1575.9549140930176,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "oauth_device_flow",
+      "timestamp": "2026-01-28T12:18:03.827701",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: 404 page not found"
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: 404 page not found"
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 1595.8490371704102,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "database_models",
+      "timestamp": "2026-01-28T12:18:05.403909",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: 404 page not found"
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: 404 page not found"
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 1576.2248039245605,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "layered_architecture",
+      "timestamp": "2026-01-28T12:18:06.987975",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: 404 page not found"
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: 404 page not found"
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 1584.0380191802979,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "cost_benefit_analysis",
+      "timestamp": "2026-01-28T12:18:08.560724",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: 404 page not found"
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: 404 page not found"
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 1572.756052017212,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "when_to_use_decompose",
+      "timestamp": "2026-01-28T12:18:10.151097",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: 404 page not found"
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: 404 page not found"
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 1590.3668403625488,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "search_mode_selection",
+      "timestamp": "2026-01-28T12:18:11.733335",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: 404 page not found"
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: 404 page not found"
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 1582.2319984436035,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "full_request_flow",
+      "timestamp": "2026-01-28T12:18:13.341218",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: 404 page not found"
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: 404 page not found"
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 1607.879877090454,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "security_authentication_chain",
+      "timestamp": "2026-01-28T12:18:14.926495",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: 404 page not found"
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: 404 page not found"
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 1585.2689743041992,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "shared_context_budget_allocation",
+      "timestamp": "2026-01-28T12:18:16.493494",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: 404 page not found"
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: 404 page not found"
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 1567.007064819336,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "nonexistent_feature",
+      "timestamp": "2026-01-28T12:18:18.254257",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: 404 page not found"
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: 404 page not found"
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 1760.7650756835938,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "ambiguous_acronym",
+      "timestamp": "2026-01-28T12:18:19.816952",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: 404 page not found"
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: 404 page not found"
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 1562.682867050171,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "version_specific",
+      "timestamp": "2026-01-28T12:18:21.399350",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: 404 page not found"
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: 404 page not found"
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 1582.3922157287598,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "error_handling",
+      "timestamp": "2026-01-28T12:18:23.060167",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: 404 page not found"
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: 404 page not found"
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 1660.811185836792,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "empty_context",
+      "timestamp": "2026-01-28T12:18:24.649081",
+      "with_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: 404 page not found"
+      },
+      "without_snipara": {
+        "correctness": 0,
+        "completeness": 0,
+        "relevance": 0,
+        "faithfulness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "issues_count": 1,
+        "response_preview": "Error generating response: 404 page not found"
+      },
+      "improvement": {
+        "correctness_improvement": 0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0
+      },
+      "latency_ms": 1588.9172554016113,
+      "error": null
+    }
+  ]
+}

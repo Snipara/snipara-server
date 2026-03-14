@@ -1,0 +1,1118 @@
+{
+  "benchmark_name": "answer_quality",
+  "num_cases": 31,
+  "mean_with_snipara": {
+    "clarity": 7.612903225806452,
+    "faithfulness": 4.767741935483872,
+    "correctness": 5.674193548387096,
+    "issues_count": 0.8064516129032258,
+    "completeness": 9.358064516129033,
+    "overall": 6.571290322580645,
+    "relevance": 5.496774193548387
+  },
+  "mean_without_snipara": {
+    "clarity": 7.096774193548387,
+    "faithfulness": 2.193548387096774,
+    "correctness": 4.716129032258065,
+    "issues_count": 1.064516129032258,
+    "completeness": 9.683870967741935,
+    "overall": 5.416129032258064,
+    "relevance": 2.7161290322580647
+  },
+  "mean_improvement": {
+    "overall_improvement": 1.1551612903225807,
+    "completeness_improvement": -0.3258064516129033,
+    "faithfulness_improvement": 2.574193548387097,
+    "correctness_improvement": 0.9580645161290322,
+    "clarity_improvement": 0.5161290322580645,
+    "relevance_improvement": 2.7806451612903227
+  },
+  "summary": "Answer Quality: good (6.6/10)\n  With Snipara:\n    - Correctness: 5.7/10\n    - Completeness: 9.4/10\n    - Faithfulness: 4.8/10\n  Without Snipara:\n    - Overall: 5.4/10\n  Quality improvement: +1.2 points",
+  "results": [
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "tech_stack",
+      "timestamp": "2026-02-03T13:06:52.455649",
+      "with_snipara": {
+        "correctness": 10,
+        "completeness": 9,
+        "relevance": 10,
+        "faithfulness": 10,
+        "clarity": 9,
+        "overall": 9.5,
+        "issues_count": 0,
+        "response_preview": "Snipara's tech stack consists of various modern technologies organized for scalable development and deployment. Here are the components of the tech stack:\n\n1. **Framework**: \n   - **Next.js 14 (App Ro..."
+      },
+      "without_snipara": {
+        "correctness": 6.0,
+        "completeness": 10,
+        "relevance": 2.6,
+        "faithfulness": 2.1,
+        "clarity": 7,
+        "overall": 5.8,
+        "issues_count": 1,
+        "response_preview": "Snipara's tech stack is designed to support its **Context Optimization as a Service** platform efficiently. Below is a detailed overview of the key components of the tech stack:\n\n### Frameworks and La..."
+      },
+      "improvement": {
+        "correctness_improvement": 4.0,
+        "completeness_improvement": -1,
+        "relevance_improvement": 7.4,
+        "faithfulness_improvement": 7.9,
+        "clarity_improvement": 2,
+        "overall_improvement": 3.7
+      },
+      "latency_ms": 42508.3110332489,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "core_value_prop",
+      "timestamp": "2026-02-03T13:07:25.005221",
+      "with_snipara": {
+        "correctness": 6.0,
+        "completeness": 10,
+        "relevance": 6.6,
+        "faithfulness": 5.3,
+        "clarity": 7,
+        "overall": 7.1,
+        "issues_count": 1,
+        "response_preview": "Snipara's core value proposition centers around its ability to optimize context for users of large language models (LLMs). Here are the key aspects:\n\n1. **90% Context Reduction**: Snipara can compress..."
+      },
+      "without_snipara": {
+        "correctness": 6.0,
+        "completeness": 10,
+        "relevance": 6.0,
+        "faithfulness": 4.8,
+        "clarity": 7,
+        "overall": 6.9,
+        "issues_count": 1,
+        "response_preview": "Snipara's core value proposition is encapsulated in its ability to provide **Context Optimization as a Service** for users of large language models (LLMs). The main features that underline this value ..."
+      },
+      "improvement": {
+        "correctness_improvement": 0.0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0.6,
+        "faithfulness_improvement": 0.5,
+        "clarity_improvement": 0,
+        "overall_improvement": 0.2
+      },
+      "latency_ms": 32549.555778503418,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "mcp_tools",
+      "timestamp": "2026-02-03T13:08:23.481886",
+      "with_snipara": {
+        "correctness": 2.9,
+        "completeness": 10,
+        "relevance": 4.8,
+        "faithfulness": 3.8,
+        "clarity": 7,
+        "overall": 5.6,
+        "issues_count": 1,
+        "response_preview": "Snipara exposes a variety of tools categorized for different use cases, primarily designed to assist with documentation queries and code-related searches. Here's a detailed breakdown of the tools avai..."
+      },
+      "without_snipara": {
+        "correctness": 2.9,
+        "completeness": 10,
+        "relevance": 3.6,
+        "faithfulness": 2.9,
+        "clarity": 7,
+        "overall": 5.2,
+        "issues_count": 1,
+        "response_preview": "Snipara exposes a variety of MCP tools designed to facilitate different types of documentation queries and interactions. Here\u2019s a detailed list of these tools, categorized by their purpose:\n\n### Prima..."
+      },
+      "improvement": {
+        "correctness_improvement": 0.0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 1.2,
+        "faithfulness_improvement": 0.9,
+        "clarity_improvement": 0,
+        "overall_improvement": 0.4
+      },
+      "latency_ms": 58476.64976119995,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "pricing",
+      "timestamp": "2026-02-03T13:09:00.999786",
+      "with_snipara": {
+        "correctness": 5.3,
+        "completeness": 10,
+        "relevance": 5.0,
+        "faithfulness": 4.0,
+        "clarity": 7,
+        "overall": 6.4,
+        "issues_count": 1,
+        "response_preview": "Snipara offers two sets of pricing tiers: one for Context Optimization and one for Agents (Memory & Swarms). Here are the detailed pricing plans for each category:\n\n### Context Plans (Context Optimiza..."
+      },
+      "without_snipara": {
+        "correctness": 3.3,
+        "completeness": 10,
+        "relevance": 1.8,
+        "faithfulness": 1.4,
+        "clarity": 7,
+        "overall": 4.8,
+        "issues_count": 1,
+        "response_preview": "Snipara offers several pricing tiers for its **Context Optimization** and **Agents** plans. Here's a detailed breakdown of each:\n\n### Context Plans (Context Optimization)\n\n| Plan       | Price   | Que..."
+      },
+      "improvement": {
+        "correctness_improvement": 2.0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 3.2,
+        "faithfulness_improvement": 2.6,
+        "clarity_improvement": 0,
+        "overall_improvement": 1.6
+      },
+      "latency_ms": 37517.91191101074,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "architecture",
+      "timestamp": "2026-02-03T13:09:37.442775",
+      "with_snipara": {
+        "correctness": 3.5,
+        "completeness": 10,
+        "relevance": 5.0,
+        "faithfulness": 4.0,
+        "clarity": 7,
+        "overall": 5.9,
+        "issues_count": 1,
+        "response_preview": "Snipara employs a three-component architecture designed to facilitate its production deployment, leveraging multiple repositories for modularity and maintainability. Here\u2019s a breakdown of each compone..."
+      },
+      "without_snipara": {
+        "correctness": 4.0,
+        "completeness": 10,
+        "relevance": 4.2,
+        "faithfulness": 3.4,
+        "clarity": 7,
+        "overall": 5.7,
+        "issues_count": 1,
+        "response_preview": "Snipara\u2019s architecture consists of three main components that work together to provide the **Context Optimization as a Service** platform. These components are:\n\n1. **Frontend Application (Next.js Web..."
+      },
+      "improvement": {
+        "correctness_improvement": -0.5,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0.8,
+        "faithfulness_improvement": 0.6,
+        "clarity_improvement": 0,
+        "overall_improvement": 0.2
+      },
+      "latency_ms": 36442.98505783081,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "token_budgeting",
+      "timestamp": "2026-02-03T13:10:32.890440",
+      "with_snipara": {
+        "correctness": 2.7,
+        "completeness": 10,
+        "relevance": 0.8,
+        "faithfulness": 0.6,
+        "clarity": 7,
+        "overall": 4.3,
+        "issues_count": 1,
+        "response_preview": "Snipara's token budgeting is designed to manage the usage of tokens efficiently when executing queries within its system. The process is based on categorizing documents by priority and allocating a sp..."
+      },
+      "without_snipara": {
+        "correctness": 4.1,
+        "completeness": 10,
+        "relevance": 4.4,
+        "faithfulness": 3.5,
+        "clarity": 7,
+        "overall": 5.9,
+        "issues_count": 1,
+        "response_preview": "Snipara's token budgeting is a critical aspect of how the platform optimizes context for Large Language Models (LLMs). The goal of token budgeting is to ensure that the amount of context returned fits..."
+      },
+      "improvement": {
+        "correctness_improvement": -1.4,
+        "completeness_improvement": 0,
+        "relevance_improvement": -3.6,
+        "faithfulness_improvement": -2.9,
+        "clarity_improvement": 0,
+        "overall_improvement": -1.6
+      },
+      "latency_ms": 55447.65210151672,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "shared_context",
+      "timestamp": "2026-02-03T13:11:11.492939",
+      "with_snipara": {
+        "correctness": 10,
+        "completeness": 10,
+        "relevance": 10,
+        "faithfulness": 10,
+        "clarity": 9,
+        "overall": 9.8,
+        "issues_count": 0,
+        "response_preview": "Shared Context Collections are frameworks that enable teams to establish and maintain reusable coding standards, best practices, and guidelines across all team projects. This feature streamlines the d..."
+      },
+      "without_snipara": {
+        "correctness": 5.1,
+        "completeness": 10,
+        "relevance": 2.6,
+        "faithfulness": 2.1,
+        "clarity": 7,
+        "overall": 5.6,
+        "issues_count": 1,
+        "response_preview": "Shared context collections are a feature within the RLM SaaS platform that allow teams to create, manage, and utilize reusable sets of coding standards, best practices, guidelines, and other contextua..."
+      },
+      "improvement": {
+        "correctness_improvement": 4.9,
+        "completeness_improvement": 0,
+        "relevance_improvement": 7.4,
+        "faithfulness_improvement": 7.9,
+        "clarity_improvement": 2,
+        "overall_improvement": 4.2
+      },
+      "latency_ms": 38602.51212120056,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "oauth_device_flow",
+      "timestamp": "2026-02-03T13:11:58.198878",
+      "with_snipara": {
+        "correctness": 3.8,
+        "completeness": 10,
+        "relevance": 2.8,
+        "faithfulness": 2.2,
+        "clarity": 7,
+        "overall": 5.2,
+        "issues_count": 1,
+        "response_preview": "OAuth Device Flow authentication in Snipara allows devices that do not have the ability to show a web browser (like smart TVs or IoT devices) to authenticate users in a secure manner. The flow typical..."
+      },
+      "without_snipara": {
+        "correctness": 4.9,
+        "completeness": 10,
+        "relevance": 1.8,
+        "faithfulness": 1.4,
+        "clarity": 7,
+        "overall": 5.2,
+        "issues_count": 1,
+        "response_preview": "OAuth Device Flow authentication in Snipara is designed to allow devices or applications with limited input capabilities, such as smart TVs or IoT devices, to authenticate users through a web interfac..."
+      },
+      "improvement": {
+        "correctness_improvement": -1.1,
+        "completeness_improvement": 0,
+        "relevance_improvement": 1.0,
+        "faithfulness_improvement": 0.8,
+        "clarity_improvement": 0,
+        "overall_improvement": 0.0
+      },
+      "latency_ms": 46705.913066864014,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "database_models",
+      "timestamp": "2026-02-03T13:13:04.244060",
+      "with_snipara": {
+        "correctness": 2.3,
+        "completeness": 10,
+        "relevance": 6.8,
+        "faithfulness": 5.4,
+        "clarity": 7,
+        "overall": 6.1,
+        "issues_count": 1,
+        "response_preview": "The main database models in Snipara are as follows:\n\n### 1. **TeamApiKey**\n- **Purpose**: Grants access to all projects within a specific team.\n- **Structure**: Similar to the `ApiKey`, but scoped to ..."
+      },
+      "without_snipara": {
+        "correctness": 3.0,
+        "completeness": 10,
+        "relevance": 3.0,
+        "faithfulness": 2.4,
+        "clarity": 7,
+        "overall": 5.1,
+        "issues_count": 1,
+        "response_preview": "In Snipara, the main database models are structured to support user accounts, team management, projects, and the indexing of documents, among others. Here's a detailed overview of the key models:\n\n###..."
+      },
+      "improvement": {
+        "correctness_improvement": -0.7,
+        "completeness_improvement": 0,
+        "relevance_improvement": 3.8,
+        "faithfulness_improvement": 3.0,
+        "clarity_improvement": 0,
+        "overall_improvement": 1.0
+      },
+      "latency_ms": 66045.19605636597,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "layered_architecture",
+      "timestamp": "2026-02-03T13:13:36.435392",
+      "with_snipara": {
+        "correctness": 2.1,
+        "completeness": 10,
+        "relevance": 2.4,
+        "faithfulness": 1.9,
+        "clarity": 7,
+        "overall": 4.6,
+        "issues_count": 1,
+        "response_preview": "The documentation provided does not specify a layered architecture pattern explicitly for Snipara. However, it does contain various elements that suggest a structured, modular approach to architecture..."
+      },
+      "without_snipara": {
+        "correctness": 2.8,
+        "completeness": 10,
+        "relevance": 2.4,
+        "faithfulness": 1.9,
+        "clarity": 7,
+        "overall": 4.8,
+        "issues_count": 1,
+        "response_preview": "The Snipara platform employs a **layered architecture pattern** to structure its components and facilitate separation of concerns, which improves maintainability and scalability. This architectural st..."
+      },
+      "improvement": {
+        "correctness_improvement": -0.7,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0.0,
+        "faithfulness_improvement": 0.0,
+        "clarity_improvement": 0,
+        "overall_improvement": -0.2
+      },
+      "latency_ms": 32191.304922103882,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "cost_benefit_analysis",
+      "timestamp": "2026-02-03T13:14:10.459294",
+      "with_snipara": {
+        "correctness": 5.2,
+        "completeness": 10,
+        "relevance": 5.4,
+        "faithfulness": 4.3,
+        "clarity": 7,
+        "overall": 6.5,
+        "issues_count": 1,
+        "response_preview": "RLM SaaS, through its context optimization service, helps you by significantly reducing the amount of context that needs to be processed by your LLM. If you have a 500K token codebase, your LLM's 128K..."
+      },
+      "without_snipara": {
+        "correctness": 5.6,
+        "completeness": 10,
+        "relevance": 5.6,
+        "faithfulness": 4.5,
+        "clarity": 7,
+        "overall": 6.7,
+        "issues_count": 1,
+        "response_preview": "If you have a 500K token codebase and your LLM has a 128K token context window, Snipara significantly optimizes the way you can query and utilize that documentation. Here\u2019s how Snipara helps and the p..."
+      },
+      "improvement": {
+        "correctness_improvement": -0.4,
+        "completeness_improvement": 0,
+        "relevance_improvement": -0.2,
+        "faithfulness_improvement": -0.2,
+        "clarity_improvement": 0,
+        "overall_improvement": -0.2
+      },
+      "latency_ms": 34023.92482757568,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "when_to_use_decompose",
+      "timestamp": "2026-02-03T13:14:39.312904",
+      "with_snipara": {
+        "correctness": 9,
+        "completeness": 8,
+        "relevance": 10,
+        "faithfulness": 9,
+        "clarity": 9,
+        "overall": 8.7,
+        "issues_count": 0,
+        "response_preview": "You should use `rlm_decompose` and `rlm_context_query` based on the complexity of your query and the specific needs of your documentation or implementation inquiry.\n\n### Use Cases for Each Tool:\n\n####..."
+      },
+      "without_snipara": {
+        "correctness": 4.5,
+        "completeness": 10,
+        "relevance": 2.0,
+        "faithfulness": 1.6,
+        "clarity": 7,
+        "overall": 5.2,
+        "issues_count": 1,
+        "response_preview": "The decision to use `rlm_decompose` versus `rlm_context_query` depends on the complexity of the task at hand and the desired outcomes.\n\n### rlm_context_query\n\n- **Purpose**: \n  - Used for retrieving r..."
+      },
+      "improvement": {
+        "correctness_improvement": 4.5,
+        "completeness_improvement": -2,
+        "relevance_improvement": 8.0,
+        "faithfulness_improvement": 7.4,
+        "clarity_improvement": 2,
+        "overall_improvement": 3.5
+      },
+      "latency_ms": 28853.60097885132,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "search_mode_selection",
+      "timestamp": "2026-02-03T13:15:09.452428",
+      "with_snipara": {
+        "correctness": 9,
+        "completeness": 8,
+        "relevance": 10,
+        "faithfulness": 9,
+        "clarity": 9,
+        "overall": 9.05,
+        "issues_count": 1,
+        "response_preview": "The search mode you should use for different types of queries in Snipara MCP depends on the complexity and the requirements of your question. Here is a breakdown of when to use different tools:\n\n### 1..."
+      },
+      "without_snipara": {
+        "correctness": 5.6,
+        "completeness": 10,
+        "relevance": 2.0,
+        "faithfulness": 1.6,
+        "clarity": 7,
+        "overall": 5.5,
+        "issues_count": 1,
+        "response_preview": "The RLM SaaS platform offers three search modes for querying documentation: **keyword**, **semantic**, and **hybrid**. Each mode is designed for different types of queries based on user needs and the ..."
+      },
+      "improvement": {
+        "correctness_improvement": 3.4,
+        "completeness_improvement": -2,
+        "relevance_improvement": 8.0,
+        "faithfulness_improvement": 7.4,
+        "clarity_improvement": 2,
+        "overall_improvement": 3.55
+      },
+      "latency_ms": 30139.508962631226,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "full_request_flow",
+      "timestamp": "2026-02-03T13:15:44.946446",
+      "with_snipara": {
+        "correctness": 4.3,
+        "completeness": 10,
+        "relevance": 2.0,
+        "faithfulness": 1.6,
+        "clarity": 7,
+        "overall": 5.1,
+        "issues_count": 1,
+        "response_preview": "To trace the full flow of an MCP (Multi-Context Processing) request from a user's Claude Desktop to the database query and back, we can break down the process into several steps:\n\n### 1. User Input\n- ..."
+      },
+      "without_snipara": {
+        "correctness": 5.1,
+        "completeness": 10,
+        "relevance": 3.2,
+        "faithfulness": 2.6,
+        "clarity": 7,
+        "overall": 5.7,
+        "issues_count": 1,
+        "response_preview": "To trace the full flow of an MCP request from a user's Claude Desktop to a database query and back, we can break it down into several detailed steps:\n\n### 1. User Request from Claude Desktop\n\n1. **Use..."
+      },
+      "improvement": {
+        "correctness_improvement": -0.8,
+        "completeness_improvement": 0,
+        "relevance_improvement": -1.2,
+        "faithfulness_improvement": -1.0,
+        "clarity_improvement": 0,
+        "overall_improvement": -0.6
+      },
+      "latency_ms": 35493.98708343506,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "security_authentication_chain",
+      "timestamp": "2026-02-03T13:16:20.137164",
+      "with_snipara": {
+        "correctness": 3.8,
+        "completeness": 10,
+        "relevance": 6.4,
+        "faithfulness": 5.1,
+        "clarity": 7,
+        "overall": 6.4,
+        "issues_count": 1,
+        "response_preview": "There are three primary authentication options available for MCP (Managed Cloud Platform) access, each serving different use cases and having varying implications for security:\n\n1. **Project API Key**..."
+      },
+      "without_snipara": {
+        "correctness": 4.2,
+        "completeness": 10,
+        "relevance": 1.6,
+        "faithfulness": 1.3,
+        "clarity": 7,
+        "overall": 5.0,
+        "issues_count": 1,
+        "response_preview": "The RLM SaaS platform provides several authentication methods to access its services. Each method offers different levels of security and is suited to various use cases. Here\u2019s a detailed overview of ..."
+      },
+      "improvement": {
+        "correctness_improvement": -0.4,
+        "completeness_improvement": 0,
+        "relevance_improvement": 4.8,
+        "faithfulness_improvement": 3.8,
+        "clarity_improvement": 0,
+        "overall_improvement": 1.4
+      },
+      "latency_ms": 35190.70315361023,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "shared_context_budget_allocation",
+      "timestamp": "2026-02-03T13:16:47.950616",
+      "with_snipara": {
+        "correctness": 3.2,
+        "completeness": 10,
+        "relevance": 5.4,
+        "faithfulness": 4.3,
+        "clarity": 7,
+        "overall": 5.9,
+        "issues_count": 1,
+        "response_preview": "Token budget allocation for Shared Context Collections is designed to prioritize different categories of documentation according to their importance and relevance to team projects. The allocation work..."
+      },
+      "without_snipara": {
+        "correctness": 3.8,
+        "completeness": 10,
+        "relevance": 3.0,
+        "faithfulness": 2.4,
+        "clarity": 7,
+        "overall": 5.3,
+        "issues_count": 1,
+        "response_preview": "When using shared context collections in the RLM SaaS platform, token budget allocation is handled based on the categories of the documents within the shared context and the specified token limits for..."
+      },
+      "improvement": {
+        "correctness_improvement": -0.6,
+        "completeness_improvement": 0,
+        "relevance_improvement": 2.4,
+        "faithfulness_improvement": 1.9,
+        "clarity_improvement": 0,
+        "overall_improvement": 0.6
+      },
+      "latency_ms": 27813.452005386353,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "nonexistent_feature",
+      "timestamp": "2026-02-03T13:17:14.579133",
+      "with_snipara": {
+        "correctness": 4.3,
+        "completeness": 5.1,
+        "relevance": 0.2,
+        "faithfulness": 0.2,
+        "clarity": 7,
+        "overall": 3.3,
+        "issues_count": 1,
+        "response_preview": "The provided documentation does not include specific information about configuring real-time collaborative editing in Snipara. To get detailed assistance on this matter, you may want to consult Snipar..."
+      },
+      "without_snipara": {
+        "correctness": 6.1,
+        "completeness": 10,
+        "relevance": 1.2,
+        "faithfulness": 1.0,
+        "clarity": 7,
+        "overall": 5.4,
+        "issues_count": 1,
+        "response_preview": "The provided documentation does not include explicit information regarding real-time collaborative editing in Snipara. However, to enable real-time collaborative editing, you would typically need to i..."
+      },
+      "improvement": {
+        "correctness_improvement": -1.8,
+        "completeness_improvement": -4.9,
+        "relevance_improvement": -1.0,
+        "faithfulness_improvement": -0.8,
+        "clarity_improvement": 0,
+        "overall_improvement": -2.1
+      },
+      "latency_ms": 26628.50308418274,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "ambiguous_acronym",
+      "timestamp": "2026-02-03T13:17:30.262943",
+      "with_snipara": {
+        "correctness": 2,
+        "completeness": 6,
+        "relevance": 8,
+        "faithfulness": 3,
+        "clarity": 7,
+        "overall": 4.61,
+        "issues_count": 3,
+        "response_preview": "RLM stands for \"Runtime Layer Management.\" It primarily refers to the framework designed to handle code execution in a safe and isolated environment using Docker. This system allows for features such ..."
+      },
+      "without_snipara": {
+        "correctness": 3.7,
+        "completeness": 10,
+        "relevance": 5.0,
+        "faithfulness": 4.0,
+        "clarity": 7,
+        "overall": 5.9,
+        "issues_count": 1,
+        "response_preview": "RLM stands for **Context Optimization as a Service**, which indicates its primary function as a platform designed to enhance the querying of documentation for users of large language models (LLMs). RL..."
+      },
+      "improvement": {
+        "correctness_improvement": -1.7,
+        "completeness_improvement": -4,
+        "relevance_improvement": 3.0,
+        "faithfulness_improvement": -1.0,
+        "clarity_improvement": 0,
+        "overall_improvement": -1.29
+      },
+      "latency_ms": 15683.805227279663,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "version_specific",
+      "timestamp": "2026-02-03T13:17:40.478578",
+      "with_snipara": {
+        "correctness": 10,
+        "completeness": 8,
+        "relevance": 10,
+        "faithfulness": 10,
+        "clarity": 9,
+        "overall": 9.2,
+        "issues_count": 0,
+        "response_preview": "The MCP server requires Python version 3.10 or higher. This specification is important to ensure compatibility with the FastAPI framework being used in the MCP server setup. Thus, when deploying or de..."
+      },
+      "without_snipara": {
+        "correctness": 5.0,
+        "completeness": 5.2,
+        "relevance": 1.0,
+        "faithfulness": 0.8,
+        "clarity": 7,
+        "overall": 3.8,
+        "issues_count": 1,
+        "response_preview": "The MCP server for the RLM SaaS platform is built using **Python 3.10+**. This requirement is specified in the product documentation under the section detailing the **MCP Server Deployment Architectur..."
+      },
+      "improvement": {
+        "correctness_improvement": 5.0,
+        "completeness_improvement": 2.8,
+        "relevance_improvement": 9.0,
+        "faithfulness_improvement": 9.2,
+        "clarity_improvement": 2,
+        "overall_improvement": 5.4
+      },
+      "latency_ms": 10215.719938278198,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "error_handling",
+      "timestamp": "2026-02-03T13:17:58.477040",
+      "with_snipara": {
+        "correctness": 2.9,
+        "completeness": 10,
+        "relevance": 1.4,
+        "faithfulness": 1.1,
+        "clarity": 7,
+        "overall": 4.5,
+        "issues_count": 1,
+        "response_preview": "When a user exceeds their query limit based on their current Context plan subscription, they will be unable to execute additional queries until the limit resets or they upgrade to a higher plan. \n\nHer..."
+      },
+      "without_snipara": {
+        "correctness": 4.2,
+        "completeness": 10,
+        "relevance": 1.6,
+        "faithfulness": 1.3,
+        "clarity": 7,
+        "overall": 5.0,
+        "issues_count": 1,
+        "response_preview": "When a user exceeds their query limit on the RLM SaaS platform, they will encounter restrictions based on the specific pricing plan they are subscribed to. Here's a detailed breakdown of what happens:..."
+      },
+      "improvement": {
+        "correctness_improvement": -1.3,
+        "completeness_improvement": 0,
+        "relevance_improvement": -0.2,
+        "faithfulness_improvement": -0.2,
+        "clarity_improvement": 0,
+        "overall_improvement": -0.5
+      },
+      "latency_ms": 17998.3868598938,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "empty_context",
+      "timestamp": "2026-02-03T13:18:22.550134",
+      "with_snipara": {
+        "correctness": 4.2,
+        "completeness": 10,
+        "relevance": 2.6,
+        "faithfulness": 2.1,
+        "clarity": 7,
+        "overall": 5.3,
+        "issues_count": 1,
+        "response_preview": "If no relevant documents are found for a query, the behavior typically depends on the specific implementation of the query system being used. While the provided documentation does not explicitly state..."
+      },
+      "without_snipara": {
+        "correctness": 4.2,
+        "completeness": 10,
+        "relevance": 3.0,
+        "faithfulness": 2.4,
+        "clarity": 7,
+        "overall": 5.4,
+        "issues_count": 1,
+        "response_preview": "If no relevant documents are found for a query using the RLM SaaS platform, the following scenario occurs:\n\n1. **Failed Context Retrieval**: The first step in handling a query is invoking the `rlm_con..."
+      },
+      "improvement": {
+        "correctness_improvement": 0.0,
+        "completeness_improvement": 0,
+        "relevance_improvement": -0.4,
+        "faithfulness_improvement": -0.3,
+        "clarity_improvement": 0,
+        "overall_improvement": -0.1
+      },
+      "latency_ms": 24073.068857192993,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "moltbot_7277_abortsignal_validation",
+      "timestamp": "2026-02-03T13:19:07.101058",
+      "with_snipara": {
+        "correctness": 10,
+        "completeness": 9,
+        "relevance": 10,
+        "faithfulness": 10,
+        "clarity": 9,
+        "overall": 9.5,
+        "issues_count": 0,
+        "response_preview": "To safely combine multiple `AbortSignals` in environments where `AbortSignal.any()` might not exist, you can follow the implementation detailed in the `combineAbortSignals` function from the provided ..."
+      },
+      "without_snipara": {
+        "correctness": 4.8,
+        "completeness": 10,
+        "relevance": 0.4,
+        "faithfulness": 0.3,
+        "clarity": 7,
+        "overall": 4.8,
+        "issues_count": 1,
+        "response_preview": "In environments where `AbortSignal.any()` might not exist, you can safely combine multiple `AbortSignals` by creating a new `AbortController` that will handle the combined signals manually. Here's how..."
+      },
+      "improvement": {
+        "correctness_improvement": 5.2,
+        "completeness_improvement": -1,
+        "relevance_improvement": 9.6,
+        "faithfulness_improvement": 9.7,
+        "clarity_improvement": 2,
+        "overall_improvement": 4.7
+      },
+      "latency_ms": 44550.91881752014,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "moltbot_7277_abortsignal_edge_cases",
+      "timestamp": "2026-02-03T13:19:36.783214",
+      "with_snipara": {
+        "correctness": 5.7,
+        "completeness": 10,
+        "relevance": 3.2,
+        "faithfulness": 2.6,
+        "clarity": 7,
+        "overall": 5.9,
+        "issues_count": 1,
+        "response_preview": "When combining `AbortSignals` using the `combineAbortSignals` function, several edge cases are addressed to ensure robust handling of abort-related behaviors. Here are the key edge cases:\n\n1. **Both S..."
+      },
+      "without_snipara": {
+        "correctness": 6.3,
+        "completeness": 10,
+        "relevance": 0.6,
+        "faithfulness": 0.5,
+        "clarity": 7,
+        "overall": 5.3,
+        "issues_count": 1,
+        "response_preview": "When combining `AbortSignal` objects in the context of the provided code, it's essential to account for several edge cases that could arise. The function `combineAbortSignals` deals with these scenari..."
+      },
+      "improvement": {
+        "correctness_improvement": -0.6,
+        "completeness_improvement": 0,
+        "relevance_improvement": 2.6,
+        "faithfulness_improvement": 2.1,
+        "clarity_improvement": 0,
+        "overall_improvement": 0.6
+      },
+      "latency_ms": 29682.154893875122,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "moltbot_7451_file_path_alias",
+      "timestamp": "2026-02-03T13:20:27.852631",
+      "with_snipara": {
+        "correctness": 10,
+        "completeness": 10,
+        "relevance": 10,
+        "faithfulness": 10,
+        "clarity": 9,
+        "overall": 9.65,
+        "issues_count": 0,
+        "response_preview": "To support both 'path' and 'file_path' parameter aliases in read/write tools for Claude Code compatibility, you should apply the following method which is structured from the provided documentation:\n\n..."
+      },
+      "without_snipara": {
+        "correctness": 4.7,
+        "completeness": 10,
+        "relevance": 0.0,
+        "faithfulness": 0.0,
+        "clarity": 7,
+        "overall": 4.6,
+        "issues_count": 1,
+        "response_preview": "To support both `path` and `file_path` parameter aliases in read/write tools for Claude Code compatibility within your implementation of the Moltbot framework, you can follow these steps:\n\n1. **Modify..."
+      },
+      "improvement": {
+        "correctness_improvement": 5.3,
+        "completeness_improvement": 0,
+        "relevance_improvement": 10.0,
+        "faithfulness_improvement": 10.0,
+        "clarity_improvement": 2,
+        "overall_improvement": 5.05
+      },
+      "latency_ms": 51069.42582130432,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "moltbot_7451_schema_compatibility",
+      "timestamp": "2026-02-03T13:21:16.510103",
+      "with_snipara": {
+        "correctness": 4.5,
+        "completeness": 10,
+        "relevance": 1.2,
+        "faithfulness": 1.0,
+        "clarity": 7,
+        "overall": 4.9,
+        "issues_count": 1,
+        "response_preview": "To ensure that tool schemas are structured for cross-provider compatibility with OpenAI, Anthropic (such as Claude), and Google (such as Gemini), developers should adhere to the following guidelines b..."
+      },
+      "without_snipara": {
+        "correctness": 4,
+        "completeness": 6,
+        "relevance": 8,
+        "faithfulness": 7,
+        "clarity": 8,
+        "overall": 6.25,
+        "issues_count": 2,
+        "response_preview": "To ensure cross-provider compatibility for tool schemas among different service providers like OpenAI, Anthropic, and Google, it is essential to adhere to certain standards for structuring these schem..."
+      },
+      "improvement": {
+        "correctness_improvement": 0.5,
+        "completeness_improvement": 4,
+        "relevance_improvement": -6.8,
+        "faithfulness_improvement": -6.0,
+        "clarity_improvement": -1,
+        "overall_improvement": -1.35
+      },
+      "latency_ms": 48657.46808052063,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "moltbot_7014_block_streaming_paragraphs",
+      "timestamp": "2026-02-03T13:21:46.006211",
+      "with_snipara": {
+        "correctness": 9,
+        "completeness": 9,
+        "relevance": 10,
+        "faithfulness": 10,
+        "clarity": 9,
+        "overall": 9.1,
+        "issues_count": 0,
+        "response_preview": "To ensure that block streaming flushes content on paragraph boundaries rather than arbitrary positions, the implementation relies on the configuration and handling of chunking preferences and definiti..."
+      },
+      "without_snipara": {
+        "correctness": 4.1,
+        "completeness": 10,
+        "relevance": 0.8,
+        "faithfulness": 0.6,
+        "clarity": 7,
+        "overall": 4.7,
+        "issues_count": 1,
+        "response_preview": "To flush content on paragraph boundaries rather than arbitrary positions during block streaming, you should implement a strategy that identifies paragraph breaks within the text being processed. A par..."
+      },
+      "improvement": {
+        "correctness_improvement": 4.9,
+        "completeness_improvement": -1,
+        "relevance_improvement": 9.2,
+        "faithfulness_improvement": 9.4,
+        "clarity_improvement": 2,
+        "overall_improvement": 4.4
+      },
+      "latency_ms": 29496.094942092896,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "moltbot_7014_coalesce_config",
+      "timestamp": "2026-02-03T13:22:21.215951",
+      "with_snipara": {
+        "correctness": 4.6,
+        "completeness": 10,
+        "relevance": 2.0,
+        "faithfulness": 1.6,
+        "clarity": 7,
+        "overall": 5.2,
+        "issues_count": 1,
+        "response_preview": "To configure block streaming coalescing on a per-provider and per-account basis in your application, you will primarily interact with the `MoltbotConfig` structure and leverage the `resolveProviderBlo..."
+      },
+      "without_snipara": {
+        "correctness": 4.6,
+        "completeness": 10,
+        "relevance": 1.2,
+        "faithfulness": 1.0,
+        "clarity": 7,
+        "overall": 5.0,
+        "issues_count": 1,
+        "response_preview": "To configure block streaming coalescing per-provider and per-account in the Moltbot setup, you need to modify the configuration in the `MoltbotConfig` object by specifying `blockStreamingCoalesce` set..."
+      },
+      "improvement": {
+        "correctness_improvement": 0.0,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0.8,
+        "faithfulness_improvement": 0.6,
+        "clarity_improvement": 0,
+        "overall_improvement": 0.2
+      },
+      "latency_ms": 35209.72394943237,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "moltbot_7475_skip_audio_extraction",
+      "timestamp": "2026-02-03T13:22:55.438799",
+      "with_snipara": {
+        "correctness": 5.9,
+        "completeness": 10,
+        "relevance": 0.8,
+        "faithfulness": 0.6,
+        "clarity": 7,
+        "overall": 5.2,
+        "issues_count": 1,
+        "response_preview": "Media understanding should skip audio files that exceed the specified size limits by implementing a size check before attempting to transcribe the audio. This is governed by the maximum bytes limit de..."
+      },
+      "without_snipara": {
+        "correctness": 5.4,
+        "completeness": 10,
+        "relevance": 0.8,
+        "faithfulness": 0.6,
+        "clarity": 7,
+        "overall": 5.1,
+        "issues_count": 1,
+        "response_preview": "When handling media understanding for audio files, the Moltbot implementation skips the transcription process if the audio attachment exceeds the specified size limits. This is managed through several..."
+      },
+      "improvement": {
+        "correctness_improvement": 0.5,
+        "completeness_improvement": 0,
+        "relevance_improvement": 0.0,
+        "faithfulness_improvement": 0.0,
+        "clarity_improvement": 0,
+        "overall_improvement": 0.1
+      },
+      "latency_ms": 34222.840785980225,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "moltbot_7475_auto_audio_disable",
+      "timestamp": "2026-02-03T13:23:16.558603",
+      "with_snipara": {
+        "correctness": 9,
+        "completeness": 8,
+        "relevance": 10,
+        "faithfulness": 9,
+        "clarity": 10,
+        "overall": 9.2,
+        "issues_count": 0,
+        "response_preview": "To disable automatic audio transcription in MoltBot, you need to modify the configuration settings related to the media understanding capabilities. Here are the steps to do that:\n\n1. **Locate the Conf..."
+      },
+      "without_snipara": {
+        "correctness": 8,
+        "completeness": 9,
+        "relevance": 10,
+        "faithfulness": 8,
+        "clarity": 9,
+        "overall": 8.55,
+        "issues_count": 2,
+        "response_preview": "To disable automatic audio transcription in Moltbot, you will need to adjust the configuration for the media tools, specifically for the audio processing feature. Here's how to do it step by step:\n\n1...."
+      },
+      "improvement": {
+        "correctness_improvement": 1,
+        "completeness_improvement": -1,
+        "relevance_improvement": 0,
+        "faithfulness_improvement": 1,
+        "clarity_improvement": 1,
+        "overall_improvement": 0.65
+      },
+      "latency_ms": 21119.811058044434,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "moltbot_7473_strip_minimax_tool_xml",
+      "timestamp": "2026-02-03T13:23:52.909107",
+      "with_snipara": {
+        "correctness": 5.7,
+        "completeness": 10,
+        "relevance": 5.4,
+        "faithfulness": 4.3,
+        "clarity": 7,
+        "overall": 6.6,
+        "issues_count": 1,
+        "response_preview": "To strip malformed Minimax tool invocations that leak into text content, you can use the function `stripMinimaxToolCallXml(text: string): string`. This function is specifically designed to identify an..."
+      },
+      "without_snipara": {
+        "correctness": 5.0,
+        "completeness": 10,
+        "relevance": 0.4,
+        "faithfulness": 0.3,
+        "clarity": 7,
+        "overall": 4.8,
+        "issues_count": 1,
+        "response_preview": "To strip malformed Minimax tool invocations that leak into text content in the `Moltbot` project, you can use the function `stripMinimaxToolCallXml` defined in the `src/agents/pi-embedded-utils.ts` fi..."
+      },
+      "improvement": {
+        "correctness_improvement": 0.7,
+        "completeness_improvement": 0,
+        "relevance_improvement": 5.0,
+        "faithfulness_improvement": 4.0,
+        "clarity_improvement": 0,
+        "overall_improvement": 1.8
+      },
+      "latency_ms": 36350.48007965088,
+      "error": null
+    },
+    {
+      "benchmark_name": "answer_quality",
+      "test_case": "moltbot_7473_strip_downgraded_tool_calls",
+      "timestamp": "2026-02-03T13:24:20.868479",
+      "with_snipara": {
+        "correctness": 5.0,
+        "completeness": 10,
+        "relevance": 2.2,
+        "faithfulness": 1.8,
+        "clarity": 7,
+        "overall": 5.4,
+        "issues_count": 1,
+        "response_preview": "To strip downgraded tool call text representations from Gemini history replay, you can use the `stripDowngradedToolCallText` function provided in the documentation. This function is specifically desig..."
+      },
+      "without_snipara": {
+        "correctness": 5.2,
+        "completeness": 10,
+        "relevance": 0.4,
+        "faithfulness": 0.3,
+        "clarity": 7,
+        "overall": 4.9,
+        "issues_count": 1,
+        "response_preview": "To strip downgraded tool call text representations from Gemini history replay, you can use the `stripDowngradedToolCallText` function defined in the `src/agents/pi-embedded-utils.ts` file. This functi..."
+      },
+      "improvement": {
+        "correctness_improvement": -0.2,
+        "completeness_improvement": 0,
+        "relevance_improvement": 1.8,
+        "faithfulness_improvement": 1.5,
+        "clarity_improvement": 0,
+        "overall_improvement": 0.5
+      },
+      "latency_ms": 27959.378242492676,
+      "error": null
+    }
+  ]
+}
