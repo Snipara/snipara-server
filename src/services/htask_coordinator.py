@@ -55,7 +55,7 @@ UPDATE_WHITELIST = {
     ],
     "IN_PROGRESS": [
         "description", "etaTarget", "acceptanceCriteria",
-        "contextRefs", "evidenceProvided", "result", "status",
+        "contextRefs", "evidenceProvided", "status",
     ],
     "BLOCKED": [
         "blockerReason", "requiredInput", "etaRecovery", "escalationTo",
@@ -1186,11 +1186,15 @@ async def update_htask(
     allowed = UPDATE_WHITELIST.get(task.status, [])
 
     # If status transition is requested, also allow fields from target status
-    # This enables atomic updates like: status=IN_PROGRESS + result={...}
     target_status = updates.get("status")
     if target_status and target_status != task.status:
         target_allowed = UPDATE_WHITELIST.get(target_status, [])
         allowed = list(set(allowed) | set(target_allowed))
+
+        # Special case: allow 'result' only when completing or failing
+        # This enables atomic updates like: status=COMPLETED + result={...}
+        if target_status in ("COMPLETED", "FAILED"):
+            allowed.append("result")
 
     # Validate fields
     prisma_updates = {}
