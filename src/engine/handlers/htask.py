@@ -15,6 +15,7 @@ Handles:
 - rlm_htask_recommend_batch: Get recommended N3 tasks to work on
 """
 
+import json
 from typing import Any
 
 from ...models import ToolResult
@@ -92,6 +93,40 @@ async def handle_htask_create(
             output_tokens=0,
         )
 
+    # Parse JSON fields if they arrive as strings from MCP
+    acceptance_criteria = params.get("acceptance_criteria")
+    if acceptance_criteria and isinstance(acceptance_criteria, str):
+        try:
+            acceptance_criteria = json.loads(acceptance_criteria)
+        except json.JSONDecodeError:
+            return ToolResult(
+                data={"error": "acceptance_criteria must be valid JSON"},
+                input_tokens=0,
+                output_tokens=0,
+            )
+
+    evidence_required = params.get("evidence_required")
+    if evidence_required and isinstance(evidence_required, str):
+        try:
+            evidence_required = json.loads(evidence_required)
+        except json.JSONDecodeError:
+            return ToolResult(
+                data={"error": "evidence_required must be valid JSON"},
+                input_tokens=0,
+                output_tokens=0,
+            )
+
+    context_refs = params.get("context_refs")
+    if context_refs and isinstance(context_refs, str):
+        try:
+            context_refs = json.loads(context_refs)
+        except json.JSONDecodeError:
+            return ToolResult(
+                data={"error": "context_refs must be valid JSON"},
+                input_tokens=0,
+                output_tokens=0,
+            )
+
     result = await create_htask(
         swarm_id=swarm_id,
         level=level,
@@ -104,9 +139,9 @@ async def handle_htask_create(
         execution_target=params.get("execution_target"),
         workstream_type=params.get("workstream_type"),
         custom_workstream_type=params.get("custom_workstream_type"),
-        acceptance_criteria=params.get("acceptance_criteria"),
-        context_refs=params.get("context_refs"),
-        evidence_required=params.get("evidence_required"),
+        acceptance_criteria=acceptance_criteria,
+        context_refs=context_refs,
+        evidence_required=evidence_required,
         is_blocking=params.get("is_blocking", True),
     )
 
