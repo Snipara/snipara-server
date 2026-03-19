@@ -7428,7 +7428,8 @@ print(f"[Snipara] {len(context.get('files', {}))} files loaded. Helpers: peek, g
                 tags=params.get("tags", []),
             )
 
-            result = await handle_decision_create(self.db, self.project_id, create_params)
+            db = await get_db()
+            result = await handle_decision_create(db, self.project_id, create_params)
 
             return ToolResult(
                 data=result.model_dump(),
@@ -7461,7 +7462,8 @@ print(f"[Snipara] {len(context.get('files', {}))} files loaded. Helpers: peek, g
             include_superseded=params.get("include_superseded", False),
         )
 
-        result = await handle_decision_query(self.db, self.project_id, query_params)
+        db = await get_db()
+        result = await handle_decision_query(db, self.project_id, query_params)
 
         return ToolResult(
             data=result.model_dump(),
@@ -7500,8 +7502,9 @@ print(f"[Snipara] {len(context.get('files', {}))} files loaded. Helpers: peek, g
                 tags=params.get("tags", []),
             )
 
+            db = await get_db()
             result = await handle_decision_supersede(
-                self.db, self.project_id, old_decision_id, new_params
+                db, self.project_id, old_decision_id, new_params
             )
 
             return ToolResult(
