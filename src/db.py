@@ -23,10 +23,10 @@ async def _create_client() -> Prisma:
             client = Prisma()
             await client.connect()
             # CRITICAL: Force search_path for pgvector support
-            # Multi-tenant databases (Vaultbrix) need both public (for pgvector) and tenant schema
+            # Multi-tenant databases (Vaultbrix) need both tenant schema (for tables) and public (for pgvector)
             try:
-                await client.execute_raw("SET search_path TO public, tenant_snipara;")
-                logger.info("Database search_path set to: public, tenant_snipara")
+                await client.execute_raw("SET search_path TO tenant_snipara, public;")
+                logger.info("Database search_path set to: tenant_snipara, public")
             except Exception as e:
                 logger.error(f"FAILED to set search_path (pgvector will not work): {e}")
             logger.info("Database connection established")
