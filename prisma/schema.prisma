@@ -1,6 +1,6 @@
 generator client {
   provider             = "prisma-client-py"
-  previewFeatures      = ["postgresqlExtensions"]
+  previewFeatures      = ["postgresqlExtensions", "multiSchema"]
   interface            = "asyncio"
   recursive_type_depth = 5
 }
@@ -9,6 +9,7 @@ datasource db {
   provider   = "postgresql"
   url        = env("DATABASE_URL")
   extensions = [vector]
+  schemas    = ["tenant_snipara", "public"]
 }
 
 // ============================================
@@ -63,6 +64,7 @@ model User {
   adminTargets  AdminAuditLog[] @relation("AdminTargets")
 
   @@map("users")
+  @@schema("tenant_snipara")
 }
 
 model Account {
@@ -83,6 +85,7 @@ model Account {
 
   @@unique([provider, providerAccountId])
   @@map("accounts")
+  @@schema("tenant_snipara")
 }
 
 model Session {
@@ -94,6 +97,7 @@ model Session {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("sessions")
+  @@schema("tenant_snipara")
 }
 
 model VerificationToken {
@@ -103,6 +107,7 @@ model VerificationToken {
 
   @@unique([identifier, token])
   @@map("verification_tokens")
+  @@schema("tenant_snipara")
 }
 
 // ============================================
@@ -147,6 +152,7 @@ model Team {
   enterpriseAdminTokens EnterpriseAdminToken[]
 
   @@map("teams")
+  @@schema("tenant_snipara")
 }
 
 model TeamMember {
@@ -168,6 +174,7 @@ model TeamMember {
 
   @@unique([userId, teamId])
   @@map("team_members")
+  @@schema("tenant_snipara")
 }
 
 model TeamInvite {
@@ -184,17 +191,22 @@ model TeamInvite {
 
   @@unique([email, teamId])
   @@map("team_invites")
+  @@schema("tenant_snipara")
 }
 
 enum Role {
   OWNER
   ADMIN
   MEMBER
+
+  @@schema("tenant_snipara")
 }
 
 enum PermissionMode {
   SIMPLE   // Role-based defaults only (backward compatible)
   ADVANCED // Fine-grained permissions enabled
+
+  @@schema("tenant_snipara")
 }
 
 enum ProjectAccessLevel {
@@ -202,6 +214,8 @@ enum ProjectAccessLevel {
   VIEWER // Read-only: view project, query MCP, view docs
   EDITOR // Read-write: manage docs, inject context
   ADMIN  // Full access: API keys, automation, delete
+
+  @@schema("tenant_snipara")
 }
 
 enum AccessRequestStatus {
@@ -209,6 +223,8 @@ enum AccessRequestStatus {
   APPROVED  // Request approved (ProjectMember created)
   DENIED    // Request denied
   CANCELLED // Requester cancelled
+
+  @@schema("tenant_snipara")
 }
 
 // Team permission configuration (opt-in toggle for TEAM+ plans)
@@ -228,6 +244,7 @@ model TeamPermissionConfig {
   updatedAt DateTime @updatedAt
 
   @@map("team_permission_configs")
+  @@schema("tenant_snipara")
 }
 
 // Team-level permission overrides per member
@@ -245,6 +262,7 @@ model TeamPermission {
   @@unique([teamMemberId, permission])
   @@index([teamMemberId])
   @@map("team_permissions")
+  @@schema("tenant_snipara")
 }
 
 // Project-level access (junction table for fine-grained control)
@@ -264,6 +282,7 @@ model ProjectMember {
   @@index([projectId])
   @@index([teamMemberId])
   @@map("project_members")
+  @@schema("tenant_snipara")
 }
 
 // Access requests for project-level permissions
@@ -291,6 +310,7 @@ model AccessRequest {
   @@index([projectId, status])
   @@index([teamMemberId, status])
   @@map("access_requests")
+  @@schema("tenant_snipara")
 }
 
 // ============================================
@@ -370,6 +390,7 @@ model Project {
 
   @@unique([teamId, slug])
   @@map("projects")
+  @@schema("tenant_snipara")
 }
 
 // ============================================
@@ -382,11 +403,15 @@ enum IndexJobStatus {
   COMPLETED
   FAILED
   CANCELLED
+
+  @@schema("tenant_snipara")
 }
 
 enum IndexJobMode {
   FULL        // Re-index all documents (delete existing chunks first)
   INCREMENTAL // Only index documents without existing chunks
+
+  @@schema("tenant_snipara")
 }
 
 enum ChunkTier {
@@ -394,6 +419,8 @@ enum ChunkTier {
   WARM     // Accessed < 7d, medium relevance (default)
   COLD     // Accessed < 30d, low relevance
   ARCHIVE  // Accessed > 30d, rarely used
+
+  @@schema("tenant_snipara")
 }
 
 enum DecisionStatus {
@@ -401,6 +428,8 @@ enum DecisionStatus {
   SUPERSEDED
   REVERTED
   DRAFT
+
+  @@schema("tenant_snipara")
 }
 
 enum DecisionImpact {
@@ -408,6 +437,8 @@ enum DecisionImpact {
   MEDIUM
   HIGH
   CRITICAL
+
+  @@schema("tenant_snipara")
 }
 
 model IndexJob {
@@ -452,6 +483,7 @@ model IndexJob {
   @@index([status, createdAt])
   @@index([workerId])
   @@map("index_jobs")
+  @@schema("tenant_snipara")
 }
 
 // ============================================
@@ -488,6 +520,7 @@ model ProjectDecision {
   @@index([projectId, status])
   @@index([projectId, impact])
   @@map("project_decisions")
+  @@schema("tenant_snipara")
 }
 
 model Document {
@@ -516,6 +549,7 @@ model Document {
   @@index([source])
   @@index([deletedAt])
   @@map("documents")
+  @@schema("tenant_snipara")
 }
 
 model DocumentVersion {
@@ -533,6 +567,7 @@ model DocumentVersion {
   @@unique([documentId, version])
   @@index([documentId])
   @@map("document_versions")
+  @@schema("tenant_snipara")
 }
 
 model DocumentChunk {
@@ -564,6 +599,7 @@ model DocumentChunk {
   @@index([tier])
   @@index([lastAccessed])
   @@map("document_chunks")
+  @@schema("tenant_snipara")
 }
 
 // ============================================
@@ -605,6 +641,7 @@ model DocumentSummary {
   @@index([documentId])
   @@index([summaryType])
   @@map("document_summaries")
+  @@schema("tenant_snipara")
 }
 
 model SessionContext {
@@ -622,6 +659,7 @@ model SessionContext {
   @@unique([projectId, key])
   @@index([projectId])
   @@map("session_contexts")
+  @@schema("tenant_snipara")
 }
 
 // ============================================
@@ -647,6 +685,7 @@ model SessionCheckpoint {
   @@index([sessionId])
   @@index([expiresAt])
   @@map("session_checkpoints")
+  @@schema("tenant_snipara")
 }
 
 // ============================================
@@ -675,6 +714,7 @@ model ApiKey {
   @@index([projectId])
   @@index([keyHash])
   @@map("api_keys")
+  @@schema("tenant_snipara")
 }
 
 model TeamApiKey {
@@ -696,6 +736,7 @@ model TeamApiKey {
   @@index([teamId])
   @@index([keyHash])
   @@map("team_api_keys")
+  @@schema("tenant_snipara")
 }
 
 // ============================================
@@ -708,6 +749,8 @@ enum DeviceCodeStatus {
   EXPIRED    // Code has expired
   USED       // Token already issued
   DENIED     // User denied authorization
+
+  @@schema("tenant_snipara")
 }
 
 model DeviceCode {
@@ -738,6 +781,7 @@ model DeviceCode {
   @@index([userCode])
   @@index([expiresAt])
   @@map("device_codes")
+  @@schema("tenant_snipara")
 }
 
 model OAuthToken {
@@ -776,6 +820,7 @@ model OAuthToken {
   @@index([accessTokenHash])
   @@index([refreshTokenHash])
   @@map("oauth_tokens")
+  @@schema("tenant_snipara")
 }
 
 // ============================================
@@ -799,6 +844,7 @@ model Query {
   @@index([projectId, createdAt])
   @@index([createdAt])
   @@map("queries")
+  @@schema("tenant_snipara")
 }
 
 // ============================================
@@ -827,6 +873,7 @@ model TeamContext {
   @@unique([teamId, key])
   @@index([teamId, isActive])
   @@map("team_contexts")
+  @@schema("tenant_snipara")
 }
 
 // ============================================
@@ -854,6 +901,7 @@ model AuditLog {
   @@index([actorId])
   @@index([entityType, entityId])
   @@map("audit_logs")
+  @@schema("tenant_snipara")
 }
 
 // ============================================
@@ -884,6 +932,7 @@ model Subscription {
   team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
 
   @@map("subscriptions")
+  @@schema("tenant_snipara")
 }
 
 enum Plan {
@@ -891,6 +940,8 @@ enum Plan {
   PRO
   TEAM
   ENTERPRISE
+
+  @@schema("tenant_snipara")
 }
 
 enum SubscriptionStatus {
@@ -899,11 +950,15 @@ enum SubscriptionStatus {
   PAST_DUE
   TRIALING
   UNPAID
+
+  @@schema("tenant_snipara")
 }
 
 enum BillingInterval {
   MONTHLY
   ANNUAL
+
+  @@schema("tenant_snipara")
 }
 
 // ============================================
@@ -914,6 +969,8 @@ enum SharedContextScope {
   GLOBAL // Public templates anyone can use/fork
   TEAM   // Shared within a team
   USER   // Personal across user's projects
+
+  @@schema("tenant_snipara")
 }
 
 enum DocumentCategory {
@@ -921,6 +978,8 @@ enum DocumentCategory {
   BEST_PRACTICES  // Recommended patterns
   GUIDELINES      // Nice-to-have suggestions
   REFERENCE       // Background info, examples
+
+  @@schema("tenant_snipara")
 }
 
 model SharedContextCollection {
@@ -965,6 +1024,7 @@ model SharedContextCollection {
   @@index([teamId])
   @@index([ownerId])
   @@map("shared_context_collections")
+  @@schema("tenant_snipara")
 }
 
 model SharedDocument {
@@ -997,6 +1057,7 @@ model SharedDocument {
   @@index([collectionId, category])
   @@index([collectionId, priority])
   @@map("shared_documents")
+  @@schema("tenant_snipara")
 }
 
 model SharedMcpConfig {
@@ -1019,6 +1080,7 @@ model SharedMcpConfig {
   updatedAt DateTime @updatedAt
 
   @@map("shared_mcp_configs")
+  @@schema("tenant_snipara")
 }
 
 model PromptTemplate {
@@ -1044,6 +1106,7 @@ model PromptTemplate {
   @@unique([collectionId, slug])
   @@index([collectionId, category])
   @@map("prompt_templates")
+  @@schema("tenant_snipara")
 }
 
 // Junction table: Project <-> SharedContextCollection
@@ -1072,6 +1135,7 @@ model ProjectSharedContext {
   @@index([projectId, priority])
   @@index([collectionId])
   @@map("project_shared_contexts")
+  @@schema("tenant_snipara")
 }
 
 // ============================================
@@ -1083,6 +1147,8 @@ enum DiscoveryStatus {
   RUNNING
   COMPLETED
   FAILED
+
+  @@schema("tenant_snipara")
 }
 
 model DiscoveryRun {
@@ -1120,6 +1186,7 @@ model DiscoveryRun {
   @@index([collectionId, createdAt])
   @@index([status])
   @@map("discovery_runs")
+  @@schema("tenant_snipara")
 }
 
 // Track discovered patterns for review
@@ -1152,6 +1219,7 @@ model DiscoveredPattern {
   @@index([collectionId, status])
   @@index([collectionId, adoptionRate])
   @@map("discovered_patterns")
+  @@schema("tenant_snipara")
 }
 
 // ============================================
@@ -1185,6 +1253,7 @@ model QueryCache {
   @@index([projectId, expiresAt])
   @@index([expiresAt])
   @@map("query_caches")
+  @@schema("tenant_snipara")
 }
 
 model CacheStats {
@@ -1207,6 +1276,7 @@ model CacheStats {
   project       Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@map("cache_stats")
+  @@schema("tenant_snipara")
 }
 
 // ============================================
@@ -1220,6 +1290,8 @@ enum MemoryType {
   PREFERENCE  // User/team preference
   TODO        // Deferred task or reminder
   CONTEXT     // General session context
+
+  @@schema("tenant_snipara")
 }
 
 enum MemoryScope {
@@ -1227,12 +1299,16 @@ enum MemoryScope {
   PROJECT     // Shared across project
   TEAM        // Shared across team
   USER        // Personal across all projects
+
+  @@schema("tenant_snipara")
 }
 
 enum MemoryTier {
   CRITICAL    // Auto-load, max 8K tokens (decisions, facts)
   DAILY       // Auto-load today+yesterday, max 4K tokens (context, todos)
   ARCHIVE     // Query-only, no auto-load (old learnings, preferences)
+
+  @@schema("tenant_snipara")
 }
 
 model AgentMemory {
@@ -1273,6 +1349,7 @@ model AgentMemory {
   @@index([projectId, tier])
   @@index([expiresAt])
   @@map("agent_memories")
+  @@schema("tenant_snipara")
 }
 
 model MemoryStats {
@@ -1298,6 +1375,7 @@ model MemoryStats {
   project       Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@map("memory_stats")
+  @@schema("tenant_snipara")
 }
 
 // ============================================
@@ -1308,6 +1386,8 @@ enum ClaimStatus {
   ACTIVE
   RELEASED
   EXPIRED
+
+  @@schema("tenant_snipara")
 }
 
 enum TaskStatus {
@@ -1317,6 +1397,8 @@ enum TaskStatus {
   COMPLETED
   FAILED
   CANCELLED
+
+  @@schema("tenant_snipara")
 }
 
 // ============================================
@@ -1328,6 +1410,8 @@ enum HTaskLevel {
   N1_FEATURE
   N2_WORKSTREAM
   N3_TASK
+
+  @@schema("tenant_snipara")
 }
 
 enum HTaskStatus {
@@ -1337,12 +1421,16 @@ enum HTaskStatus {
   FAILED
   COMPLETED
   CANCELLED
+
+  @@schema("tenant_snipara")
 }
 
 enum HTaskPriority {
   P0
   P1
   P2
+
+  @@schema("tenant_snipara")
 }
 
 enum BlockerType {
@@ -1353,6 +1441,8 @@ enum BlockerType {
   INFRA
   SECURITY
   OTHER
+
+  @@schema("tenant_snipara")
 }
 
 enum WorkstreamType {
@@ -1366,6 +1456,8 @@ enum WorkstreamType {
   DOCUMENTATION
   CUSTOM
   OTHER
+
+  @@schema("tenant_snipara")
 }
 
 enum ExecutionTarget {
@@ -1373,11 +1465,15 @@ enum ExecutionTarget {
   CLOUD
   HYBRID
   EXTERNAL
+
+  @@schema("tenant_snipara")
 }
 
 enum ClosurePolicy {
   STRICT_ALL_CHILDREN
   ALLOW_EXCEPTIONS
+
+  @@schema("tenant_snipara")
 }
 
 enum CompatMode {
@@ -1385,6 +1481,8 @@ enum CompatMode {
   DUAL
   SHADOW
   HTASK
+
+  @@schema("tenant_snipara")
 }
 
 model AgentSwarm {
@@ -1419,6 +1517,7 @@ model AgentSwarm {
   @@unique([projectId, name])
   @@index([projectId, isActive])
   @@map("agent_swarms")
+  @@schema("tenant_snipara")
 }
 
 model SwarmAgent {
@@ -1449,6 +1548,7 @@ model SwarmAgent {
   @@unique([swarmId, agentId])
   @@index([swarmId, isActive])
   @@map("swarm_agents")
+  @@schema("tenant_snipara")
 }
 
 model ResourceClaim {
@@ -1475,6 +1575,7 @@ model ResourceClaim {
   @@index([swarmId, resourceType, resourceId])
   @@index([expiresAt])
   @@map("resource_claims")
+  @@schema("tenant_snipara")
 }
 
 model SharedState {
@@ -1499,6 +1600,7 @@ model SharedState {
   @@unique([swarmId, key])
   @@index([expiresAt])
   @@map("shared_state")
+  @@schema("tenant_snipara")
 }
 
 model SwarmEvent {
@@ -1517,6 +1619,7 @@ model SwarmEvent {
   @@index([swarmId, eventType])
   @@index([swarmId, createdAt])
   @@map("swarm_events")
+  @@schema("tenant_snipara")
 }
 
 model SwarmTask {
@@ -1552,6 +1655,7 @@ model SwarmTask {
   @@index([swarmId, status])
   @@index([swarmId, priority])
   @@map("swarm_tasks")
+  @@schema("tenant_snipara")
 }
 
 // ============================================
@@ -1625,6 +1729,7 @@ model HierarchicalTask {
   @@index([owner])
   @@index([archivedAt])
   @@map("hierarchical_tasks")
+  @@schema("tenant_snipara")
 }
 
 model HTaskPolicy {
@@ -1656,6 +1761,7 @@ model HTaskPolicy {
   swarm                     AgentSwarm    @relation(fields: [swarmId], references: [id], onDelete: Cascade)
 
   @@map("htask_policies")
+  @@schema("tenant_snipara")
 }
 
 model HTaskEvent {
@@ -1672,6 +1778,7 @@ model HTaskEvent {
   @@index([swarmId, taskId])
   @@index([swarmId, createdAt])
   @@map("htask_events")
+  @@schema("tenant_snipara")
 }
 
 // ============================================
@@ -1683,6 +1790,8 @@ enum AgentsPlan {
   PRO         // $39/mo
   TEAM        // $79/mo
   ENTERPRISE  // $199/mo
+
+  @@schema("tenant_snipara")
 }
 
 model AgentsSubscription {
@@ -1730,6 +1839,7 @@ model AgentsSubscription {
   @@unique([userId, teamId])
   @@index([stripeSubscriptionId])
   @@map("agents_subscriptions")
+  @@schema("tenant_snipara")
 }
 
 // ============================================
@@ -1763,6 +1873,7 @@ model EnterpriseAdminToken {
   @@index([tokenHash])
   @@index([teamId])
   @@map("enterprise_admin_tokens")
+  @@schema("tenant_snipara")
 }
 
 // ============================================
@@ -1773,6 +1884,8 @@ enum WebhookStatus {
   ACTIVE
   PAUSED
   FAILED // Auto-paused after too many failures
+
+  @@schema("tenant_snipara")
 }
 
 model Webhook {
@@ -1816,6 +1929,7 @@ model Webhook {
   @@index([status])
   @@index([teamId])
   @@map("webhooks")
+  @@schema("tenant_snipara")
 }
 
 model WebhookDelivery {
@@ -1842,6 +1956,7 @@ model WebhookDelivery {
   @@index([webhookId, createdAt])
   @@index([status, nextRetryAt])
   @@map("webhook_deliveries")
+  @@schema("tenant_snipara")
 }
 
 // ============================================
@@ -1853,18 +1968,24 @@ enum IntegratorTier {
   GROWTH     // €499/mo, 50 clients
   SCALE      // €999/mo, 200 clients
   ENTERPRISE // Custom
+
+  @@schema("tenant_snipara")
 }
 
 enum ClientBundle {
   LITE       // €29/mo: 200 queries, 100 memories, 1 swarm, 5 agents
   STANDARD   // €59/mo: 2K queries, 500 memories, 5 swarms, 10 agents
   UNLIMITED  // €129/mo: unlimited
+
+  @@schema("tenant_snipara")
 }
 
 enum IntegratorWebhookEventStatus {
   PENDING
   DELIVERED
   FAILED
+
+  @@schema("tenant_snipara")
 }
 
 model Integrator {
@@ -1884,6 +2005,7 @@ model Integrator {
   updatedAt            DateTime         @updatedAt
 
   @@map("integrators")
+  @@schema("tenant_snipara")
 }
 
 model IntegratorWorkspace {
@@ -1905,6 +2027,7 @@ model IntegratorWorkspace {
   updatedAt     DateTime      @updatedAt
 
   @@map("integrator_workspaces")
+  @@schema("tenant_snipara")
 }
 
 model IntegratorClient {
@@ -1931,6 +2054,7 @@ model IntegratorClient {
   @@unique([workspaceId, externalId])
   @@index([workspaceId])
   @@map("integrator_clients")
+  @@schema("tenant_snipara")
 }
 
 model ClientApiKey {
@@ -1951,6 +2075,7 @@ model ClientApiKey {
   @@index([keyPrefix])
   @@index([clientId])
   @@map("client_api_keys")
+  @@schema("tenant_snipara")
 }
 
 model IntegratorWorkspaceApiKey {
@@ -1974,6 +2099,7 @@ model IntegratorWorkspaceApiKey {
   @@index([keyPrefix])
   @@index([workspaceId])
   @@map("integrator_workspace_api_keys")
+  @@schema("tenant_snipara")
 }
 
 model IntegratorWebhookEvent {
@@ -1993,12 +2119,15 @@ model IntegratorWebhookEvent {
   @@index([workspaceId, createdAt])
   @@index([status])
   @@map("integrator_webhook_events")
+  @@schema("tenant_snipara")
 }
 
 enum PartnerApplicationStatus {
   PENDING
   APPROVED
   REJECTED
+
+  @@schema("tenant_snipara")
 }
 
 model PartnerApplication {
@@ -2033,6 +2162,7 @@ model PartnerApplication {
   @@index([status])
   @@index([createdAt])
   @@map("partner_applications")
+  @@schema("tenant_snipara")
 }
 
 // ============================================
@@ -2056,4 +2186,5 @@ model AdminAuditLog {
   @@index([action])
   @@index([createdAt])
   @@map("admin_audit_logs")
+  @@schema("tenant_snipara")
 }
