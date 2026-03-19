@@ -97,7 +97,7 @@ class DocumentIndexer:
                 INSERT INTO document_chunks
                 (id, content, embedding, "startLine", "endLine", "tokenCount", title, "createdAt", "documentId",
                  "qualityScore", "isComplete", "isTruncated")
-                VALUES (gen_random_uuid()::text, $1, $2::public.vector, $3, $4, $5, $6, NOW(), $7, $8, $9, $10)
+                VALUES (gen_random_uuid()::text, $1, $2::vector, $3, $4, $5, $6, NOW(), $7, $8, $9, $10)
                 """,
                 chunk.content,
                 embedding_str,
@@ -238,13 +238,13 @@ class DocumentIndexer:
                 dc.title,
                 dc.tier,
                 d.path as file_path,
-                1 - (dc.embedding <=> $1::public.vector) as similarity
+                1 - (dc.embedding <=> $1::vector) as similarity
             FROM document_chunks dc
             JOIN documents d ON dc."documentId" = d.id
             WHERE d."projectId" = $2
-              AND 1 - (dc.embedding <=> $1::public.vector) >= $3
+              AND 1 - (dc.embedding <=> $1::vector) >= $3
               {tier_clause}
-            ORDER BY dc.embedding <=> $1::public.vector
+            ORDER BY dc.embedding <=> $1::vector
             LIMIT $4
             """,
             embedding_str,
