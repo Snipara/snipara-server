@@ -1028,7 +1028,7 @@ async def get_session_memories(
                 {"expiresAt": {"gt": now}},
             ],
         },
-        order_by={"confidence": "desc"},
+        order={"confidence": "desc"},
     )
 
     # Get DAILY tier memories (today + optionally yesterday)
@@ -1040,7 +1040,7 @@ async def get_session_memories(
 
     daily = await db.agentmemory.find_many(
         where=daily_filter,
-        order_by={"createdAt": "desc"},
+        order={"createdAt": "desc"},
     )
 
     # Budget tokens (approximate: 4 chars = 1 token)
@@ -1167,7 +1167,7 @@ async def compact_memories(
         # Group by category and type, find exact content matches
         all_memories = await db.agentmemory.find_many(
             where={"projectId": project_id},
-            order_by={"createdAt": "asc"},
+            order={"createdAt": "asc"},
         )
 
         seen_content: dict[str, str] = {}  # content hash -> id
@@ -1234,7 +1234,7 @@ async def get_daily_brief(
             "type": "DECISION",
             "tier": "CRITICAL",
         },
-        order_by={"confidence": "desc"},
+        order={"confidence": "desc"},
         take=max_items // 2,
     )
 
@@ -1248,7 +1248,7 @@ async def get_daily_brief(
                 {"expiresAt": {"gt": target_date}},
             ],
         },
-        order_by={"createdAt": "desc"},
+        order={"createdAt": "desc"},
         take=max_items // 4,
     )
 
@@ -1260,7 +1260,7 @@ async def get_daily_brief(
             "type": "LEARNING",
             "createdAt": {"gte": recent_cutoff},
         },
-        order_by={"accessCount": "desc"},
+        order={"accessCount": "desc"},
         take=max_items // 4,
     )
 
@@ -1483,7 +1483,7 @@ async def get_tenant_profile(
                 "projectId": project_id,
                 "category": TENANT_PROFILE_CATEGORY,
             },
-            order_by={"createdAt": "desc"},
+            order={"createdAt": "desc"},
         )
 
         if not profiles:
