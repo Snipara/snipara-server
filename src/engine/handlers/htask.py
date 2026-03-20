@@ -278,9 +278,9 @@ async def handle_htask_tree(
 
     result = await get_htask_tree(
         swarm_id=swarm_id,
-        task_id=params.get("task_id"),
+        root_id=params.get("task_id"),
+        include_completed=params.get("include_archived", False),
         max_depth=params.get("max_depth", 4),
-        include_archived=params.get("include_archived", False),
     )
 
     return ToolResult(
