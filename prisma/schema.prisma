@@ -1719,7 +1719,7 @@ model HierarchicalTask {
   archivedAt            DateTime?
 
   // Relations
-  swarm                 AgentSwarm      @relation(fields: [swarmId], references: [id], onDelete: Cascade)
+  swarm                 AgentSwarm?      @relation(fields: [swarmId], references: [id], onDelete: Cascade)
   parent                HierarchicalTask? @relation("TaskHierarchy", fields: [parentId], references: [id])
   children              HierarchicalTask[] @relation("TaskHierarchy")
   blockedByTask         HierarchicalTask? @relation("TaskBlocking", fields: [blockedByTaskId], references: [id])
