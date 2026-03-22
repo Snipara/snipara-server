@@ -1454,6 +1454,9 @@ enum WorkstreamType {
   DATA
   SECURITY
   DOCUMENTATION
+  INTEGRATION     // Backend/frontend integration, webhooks, API connectors
+  BILLING         // Payment processing, subscription management
+  PLATFORM        // Infrastructure, deployment, monitoring
   CUSTOM
   OTHER
 
