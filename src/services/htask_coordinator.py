@@ -244,10 +244,10 @@ async def create_htask(
     db = await get_db()
 
     # Create task
-    # NOTE: Using nested relation syntax for swarm to satisfy Prisma-Python strict validation
+    # NOTE: Prisma-Python uses direct FK fields, NOT nested relation writes like Prisma-JS
     task = await db.hierarchicaltask.create(
         data={
-            "swarm": {"connect": {"id": swarm_id}},  # Use relation syntax instead of direct FK
+            "swarmId": swarm_id,  # Use direct FK (Prisma-Python syntax)
             "level": level,
             "parentId": parent_id,
             "sequenceNumber": sequence_number,
@@ -259,9 +259,9 @@ async def create_htask(
             "executionTarget": execution_target,
             "priority": priority,
             "etaTarget": eta_target,
-            "acceptanceCriteria": Json(acceptance_criteria) if acceptance_criteria else [],  # Empty array instead of None
+            "acceptanceCriteria": Json(acceptance_criteria or []),  # Wrap empty list in Json()
             "contextRefs": context_refs or [],
-            "evidenceRequired": Json(evidence_required) if evidence_required else [],  # Empty array instead of None
+            "evidenceRequired": Json(evidence_required or []),  # Wrap empty list in Json()
             "status": "PENDING",
             "isBlocking": is_blocking,
         }
