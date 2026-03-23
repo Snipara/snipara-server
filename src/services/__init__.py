@@ -1,6 +1,14 @@
 """Services module for RLM MCP Server."""
 
-from src.services.cache import QueryCache, get_cache
+from src.services.cache import QueryCache, TieredCache, get_cache, get_tiered_cache
+from src.services.cache_stats import (
+    generate_query_hash,
+    get_l2_cached_result,
+    invalidate_l2_cache,
+    record_cache_hit,
+    record_cache_miss,
+    set_l2_cached_result,
+)
 from src.services.chunker import Chunk, DocumentChunker, get_chunker
 from src.services.embeddings import EmbeddingsService, get_embeddings_service
 from src.services.indexer import DocumentIndexer, get_indexer
@@ -79,7 +87,16 @@ __all__ = [
     "Chunk",
     "get_chunker",
     "QueryCache",
+    "TieredCache",
     "get_cache",
+    "get_tiered_cache",
+    # Cache stats (Phase 8.1)
+    "generate_query_hash",
+    "record_cache_hit",
+    "record_cache_miss",
+    "get_l2_cached_result",
+    "set_l2_cached_result",
+    "invalidate_l2_cache",
     # Tier management
     "TIER_CONFIG",
     "compute_tier",

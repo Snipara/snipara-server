@@ -158,6 +158,15 @@ class ContextQueryResult(BaseModel):
         ge=0,
         description="Number of tokens from auto-included decisions",
     )
+    # Cache metadata (Phase 8.1 - Team+ feature)
+    cached: bool = Field(
+        default=False,
+        description="Whether result was served from cache",
+    )
+    cache_level: str | None = Field(
+        default=None,
+        description="Cache level that served the result: 'l1' (Redis) or 'l2' (PostgreSQL)",
+    )
 
 
 # ============ RECURSIVE CONTEXT MODELS (Phase 4.5) ============

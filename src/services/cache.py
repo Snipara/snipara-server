@@ -2,14 +2,31 @@
 
 Caches context query results for Team+ plans to improve response times
 for similar queries.
+
+Architecture:
+- L1 Cache: Redis (in-memory, sub-millisecond lookups)
+- L2 Cache: PostgreSQL QueryCache table (persistent, 10-50ms lookups)
+
+Cache hit flow:
+1. Check L1 (Redis) → if hit, record L1 hit stats, return
+2. Check L2 (PostgreSQL) → if hit, record L2 hit stats, populate L1, return
+3. Miss → execute query, record L1+L2 miss stats, populate both caches
 """
 
 import hashlib
 import json
 import logging
+import time
 from typing import Any
 
 from ..config import settings
+from .cache_stats import (
+    generate_query_hash,
+    get_l2_cached_result,
+    record_cache_hit,
+    record_cache_miss,
+    set_l2_cached_result,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -35,15 +52,10 @@ async def get_redis():
     return _redis
 
 
-def _generate_cache_key(project_id: str, query: str, max_tokens: int) -> str:
+def _generate_cache_key(project_id: str, query: str, max_tokens: int, search_mode: str = "keyword") -> str:
     """Generate a cache key for a query."""
-    # Normalize query (lowercase, strip whitespace)
-    normalized_query = query.lower().strip()
-
-    # Create hash of normalized query
-    query_hash = hashlib.sha256(normalized_query.encode()).hexdigest()[:16]
-
-    return f"rlm:context:{project_id}:{query_hash}:{max_tokens}"
+    query_hash = generate_query_hash(query, max_tokens, search_mode)
+    return f"rlm:context:{project_id}:{query_hash}"
 
 
 class QueryCache:
@@ -261,6 +273,150 @@ class SimilarQueryCache:
         return await self.base_cache.set(query, max_tokens, result, ttl)
 
 
+class TieredCache:
+    """Two-tier cache with L1 (Redis) and L2 (PostgreSQL) layers.
+
+    Automatically records cache hits/misses to CacheStats for dashboard visualization.
+
+    Cache flow:
+    1. Check L1 (Redis) → fast, sub-millisecond
+    2. If L1 miss, check L2 (PostgreSQL) → slower, but persistent
+    3. If L2 hit, populate L1 for future requests
+    4. If both miss, return None and let caller populate caches
+    """
+
+    # Cache TTL in seconds
+    DEFAULT_L1_TTL = 3600  # 1 hour
+    DEFAULT_L2_TTL = 3600  # 1 hour
+
+    def __init__(self, project_id: str, search_mode: str = "keyword"):
+        """Initialize tiered cache for a project.
+
+        Args:
+            project_id: The project ID
+            search_mode: Search mode for cache key generation
+        """
+        self.project_id = project_id
+        self.search_mode = search_mode
+        self._l1_cache = QueryCache(project_id)
+
+    async def get(
+        self,
+        query: str,
+        max_tokens: int,
+        estimate_compute_ms: int = 100,
+    ) -> tuple[dict[str, Any] | None, str | None]:
+        """Get cached result from L1 or L2.
+
+        Args:
+            query: The query string
+            max_tokens: Token budget
+            estimate_compute_ms: Estimated compute time in ms (for stats)
+
+        Returns:
+            Tuple of (cached result, cache_level) where cache_level is "l1", "l2", or None
+        """
+        start_time = time.perf_counter()
+        query_hash = generate_query_hash(query, max_tokens, self.search_mode)
+
+        # Try L1 (Redis) first
+        l1_result = await self._l1_cache.get(query, max_tokens)
+        if l1_result:
+            # L1 hit - record stats
+            tokens_saved = l1_result.get("totalTokens", l1_result.get("total_tokens", 0))
+            compute_ms = int((time.perf_counter() - start_time) * 1000)
+            await record_cache_hit(
+                self.project_id,
+                "l1",
+                tokens_saved,
+                max(estimate_compute_ms - compute_ms, 0),
+            )
+            logger.info(f"L1 cache hit for {query[:50]}... ({tokens_saved} tokens)")
+            return l1_result, "l1"
+
+        # L1 miss - try L2 (PostgreSQL)
+        await record_cache_miss(self.project_id, "l1")
+
+        l2_result = await get_l2_cached_result(self.project_id, query_hash)
+        if l2_result:
+            # L2 hit - record stats and populate L1
+            tokens_saved = l2_result.get("totalTokens", l2_result.get("total_tokens", 0))
+            compute_ms = int((time.perf_counter() - start_time) * 1000)
+            await record_cache_hit(
+                self.project_id,
+                "l2",
+                tokens_saved,
+                max(estimate_compute_ms - compute_ms, 0),
+            )
+
+            # Populate L1 for future requests
+            await self._l1_cache.set(query, max_tokens, l2_result, self.DEFAULT_L1_TTL)
+
+            logger.info(f"L2 cache hit for {query[:50]}... ({tokens_saved} tokens)")
+            return l2_result, "l2"
+
+        # Both L1 and L2 miss
+        await record_cache_miss(self.project_id, "l2")
+        logger.debug(f"Cache miss (L1+L2) for {query[:50]}...")
+        return None, None
+
+    async def set(
+        self,
+        query: str,
+        max_tokens: int,
+        result: dict[str, Any],
+        l1_ttl: int | None = None,
+        l2_ttl: int | None = None,
+    ) -> bool:
+        """Store result in both L1 and L2 caches.
+
+        Args:
+            query: The query string
+            max_tokens: Token budget
+            result: The result to cache
+            l1_ttl: L1 cache TTL (default: 1 hour)
+            l2_ttl: L2 cache TTL (default: 1 hour)
+
+        Returns:
+            True if cached successfully in at least one tier
+        """
+        l1_ttl = l1_ttl or self.DEFAULT_L1_TTL
+        l2_ttl = l2_ttl or self.DEFAULT_L2_TTL
+        query_hash = generate_query_hash(query, max_tokens, self.search_mode)
+
+        # Store in L1
+        l1_success = await self._l1_cache.set(query, max_tokens, result, l1_ttl)
+
+        # Store in L2
+        sections = result.get("sections", [])
+        total_tokens = result.get("totalTokens", result.get("total_tokens", 0))
+        suggestions = result.get("suggestions", [])
+
+        l2_success = await set_l2_cached_result(
+            self.project_id,
+            query_hash,
+            sections,
+            total_tokens,
+            suggestions,
+            l2_ttl,
+        )
+
+        logger.debug(f"Cached in L1={l1_success}, L2={l2_success} for {query[:50]}...")
+        return l1_success or l2_success
+
+    async def invalidate(self) -> tuple[int, int]:
+        """Invalidate all cache entries for this project.
+
+        Returns:
+            Tuple of (l1_deleted, l2_deleted)
+        """
+        from .cache_stats import invalidate_l2_cache
+
+        l1_deleted = await self._l1_cache.invalidate()
+        l2_deleted = await invalidate_l2_cache(self.project_id)
+        return l1_deleted, l2_deleted
+
+
 # Factory function
 def get_cache(project_id: str, use_similarity: bool = False) -> QueryCache:
     """Get a cache instance for a project.
@@ -275,3 +431,19 @@ def get_cache(project_id: str, use_similarity: bool = False) -> QueryCache:
     if use_similarity:
         return SimilarQueryCache(project_id)
     return QueryCache(project_id)
+
+
+def get_tiered_cache(project_id: str, search_mode: str = "keyword") -> TieredCache:
+    """Get a tiered cache instance for a project.
+
+    This is the recommended cache for context queries as it uses both
+    L1 (Redis) and L2 (PostgreSQL) layers and records statistics.
+
+    Args:
+        project_id: The project ID
+        search_mode: Search mode for cache key generation
+
+    Returns:
+        TieredCache instance
+    """
+    return TieredCache(project_id, search_mode)

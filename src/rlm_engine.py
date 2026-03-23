@@ -17,6 +17,8 @@ from typing import Any
 
 from .config import settings
 from .db import get_db
+from .services.cache import get_tiered_cache
+from .services.cache_stats import generate_query_hash
 
 # Phase 4 Refactor: Import from extracted core module
 from .engine.core import (
@@ -1637,6 +1639,70 @@ class RLMEngine:
         include_all_tiers = params.get("include_all_tiers", False)
         tier_filter = None if include_all_tiers else ["HOT", "WARM"]
 
+        # ============ CACHE CHECK (L1 + L2) ============
+        # Check tiered cache for Team+ plans before expensive operations
+        # This can save significant compute time for repeated queries
+        use_cache = self.plan in CACHE_ENABLED_PLANS and not return_references
+        tiered_cache = None
+
+        if use_cache:
+            tiered_cache = get_tiered_cache(self.project_id, search_mode_str or "keyword")
+
+            # Check cache - returns (result, cache_level) where level is "l1", "l2", or None
+            cached_result, cache_level = await tiered_cache.get(
+                query=query,
+                max_tokens=max_tokens,
+                estimate_compute_ms=200,  # Estimated compute time for cache savings calc
+            )
+
+            if cached_result:
+                # Cache hit - return early
+                timing["total_ms"] = int((time.perf_counter() - timing_start) * 1000)
+                timing["cache_hit"] = 1
+                timing["cache_level"] = cache_level
+
+                # Reconstruct ContextQueryResult from cached data
+                cached_sections = cached_result.get("sections", [])
+                cached_total_tokens = cached_result.get("totalTokens", cached_result.get("total_tokens", 0))
+
+                # Convert cached sections back to ContextSection objects if needed
+                if cached_sections and isinstance(cached_sections[0], dict):
+                    cached_sections = [
+                        ContextSection(
+                            title=s.get("title", ""),
+                            content=s.get("content", ""),
+                            file=s.get("file"),
+                            lines=(s.get("start_line", 0), s.get("end_line", 0)),
+                            relevance_score=s.get("relevance_score", 0.0),
+                            token_count=s.get("tokens", s.get("token_count", 0)),
+                            truncated=s.get("truncated", False),
+                        )
+                        for s in cached_sections
+                    ]
+
+                result = ContextQueryResult(
+                    sections=cached_sections,
+                    total_tokens=cached_total_tokens,
+                    max_tokens=max_tokens,
+                    query=query,
+                    search_mode=SearchMode(search_mode_str) if search_mode_str else SearchMode.KEYWORD,
+                    suggestions=cached_result.get("suggestions", []),
+                    timing=timing,
+                    cached=True,
+                    cache_level=cache_level,
+                )
+
+                logger.info(
+                    f"Returning cached result ({cache_level}) for query: {query[:50]}... "
+                    f"({cached_total_tokens} tokens)"
+                )
+
+                return ToolResult(
+                    data=result.model_dump(),
+                    input_tokens=count_tokens(query),
+                    output_tokens=cached_total_tokens,
+                )
+
         # Check if we should auto-decompose this query (Pro+ only)
         decomposed = False
         sub_queries_used: list[str] = []
@@ -2291,6 +2357,36 @@ Rationale: {decision.rationale}"""
         # Calculate actual token usage for billing
         input_tokens = count_tokens(query)
         output_tokens = total_tokens
+
+        # ============ CACHE STORE ============
+        # Store result in tiered cache for Team+ plans
+        # Don't cache pass-by-reference results (they contain session-specific chunk IDs)
+        if use_cache and tiered_cache and not return_references:
+            # Prepare cacheable data (serialize sections to dicts)
+            cache_data = {
+                "sections": [
+                    {
+                        "title": s.title,
+                        "content": s.content,
+                        "file": s.file,
+                        "start_line": s.lines[0] if hasattr(s, "lines") else s.start_line,
+                        "end_line": s.lines[1] if hasattr(s, "lines") else s.end_line,
+                        "relevance_score": s.relevance_score,
+                        "tokens": s.token_count,
+                        "truncated": s.truncated,
+                    }
+                    for s in all_sections
+                ],
+                "totalTokens": total_tokens,
+                "suggestions": suggestions,
+            }
+
+            # Store in cache asynchronously (don't block response)
+            try:
+                await tiered_cache.set(query, max_tokens, cache_data)
+                logger.debug(f"Cached result for query: {query[:50]}... ({total_tokens} tokens)")
+            except Exception as e:
+                logger.warning(f"Failed to cache result: {e}")
 
         return ToolResult(
             data=result.model_dump(),
