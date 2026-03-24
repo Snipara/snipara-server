@@ -196,6 +196,11 @@ async def set_l2_cached_result(
 
         expires_at = datetime.now(timezone.utc) + timedelta(seconds=ttl_seconds)
 
+        # Ensure sections is JSON serializable
+        sections_json = json.dumps(sections) if isinstance(sections, list) else sections
+        # Prisma Json fields need proper JSON - use Json.null for empty
+        doc_versions_json = json.dumps(document_versions) if document_versions else "{}"
+
         await db.querycache.upsert(
             where={
                 "projectId_queryHash": {
@@ -205,21 +210,21 @@ async def set_l2_cached_result(
             },
             data={
                 "create": {
-                    "projectId": project_id,
+                    "project": {"connect": {"id": project_id}},
                     "queryHash": query_hash,
-                    "sections": json.dumps(sections) if isinstance(sections, list) else sections,
+                    "sections": sections_json,
                     "totalTokens": total_tokens,
                     "suggestions": suggestions or [],
                     "expiresAt": expires_at,
-                    "documentVersions": document_versions or {},
+                    "documentVersions": doc_versions_json,
                     "hitCount": 0,
                 },
                 "update": {
-                    "sections": json.dumps(sections) if isinstance(sections, list) else sections,
+                    "sections": sections_json,
                     "totalTokens": total_tokens,
                     "suggestions": suggestions or [],
                     "expiresAt": expires_at,
-                    "documentVersions": document_versions or {},
+                    "documentVersions": doc_versions_json,
                 },
             },
         )
