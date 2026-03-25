@@ -675,12 +675,15 @@ async def _propagate_blocked_status(swarm_id: str, task_id: str) -> list[str]:
     return affected
 
 
-async def unblock_task(swarm_id: str, task_id: str) -> dict[str, Any]:
+async def unblock_task(
+    swarm_id: str, task_id: str, resolution: str | None = None
+) -> dict[str, Any]:
     """Clear blocking state from a task.
 
     Args:
         swarm_id: The swarm ID
         task_id: The task ID to unblock
+        resolution: How the blocker was resolved (optional)
 
     Returns:
         Result with re-evaluated ancestors
@@ -716,11 +719,14 @@ async def unblock_task(swarm_id: str, task_id: str) -> dict[str, Any]:
     reevaluated = await _reevaluate_ancestor_status(swarm_id, task_id)
 
     # Log event
+    event_payload: dict[str, Any] = {"reevaluated_ancestors": reevaluated}
+    if resolution:
+        event_payload["resolution"] = resolution
     await log_htask_event(
         swarm_id=swarm_id,
         task_id=task_id,
         event_type="unblock",
-        payload={"reevaluated_ancestors": reevaluated},
+        payload=event_payload,
     )
 
     logger.info(f"Unblocked htask {task_id}, reevaluated ancestors: {len(reevaluated)}")
