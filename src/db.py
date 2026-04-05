@@ -2,6 +2,8 @@
 
 import asyncio
 import logging
+import os
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 from prisma import Prisma
 
@@ -16,10 +18,47 @@ MAX_RETRIES = 3
 RETRY_DELAY_SECONDS = 1.0
 
 
+def _normalize_database_url(url: str | None) -> str | None:
+    """Strip Prisma's schema query param so public stays in the search_path."""
+    if not url:
+        return url
+
+    parts = urlsplit(url)
+    query_items = parse_qsl(parts.query, keep_blank_values=True)
+    filtered_items = [(key, value) for key, value in query_items if key.lower() != "schema"]
+
+    if len(filtered_items) == len(query_items):
+        return url
+
+    return urlunsplit(
+        (
+            parts.scheme,
+            parts.netloc,
+            parts.path,
+            urlencode(filtered_items),
+            parts.fragment,
+        )
+    )
+
+
+def _prepare_database_url() -> None:
+    """Ensure DATABASE_URL does not force a single schema."""
+    current_url = os.getenv("DATABASE_URL")
+    normalized_url = _normalize_database_url(current_url)
+
+    if normalized_url and normalized_url != current_url:
+        os.environ["DATABASE_URL"] = normalized_url
+        logger.warning(
+            "Removed schema query parameter from DATABASE_URL to preserve "
+            "tenant_snipara, public search_path for pgvector"
+        )
+
+
 async def _create_client() -> Prisma:
     """Create and connect a new Prisma client with retry logic."""
     for attempt in range(MAX_RETRIES):
         try:
+            _prepare_database_url()
             client = Prisma()
             await client.connect()
 

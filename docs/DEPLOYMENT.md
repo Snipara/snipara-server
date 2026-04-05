@@ -111,7 +111,7 @@ As of February 2026, all Snipara data is stored on **Vaultbrix**, our Swiss clou
 
 | Environment     | Database URL                                                                                    |
 | --------------- | ----------------------------------------------------------------------------------------------- |
-| **Production**  | `postgresql://tenant_snipara:***@snipara.api.vaultbrix.com:5433/postgres?schema=tenant_snipara` |
+| **Production**  | `postgresql://tenant_snipara:***@snipara.api.vaultbrix.com:5433/postgres` |
 | **Development** | Same as production (shared database, tenant isolation via schema)                               |
 
 ### Data Sovereignty & Compliance
@@ -145,7 +145,7 @@ As of February 2026, all Snipara data is stored on **Vaultbrix**, our Swiss clou
 
 ```bash
 # .env (both environments)
-DATABASE_URL=postgresql://tenant_snipara:***@snipara.api.vaultbrix.com:5433/postgres?sslmode=disable&schema=tenant_snipara
+DATABASE_URL=postgresql://tenant_snipara:***@snipara.api.vaultbrix.com:5433/postgres?sslmode=disable
 ```
 
 **Note:** The schema `tenant_snipara` provides tenant isolation within the shared Vaultbrix PostgreSQL cluster.
