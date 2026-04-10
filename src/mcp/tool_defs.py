@@ -801,7 +801,7 @@ TOOL_DEFINITIONS: list[dict] = [
                 "memory_id": {"type": "string", "description": "Legacy or V2 memory ID"},
                 "mark_stale_if_missing": {
                     "type": "boolean",
-                    "default": true,
+                    "default": True,
                     "description": "Mark memory stale when all evidence is invalid",
                 },
             },
