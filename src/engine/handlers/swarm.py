@@ -31,8 +31,10 @@ from ...services.swarm import (
     join_swarm,
     list_tasks,
     list_tasks_enhanced,
+    recover_stuck_tasks,
     release_claim,
     set_state,
+    unclaim_task,
     update_agent_profile,
 )
 from .base import HandlerContext, count_tokens
@@ -681,6 +683,69 @@ async def handle_task_events(
         swarm_id=swarm_id,
         since=since,
         limit=limit,
+    )
+
+    return ToolResult(
+        data=result,
+        input_tokens=0,
+        output_tokens=count_tokens(str(result)),
+    )
+
+
+async def handle_task_unclaim(
+    params: dict[str, Any],
+    ctx: HandlerContext,
+) -> ToolResult:
+    """Return a claimed/in-progress task to the pending queue."""
+    swarm_id = params.get("swarm_id", "")
+    task_id = params.get("task_id", "")
+    reason = params.get("reason")
+
+    if not swarm_id or not task_id:
+        missing = []
+        if not swarm_id:
+            missing.append("swarm_id")
+        if not task_id:
+            missing.append("task_id")
+        return ToolResult(
+            data={"error": f"rlm_task_unclaim: missing required parameter(s): {', '.join(missing)}"},
+            input_tokens=0,
+            output_tokens=0,
+        )
+
+    result = await unclaim_task(
+        swarm_id=swarm_id,
+        task_id=task_id,
+        reason=reason,
+    )
+
+    return ToolResult(
+        data=result,
+        input_tokens=count_tokens(reason or ""),
+        output_tokens=count_tokens(str(result)),
+    )
+
+
+async def handle_task_recover(
+    params: dict[str, Any],
+    ctx: HandlerContext,
+) -> ToolResult:
+    """Find and optionally recover stuck tasks in a swarm."""
+    swarm_id = params.get("swarm_id", "")
+    stuck_threshold_minutes = params.get("stuck_threshold_minutes", 30)
+    dry_run = params.get("dry_run", True)
+
+    if not swarm_id:
+        return ToolResult(
+            data={"error": "rlm_task_recover: missing required parameter 'swarm_id'"},
+            input_tokens=0,
+            output_tokens=0,
+        )
+
+    result = await recover_stuck_tasks(
+        swarm_id=swarm_id,
+        stuck_threshold_minutes=int(stuck_threshold_minutes),
+        dry_run=bool(dry_run),
     )
 
     return ToolResult(

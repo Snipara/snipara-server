@@ -19,8 +19,10 @@ from .swarm_coordinator import (
     leave_swarm,
     list_tasks,
     list_tasks_enhanced,
+    recover_stuck_tasks,
     release_claim,
     set_state,
+    unclaim_task,
     update_agent_profile,
 )
 from .swarm_events import (
@@ -53,6 +55,8 @@ __all__ = [
     "complete_task",
     "list_tasks",
     "list_tasks_enhanced",
+    "unclaim_task",
+    "recover_stuck_tasks",
     "get_task_stats",
     # Event functions
     "broadcast_event",

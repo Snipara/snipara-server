@@ -1273,6 +1273,138 @@ async def complete_task(
     }
 
 
+async def unclaim_task(
+    swarm_id: str,
+    task_id: str,
+    *,
+    reason: str | None = None,
+) -> dict[str, Any]:
+    """Return an in-progress task to the pending queue.
+
+    This is used to recover tasks that are stuck or were claimed by an
+    unavailable agent. The task is detached from its current agent and moved
+    back to `PENDING`.
+    """
+    db = await get_db()
+
+    task = await db.swarmtask.find_first(
+        where={
+            "id": task_id,
+            "swarmId": swarm_id,
+            "status": {"in": ["CLAIMED", "IN_PROGRESS"]},
+        },
+        include={"agent": True},
+    )
+
+    if not task:
+        return {
+            "success": False,
+            "error": "Task not found or not currently claimed",
+            "task_id": task_id,
+        }
+
+    previous_agent_id = task.agent.agentId if task.agent else None
+
+    update_data: dict[str, Any] = {
+        "status": "PENDING",
+        "startedAt": None,
+        "claimedAt": None,
+        "agent": {"disconnect": True},
+    }
+
+    if reason:
+        update_data["error"] = reason
+
+    await db.swarmtask.update(
+        where={"id": task.id},
+        data=update_data,
+    )
+
+    logger.info(
+        "Unclaimed task %s in swarm %s (previous_agent=%s, reason=%s)",
+        task.id,
+        swarm_id,
+        previous_agent_id,
+        reason or "manual",
+    )
+
+    return {
+        "success": True,
+        "task_id": task.id,
+        "previous_status": str(task.status).lower(),
+        "previous_agent_id": previous_agent_id,
+        "new_status": "pending",
+        "message": "Task returned to pending queue",
+    }
+
+
+async def recover_stuck_tasks(
+    swarm_id: str,
+    *,
+    stuck_threshold_minutes: int = 30,
+    dry_run: bool = True,
+) -> dict[str, Any]:
+    """Find and optionally recover stuck tasks in a swarm."""
+    db = await get_db()
+
+    threshold = datetime.now(UTC) - timedelta(minutes=stuck_threshold_minutes)
+    tasks = await db.swarmtask.find_many(
+        where={
+            "swarmId": swarm_id,
+            "status": {"in": ["CLAIMED", "IN_PROGRESS"]},
+        },
+        include={"agent": True},
+    )
+
+    stuck_tasks = []
+    for task in tasks:
+        last_activity = task.startedAt or task.claimedAt or task.createdAt
+        if last_activity and last_activity <= threshold:
+            stuck_tasks.append(
+                {
+                    "task_id": task.id,
+                    "title": task.title,
+                    "status": str(task.status).lower(),
+                    "assigned_to": task.agent.agentId if task.agent else None,
+                    "last_activity": last_activity.isoformat(),
+                    "minutes_stuck": int((datetime.now(UTC) - last_activity).total_seconds() // 60),
+                }
+            )
+
+    if dry_run:
+        return {
+            "success": True,
+            "dry_run": True,
+            "swarm_id": swarm_id,
+            "stuck_threshold_minutes": stuck_threshold_minutes,
+            "stuck_count": len(stuck_tasks),
+            "stuck_tasks": stuck_tasks,
+        }
+
+    recovered: list[dict[str, Any]] = []
+    for stuck_task in stuck_tasks:
+        recovered.append(
+            await unclaim_task(
+                swarm_id,
+                stuck_task["task_id"],
+                reason=(
+                    "Recovered automatically after "
+                    f"{stuck_threshold_minutes} minutes without progress"
+                ),
+            )
+        )
+
+    return {
+        "success": True,
+        "dry_run": False,
+        "swarm_id": swarm_id,
+        "stuck_threshold_minutes": stuck_threshold_minutes,
+        "stuck_count": len(stuck_tasks),
+        "recovered_count": sum(1 for item in recovered if item.get("success")),
+        "recovered_tasks": recovered,
+    }
+
+
 async def list_tasks(
     swarm_id: str,
     status: str | None = None,

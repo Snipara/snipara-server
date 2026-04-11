@@ -1377,7 +1377,6 @@ async def validate_document_refs(
     try:
         indexed_docs = await db.document.find_many(
             where={"projectId": project_id},
-            select={"path": True},
         )
         indexed_paths = {doc.path for doc in indexed_docs}
 
