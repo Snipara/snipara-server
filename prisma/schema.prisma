@@ -155,7 +155,29 @@ model Team {
   // Enterprise Admin Tokens (for Enterprise plan teams)
   enterpriseAdminTokens EnterpriseAdminToken[]
 
+  // GitHub App installations (Railway-style repo linking)
+  githubInstallations GitHubInstallation[]
+
   @@map("teams")
+  @@schema("tenant_snipara")
+}
+
+/// GitHub App installation — one per GitHub account (org or user) that
+/// installed the Snipara GitHub App.
+model GitHubInstallation {
+  id             String    @id @default(cuid())
+  installationId BigInt    @unique
+  accountLogin   String
+  accountType    String
+  suspendedAt    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  teamId String
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@index([teamId])
+  @@map("github_installations")
   @@schema("tenant_snipara")
 }
 
@@ -359,6 +381,16 @@ model Project {
   memoryMinConfidence             Float    @default(0.2)   // Minimum confidence for injection (0-1)
   memoryRecallQuery               String?  // Custom recall query template, supports {project_name}, {project_slug}
   memorySaveOnCommit              Boolean  @default(false) // Save memory when git commit is detected
+  memoryAutoRecallOnSessionStart  Boolean  @default(true)
+  memoryAutoRecallOnResume        Boolean  @default(true)
+  memoryDeduplicateBeforeWrite    Boolean  @default(true)
+  memoryEndOfTaskCommitEnabled    Boolean  @default(true)
+  memoryWorkspaceProfileEnabled   Boolean  @default(true)
+  memoryNoveltyThreshold          Float    @default(0.92)
+  memoryResumeWindowMinutes       Int      @default(180)
+  memoryReviewMode                String   @default("AUTO") // AUTO, INBOX
+  memoryCaptureToolResults        Boolean  @default(true)
+  memoryCaptureFailures           Boolean  @default(false)
 
   systemInstructions    String? @db.Text // Custom instructions to prepend to every query response
 
@@ -1331,6 +1363,14 @@ enum MemoryStatus {
   @@schema("tenant_snipara")
 }
 
+enum MemoryReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+
+  @@schema("tenant_snipara")
+}
+
 enum MemorySource {
   MCP
   SESSION_CAPTURE
@@ -1387,6 +1427,10 @@ model AgentMemory {
   accessCount   Int          @default(0)
   lastAccessedAt DateTime?
   expiresAt     DateTime?    // Null = permanent
+  reviewStatus  MemoryReviewStatus @default(APPROVED)
+  reviewNotes   String?      @db.Text
+  reviewedAt    DateTime?
+  reviewedBy    String?
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
 
@@ -1400,6 +1444,8 @@ model AgentMemory {
   @@index([projectId, type])
   @@index([projectId, category])
   @@index([projectId, scope])
+  @@index([projectId, reviewStatus])
+  @@index([projectId, type, reviewStatus])
   @@index([projectId, tier])
   @@index([expiresAt])
   @@map("agent_memories")

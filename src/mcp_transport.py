@@ -199,6 +199,21 @@ async def handle_request(
 # ============ HTTP ENDPOINTS ============
 
 
+@router.post("/{owner}/{repo}")
+async def mcp_endpoint_repo(
+    owner: str,
+    repo: str,
+    request: Request,
+    x_api_key: str | None = Header(None, alias="X-API-Key"),
+    authorization: str | None = Header(None),
+):
+    """Same as /mcp/{project_id}, but accepts a GitHub-style `owner/repo`
+    identifier so the CLI can send its auto-resolved owner/repo directly
+    (FastAPI doesn't decode %2F on single-segment path params).
+    """
+    return await mcp_endpoint(f"{owner}/{repo}", request, x_api_key, authorization)
+
+
 @router.post("/{project_id}")
 async def mcp_endpoint(
     project_id: str,
