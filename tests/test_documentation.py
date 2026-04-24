@@ -12,8 +12,7 @@ from pathlib import Path
 
 import pytest
 
-# Navigate from tests/ -> mcp-server/ -> apps/ -> RLMSaas/
-PROJECT_ROOT = Path(__file__).parent.parent.parent.parent
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 
 class TestVersionConsistency:
@@ -21,8 +20,8 @@ class TestVersionConsistency:
 
     def test_pyproject_init_version_match(self):
         """Version in pyproject.toml should match __init__.py."""
-        pyproject_path = PROJECT_ROOT / "apps/mcp-server/snipara-mcp/pyproject.toml"
-        init_path = PROJECT_ROOT / "apps/mcp-server/snipara-mcp/src/snipara_mcp/__init__.py"
+        pyproject_path = PROJECT_ROOT / "snipara-mcp/pyproject.toml"
+        init_path = PROJECT_ROOT / "snipara-mcp/src/snipara_mcp/__init__.py"
 
         # Read pyproject.toml version
         with open(pyproject_path, "rb") as f:

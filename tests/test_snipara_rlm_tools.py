@@ -137,22 +137,20 @@ async def test_generated_contract_tool_handler_forwards_arguments(monkeypatch: p
     monkeypatch.setattr(SniparaClient, "call_tool", fake_call_tool)
 
     tools = get_snipara_tools(api_key="rlm_test", project_slug="snipara")
-    end_of_task_commit = next(tool for tool in tools if tool.name == "rlm_end_of_task_commit")
+    context_query = next(tool for tool in tools if tool.name == "rlm_context_query")
 
-    result = await end_of_task_commit.handler(
-        summary="Standardized memory-first automation.",
-        persist_types=["workflow", "decision"],
-        outcome="completed",
+    result = await context_query.handler(
+        query="Standardized memory-first automation.",
+        max_tokens=1200,
     )
 
     assert result == {"ok": True}
     assert calls == [
         (
-            "rlm_end_of_task_commit",
+            "rlm_context_query",
             {
-                "summary": "Standardized memory-first automation.",
-                "persist_types": ["workflow", "decision"],
-                "outcome": "completed",
+                "query": "Standardized memory-first automation.",
+                "max_tokens": 1200,
             },
         )
     ]

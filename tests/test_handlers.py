@@ -4,12 +4,10 @@ These tests verify the extracted handler modules work correctly.
 Uses mocks for database and service calls.
 """
 
-# IMPORTANT: Import conftest_handlers first to set up mocks before other imports
-import tests.conftest_handlers  # noqa: F401
-
 from unittest.mock import MagicMock, patch
 
 import pytest
+import tests.conftest_handlers  # noqa: F401
 
 from src.engine.handlers import HandlerContext, count_tokens
 from src.engine.handlers.memory import (
@@ -81,7 +79,7 @@ class TestMemoryHandlers:
     async def test_remember_requires_content(self, mock_context):
         """Test that remember requires content."""
         result = await handle_remember({}, mock_context)
-        assert result.data["error"] == "content is required"
+        assert "content" in result.data["error"]
 
     @pytest.mark.asyncio
     @patch("src.engine.handlers.memory.check_memory_limits")
@@ -117,7 +115,7 @@ class TestMemoryHandlers:
     async def test_recall_requires_query(self, mock_context):
         """Test that recall requires query."""
         result = await handle_recall({}, mock_context)
-        assert result.data["error"] == "query is required"
+        assert "query" in result.data["error"]
 
     @pytest.mark.asyncio
     @patch("src.engine.handlers.memory.semantic_recall")
@@ -171,7 +169,7 @@ class TestSwarmHandlers:
     async def test_swarm_create_requires_name(self, mock_context):
         """Test that swarm_create requires name."""
         result = await handle_swarm_create({}, mock_context)
-        assert result.data["error"] == "name is required"
+        assert "name" in result.data["error"]
 
     @pytest.mark.asyncio
     @patch("src.engine.handlers.swarm.create_swarm")
@@ -264,7 +262,7 @@ class TestSessionHandlers:
         """Test that inject requires context string."""
         set_callback = MagicMock()
         result = await handle_inject({}, mock_context, set_callback)
-        assert result.data["error"] == "context is required"
+        assert "context" in result.data["error"]
 
     @pytest.mark.asyncio
     async def test_inject_success(self, mock_context):

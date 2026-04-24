@@ -1,12 +1,10 @@
 """Tests for the auto_remember middleware module."""
 
-# IMPORTANT: Import conftest_handlers first to set up mocks before other imports
-import tests.conftest_handlers  # noqa: F401
-
 from dataclasses import dataclass, field
 from unittest.mock import AsyncMock, patch
 
 import pytest
+import tests.conftest_handlers  # noqa: F401
 
 from src.engine.middleware.auto_remember import (
     AUTO_REMEMBER_TOOLS,

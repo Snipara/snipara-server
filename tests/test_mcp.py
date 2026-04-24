@@ -4,8 +4,6 @@ These tests verify the extracted MCP transport components work correctly.
 Note: validation.py tests are skipped as they require full environment setup.
 """
 
-import pytest
-
 from src.mcp.jsonrpc import (
     INTERNAL_ERROR,
     INVALID_PARAMS,
@@ -132,8 +130,8 @@ class TestToolDefinitions:
         """Test rlm_ask tool is defined."""
         tool = next((t for t in TOOL_DEFINITIONS if t["name"] == "rlm_ask"), None)
         assert tool is not None
-        assert "question" in tool["inputSchema"]["properties"]
-        assert "question" in tool["inputSchema"]["required"]
+        assert "query" in tool["inputSchema"]["properties"]
+        assert "query" in tool["inputSchema"]["required"]
 
     def test_search_tool_exists(self):
         """Test rlm_search tool is defined."""

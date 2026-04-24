@@ -3,13 +3,14 @@
 from unittest.mock import AsyncMock, patch
 
 import pytest
+from fastapi import HTTPException
 
 
 @pytest.fixture
 def mock_validate_api_key_invalid():
     """Mock validate_api_key to return None (invalid key) without DB access."""
-    with patch("src.server.validate_api_key", new_callable=AsyncMock) as mock:
-        mock.return_value = None
+    with patch("src.server.validate_and_rate_limit", new_callable=AsyncMock) as mock:
+        mock.side_effect = HTTPException(status_code=401, detail="Invalid API key")
         yield mock
 
 
