@@ -2,7 +2,8 @@
 
 This module provides REST API endpoints for integrators to manage their
 workspace, clients, and API keys. All endpoints require authentication
-with an integrator's API key (rlm_*).
+with an integrator workspace API key (int_*). Regular project API keys
+(rlm_*) and team API keys are NOT accepted here.
 
 Base URL: /v1/integrator
 """
@@ -119,9 +120,12 @@ def generate_client_api_key() -> str:
 
 async def get_integrator_from_api_key(api_key: str) -> dict:
     """
-    Validate API key and return integrator info.
+    Validate an integrator workspace API key (int_*) and return integrator info.
 
-    The integrator must have an active subscription to use the Admin API.
+    Only keys stored in `IntegratorWorkspaceApiKey` are accepted. Regular
+    project keys (rlm_*) and team API keys cannot be used to reach the
+    integrator admin API, even if their owner happens to have an Integrator
+    subscription.
 
     Args:
         api_key: The API key from the request header
@@ -130,44 +134,35 @@ async def get_integrator_from_api_key(api_key: str) -> dict:
         Dict with integrator info including workspace
 
     Raises:
-        HTTPException if API key is invalid or user is not an integrator
+        HTTPException if API key is invalid, not an integrator workspace key,
+        or the integrator has no workspace.
     """
+    # Defense-in-depth: reject anything that isn't an integrator workspace key
+    # before touching the database.
+    if not api_key.startswith("int_"):
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid API key. The integrator API requires an int_* workspace key.",
+        )
+
     db = await get_db()
 
     key_hash = hash_api_key(api_key)
 
-    # Find the API key and get user
-    api_key_record = await db.apikey.find_first(
+    api_key_record = await db.integratorworkspaceapikey.find_first(
         where={"keyHash": key_hash},
         include={
-            "user": {
+            "workspace": {
                 "include": {
                     "integrator": {
                         "include": {
-                            "workspace": True,
+                            "user": True,
                         }
                     }
                 }
             }
         },
     )
-
-    # Also try team API keys
-    if not api_key_record:
-        api_key_record = await db.teamapikey.find_first(
-            where={"keyHash": key_hash},
-            include={
-                "user": {
-                    "include": {
-                        "integrator": {
-                            "include": {
-                                "workspace": True,
-                            }
-                        }
-                    }
-                }
-            },
-        )
 
     if not api_key_record:
         raise HTTPException(status_code=401, detail="Invalid API key")
@@ -180,22 +175,36 @@ async def get_integrator_from_api_key(api_key: str) -> dict:
     if api_key_record.expiresAt and api_key_record.expiresAt < datetime.now(UTC):
         raise HTTPException(status_code=401, detail="API key has expired")
 
-    user = api_key_record.user
-    if not user:
+    workspace = api_key_record.workspace
+    if not workspace:
         raise HTTPException(status_code=401, detail="Invalid API key")
 
-    integrator = user.integrator
+    integrator = workspace.integrator
     if not integrator:
         raise HTTPException(
             status_code=403,
             detail="INTEGRATOR_NOT_FOUND: You must have an Integrator subscription to use this API. Visit https://snipara.com/integrator to sign up.",
         )
 
+    user = integrator.user
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid API key")
+
+    # Track last usage for auditing / dashboards
+    try:
+        await db.integratorworkspaceapikey.update(
+            where={"id": api_key_record.id},
+            data={"lastUsedAt": datetime.now(UTC)},
+        )
+    except Exception:
+        # lastUsedAt update is best-effort; never block auth on it
+        logger.debug("Failed to update lastUsedAt for integrator workspace API key")
+
     return {
         "user_id": user.id,
         "integrator_id": integrator.id,
         "integrator": integrator,
-        "workspace": integrator.workspace,
+        "workspace": workspace,
         "tier": integrator.tier,
         "client_limit": integrator.clientLimit,
     }
@@ -219,60 +228,29 @@ async def get_api_key_header(
 @router.post("/workspace")
 async def create_workspace(
     request: CreateWorkspaceRequest,
-    api_key: str = Depends(get_api_key_header),
 ):
     """
-    Create a workspace for the integrator.
+    DEPRECATED / DISABLED.
 
-    Each integrator can only have one workspace. The workspace is the
-    container for all clients managed by the integrator.
+    Workspace creation is only allowed from the authenticated web dashboard
+    (https://snipara.com/integrator) where the user is identified by a
+    session, not by an API key. The API key flow is unsafe here because the
+    only valid integrator key (`int_*`) is itself workspace-scoped - it can
+    only exist after a workspace is created.
 
-    Args:
-        request: Workspace creation parameters
-        api_key: Integrator's API key
-
-    Returns:
-        Created workspace details
+    Previously this endpoint accepted any `ApiKey` / `TeamApiKey` belonging
+    to a user who had an Integrator record, which let non-integrator users
+    create workspaces on the integrator side.
     """
-    integrator_info = await get_integrator_from_api_key(api_key)
-
-    if integrator_info["workspace"]:
-        raise HTTPException(
-            status_code=400,
-            detail="WORKSPACE_EXISTS: You already have a workspace. Use GET /v1/integrator/workspace to view it.",
-        )
-
-    db = await get_db()
-
-    # Check if slug is already taken
-    existing = await db.integratorworkspace.find_first(where={"slug": request.slug})
-    if existing:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Workspace slug '{request.slug}' is already taken. Choose a different slug.",
-        )
-
-    workspace = await db.integratorworkspace.create(
-        data={
-            "integratorId": integrator_info["integrator_id"],
-            "name": request.name,
-            "slug": request.slug,
-        }
+    raise HTTPException(
+        status_code=410,
+        detail=(
+            "WORKSPACE_CREATION_DISABLED: Workspaces can only be created from "
+            "the Snipara dashboard at https://snipara.com/integrator. This API "
+            "endpoint has been removed to prevent non-integrator accounts from "
+            "provisioning workspaces."
+        ),
     )
-
-    logger.info(
-        f"Created workspace {workspace.id} for integrator {integrator_info['integrator_id']}"
-    )
-
-    return {
-        "success": True,
-        "data": {
-            "workspace_id": workspace.id,
-            "name": workspace.name,
-            "slug": workspace.slug,
-            "created_at": workspace.createdAt.isoformat(),
-        },
-    }
 
 
 @router.get("/workspace")
@@ -291,7 +269,7 @@ async def get_workspace(
     if not workspace:
         raise HTTPException(
             status_code=404,
-            detail="WORKSPACE_NOT_FOUND: You don't have a workspace yet. Create one with POST /v1/integrator/workspace.",
+            detail="WORKSPACE_NOT_FOUND: You don't have a workspace yet. Create one from https://snipara.com/integrator.",
         )
 
     db = await get_db()
