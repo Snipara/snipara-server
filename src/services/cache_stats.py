@@ -7,7 +7,7 @@ for dashboard visualization and analytics.
 import hashlib
 import json
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from ..db import get_db
@@ -69,7 +69,7 @@ async def record_cache_hit(
                     "l2Misses": 0,
                     "tokensSaved": tokens_saved,
                     "computeMsSaved": compute_ms_saved,
-                    "periodStart": datetime.now(timezone.utc),
+                    "periodStart": datetime.now(UTC),
                 },
                 "update": {
                     increment_field: {"increment": 1},
@@ -109,7 +109,7 @@ async def record_cache_miss(project_id: str, level: str) -> None:
                     "l2Misses": 1 if level == "l2" else 0,
                     "tokensSaved": 0,
                     "computeMsSaved": 0,
-                    "periodStart": datetime.now(timezone.utc),
+                    "periodStart": datetime.now(UTC),
                 },
                 "update": {
                     increment_field: {"increment": 1},
@@ -141,7 +141,7 @@ async def get_l2_cached_result(
             where={
                 "projectId": project_id,
                 "queryHash": query_hash,
-                "expiresAt": {"gt": datetime.now(timezone.utc)},
+                "expiresAt": {"gt": datetime.now(UTC)},
             },
         )
 
@@ -151,7 +151,7 @@ async def get_l2_cached_result(
                 where={"id": entry.id},
                 data={
                     "hitCount": {"increment": 1},
-                    "lastHitAt": datetime.now(timezone.utc),
+                    "lastHitAt": datetime.now(UTC),
                 },
             )
 
@@ -194,7 +194,7 @@ async def set_l2_cached_result(
     try:
         db = await get_db()
 
-        expires_at = datetime.now(timezone.utc) + timedelta(seconds=ttl_seconds)
+        expires_at = datetime.now(UTC) + timedelta(seconds=ttl_seconds)
 
         # Ensure sections is JSON serializable
         sections_json = json.dumps(sections) if isinstance(sections, list) else sections
@@ -283,7 +283,7 @@ async def cleanup_expired_l2_cache(project_id: str | None = None) -> int:
         db = await get_db()
 
         where: dict[str, Any] = {
-            "expiresAt": {"lte": datetime.now(timezone.utc)},
+            "expiresAt": {"lte": datetime.now(UTC)},
         }
         if project_id:
             where["projectId"] = project_id

@@ -137,7 +137,7 @@ async def update_policy(
 
     db = await get_db()
 
-    policy = await db.htaskpolicy.upsert(
+    await db.htaskpolicy.upsert(
         where={"swarmId": swarm_id},
         create={"swarmId": swarm_id, **prisma_updates},
         update=prisma_updates,

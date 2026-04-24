@@ -9,7 +9,7 @@ Handles:
 
 import hashlib
 from collections.abc import Callable
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from ...config import settings
@@ -236,7 +236,7 @@ async def handle_sync_documents(
                     await db.document.update(
                         where={"id": doc.id},
                         data={
-                            "deletedAt": datetime.now(timezone.utc),
+                            "deletedAt": datetime.now(UTC),
                             "deletedBy": ctx.user_id,
                         },
                     )

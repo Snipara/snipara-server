@@ -1,8 +1,7 @@
 # apps/mcp-server/src/services/tier_manager.py
 """Tier management for document chunks based on access patterns."""
 
-from datetime import datetime, timedelta, timezone
-from typing import Optional
+from datetime import UTC, datetime
 
 from src.models.enums import ChunkTier
 
@@ -29,10 +28,10 @@ TIER_CONFIG = {
 
 
 def compute_tier(
-    last_accessed: Optional[datetime],
+    last_accessed: datetime | None,
     avg_relevance: float,
     access_count: int,
-    now: Optional[datetime] = None,
+    now: datetime | None = None,
 ) -> ChunkTier:
     """
     Compute the appropriate tier for a chunk based on access patterns.
@@ -43,7 +42,7 @@ def compute_tier(
     - COLD: accessed < 30d
     - ARCHIVE: accessed > 30d OR never accessed
     """
-    now = now or datetime.now(tz=timezone.utc)
+    now = now or datetime.now(tz=UTC)
 
     if last_accessed is None:
         return ChunkTier.COLD
@@ -77,13 +76,13 @@ def should_promote(
     avg_relevance: float,
     access_count: int,
     new_relevance: float,
-) -> Optional[ChunkTier]:
+) -> ChunkTier | None:
     """Check if a chunk should be promoted to a higher tier."""
     # Update running average
     new_avg = (avg_relevance * access_count + new_relevance) / (access_count + 1)
 
     new_tier = compute_tier(
-        last_accessed=datetime.now(tz=timezone.utc),
+        last_accessed=datetime.now(tz=UTC),
         avg_relevance=new_avg,
         access_count=access_count + 1,
     )
@@ -113,10 +112,8 @@ async def update_chunk_access(
 
     new_avg_relevance = (old_avg * old_count + relevance_score) / new_access_count
 
-    current_tier = ChunkTier.from_str(chunk.tier) if chunk.tier else ChunkTier.WARM
-
     new_tier = compute_tier(
-        last_accessed=datetime.now(tz=timezone.utc),
+        last_accessed=datetime.now(tz=UTC),
         avg_relevance=new_avg_relevance,
         access_count=new_access_count,
     )
@@ -124,7 +121,7 @@ async def update_chunk_access(
     await db.documentchunk.update(
         where={"id": chunk_id},
         data={
-            "lastAccessed": datetime.now(tz=timezone.utc),
+            "lastAccessed": datetime.now(tz=UTC),
             "accessCount": new_access_count,
             "avgRelevance": new_avg_relevance,
             "tier": new_tier.value,

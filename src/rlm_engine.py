@@ -12,11 +12,14 @@ import re
 import time
 import uuid
 from collections import deque
-from datetime import datetime, timezone
-from typing import Any
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING, Any
 
 from .config import settings
 from .db import get_db
+
+if TYPE_CHECKING:
+    from .engine.handlers.base import HandlerContext
 
 # Phase 4 Refactor: Import from extracted core module
 from .engine.core import (
@@ -518,7 +521,7 @@ class RLMEngine:
             self.settings = ProjectSettings()
 
         # Handler context cache (lazily initialized)
-        self._cached_handler_ctx: "HandlerContext | None" = None
+        self._cached_handler_ctx: HandlerContext | None = None
 
     async def _get_handler_ctx(self) -> "HandlerContext":
         """Get or create handler context for this engine instance."""
@@ -1653,7 +1656,6 @@ class RLMEngine:
         tier_filter = None if include_all_tiers else ["HOT", "WARM"]
 
         # Check if we should auto-decompose this query (Pro+ only)
-        decomposed = False
         sub_queries_used: list[str] = []
 
         if (
@@ -1705,8 +1707,6 @@ class RLMEngine:
                     if all_sections:
                         # Sort by relevance and apply token budget
                         all_sections.sort(key=lambda s: s.relevance_score, reverse=True)
-                        decomposed = True
-
                         # Build final result with merged sections
                         total_tokens = sum(s.tokens for s in all_sections)
                         sections_within_budget: list[ContextSection] = []
@@ -5924,7 +5924,7 @@ Rationale: {decision.rationale}"""
                 - swarm_info: Basic swarm information
                 - instructions: Clear instructions on what to do next
         """
-        from .services.swarm import list_tasks, get_swarm_info
+        from .services.swarm import get_swarm_info, list_tasks
 
         swarm_id = params.get("swarm_id", "")
         agent_id = params.get("agent_id", "")
@@ -6230,7 +6230,7 @@ Rationale: {decision.rationale}"""
         if task.status not in allowed_statuses:
             if task.status == "IN_PROGRESS":
                 return ToolResult(
-                    data={"error": f"Cannot reassign IN_PROGRESS task. Use force=true to override (admin only)."},
+                    data={"error": "Cannot reassign IN_PROGRESS task. Use force=true to override (admin only)."},
                     input_tokens=0,
                     output_tokens=0,
                 )
@@ -6415,7 +6415,7 @@ Rationale: {decision.rationale}"""
             update_data["status"] = new_status
             # Set completedAt if marking as completed/failed
             if new_status in ["COMPLETED", "FAILED"]:
-                update_data["completedAt"] = datetime.now(timezone.utc)
+                update_data["completedAt"] = datetime.now(UTC)
 
         if not update_data:
             err = "No fields to update. Provide: title, description, priority, or status"
@@ -6658,7 +6658,7 @@ Rationale: {decision.rationale}"""
                         await db.document.update(
                             where={"id": doc.id},
                             data={
-                                "deletedAt": datetime.now(timezone.utc),
+                                "deletedAt": datetime.now(UTC),
                                 "deletedBy": self.user_id,
                             },
                         )

@@ -13,7 +13,6 @@ Cache hit flow:
 3. Miss → execute query, record L1+L2 miss stats, populate both caches
 """
 
-import hashlib
 import json
 import logging
 import time

@@ -381,7 +381,7 @@ async def update_agent_profile(
     merged_profile = {**existing_profile, **profile}
 
     # Update agent with new profile
-    updated = await db.swarmagent.update(
+    await db.swarmagent.update(
         where={"id": agent.id},
         data={"profile": Json(merged_profile)},
     )

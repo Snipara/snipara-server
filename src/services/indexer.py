@@ -14,8 +14,8 @@ import time
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
-from .embeddings import get_embeddings_service
 from .chunk_quality import compute_chunk_quality
+from .embeddings import get_embeddings_service
 
 if TYPE_CHECKING:
     from prisma import Prisma
@@ -257,6 +257,7 @@ class DocumentIndexer:
         # Track chunk access for tier promotion (fire and forget)
         if track_access and results:
             import asyncio
+
             from src.services.tier_manager import batch_update_chunk_access
 
             chunk_relevance_pairs = [

@@ -22,6 +22,7 @@ from .api.deps import (
     validate_and_rate_limit,
     validate_team_and_rate_limit,
 )
+from .api.integrator import router as integrator_router
 from .auth import (
     get_effective_plan,
     get_team_by_slug_or_id,
@@ -29,7 +30,6 @@ from .auth import (
 )
 from .config import settings
 from .db import close_db, get_db
-from .api.integrator import router as integrator_router
 from .mcp import jsonrpc_error, jsonrpc_response
 from .mcp_transport import router as mcp_router
 from .middleware import IPRateLimitMiddleware, SecurityHeadersMiddleware
@@ -1239,7 +1239,7 @@ async def swarm_sse_event_generator(
                     yield f"data: {json.dumps({'type': 'heartbeat', 'timestamp': datetime.utcnow().isoformat()})}\n\n"
                     last_heartbeat = time.time()
 
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 # Timeout is normal, check for heartbeat
                 if time.time() - last_heartbeat >= heartbeat_interval:
                     yield f"data: {json.dumps({'type': 'heartbeat', 'timestamp': datetime.utcnow().isoformat()})}\n\n"

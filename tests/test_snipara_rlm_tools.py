@@ -8,8 +8,8 @@ from unittest.mock import AsyncMock, MagicMock
 import httpx
 import pytest
 
-PROJECT_ROOT = Path(__file__).resolve().parents[3]
-SNIPARA_MCP_SRC = PROJECT_ROOT / "apps/mcp-server/snipara-mcp/src"
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+SNIPARA_MCP_SRC = PROJECT_ROOT / "snipara-mcp/src"
 
 if str(SNIPARA_MCP_SRC) not in sys.path:
     sys.path.insert(0, str(SNIPARA_MCP_SRC))

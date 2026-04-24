@@ -37,10 +37,14 @@ def setup_module_mocks():
     db_mock.get_db = AsyncMock()
     sys.modules["src.db"] = db_mock
 
-    # Mock services modules that require config/db
-    services_mock = MagicMock()
-    sys.modules["src.services"] = services_mock
+    # Mock selected services that require config/db. Do not replace the
+    # `src.services` package itself; doing so breaks imports of real submodules.
     sys.modules["src.services.cache"] = MagicMock()
+
+    agent_limits_mock = MagicMock()
+    agent_limits_mock.check_memory_limits = AsyncMock(return_value=(True, None))
+    agent_limits_mock.validate_agents_access = AsyncMock(return_value=None)
+    sys.modules["src.services.agent_limits"] = agent_limits_mock
 
     # Create agent_memory service mock with async functions
     agent_memory_mock = MagicMock()

@@ -22,7 +22,6 @@ from datetime import UTC, datetime
 from .db import get_db
 from .models import Plan
 
-
 # FREE=1, PRO=5, TEAM/ENTERPRISE=unlimited (mirrors packages/shared/src/constants.ts)
 PLAN_PROJECT_LIMITS: dict[str, int | None] = {
     "FREE": 1,

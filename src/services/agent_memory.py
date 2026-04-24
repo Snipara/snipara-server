@@ -14,17 +14,16 @@ from typing import Any
 
 from ..config import settings
 from ..db import get_db
-from ..models.enums import AgentMemoryType
 from ..models.memory_v2 import (
     MemoryEvidencePayload,
     MemoryMigrationMapPayload,
     MemoryRelationPayload,
     MemoryUpdatePayload,
 )
-from .memory_mapper import map_agent_memory_to_memory_payload
-from .memory_repository import MemoryRepository
 from .cache import get_redis
 from .embeddings import EMBEDDING_DIMENSION, get_embeddings_service
+from .memory_mapper import map_agent_memory_to_memory_payload
+from .memory_repository import MemoryRepository
 
 logger = logging.getLogger(__name__)
 
@@ -169,20 +168,20 @@ async def _get_memory_embeddings_batch(memory_ids: list[str]) -> dict[str, list[
 
     # Batch size: 400 embeddings × ~22KB = ~8.8MB per batch (under 10MB limit)
     # Actual embedding size: 1024 floats × ~21 bytes JSON encoding per float
-    BATCH_SIZE = 400
+    batch_size = 400
     result: dict[str, list[float]] = {}
 
     try:
         # Process in batches to avoid Upstash 10MB limit
-        for i in range(0, len(memory_ids), BATCH_SIZE):
-            batch_ids = memory_ids[i : i + BATCH_SIZE]
+        for i in range(0, len(memory_ids), batch_size):
+            batch_ids = memory_ids[i : i + batch_size]
             keys = [f"{MEMORY_EMBEDDING_PREFIX}{mid}" for mid in batch_ids]
 
             try:
                 values = await redis.mget(keys)
             except Exception as batch_error:
                 # If batch still fails, try smaller batches
-                if BATCH_SIZE > 100:
+                if batch_size > 100:
                     logger.warning(
                         f"MGET batch of {len(batch_ids)} failed, trying smaller batches: {batch_error}"
                     )

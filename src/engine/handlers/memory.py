@@ -19,9 +19,9 @@ from ...services.agent_memory import (
     invalidate_memory_v2,
     list_memories,
     semantic_recall,
-    supersede_memory_v2,
     store_memory,
     summarize_journal,
+    supersede_memory_v2,
     verify_memory_v2,
 )
 from .base import HandlerContext, count_tokens

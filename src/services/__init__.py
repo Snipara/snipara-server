@@ -9,39 +9,15 @@ from src.services.cache_stats import (
     record_cache_miss,
     set_l2_cached_result,
 )
-from src.services.chunker import Chunk, DocumentChunker, get_chunker
-from src.services.embeddings import EmbeddingsService, get_embeddings_service
-from src.services.indexer import DocumentIndexer, get_indexer
-from src.services.tier_manager import (
-    TIER_CONFIG,
-    compute_tier,
-    should_promote,
-    update_chunk_access,
-    batch_update_chunk_access,
-)
 from src.services.chunk_quality import (
     ChunkQuality,
     compute_chunk_quality,
     is_high_quality,
     quality_penalty,
 )
-from src.services.index_health import (
-    IndexHealth,
-    TierDistribution,
-    QualityDistribution,
-    StaleDocument,
-    compute_index_health,
-    get_index_recommendations,
-)
-from src.services.search_analytics import (
-    SearchAnalytics,
-    LatencyPercentiles,
-    ToolUsage,
-    DailyStats,
-    compute_search_analytics,
-    get_query_trends,
-    get_top_queries,
-)
+from src.services.chunker import Chunk, DocumentChunker, get_chunker
+from src.services.embeddings import EmbeddingsService, get_embeddings_service
+
 # Hierarchical Tasks (Phase 17)
 from src.services.htask_coordinator import (
     block_task,
@@ -76,6 +52,31 @@ from src.services.htask_policy import (
     is_blocking_default,
     requires_evidence_on_complete,
     update_policy,
+)
+from src.services.index_health import (
+    IndexHealth,
+    QualityDistribution,
+    StaleDocument,
+    TierDistribution,
+    compute_index_health,
+    get_index_recommendations,
+)
+from src.services.indexer import DocumentIndexer, get_indexer
+from src.services.search_analytics import (
+    DailyStats,
+    LatencyPercentiles,
+    SearchAnalytics,
+    ToolUsage,
+    compute_search_analytics,
+    get_query_trends,
+    get_top_queries,
+)
+from src.services.tier_manager import (
+    TIER_CONFIG,
+    batch_update_chunk_access,
+    compute_tier,
+    should_promote,
+    update_chunk_access,
 )
 
 __all__ = [

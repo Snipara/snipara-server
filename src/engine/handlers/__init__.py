@@ -17,19 +17,43 @@ And returns:
 """
 
 from .base import HandlerContext, HandlerFunc, count_tokens
+from .decisions import (
+    handle_decision_create,
+    handle_decision_query,
+    handle_decision_supersede,
+)
 from .document import (
     handle_request_access,
     handle_settings,
     handle_sync_documents,
     handle_upload_document,
 )
+from .htask import (
+    handle_htask_audit_trail,
+    handle_htask_block,
+    handle_htask_checkpoint_delta,
+    handle_htask_close,
+    handle_htask_complete,
+    handle_htask_create,
+    handle_htask_create_feature,
+    handle_htask_delete,
+    handle_htask_get,
+    handle_htask_metrics,
+    handle_htask_policy_get,
+    handle_htask_policy_update,
+    handle_htask_recommend_batch,
+    handle_htask_tree,
+    handle_htask_unblock,
+    handle_htask_update,
+    handle_htask_verify_closure,
+)
 from .memory import (
     handle_forget,
     handle_journal_append,
     handle_journal_get,
     handle_journal_summarize,
-    handle_memory_attach_source,
     handle_memories,
+    handle_memory_attach_source,
     handle_memory_compact,
     handle_memory_daily_brief,
     handle_memory_invalidate,
@@ -71,30 +95,6 @@ from .swarm import (
     handle_task_stats,
     handle_task_unclaim,
     handle_tasks,
-)
-from .decisions import (
-    handle_decision_create,
-    handle_decision_query,
-    handle_decision_supersede,
-)
-from .htask import (
-    handle_htask_audit_trail,
-    handle_htask_block,
-    handle_htask_checkpoint_delta,
-    handle_htask_close,
-    handle_htask_complete,
-    handle_htask_create,
-    handle_htask_create_feature,
-    handle_htask_delete,
-    handle_htask_get,
-    handle_htask_metrics,
-    handle_htask_policy_get,
-    handle_htask_policy_update,
-    handle_htask_recommend_batch,
-    handle_htask_tree,
-    handle_htask_unblock,
-    handle_htask_update,
-    handle_htask_verify_closure,
 )
 
 __all__ = [
