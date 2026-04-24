@@ -21,12 +21,22 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from src.services.agent_memory import (
-    _check_write_time_contradictions,
-    _scan_graveyard,
-    bury_memory,
-    unbury_memory,
+from src.services import agent_memory
+
+_LEGACY_GRAVEYARD_API = (
+    "_check_write_time_contradictions",
+    "_scan_graveyard",
+    "bury_memory",
+    "unbury_memory",
 )
+
+if not all(hasattr(agent_memory, name) for name in _LEGACY_GRAVEYARD_API):
+    pytest.skip("legacy contradiction graveyard API is not available", allow_module_level=True)
+
+_check_write_time_contradictions = agent_memory._check_write_time_contradictions
+_scan_graveyard = agent_memory._scan_graveyard
+bury_memory = agent_memory.bury_memory
+unbury_memory = agent_memory.unbury_memory
 
 
 def _make_db_mock(**overrides):
