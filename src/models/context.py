@@ -13,7 +13,7 @@ class ContextSection(BaseModel):
     """A section of relevant context returned by rlm_context_query."""
 
     @root_validator(pre=True)
-    def _coerce_legacy_fields(self, values: dict[str, Any]) -> dict[str, Any]:
+    def _coerce_legacy_fields(cls, values: dict[str, Any]) -> dict[str, Any]:
         if "lines" not in values:
             start_line = values.pop("start_line", None)
             end_line = values.pop("end_line", None)
@@ -72,7 +72,7 @@ class ContextSectionRef(BaseModel):
     """
 
     @root_validator(pre=True)
-    def _coerce_legacy_fields(self, values: dict[str, Any]) -> dict[str, Any]:
+    def _coerce_legacy_fields(cls, values: dict[str, Any]) -> dict[str, Any]:
         if "lines" not in values:
             start_line = values.pop("start_line", None)
             end_line = values.pop("end_line", None)

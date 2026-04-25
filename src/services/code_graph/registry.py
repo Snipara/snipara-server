@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from .common import CODE_GRAPH_EXTRACTOR_VERSION
 from .go import GO_FORMATS, GoCodeExtractor
 from .python import PythonCodeExtractor
 from .typescript import TYPESCRIPT_FORMATS, TypeScriptCodeExtractor

@@ -4,19 +4,21 @@ from __future__ import annotations
 
 from typing import Any
 
-from .base import BinaryDocumentParser, BinaryParseResult
+from .base import BinaryParseResult, BinaryDocumentParser
 from .docx import DocxDocumentParser
 from .pdf import PdfDocumentParser
 from .pptx import PptxDocumentParser
 from .svg import SvgDocumentParser
+from .vsdx import VsdxDocumentParser
 
-PLANNED_BINARY_FORMATS = ("pdf", "docx", "pptx", "svg")
+PLANNED_BINARY_FORMATS = ("pdf", "docx", "pptx", "svg", "vsdx")
 
 _PARSERS: dict[str, BinaryDocumentParser] = {
     "docx": DocxDocumentParser(),
     "pdf": PdfDocumentParser(),
     "pptx": PptxDocumentParser(),
     "svg": SvgDocumentParser(),
+    "vsdx": VsdxDocumentParser(),
 }
 
 SUPPORTED_BINARY_FORMATS = tuple(sorted(_PARSERS.keys()))

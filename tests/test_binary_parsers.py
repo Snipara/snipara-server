@@ -16,9 +16,11 @@ from src.services.binary_parsers import (
     PdfDocumentParser,
     PptxDocumentParser,
     SvgDocumentParser,
+    VsdxDocumentParser,
+    build_svg_context,
+    enrich_svg_content,
 )
 from src.services.indexer import DocumentIndexer
-
 
 SVG_SAMPLE = """
 <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -166,6 +168,55 @@ def _make_pptx_bytes() -> bytes:
     return buffer.getvalue()
 
 
+def _make_vsdx_bytes() -> bytes:
+    buffer = BytesIO()
+    with ZipFile(buffer, "w", ZIP_DEFLATED) as archive:
+        archive.writestr(
+            "docProps/core.xml",
+            """<?xml version="1.0" encoding="UTF-8"?>
+<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties"
+  xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <dc:title>Campus Network</dc:title>
+  <dc:creator>Ana</dc:creator>
+</cp:coreProperties>""",
+        )
+        archive.writestr(
+            "visio/pages/pages.xml",
+            """<?xml version="1.0" encoding="UTF-8"?>
+<Pages xmlns="http://schemas.microsoft.com/office/visio/2012/main">
+  <Page ID="0" Name="Network Topology" NameU="Page-1"/>
+</Pages>""",
+        )
+        archive.writestr(
+            "visio/pages/page1.xml",
+            """<?xml version="1.0" encoding="UTF-8"?>
+<PageContents xmlns="http://schemas.microsoft.com/office/visio/2012/main">
+  <Shapes>
+    <Shape ID="1" NameU="Firewall" Name="Firewall" Type="Shape">
+      <Cell N="PinX" V="1.0"/>
+      <Cell N="PinY" V="2.0"/>
+      <Text>Firewall</Text>
+    </Shape>
+    <Shape ID="2" NameU="Core Switch" Name="Core Switch" Type="Shape">
+      <Cell N="PinX" V="4.0"/>
+      <Cell N="PinY" V="2.0"/>
+      <Text>Core Switch</Text>
+    </Shape>
+    <Shape ID="3" NameU="Dynamic connector" Name="Firewall uplink" Type="Shape">
+      <Cell N="BeginX" V="1.5"/>
+      <Cell N="EndX" V="3.5"/>
+      <Text>Firewall uplink</Text>
+    </Shape>
+  </Shapes>
+  <Connects>
+    <Connect FromSheet="3" FromCell="BeginX" ToSheet="1" ToCell="Connections.X1"/>
+    <Connect FromSheet="3" FromCell="EndX" ToSheet="2" ToCell="Connections.X1"/>
+  </Connects>
+</PageContents>""",
+        )
+    return buffer.getvalue()
+
+
 def _base64_payload(raw: bytes) -> str:
     return f"base64:{base64.b64encode(raw).decode('ascii')}"
 
@@ -173,6 +224,7 @@ def _base64_payload(raw: bytes) -> str:
 PDF_SAMPLE = _base64_payload(_make_pdf_bytes("Snipara Binary PDF"))
 DOCX_SAMPLE = _base64_payload(_make_docx_bytes())
 PPTX_SAMPLE = _base64_payload(_make_pptx_bytes())
+VSDX_SAMPLE = _base64_payload(_make_vsdx_bytes())
 
 
 def test_svg_parser_emits_markdown_like_sections():
@@ -182,11 +234,51 @@ def test_svg_parser_emits_markdown_like_sections():
 
     assert result.parser_name == "svg"
     assert result.metadata["viewBox"] == "0 0 100 100"
-    assert "# SVG Diagram" in result.content
-    assert "## Title" in result.content
+    assert result.metadata["schemaVersion"] == "snipara.svg-context.v1"
+    assert result.metadata["bundleId"].startswith("svgctx_")
+    assert len(result.metadata["sourceHash"]) == 64
+    assert result.metadata["qualityStatus"] == "good"
+    assert "# Architecture Overview" in result.content
+    assert "Bundle ID: `svgctx_" in result.content
+    assert "## Context Quality" in result.content
+    assert "## Titles" in result.content
     assert "Architecture Overview" in result.content
     assert "## Text Labels" in result.content
     assert "Database" in result.content
+    assert "## Diagram Elements" in result.content
+
+
+def test_svg_context_builder_emits_manifest_and_enriched_svg():
+    bundle = build_svg_context(content=SVG_SAMPLE, path="docs/architecture.svg")
+
+    assert bundle.manifest["schemaVersion"] == "snipara.svg-context.v1"
+    assert bundle.bundle_id == bundle.manifest["bundleId"]
+    assert bundle.bundle_id.startswith("svgctx_")
+    assert bundle.source_hash == bundle.manifest["sourceHash"]
+    assert bundle.manifest["title"] == "Architecture Overview"
+    assert bundle.manifest["content"]["textLabels"] == ["API", "Worker", "Database"]
+    assert bundle.manifest["metadata"]["viewBox"] == "0 0 100 100"
+    assert bundle.manifest["elements"][0]["label"] == "API"
+    assert bundle.manifest["quality"]["status"] == "good"
+    assert bundle.manifest["quality"]["score"] >= 0.75
+
+    enriched = enrich_svg_content(content=SVG_SAMPLE, path="docs/architecture.svg")
+
+    assert 'data-snipara-context="snipara.svg-context.v1"' in enriched
+    assert f'data-snipara-bundle-id="{bundle.bundle_id}"' in enriched
+    assert f'data-snipara-source-sha256="{bundle.source_hash}"' in enriched
+    assert "<title>Architecture Overview</title>" in enriched
+
+
+def test_svg_context_quality_flags_sparse_diagrams():
+    sparse_svg = '<svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0 L10 10"/></svg>'
+
+    bundle = build_svg_context(content=sparse_svg, path="docs/sparse.svg")
+
+    assert bundle.manifest["quality"]["status"] == "poor"
+    assert bundle.manifest["quality"]["score"] < 0.55
+    assert any("quality is low" in warning for warning in bundle.warnings)
+    assert "Add a root <title>" in bundle.markdown
 
 
 def test_pdf_parser_extracts_page_text():
@@ -230,6 +322,26 @@ def test_pptx_parser_extracts_slide_text_and_notes():
     assert "- Note for presenters" in result.content
 
 
+def test_vsdx_parser_extracts_pages_shapes_and_connectors():
+    parser = VsdxDocumentParser()
+
+    result = parser.parse(content=VSDX_SAMPLE, path="diagrams/network.vsdx")
+
+    assert result.parser_name == "vsdx"
+    assert result.metadata["schemaVersion"] == "snipara.vsdx-context.v1"
+    assert result.metadata["assetClass"] == "DIAGRAM"
+    assert result.metadata["parser"] == {"name": "vsdx", "version": 1}
+    assert result.metadata["pageCount"] == 1
+    assert result.metadata["shapeCount"] == 3
+    assert result.metadata["connectorCount"] == 1
+    assert result.metadata["qualityStatus"] == "good"
+    assert "# Campus Network" in result.content
+    assert "### Page 1: Network Topology" in result.content
+    assert "- Firewall (id=1" in result.content
+    assert "- Core Switch (id=2" in result.content
+    assert "Firewall -> Core Switch" in result.content
+
+
 def test_document_indexer_accepts_supported_binary_formats():
     indexer = DocumentIndexer(AsyncMock())
 
@@ -238,6 +350,7 @@ def test_document_indexer_accepts_supported_binary_formats():
         SimpleNamespace(kind="BINARY", format="pdf", path="docs/spec.pdf", content=PDF_SAMPLE),
         SimpleNamespace(kind="BINARY", format="docx", path="docs/spec.docx", content=DOCX_SAMPLE),
         SimpleNamespace(kind="BINARY", format="pptx", path="docs/spec.pptx", content=PPTX_SAMPLE),
+        SimpleNamespace(kind="BINARY", format="vsdx", path="docs/network.vsdx", content=VSDX_SAMPLE),
     ]
     unsupported_doc = SimpleNamespace(
         kind="BINARY",
@@ -279,6 +392,12 @@ async def test_load_documents_indexes_supported_binary_docs(monkeypatch):
                         kind="BINARY",
                         format="pptx",
                     ),
+                    SimpleNamespace(
+                        path="docs/network.vsdx",
+                        content=VSDX_SAMPLE,
+                        kind="BINARY",
+                        format="vsdx",
+                    ),
                 ]
             )
         ),
@@ -293,11 +412,14 @@ async def test_load_documents_indexes_supported_binary_docs(monkeypatch):
         "docs/architecture.svg",
         "docs/playbook.docx",
         "docs/review.pptx",
+        "docs/network.vsdx",
     ]
     joined = "\n".join(section.content for section in engine.index.sections)
-    assert "SVG Diagram" in joined
+    assert "Architecture Overview" in joined
+    assert "Schema version: `snipara.svg-context.v1`" in joined
     assert "DOCX Document" in joined
     assert "PPTX Deck" in joined
-    assert "Architecture Overview" in joined
+    assert "Campus Network" in joined
+    assert "Firewall -> Core Switch" in joined
     assert "Binary Guide" in joined
     assert "Launch Review" in joined

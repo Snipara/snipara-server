@@ -7,6 +7,11 @@ from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
+from src.services.business_context_health import (
+    BusinessContextHealth,
+    compute_business_context_health,
+)
+
 
 @dataclass
 class TierDistribution:
@@ -105,8 +110,11 @@ class IndexHealth:
     last_index_at: datetime | None
     last_index_status: str | None
 
+    # Business context freshness and provenance
+    business_context: BusinessContextHealth | None = None
+
     def to_dict(self) -> dict[str, Any]:
-        return {
+        result = {
             "coverage": {
                 "total_documents": self.total_documents,
                 "indexed_documents": self.indexed_documents,
@@ -143,6 +151,9 @@ class IndexHealth:
                 "status": self.last_index_status,
             },
         }
+        if self.business_context is not None:
+            result["business_context"] = self.business_context.to_dict()
+        return result
 
 
 async def compute_index_health(
@@ -309,6 +320,7 @@ async def compute_index_health(
         health_status=health_status,
         last_index_at=last_job.completedAt if last_job else None,
         last_index_status=last_job.status if last_job else None,
+        business_context=compute_business_context_health(docs_with_chunks, now=now),
     )
 
 
@@ -415,6 +427,56 @@ async def get_index_recommendations(
                 "count": outdated,
                 **_reindex_payload("incremental"),
             })
+
+    business_context = health.business_context
+    if business_context and business_context.needs_reupload > 0:
+        recommendations.append({
+            "priority": "high",
+            "type": "business_context_reupload",
+            "title": f"Reupload {business_context.needs_reupload} stale business context documents",
+            "description": (
+                "Source metadata indicates these current business-context documents may be out of date. "
+                "Fetch the latest source files and sync them back through rlm_sync_documents or the API."
+            ),
+            "action": "reupload",
+            "count": business_context.needs_reupload,
+        })
+
+    if business_context and business_context.needs_metadata_review > 0:
+        recommendations.append({
+            "priority": "medium",
+            "type": "business_context_metadata",
+            "title": f"Review metadata for {business_context.needs_metadata_review} business context documents",
+            "description": (
+                "These documents need clearer source or provenance metadata so Snipara can separate "
+                "current client truth from historical references and templates."
+            ),
+            "action": "review_source_metadata",
+            "count": business_context.needs_metadata_review,
+        })
+
+    if business_context and business_context.needs_quality_review > 0:
+        recommendations.append({
+            "priority": "medium",
+            "type": "business_context_quality",
+            "title": f"Review {business_context.needs_quality_review} low-quality business context artifacts",
+            "description": (
+                "Some diagram or business-context artifacts are parseable but too sparse for reliable reuse."
+            ),
+            "action": "review_content_quality",
+            "count": business_context.needs_quality_review,
+        })
+
+    if business_context and business_context.needs_reindex > 0:
+        recommendations.append({
+            "priority": "medium",
+            "type": "business_context_reindex",
+            "title": f"Reindex {business_context.needs_reindex} business context documents",
+            "description": "Parser metadata indicates these business-context documents should be regenerated.",
+            "action": "reindex_incremental",
+            "count": business_context.needs_reindex,
+            **_reindex_payload("incremental"),
+        })
 
     # Warning: Low quality
     low_quality_percent = (
