@@ -86,6 +86,7 @@ class ToolName(StrEnum):
     # Phase 10: Document Sync Tools
     RLM_UPLOAD_DOCUMENT = "rlm_upload_document"
     RLM_SYNC_DOCUMENTS = "rlm_sync_documents"
+    RLM_SVG_BUNDLE_INGEST = "rlm_svg_bundle_ingest"
     RLM_SETTINGS = "rlm_settings"
     # Phase 11: Access Control Tools
     RLM_REQUEST_ACCESS = "rlm_request_access"

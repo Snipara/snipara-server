@@ -14,8 +14,9 @@ from typing import Any
 
 from ..config import settings
 from ..db import get_db
-from ..models.enums import AgentMemoryScope, AgentMemoryType
+from ..models.enums import AgentMemoryScope, AgentMemoryType, MemorySource, MemoryStatus
 from ..models.memory_v2 import (
+    MemoryCreatePayload,
     MemoryEvidencePayload,
     MemoryMigrationMapPayload,
     MemoryRelationPayload,
@@ -24,7 +25,7 @@ from ..models.memory_v2 import (
 from .agent_limits import get_memory_retention_limit
 from .cache import get_redis
 from .embeddings import EMBEDDING_DIMENSION, get_embeddings_service
-from .memory_mapper import map_agent_memory_to_memory_payload
+from .memory_mapper import map_agent_memory_to_memory_payload, normalize_memory_source
 from .memory_repository import MemoryRepository
 
 logger = logging.getLogger(__name__)
@@ -205,6 +206,150 @@ def _apply_review_status_filter(
         allowed_statuses[0] if len(allowed_statuses) == 1 else {"in": allowed_statuses}
     )
     return where
+
+
+def _memory_v2_status_for_review(review_status: str) -> MemoryStatus:
+    """Map legacy review state onto Memory V2 lifecycle status."""
+    if review_status == MEMORY_REVIEW_PENDING:
+        return MemoryStatus.CANDIDATE
+    if review_status == MEMORY_REVIEW_REJECTED:
+        return MemoryStatus.INVALIDATED
+    return MemoryStatus.ACTIVE
+
+
+def _enum_lower(value: Any) -> str:
+    """Return a stable lowercase representation for Prisma enum/string values."""
+    raw = getattr(value, "value", value)
+    return str(raw).lower()
+
+
+def _enum_upper(value: Any) -> str:
+    """Return a stable uppercase representation for Prisma enum/string values."""
+    raw = getattr(value, "value", value)
+    return str(raw).upper()
+
+
+def get_memory_scope_owner_error(
+    scope: str | AgentMemoryScope | None,
+    *,
+    user_id: str | None = None,
+    team_id: str | None = None,
+    agent_id: str | None = None,
+) -> str | None:
+    """Return a client-safe ownership error for scoped Memory V2 operations."""
+    normalized_scope = _normalize_memory_scope(scope) or AgentMemoryScope.PROJECT
+    if normalized_scope == AgentMemoryScope.USER and not user_id:
+        return "scope=user requires an authenticated user_id"
+    if normalized_scope == AgentMemoryScope.TEAM and not team_id:
+        return "scope=team requires a team_id"
+    if normalized_scope == AgentMemoryScope.AGENT and not agent_id:
+        return "scope=agent requires an agent_id"
+    return None
+
+
+async def _resolve_project_team_id(
+    project_id: str,
+    team_id: str | None,
+    db: Any | None = None,
+) -> str | None:
+    """Resolve a project's owning team id when the caller did not provide it."""
+    if team_id:
+        return team_id
+
+    db = db or await get_db()
+    project_repo = getattr(db, "project", None)
+    if project_repo is None:
+        return None
+
+    project = await project_repo.find_unique(where={"id": project_id})
+    return getattr(project, "teamId", None) if project else None
+
+
+def _build_memory_v2_owner_conditions(
+    *,
+    project_id: str,
+    scope: AgentMemoryScope | None,
+    user_id: str | None,
+    team_id: str | None,
+    agent_id: str | None,
+) -> list[dict[str, Any]]:
+    """Build owner predicates for Memory V2 reads."""
+    if scope == AgentMemoryScope.PROJECT:
+        return [{"projectId": project_id, "scope": "PROJECT"}]
+    if scope == AgentMemoryScope.USER:
+        if not user_id:
+            return []
+        return [{"userId": user_id, "scope": "USER"}]
+    if scope == AgentMemoryScope.TEAM:
+        if not team_id:
+            return []
+        return [{"teamId": team_id, "scope": "TEAM"}]
+    if scope == AgentMemoryScope.AGENT:
+        if not agent_id:
+            return []
+        return [{"agentId": agent_id, "scope": "AGENT"}]
+
+    conditions = [{"projectId": project_id, "scope": "PROJECT"}]
+    if user_id:
+        conditions.append({"userId": user_id, "scope": "USER"})
+    if team_id:
+        conditions.append({"teamId": team_id, "scope": "TEAM"})
+    if agent_id:
+        conditions.append({"agentId": agent_id, "scope": "AGENT"})
+    return conditions
+
+
+def _build_memory_v2_where(
+    *,
+    project_id: str,
+    scope: AgentMemoryScope | None,
+    user_id: str | None,
+    team_id: str | None,
+    agent_id: str | None,
+    memory_type: AgentMemoryType | None = None,
+    category: str | None = None,
+    include_expired: bool = False,
+    include_inactive: bool = False,
+) -> dict[str, Any] | None:
+    """Build a Memory V2 query with explicit owner boundaries."""
+    owner_conditions = _build_memory_v2_owner_conditions(
+        project_id=project_id,
+        scope=scope,
+        user_id=user_id,
+        team_id=team_id,
+        agent_id=agent_id,
+    )
+    if not owner_conditions:
+        return None
+
+    clauses: list[dict[str, Any]] = [{"OR": owner_conditions}]
+    if memory_type:
+        clauses.append({"type": memory_type.value.upper()})
+    if category:
+        clauses.append({"category": category})
+    if not include_expired:
+        clauses.append({"OR": [{"validUntil": None}, {"validUntil": {"gt": datetime.now(UTC)}}]})
+    if not include_inactive:
+        clauses.append({"status": "ACTIVE"})
+
+    return {"AND": clauses} if len(clauses) > 1 else clauses[0]
+
+
+def _memory_v2_owner_payload(
+    *,
+    project_id: str,
+    scope: AgentMemoryScope,
+    user_id: str | None,
+    team_id: str | None,
+    agent_id: str | None,
+) -> dict[str, str | None]:
+    """Return owner columns for a Memory V2 row."""
+    return {
+        "project_id": project_id,
+        "team_id": team_id if scope == AgentMemoryScope.TEAM else None,
+        "user_id": user_id if scope == AgentMemoryScope.USER else None,
+        "agent_id": agent_id if scope == AgentMemoryScope.AGENT else None,
+    }
 
 
 def _normalize_ttl_days(ttl_days: int | None) -> int | None:
@@ -577,6 +722,113 @@ async def _delete_memory_embedding(memory_id: str) -> bool:
         return False
 
 
+async def store_memory_v2(
+    project_id: str,
+    content: str,
+    memory_type: str = "fact",
+    scope: str = "project",
+    category: str | None = None,
+    ttl_days: int | None = None,
+    source: str | None = None,
+    review_status: str | None = None,
+    user_id: str | None = None,
+    team_id: str | None = None,
+    agent_id: str | None = None,
+    title: str | None = None,
+    summary: str | None = None,
+) -> dict[str, Any]:
+    """Store a Memory V2 row with explicit owner semantics."""
+    normalized_memory_type = _normalize_memory_type(memory_type) or AgentMemoryType.FACT
+    normalized_scope = _normalize_memory_scope(scope) or AgentMemoryScope.PROJECT
+    normalized_review_status = _normalize_review_status(review_status)
+    effective_ttl_days = await _resolve_effective_ttl_days(
+        project_id,
+        normalized_memory_type,
+        ttl_days,
+    )
+    db = await get_db()
+    resolved_team_id = await _resolve_project_team_id(project_id, team_id, db)
+    owner_error = get_memory_scope_owner_error(
+        normalized_scope,
+        user_id=user_id,
+        team_id=resolved_team_id,
+        agent_id=agent_id,
+    )
+    if owner_error:
+        raise ValueError(owner_error)
+
+    now = datetime.now(UTC)
+    valid_until = None
+    stale_at = None
+    if effective_ttl_days:
+        expiry = now + timedelta(days=effective_ttl_days)
+        if normalized_memory_type in {AgentMemoryType.TODO, AgentMemoryType.CONTEXT}:
+            stale_at = expiry
+        else:
+            valid_until = expiry
+
+    owner = _memory_v2_owner_payload(
+        project_id=project_id,
+        scope=normalized_scope,
+        user_id=user_id,
+        team_id=resolved_team_id,
+        agent_id=agent_id,
+    )
+    payload = MemoryCreatePayload(
+        project_id=owner["project_id"],
+        team_id=owner["team_id"],
+        user_id=owner["user_id"],
+        agent_id=owner["agent_id"],
+        type=normalized_memory_type,
+        scope=normalized_scope,
+        status=_memory_v2_status_for_review(normalized_review_status),
+        title=title,
+        content=content,
+        summary=summary,
+        category=category,
+        confidence=1.0,
+        freshness_score=1.0,
+        evidence_score=0.0,
+        valid_from=now,
+        valid_until=valid_until,
+        stale_at=stale_at,
+        source=normalize_memory_source(source),
+        created_by=user_id,
+        reviewed_by=user_id if normalized_review_status != MEMORY_REVIEW_PENDING else None,
+    )
+    memory = await _memory_repository.create_memory(payload)
+
+    try:
+        embeddings_service = get_embeddings_service()
+        embedding = await embeddings_service.embed_text_async(content)
+        embedding_ttl = MEMORY_EMBEDDING_TTL
+        if effective_ttl_days:
+            embedding_ttl = min(effective_ttl_days * 24 * 60 * 60, MEMORY_EMBEDDING_TTL)
+        await _store_memory_embedding(memory.id, embedding, embedding_ttl)
+    except Exception as e:
+        logger.warning(f"Failed to generate embedding for Memory V2 {memory.id}: {e}")
+
+    return {
+        "memory_id": memory.id,
+        "content": content,
+        "type": normalized_memory_type.value,
+        "scope": normalized_scope.value,
+        "review_status": normalized_review_status.lower(),
+        "status": _enum_lower(getattr(memory, "status", payload.status)),
+        "category": category,
+        "owner": {
+            "project_id": owner["project_id"],
+            "team_id": owner["team_id"],
+            "user_id": owner["user_id"],
+            "agent_id": owner["agent_id"],
+        },
+        "expires_at": valid_until.isoformat() if valid_until else None,
+        "stale_at": stale_at.isoformat() if stale_at else None,
+        "created": True,
+        "message": f"Memory stored successfully (ID: {memory.id})",
+    }
+
+
 async def store_memory(
     project_id: str,
     content: str,
@@ -591,6 +843,9 @@ async def store_memory(
     review_notes: str | None = None,
     reviewed_at: datetime | None = None,
     reviewed_by: str | None = None,
+    user_id: str | None = None,
+    team_id: str | None = None,
+    agent_id: str | None = None,
 ) -> dict[str, Any]:
     """Store a new memory with semantic embedding.
 
@@ -611,6 +866,21 @@ async def store_memory(
     normalized_memory_type = _normalize_memory_type(memory_type) or AgentMemoryType.FACT
     normalized_scope = _normalize_memory_scope(scope) or AgentMemoryScope.PROJECT
     normalized_review_status = _normalize_review_status(review_status)
+    if settings.memory_v2_primary_read is True and settings.memory_v2_dual_write is not True:
+        return await store_memory_v2(
+            project_id=project_id,
+            content=content,
+            memory_type=normalized_memory_type.value,
+            scope=normalized_scope.value,
+            category=category,
+            ttl_days=ttl_days,
+            source=source,
+            review_status=normalized_review_status,
+            user_id=user_id,
+            team_id=team_id,
+            agent_id=agent_id,
+        )
+
     effective_ttl_days = await _resolve_effective_ttl_days(
         project_id,
         normalized_memory_type,
@@ -618,6 +888,17 @@ async def store_memory(
     )
     now = datetime.now(UTC)
     db = await get_db()
+    resolved_team_id = team_id
+    if settings.memory_v2_dual_write is True:
+        resolved_team_id = await _resolve_project_team_id(project_id, team_id, db)
+        owner_error = get_memory_scope_owner_error(
+            normalized_scope,
+            user_id=user_id,
+            team_id=resolved_team_id,
+            agent_id=agent_id,
+        )
+        if owner_error:
+            raise ValueError(owner_error)
 
     # Calculate expiration
     expires_at = None
@@ -679,7 +960,7 @@ async def store_memory(
     # Trigger auto-compaction check (non-blocking)
     asyncio.create_task(_safe_auto_compact(project_id))
 
-    if settings.memory_v2_dual_write:
+    if settings.memory_v2_dual_write is True:
         asyncio.create_task(
             _dual_write_memory_v2(
                 legacy_memory=memory,
@@ -687,6 +968,9 @@ async def store_memory(
                 scope=scope,
                 ttl_days=effective_ttl_days,
                 source=source,
+                user_id=user_id,
+                team_id=resolved_team_id,
+                agent_id=agent_id,
             )
         )
 
@@ -717,6 +1001,9 @@ async def remember_if_novel(
     allow_supersede: bool = True,
     source: str | None = None,
     review_status: str | None = None,
+    user_id: str | None = None,
+    team_id: str | None = None,
+    agent_id: str | None = None,
 ) -> dict[str, Any]:
     """Store a memory only when it is novel enough versus recent similar memories."""
     normalized_memory_type = _normalize_memory_type(memory_type) or AgentMemoryType.FACT
@@ -731,6 +1018,9 @@ async def remember_if_novel(
         limit=dedupe_limit,
         min_relevance=0.0,
         include_pending=True,
+        user_id=user_id,
+        team_id=team_id,
+        agent_id=agent_id,
     )
 
     matched_memories = recall_result.get("memories", []) or []
@@ -770,6 +1060,9 @@ async def remember_if_novel(
         document_refs=document_refs,
         source=source,
         review_status=review_status,
+        user_id=user_id,
+        team_id=team_id,
+        agent_id=agent_id,
     )
 
     supersede_result = None
@@ -784,7 +1077,7 @@ async def remember_if_novel(
                 new_memory_id=new_memory_id,
                 reason="Superseded by newer remember_if_novel write",
             )
-            if settings.memory_v2_dual_write:
+            if settings.memory_v2_dual_write is True:
                 asyncio.create_task(_safe_supersede_memory_v2(old_memory_id, new_memory_id))
 
     return {
@@ -858,6 +1151,8 @@ async def end_of_task_commit(
     review_status: str | None = None,
     deduplicate_before_write: bool = True,
     source: str = "task_commit",
+    user_id: str | None = None,
+    team_id: str | None = None,
 ) -> dict[str, Any]:
     """Persist durable outcomes from a task summary."""
     del files_touched, artifacts
@@ -908,6 +1203,8 @@ async def end_of_task_commit(
                 novelty_threshold=novelty_threshold,
                 source=source,
                 review_status=review_status,
+                user_id=user_id,
+                team_id=team_id,
             )
             stored = bool(result.get("stored"))
             reason = result.get("reason")
@@ -921,6 +1218,8 @@ async def end_of_task_commit(
                 category=category or f"task-{candidate['candidate_type']}",
                 source=source,
                 review_status=review_status,
+                user_id=user_id,
+                team_id=team_id,
             )
             stored = True
             reason = "stored"
@@ -945,10 +1244,43 @@ async def end_of_task_commit(
     }
 
 
-async def _dual_write_legacy_memory_object(legacy_memory: Any) -> str | None:
+async def _dual_write_legacy_memory_object(
+    legacy_memory: Any,
+    *,
+    user_id: str | None = None,
+    team_id: str | None = None,
+    agent_id: str | None = None,
+) -> str | None:
     """Persist a legacy AgentMemory ORM row into Memory V2."""
 
     mapped = map_agent_memory_to_memory_payload(legacy_memory)
+    scope = _normalize_memory_scope(getattr(legacy_memory, "scope", None)) or AgentMemoryScope.PROJECT
+    db = await get_db()
+    resolved_team_id = await _resolve_project_team_id(
+        getattr(legacy_memory, "projectId", None),
+        team_id,
+        db,
+    )
+    owner_error = get_memory_scope_owner_error(
+        scope,
+        user_id=user_id,
+        team_id=resolved_team_id,
+        agent_id=agent_id,
+    )
+    if owner_error:
+        logger.warning(
+            "Skipping Memory V2 dual-write for legacy memory %s: %s",
+            getattr(legacy_memory, "id", "unknown"),
+            owner_error,
+        )
+        return None
+    if scope == AgentMemoryScope.USER:
+        mapped.memory.user_id = user_id
+    elif scope == AgentMemoryScope.TEAM:
+        mapped.memory.team_id = resolved_team_id
+    elif scope == AgentMemoryScope.AGENT:
+        mapped.memory.agent_id = agent_id
+    mapped.memory.created_by = user_id
     memory_v2 = await _memory_repository.create_memory(mapped.memory)
 
     if mapped.evidence:
@@ -979,11 +1311,19 @@ async def _dual_write_memory_v2(
     scope: str,
     ttl_days: int | None,
     source: str | None,
+    user_id: str | None = None,
+    team_id: str | None = None,
+    agent_id: str | None = None,
 ) -> None:
     """Best-effort dual-write of legacy AgentMemory into Memory V2."""
 
     try:
-        memory_v2_id = await _dual_write_legacy_memory_object(legacy_memory)
+        memory_v2_id = await _dual_write_legacy_memory_object(
+            legacy_memory,
+            user_id=user_id,
+            team_id=team_id,
+            agent_id=agent_id,
+        )
         logger.info(f"Dual-wrote legacy memory {legacy_memory.id} to Memory V2 {memory_v2_id}")
     except Exception as e:
         logger.warning(
@@ -1007,7 +1347,7 @@ async def _resolve_memory_v2_id(memory_id: str) -> str | None:
     if resolved_id is not None:
         return resolved_id
 
-    if not settings.memory_v2_dual_write:
+    if settings.memory_v2_dual_write is not True:
         return None
 
     db = await get_db()
@@ -1084,6 +1424,9 @@ async def store_memories_bulk(
     project_id: str,
     memories: list[dict[str, Any]],
     source: str | None = None,
+    user_id: str | None = None,
+    team_id: str | None = None,
+    agent_id: str | None = None,
 ) -> dict[str, Any]:
     """Store multiple memories with batch embedding.
 
@@ -1104,12 +1447,45 @@ async def store_memories_bulk(
     """
     import asyncio
 
+    if settings.memory_v2_primary_read is True and settings.memory_v2_dual_write is not True:
+        created_ids: list[str] = []
+        failed: list[dict[str, Any]] = []
+        for i, mem in enumerate(memories):
+            try:
+                result = await store_memory_v2(
+                    project_id=project_id,
+                    content=mem.get("text", ""),
+                    memory_type=mem.get("type", "fact"),
+                    scope=mem.get("scope", "project"),
+                    category=mem.get("category"),
+                    ttl_days=mem.get("ttl_days"),
+                    source=source,
+                    review_status=mem.get("review_status"),
+                    user_id=user_id,
+                    team_id=team_id,
+                    agent_id=mem.get("agent_id") or agent_id,
+                )
+                created_ids.append(result["memory_id"])
+            except Exception as e:
+                failed.append({"index": i, "error": str(e)})
+        return {
+            "created": len(created_ids),
+            "failed": len(failed),
+            "memory_ids": created_ids,
+            "failures": failed if failed else None,
+            "message": f"Stored {len(created_ids)} memories successfully",
+        }
+
     db = await get_db()
     created_ids: list[str] = []
     failed: list[dict[str, Any]] = []
     texts: list[str] = []
     created_memories: list[Any] = []
+    created_memory_owners: list[dict[str, str | None]] = []
     embedding_ttls: list[int] = []
+    resolved_team_id = team_id
+    if settings.memory_v2_dual_write is True:
+        resolved_team_id = await _resolve_project_team_id(project_id, team_id, db)
 
     # Process each memory
     for i, mem in enumerate(memories):
@@ -1130,6 +1506,17 @@ async def store_memories_bulk(
         try:
             memory_type = _normalize_memory_type(mem.get("type", "fact")) or AgentMemoryType.FACT
             scope = _normalize_memory_scope(mem.get("scope", "project")) or AgentMemoryScope.PROJECT
+            item_agent_id = mem.get("agent_id") or agent_id
+            if settings.memory_v2_dual_write is True:
+                owner_error = get_memory_scope_owner_error(
+                    scope,
+                    user_id=user_id,
+                    team_id=resolved_team_id,
+                    agent_id=item_agent_id,
+                )
+                if owner_error:
+                    raise ValueError(owner_error)
+
             effective_ttl_days = await _resolve_effective_ttl_days(
                 project_id,
                 memory_type,
@@ -1169,6 +1556,13 @@ async def store_memories_bulk(
                 }
             )
             created_memories.append(memory)
+            created_memory_owners.append(
+                {
+                    "user_id": user_id,
+                    "team_id": resolved_team_id,
+                    "agent_id": item_agent_id,
+                }
+            )
             created_ids.append(memory.id)
             texts.append(text)
             embedding_ttls.append(
@@ -1198,10 +1592,18 @@ async def store_memories_bulk(
             logger.warning(f"Failed to generate batch embeddings: {e}")
             # Memories still created, just without embeddings
 
-    if settings.memory_v2_dual_write and created_memories:
+    if settings.memory_v2_dual_write is True and created_memories:
         try:
             await asyncio.gather(
-                *(_dual_write_legacy_memory_object(memory) for memory in created_memories),
+                *(
+                    _dual_write_legacy_memory_object(
+                        memory,
+                        user_id=owner["user_id"],
+                        team_id=owner["team_id"],
+                        agent_id=owner["agent_id"],
+                    )
+                    for memory, owner in zip(created_memories, created_memory_owners)
+                ),
                 return_exceptions=True,
             )
         except Exception as e:
@@ -1213,6 +1615,172 @@ async def store_memories_bulk(
         "memory_ids": created_ids,
         "failures": failed if failed else None,
         "message": f"Stored {len(created_ids)} memories successfully",
+    }
+
+
+async def _semantic_recall_v2(
+    project_id: str,
+    query: str,
+    memory_type: str | None = None,
+    scope: str | None = None,
+    category: str | None = None,
+    limit: int = 5,
+    min_relevance: float = 0.6,
+    include_expired: bool = False,
+    include_inactive: bool = False,
+    warning_threshold: float = 0.72,
+    user_id: str | None = None,
+    team_id: str | None = None,
+    agent_id: str | None = None,
+) -> dict[str, Any]:
+    """Semantically recall Memory V2 rows with explicit owner boundaries."""
+    import time
+
+    start_time = time.time()
+    db = await get_db()
+    resolved_team_id = await _resolve_project_team_id(project_id, team_id, db)
+    normalized_scope = _normalize_memory_scope(scope) if scope else None
+    owner_error = (
+        get_memory_scope_owner_error(
+            normalized_scope,
+            user_id=user_id,
+            team_id=resolved_team_id,
+            agent_id=agent_id,
+        )
+        if normalized_scope
+        else None
+    )
+    if owner_error:
+        return {
+            "memories": [],
+            "warnings": [],
+            "total_searched": 0,
+            "query": query,
+            "error": owner_error,
+            "timing_ms": int((time.time() - start_time) * 1000),
+        }
+
+    normalized_memory_type = _normalize_memory_type(memory_type) if memory_type else None
+    where = _build_memory_v2_where(
+        project_id=project_id,
+        scope=normalized_scope,
+        user_id=user_id,
+        team_id=resolved_team_id,
+        agent_id=agent_id,
+        memory_type=normalized_memory_type,
+        category=category,
+        include_expired=include_expired,
+        include_inactive=include_inactive,
+    )
+    if where is None:
+        return {
+            "memories": [],
+            "warnings": [],
+            "total_searched": 0,
+            "query": query,
+            "timing_ms": int((time.time() - start_time) * 1000),
+        }
+
+    memories = await db.memory.find_many(where=where, order={"createdAt": "desc"}, take=500)
+    if not memories:
+        return {
+            "memories": [],
+            "warnings": [],
+            "total_searched": 0,
+            "query": query,
+            "timing_ms": int((time.time() - start_time) * 1000),
+        }
+
+    embeddings_service = get_embeddings_service()
+    try:
+        query_embedding = await embeddings_service.embed_text_async(query)
+    except Exception as e:
+        logger.error(f"Failed to embed query for Memory V2 recall: {e}")
+        return await _text_search_fallback(memories, query, limit, min_relevance, start_time)
+
+    cached_embeddings = await _get_memory_embeddings_batch([m.id for m in memories])
+    memory_embeddings: list[tuple[Any, list[float]]] = []
+    for memory in memories:
+        if memory.id in cached_embeddings:
+            memory_embeddings.append((memory, cached_embeddings[memory.id]))
+            continue
+        try:
+            embedding = await embeddings_service.embed_text_async(memory.content)
+            await _store_memory_embedding(memory.id, embedding)
+            memory_embeddings.append((memory, embedding))
+        except Exception as e:
+            logger.warning(f"Failed to embed Memory V2 {memory.id}: {e}")
+
+    if not memory_embeddings:
+        return {
+            "memories": [],
+            "warnings": [],
+            "total_searched": len(memories),
+            "query": query,
+            "timing_ms": int((time.time() - start_time) * 1000),
+        }
+
+    similarities = embeddings_service.cosine_similarity(
+        query_embedding,
+        [emb for _, emb in memory_embeddings],
+    )
+    results = []
+    for (memory, _), similarity in zip(memory_embeddings, similarities):
+        decayed_confidence = calculate_confidence_decay(
+            memory.confidence,
+            memory.createdAt,
+            memory.lastAccessedAt,
+        )
+        relevance = (similarity * 0.7) + (similarity * decayed_confidence * 0.3)
+        if relevance < min_relevance:
+            continue
+        results.append(
+            {
+                "memory_id": memory.id,
+                "content": memory.content,
+                "type": _enum_lower(memory.type),
+                "scope": _enum_lower(memory.scope),
+                "category": memory.category,
+                "status": _enum_lower(memory.status),
+                "review_status": "approved"
+                if _enum_upper(memory.status) == "ACTIVE"
+                else "pending"
+                if _enum_upper(memory.status) == "CANDIDATE"
+                else "rejected",
+                "owner": {
+                    "project_id": getattr(memory, "projectId", None),
+                    "team_id": getattr(memory, "teamId", None),
+                    "user_id": getattr(memory, "userId", None),
+                    "agent_id": getattr(memory, "agentId", None),
+                },
+                "relevance": round(relevance, 4),
+                "confidence": round(decayed_confidence, 4),
+                "created_at": memory.createdAt.isoformat(),
+                "last_accessed_at": memory.lastAccessedAt.isoformat()
+                if memory.lastAccessedAt
+                else None,
+                "access_count": 0,
+            }
+        )
+
+    results.sort(key=lambda x: x["relevance"], reverse=True)
+    results = results[:limit]
+    if results:
+        try:
+            await db.memory.update_many(
+                where={"id": {"in": [r["memory_id"] for r in results]}},
+                data={"lastAccessedAt": datetime.now(UTC)},
+            )
+        except Exception as e:
+            logger.warning(f"Failed to update Memory V2 access timestamps: {e}")
+
+    _ = warning_threshold
+    return {
+        "memories": results,
+        "warnings": [],
+        "total_searched": len(memories),
+        "query": query,
+        "timing_ms": int((time.time() - start_time) * 1000),
     }
 
 
@@ -1229,6 +1797,9 @@ async def semantic_recall(
     warning_threshold: float = 0.72,
     include_pending: bool = False,
     include_rejected: bool = False,
+    user_id: str | None = None,
+    team_id: str | None = None,
+    agent_id: str | None = None,
 ) -> dict[str, Any]:
     """Semantically recall relevant memories based on a query.
 
@@ -1250,6 +1821,24 @@ async def semantic_recall(
     import time
 
     start_time = time.time()
+    if settings.memory_v2_primary_read is True or settings.memory_v2_dual_read is True:
+        v2_result = await _semantic_recall_v2(
+            project_id=project_id,
+            query=query,
+            memory_type=memory_type,
+            scope=scope,
+            category=category,
+            limit=limit,
+            min_relevance=min_relevance,
+            include_expired=include_expired,
+            include_inactive=include_inactive or include_pending or include_rejected,
+            warning_threshold=warning_threshold,
+            user_id=user_id,
+            team_id=team_id,
+            agent_id=agent_id,
+        )
+        if settings.memory_v2_primary_read is True or v2_result.get("memories"):
+            return v2_result
 
     # Build filter
     where: dict[str, Any] = {"projectId": project_id}
@@ -1467,10 +2056,10 @@ async def _text_search_fallback(
                     {
                         "memory_id": memory.id,
                         "content": memory.content,
-                        "type": memory.type.lower(),
-                        "scope": memory.scope.lower(),
+                        "type": _enum_lower(memory.type),
+                        "scope": _enum_lower(memory.scope),
                         "category": memory.category,
-                        "status": getattr(memory, "status", MEMORY_STATUS_ACTIVE).lower(),
+                        "status": _enum_lower(getattr(memory, "status", MEMORY_STATUS_ACTIVE)),
                         "review_status": getattr(
                             memory, "reviewStatus", MEMORY_REVIEW_APPROVED
                         ).lower(),
@@ -1480,7 +2069,7 @@ async def _text_search_fallback(
                         "last_accessed_at": memory.lastAccessedAt.isoformat()
                         if memory.lastAccessedAt
                         else None,
-                        "access_count": memory.accessCount,
+                        "access_count": getattr(memory, "accessCount", 0),
                     }
                 )
 
@@ -1492,6 +2081,108 @@ async def _text_search_fallback(
         "total_searched": len(memories),
         "query": query,
         "timing_ms": int((time.time() - start_time) * 1000),
+    }
+
+
+async def _list_memories_v2(
+    project_id: str,
+    memory_type: str | None = None,
+    scope: str | None = None,
+    category: str | None = None,
+    search: str | None = None,
+    limit: int = 20,
+    offset: int = 0,
+    include_expired: bool = False,
+    include_inactive: bool = False,
+    sort_by: str = "created_at",
+    sort_order: str = "desc",
+    user_id: str | None = None,
+    team_id: str | None = None,
+    agent_id: str | None = None,
+) -> dict[str, Any]:
+    """List Memory V2 rows with explicit owner boundaries."""
+    db = await get_db()
+    resolved_team_id = await _resolve_project_team_id(project_id, team_id, db)
+    normalized_scope = _normalize_memory_scope(scope) if scope else None
+    owner_error = (
+        get_memory_scope_owner_error(
+            normalized_scope,
+            user_id=user_id,
+            team_id=resolved_team_id,
+            agent_id=agent_id,
+        )
+        if normalized_scope
+        else None
+    )
+    if owner_error:
+        return {"memories": [], "total_count": 0, "has_more": False, "error": owner_error}
+
+    where = _build_memory_v2_where(
+        project_id=project_id,
+        scope=normalized_scope,
+        user_id=user_id,
+        team_id=resolved_team_id,
+        agent_id=agent_id,
+        memory_type=_normalize_memory_type(memory_type) if memory_type else None,
+        category=category,
+        include_expired=include_expired,
+        include_inactive=include_inactive,
+    )
+    if where is None:
+        return {"memories": [], "total_count": 0, "has_more": False}
+
+    if search:
+        where = {"AND": [where, {"content": {"contains": search, "mode": "insensitive"}}]}
+
+    sort_field_map = {
+        "created_at": "createdAt",
+        "confidence": "confidence",
+        "last_accessed": "lastAccessedAt",
+        "expires_at": "validUntil",
+    }
+    sort_field = sort_field_map.get(sort_by, "createdAt")
+    order_direction = "asc" if sort_order == "asc" else "desc"
+
+    total_count = await db.memory.count(where=where)
+    memories = await db.memory.find_many(
+        where=where,
+        order={sort_field: order_direction},
+        skip=offset,
+        take=limit,
+    )
+
+    return {
+        "memories": [
+            {
+                "memory_id": memory.id,
+                "content": memory.content,
+                "type": _enum_lower(memory.type),
+                "scope": _enum_lower(memory.scope),
+                "category": memory.category,
+                "status": _enum_lower(memory.status),
+                "confidence": round(
+                    calculate_confidence_decay(
+                        memory.confidence,
+                        memory.createdAt,
+                        memory.lastAccessedAt,
+                    ),
+                    4,
+                ),
+                "source": _enum_lower(memory.source),
+                "owner": {
+                    "project_id": getattr(memory, "projectId", None),
+                    "team_id": getattr(memory, "teamId", None),
+                    "user_id": getattr(memory, "userId", None),
+                    "agent_id": getattr(memory, "agentId", None),
+                },
+                "created_at": memory.createdAt.isoformat(),
+                "expires_at": memory.validUntil.isoformat() if memory.validUntil else None,
+                "access_count": 0,
+            }
+            for memory in memories
+        ],
+        "total_count": total_count,
+        "has_more": (offset + limit) < total_count,
     }
 
 
@@ -1508,6 +2199,11 @@ async def list_memories(
     include_rejected: bool = False,
     sort_by: str = "created_at",
     sort_order: str = "desc",
+    status: str | None = None,
+    include_inactive: bool = False,
+    user_id: str | None = None,
+    team_id: str | None = None,
+    agent_id: str | None = None,
 ) -> dict[str, Any]:
     """List memories with optional filters and sorting.
 
@@ -1526,6 +2222,26 @@ async def list_memories(
     Returns:
         Dict with memories list and pagination info
     """
+    if settings.memory_v2_primary_read is True or settings.memory_v2_dual_read is True:
+        v2_result = await _list_memories_v2(
+            project_id=project_id,
+            memory_type=memory_type,
+            scope=scope,
+            category=category,
+            search=search,
+            limit=limit,
+            offset=offset,
+            include_expired=include_expired,
+            include_inactive=include_inactive or bool(status),
+            sort_by=sort_by,
+            sort_order=sort_order,
+            user_id=user_id,
+            team_id=team_id,
+            agent_id=agent_id,
+        )
+        if settings.memory_v2_primary_read is True or v2_result.get("memories"):
+            return v2_result
+
     # Build filter
     where: dict[str, Any] = {"projectId": project_id}
     _apply_review_status_filter(
@@ -1543,6 +2259,10 @@ async def list_memories(
         where["category"] = category
     if search:
         where["content"] = {"contains": search, "mode": "insensitive"}
+    if status:
+        where["status"] = status
+    elif not include_inactive:
+        where["status"] = MEMORY_STATUS_ACTIVE
     if not include_expired:
         where["OR"] = [
             {"expiresAt": None},
@@ -2350,6 +3070,9 @@ async def get_session_memories(
     max_critical_tokens: int = 8000,
     max_daily_tokens: int = 4000,
     include_yesterday: bool = True,
+    user_id: str | None = None,
+    team_id: str | None = None,
+    agent_id: str | None = None,
 ) -> dict[str, Any]:
     """Get memories to inject on session start, organized by tier.
 
@@ -2366,6 +3089,97 @@ async def get_session_memories(
     now = datetime.now(UTC)
     today = now.replace(hour=0, minute=0, second=0, microsecond=0)
     yesterday = today - timedelta(days=1)
+
+    def budget_memories(memories: list, max_tokens: int) -> list[dict]:
+        result = []
+        total_tokens = 0
+        for m in memories:
+            mem_tokens = len(m.content) // 4
+            if total_tokens + mem_tokens > max_tokens:
+                break
+            result.append(
+                {
+                    "id": m.id,
+                    "content": m.content,
+                    "type": _enum_upper(m.type),
+                    "scope": _enum_lower(getattr(m, "scope", "project")),
+                    "category": m.category,
+                    "review_status": getattr(m, "reviewStatus", MEMORY_REVIEW_APPROVED).lower(),
+                    "owner": {
+                        "project_id": getattr(m, "projectId", None),
+                        "team_id": getattr(m, "teamId", None),
+                        "user_id": getattr(m, "userId", None),
+                        "agent_id": getattr(m, "agentId", None),
+                    },
+                    "confidence": calculate_confidence_decay(
+                        m.confidence, m.createdAt, m.lastAccessedAt
+                    ),
+                    "created_at": m.createdAt.isoformat() if m.createdAt else None,
+                }
+            )
+            total_tokens += mem_tokens
+        return result
+
+    if settings.memory_v2_primary_read is True or settings.memory_v2_dual_read is True:
+        resolved_team_id = await _resolve_project_team_id(project_id, team_id, db)
+        owner_conditions = _build_memory_v2_owner_conditions(
+            project_id=project_id,
+            scope=None,
+            user_id=user_id,
+            team_id=resolved_team_id,
+            agent_id=agent_id,
+        )
+        valid_filter = {"OR": [{"validUntil": None}, {"validUntil": {"gt": now}}]}
+        critical = await db.memory.find_many(
+            where={
+                "AND": [
+                    {"OR": owner_conditions},
+                    {"status": "ACTIVE"},
+                    valid_filter,
+                    {"type": {"in": ["FACT", "DECISION", "LEARNING", "PREFERENCE"]}},
+                ]
+            },
+            order={"confidence": "desc"},
+            take=200,
+        )
+        daily = await db.memory.find_many(
+            where={
+                "AND": [
+                    {"OR": owner_conditions},
+                    {"status": "ACTIVE"},
+                    valid_filter,
+                    {"createdAt": {"gte": yesterday if include_yesterday else today}},
+                    {"type": {"in": ["TODO", "CONTEXT"]}},
+                ]
+            },
+            order={"createdAt": "desc"},
+            take=200,
+        )
+        critical_content = budget_memories(critical, max_critical_tokens)
+        daily_content = budget_memories(daily, max_daily_tokens)
+        if settings.memory_v2_primary_read is True or critical_content or daily_content:
+            critical_tokens = sum(len(m["content"]) // 4 for m in critical_content)
+            daily_tokens = sum(len(m["content"]) // 4 for m in daily_content)
+            return {
+                "critical": {
+                    "memories": critical_content,
+                    "count": len(critical_content),
+                    "tokens": critical_tokens,
+                },
+                "daily": {
+                    "memories": daily_content,
+                    "count": len(daily_content),
+                    "tokens": daily_tokens,
+                },
+                "sources": {
+                    "project": any(m["scope"] == "project" for m in critical_content + daily_content),
+                    "team": any(m["scope"] == "team" for m in critical_content + daily_content),
+                    "user": any(m["scope"] == "user" for m in critical_content + daily_content),
+                    "agent": any(m["scope"] == "agent" for m in critical_content + daily_content),
+                },
+                "total_tokens": critical_tokens + daily_tokens,
+                "message": f"Loaded {len(critical_content)} critical + {len(daily_content)} daily memories ({critical_tokens + daily_tokens} tokens)",
+            }
 
     # Get CRITICAL tier memories
     critical = await db.agentmemory.find_many(
@@ -2393,31 +3207,6 @@ async def get_session_memories(
         where=daily_filter,
         order={"createdAt": "desc"},
     )
-
-    # Budget tokens (approximate: 4 chars = 1 token)
-    def budget_memories(memories: list, max_tokens: int) -> list[dict]:
-        result = []
-        total_tokens = 0
-        for m in memories:
-            # Estimate tokens
-            mem_tokens = len(m.content) // 4
-            if total_tokens + mem_tokens > max_tokens:
-                break
-            result.append(
-                {
-                    "id": m.id,
-                    "content": m.content,
-                    "type": m.type,
-                    "category": m.category,
-                    "review_status": getattr(m, "reviewStatus", MEMORY_REVIEW_APPROVED).lower(),
-                    "confidence": calculate_confidence_decay(
-                        m.confidence, m.createdAt, m.lastAccessedAt
-                    ),
-                    "created_at": m.createdAt.isoformat() if m.createdAt else None,
-                }
-            )
-            total_tokens += mem_tokens
-        return result
 
     critical_content = budget_memories(critical, max_critical_tokens)
     daily_content = budget_memories(daily, max_daily_tokens)

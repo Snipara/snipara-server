@@ -13,7 +13,7 @@ import re
 import time
 import uuid
 from collections import deque
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from typing import Any
 
 from .config import settings
@@ -36,7 +36,6 @@ from .engine.core import (
     is_list_query,
     is_numbered_section,
 )
-from .engine.handlers.base import HandlerContext
 
 # Phase 3 Refactor: Import extracted handlers
 # These are available for integration - handlers are extracted but methods
@@ -62,6 +61,9 @@ from .engine.scoring import (
 )
 from .engine.scoring.constants import (
     CONCEPTUAL_PREFIXES as _CONCEPTUAL_PREFIXES,
+)
+from .engine.scoring.constants import (
+    GENERIC_TITLE_TERMS as _GENERIC_TITLE_TERMS,
 )
 from .engine.scoring.constants import (
     HYBRID_BALANCED as _HYBRID_BALANCED,
@@ -123,23 +125,20 @@ from .services.agent_limits import (
     check_memory_limits,
     validate_agents_access,
 )
+from .services.cache import get_cache
 from .services.agent_memory import (
     delete_memories,
+    get_memory_scope_owner_error,
+    invalidate_memory_v2 as invalidate_memory,
     list_memories,
     remember_if_novel,
     resolve_review_status_for_source,
     semantic_recall,
     store_memories_bulk,
     store_memory,
-)
-from .services.agent_memory import (
-    invalidate_memory_v2 as invalidate_memory,
-)
-from .services.agent_memory import (
     supersede_memory_v2 as supersede_memory,
 )
 from .services.binary_parsers import SUPPORTED_BINARY_FORMATS, get_rag_ready_document_content
-from .services.cache import get_cache
 from .services.chunker import get_chunker
 from .services.code_graph import CodeGraphQueryService
 from .services.embeddings import get_light_embeddings_service
@@ -371,6 +370,7 @@ WRITE_TOOLS = {
     ToolName.RLM_MEMORY_VERIFY,
     ToolName.RLM_UPLOAD_DOCUMENT,
     ToolName.RLM_SYNC_DOCUMENTS,
+    ToolName.RLM_SVG_BUNDLE_INGEST,
     ToolName.RLM_REINDEX,
     ToolName.RLM_STATE_SET,
     ToolName.RLM_BROADCAST,
@@ -545,6 +545,9 @@ _MULTI_HOP_PATTERNS = (
 # Local definitions removed - see src/engine/core/*.py
 
 logger = logging.getLogger(__name__)
+
+SUPPORTED_TEXT_DOCUMENT_FORMATS = ("adoc", "markdown", "md", "mdx", "rst", "txt")
+SUPPORTED_SYNC_KINDS = {"DOC", "BINARY"}
 INDEXABLE_BINARY_FORMATS_SQL = ", ".join(f"'{format_name}'" for format_name in SUPPORTED_BINARY_FORMATS)
 
 
@@ -557,6 +560,7 @@ class RLMEngine:
         plan: Plan = Plan.FREE,
         settings: dict | None = None,
         user_id: str | None = None,
+        team_id: str | None = None,
         access_level: str = "EDITOR",
     ):
         """Initialize the engine for a project.
@@ -571,6 +575,7 @@ class RLMEngine:
         self.project_id = project_id
         self.plan = plan
         self.user_id = user_id
+        self.team_id = team_id
         self.access_level = access_level
         self.index: DocumentationIndex | None = None
         self.session_context: str = ""
@@ -616,12 +621,20 @@ class RLMEngine:
                 memory_review_mode=settings.get("memory_review_mode", "AUTO"),
                 memory_capture_tool_results=settings.get("memory_capture_tool_results", True),
                 memory_capture_failures=settings.get("memory_capture_failures", False),
+                memory_v2_dual_write=settings.get("memory_v2_dual_write", False),
+                memory_v2_dual_read=settings.get("memory_v2_dual_read", False),
+                memory_v2_primary_read=settings.get("memory_v2_primary_read", False),
             )
         else:
             self.settings = ProjectSettings()
 
+        app_settings = globals()["settings"]
+        self.settings.memory_v2_dual_write = getattr(app_settings, "memory_v2_dual_write", False)
+        self.settings.memory_v2_dual_read = getattr(app_settings, "memory_v2_dual_read", False)
+        self.settings.memory_v2_primary_read = getattr(app_settings, "memory_v2_primary_read", False)
+
         # Handler context cache (lazily initialized)
-        self._cached_handler_ctx: HandlerContext | None = None
+        self._cached_handler_ctx: "HandlerContext | None" = None
 
     async def _get_handler_ctx(self) -> "HandlerContext":
         """Get or create handler context for this engine instance."""
@@ -631,7 +644,7 @@ class RLMEngine:
         return HandlerContext(
             project_id=self.project_id,
             user_id=self.user_id,
-            team_id=None,  # TODO: Add team_id to RLMEngine if needed
+            team_id=self.team_id,
             plan=self.plan,
             access_level=self.access_level,
             settings=self.settings,
@@ -1187,6 +1200,7 @@ class RLMEngine:
             # Phase 10: Document Sync Tools
             ToolName.RLM_UPLOAD_DOCUMENT: self._handle_upload_document,
             ToolName.RLM_SYNC_DOCUMENTS: self._handle_sync_documents,
+            ToolName.RLM_SVG_BUNDLE_INGEST: self._handle_svg_bundle_ingest,
             ToolName.RLM_SETTINGS: self._handle_settings,
             # Phase 11: Access Control Tools
             ToolName.RLM_REQUEST_ACCESS: self._handle_request_access,
@@ -2014,6 +2028,7 @@ class RLMEngine:
                     )
 
         # Check if we should auto-decompose this query (Pro+ only)
+        decomposed = False
         sub_queries_used: list[str] = []
 
         if (
@@ -2065,6 +2080,7 @@ class RLMEngine:
                     if all_sections:
                         # Sort by relevance and apply token budget
                         all_sections.sort(key=lambda s: s.relevance_score, reverse=True)
+                        decomposed = True
 
                         # Build final result with merged sections
                         total_tokens = sum(s.token_count for s in all_sections)
@@ -2531,6 +2547,13 @@ Rationale: {decision.rationale}"""
                 # No more budget - add to suggestions
                 if len(suggestions) < 5:
                     suggestions.append(f"{section.title} (score: {score:.1f})")
+
+        total_tokens = self._expand_svg_bundle_companions(
+            selected_sections=selected_sections,
+            total_tokens=total_tokens,
+            max_tokens=max_tokens,
+            suggestions=suggestions,
+        )
 
         # ---- Hard cap: enforce max_tokens guarantee ----
         # The greedy loop above *should* stay within budget, but shared
@@ -3546,6 +3569,75 @@ Rationale: {decision.rationale}"""
                 return file_path
 
         return self.index.files[-1] if self.index.files else "unknown"
+
+    @staticmethod
+    def _svg_bundle_base_path(file_path: str) -> str | None:
+        for suffix in (".context.md", ".manifest.md", ".enriched-svg.md"):
+            if file_path.endswith(suffix):
+                return file_path[: -len(suffix)]
+        return None
+
+    def _find_first_section_for_file(self, file_path: str) -> Section | None:
+        if not self.index or file_path not in self.index.file_boundaries:
+            return None
+
+        start, end = self.index.file_boundaries[file_path]
+        for section in self.index.sections:
+            if start + 1 <= section.start_line <= end:
+                return section
+        return None
+
+    def _expand_svg_bundle_companions(
+        self,
+        *,
+        selected_sections: list[ContextSection],
+        total_tokens: int,
+        max_tokens: int,
+        suggestions: list[str],
+    ) -> int:
+        """Keep generated SVG companion documents visible together when budget allows."""
+        if not self.index or not selected_sections:
+            return total_tokens
+
+        selected_files = {section.file for section in selected_sections}
+        selected_file_titles = {(section.file, section.title) for section in selected_sections}
+        bundle_bases: list[str] = []
+        for file_path in selected_files:
+            base_path = self._svg_bundle_base_path(file_path)
+            if base_path and base_path not in bundle_bases:
+                bundle_bases.append(base_path)
+
+        for base_path in bundle_bases:
+            for suffix in (".context.md", ".manifest.md", ".enriched-svg.md"):
+                companion_path = f"{base_path}{suffix}"
+                companion_section = self._find_first_section_for_file(companion_path)
+                if companion_section is None:
+                    continue
+                if (companion_path, companion_section.title) in selected_file_titles:
+                    continue
+
+                companion_tokens = count_tokens(companion_section.content)
+                if total_tokens + companion_tokens > max_tokens:
+                    if len(suggestions) < 5:
+                        suggestions.append(f"{companion_section.title} (svg companion skipped: budget)")
+                    continue
+
+                selected_sections.append(
+                    ContextSection(
+                        title=companion_section.title,
+                        content=companion_section.content,
+                        file=companion_path,
+                        lines=(companion_section.start_line, companion_section.end_line),
+                        relevance_score=0.95,
+                        token_count=companion_tokens,
+                        truncated=False,
+                    )
+                )
+                total_tokens += companion_tokens
+                selected_files.add(companion_path)
+                selected_file_titles.add((companion_path, companion_section.title))
+
+        return total_tokens
 
     def _smart_truncate(self, content: str, max_tokens: int) -> str:
         """
@@ -5304,6 +5396,7 @@ Rationale: {decision.rationale}"""
         ttl_days = params.get("ttl_days")
         related_to = params.get("related_to")
         document_refs = params.get("document_refs")
+        agent_id = params.get("agent_id")
         source = params.get("source") or "mcp"
         review_status = resolve_review_status_for_source(
             self.settings,
@@ -5317,6 +5410,17 @@ Rationale: {decision.rationale}"""
                 input_tokens=0,
                 output_tokens=0,
             )
+        owner_error = get_memory_scope_owner_error(
+            scope,
+            user_id=self.user_id,
+            team_id=self.team_id,
+            agent_id=agent_id,
+        )
+        if owner_error and (
+            self.settings.memory_v2_primary_read is True
+            or self.settings.memory_v2_dual_write is True
+        ):
+            return ToolResult(data={"error": owner_error}, input_tokens=count_tokens(content), output_tokens=0)
 
         # Check memory limits
         allowed, error = await check_memory_limits(self.project_id, self.user_id)
@@ -5338,6 +5442,9 @@ Rationale: {decision.rationale}"""
             document_refs=document_refs,
             source=source,
             review_status=review_status,
+            user_id=self.user_id,
+            team_id=self.team_id,
+            agent_id=agent_id,
         )
 
         return ToolResult(
@@ -5355,6 +5462,7 @@ Rationale: {decision.rationale}"""
         ttl_days = params.get("ttl_days")
         related_to = params.get("related_to")
         document_refs = params.get("document_refs")
+        agent_id = params.get("agent_id")
         novelty_threshold = params.get(
             "novelty_threshold", self.settings.memory_novelty_threshold
         )
@@ -5373,6 +5481,17 @@ Rationale: {decision.rationale}"""
                 input_tokens=0,
                 output_tokens=0,
             )
+        owner_error = get_memory_scope_owner_error(
+            scope,
+            user_id=self.user_id,
+            team_id=self.team_id,
+            agent_id=agent_id,
+        )
+        if owner_error and (
+            self.settings.memory_v2_primary_read is True
+            or self.settings.memory_v2_dual_write is True
+        ):
+            return ToolResult(data={"error": owner_error}, input_tokens=count_tokens(content), output_tokens=0)
 
         allowed, error = await check_memory_limits(self.project_id, self.user_id)
         if not allowed:
@@ -5396,6 +5515,9 @@ Rationale: {decision.rationale}"""
             allow_supersede=allow_supersede,
             source=source,
             review_status=review_status,
+            user_id=self.user_id,
+            team_id=self.team_id,
+            agent_id=agent_id,
         )
 
         return ToolResult(
@@ -5440,6 +5562,8 @@ Rationale: {decision.rationale}"""
             ),
             deduplicate_before_write=self.settings.memory_deduplicate_before_write,
             source=params.get("source") or "task_commit",
+            user_id=self.user_id,
+            team_id=self.team_id,
         )
 
         return ToolResult(
@@ -5505,6 +5629,9 @@ Rationale: {decision.rationale}"""
             project_id=self.project_id,
             memories=[{**memory, "review_status": memory.get("review_status", review_status)} for memory in memories],
             source=source,
+            user_id=self.user_id,
+            team_id=self.team_id,
+            agent_id=params.get("agent_id"),
         )
 
         input_tokens = sum(count_tokens(m.get("text", "")) for m in memories)
@@ -5536,6 +5663,7 @@ Rationale: {decision.rationale}"""
         memory_type = params.get("type")
         scope = params.get("scope")
         category = params.get("category")
+        agent_id = params.get("agent_id")
         limit = params.get("limit", 5)
         min_relevance = params.get("min_relevance", 0.5)
 
@@ -5556,6 +5684,9 @@ Rationale: {decision.rationale}"""
             min_relevance=min_relevance,
             include_inactive=params.get("include_inactive", False),
             warning_threshold=params.get("warning_threshold", 0.72),
+            user_id=self.user_id,
+            team_id=self.team_id,
+            agent_id=agent_id,
         )
 
         return ToolResult(
@@ -5592,6 +5723,7 @@ Rationale: {decision.rationale}"""
         sort_order = params.get("sort_order", "desc")
         status = params.get("status")
         include_inactive = params.get("include_inactive", False)
+        agent_id = params.get("agent_id")
 
         result = await list_memories(
             project_id=self.project_id,
@@ -5605,6 +5737,9 @@ Rationale: {decision.rationale}"""
             sort_order=sort_order,
             status=status,
             include_inactive=include_inactive,
+            user_id=self.user_id,
+            team_id=self.team_id,
+            agent_id=agent_id,
         )
 
         return ToolResult(
@@ -5952,6 +6087,9 @@ Rationale: {decision.rationale}"""
             max_critical_tokens=params.get("max_critical_tokens", 8000),
             max_daily_tokens=params.get("max_daily_tokens", 4000),
             include_yesterday=params.get("include_yesterday", True),
+            user_id=self.user_id,
+            team_id=self.team_id,
+            agent_id=params.get("agent_id"),
         )
 
         return ToolResult(
@@ -6913,7 +7051,7 @@ Rationale: {decision.rationale}"""
                 - swarm_info: Basic swarm information
                 - instructions: Clear instructions on what to do next
         """
-        from .services.swarm import get_swarm_info, list_tasks
+        from .services.swarm import list_tasks, get_swarm_info
 
         swarm_id = params.get("swarm_id", "")
         agent_id = params.get("agent_id", "")
@@ -7219,7 +7357,7 @@ Rationale: {decision.rationale}"""
         if task.status not in allowed_statuses:
             if task.status == "IN_PROGRESS":
                 return ToolResult(
-                    data={"error": "Cannot reassign IN_PROGRESS task. Use force=true to override (admin only)."},
+                    data={"error": f"Cannot reassign IN_PROGRESS task. Use force=true to override (admin only)."},
                     input_tokens=0,
                     output_tokens=0,
                 )
@@ -7404,7 +7542,7 @@ Rationale: {decision.rationale}"""
             update_data["status"] = new_status
             # Set completedAt if marking as completed/failed
             if new_status in ["COMPLETED", "FAILED"]:
-                update_data["completedAt"] = datetime.now(UTC)
+                update_data["completedAt"] = datetime.now(timezone.utc)
 
         if not update_data:
             err = "No fields to update. Provide: title, description, priority, or status"
@@ -7448,6 +7586,103 @@ Rationale: {decision.rationale}"""
 
     # ============ Phase 10: Document Sync Handlers ============
 
+    @staticmethod
+    def _document_metadata_dict(metadata: Any) -> dict[str, Any] | None:
+        if not isinstance(metadata, dict) or not metadata:
+            return None
+        return metadata
+
+    @staticmethod
+    def _document_metadata_payload(metadata: dict[str, Any] | None) -> Any | None:
+        """Return a Prisma-compatible JSON payload for optional document metadata."""
+
+        if metadata is None:
+            return None
+
+        try:
+            from prisma import Json
+
+            return Json(metadata)
+        except ImportError:
+            return metadata
+
+    @staticmethod
+    def _document_metadata_matches(existing_metadata: Any, metadata: dict[str, Any] | None) -> bool:
+        if metadata is None:
+            return True
+        return existing_metadata == metadata
+
+    @staticmethod
+    def _document_format_from_path(path: str) -> str | None:
+        file_name = path.rsplit("/", 1)[-1]
+        if "." not in file_name:
+            return None
+        return file_name.rsplit(".", 1)[-1].lower()
+
+    @classmethod
+    def _resolve_document_storage(
+        cls,
+        *,
+        path: str,
+        kind: Any = None,
+        format_name: Any = None,
+        language: Any = None,
+    ) -> tuple[dict[str, Any] | None, str | None]:
+        inferred_format = cls._document_format_from_path(path)
+        normalized_format = str(format_name or inferred_format or "").strip().lower()
+        normalized_kind = str(kind or "").strip().upper()
+
+        if not normalized_kind:
+            if normalized_format in SUPPORTED_BINARY_FORMATS:
+                normalized_kind = "BINARY"
+            elif normalized_format in SUPPORTED_TEXT_DOCUMENT_FORMATS:
+                normalized_kind = "DOC"
+
+        if normalized_kind not in SUPPORTED_SYNC_KINDS:
+            supported = ", ".join(
+                f".{item}" for item in (*SUPPORTED_TEXT_DOCUMENT_FORMATS, *SUPPORTED_BINARY_FORMATS)
+            )
+            return None, f"Unsupported document type for '{path}'. Supported extensions: {supported}"
+
+        if normalized_kind == "DOC" and normalized_format not in SUPPORTED_TEXT_DOCUMENT_FORMATS:
+            supported = ", ".join(f".{item}" for item in SUPPORTED_TEXT_DOCUMENT_FORMATS)
+            return None, f"DOC uploads support only: {supported}"
+
+        if normalized_kind == "BINARY" and normalized_format not in SUPPORTED_BINARY_FORMATS:
+            supported = ", ".join(f".{item}" for item in SUPPORTED_BINARY_FORMATS)
+            return None, f"BINARY uploads support only: {supported}"
+
+        normalized_language = str(language).strip().lower() if language else None
+        return {
+            "kind": normalized_kind,
+            "format": normalized_format,
+            "language": normalized_language or None,
+        }, None
+
+    @staticmethod
+    def _document_storage_matches(existing: Any, storage: dict[str, Any]) -> bool:
+        existing_kind = str(getattr(existing, "kind", "DOC")).split(".")[-1].upper()
+        return (
+            existing_kind == storage["kind"]
+            and getattr(existing, "format", None) == storage["format"]
+            and getattr(existing, "language", None) == storage["language"]
+        )
+
+    @staticmethod
+    def _document_content_validation_error(content: str, storage: dict[str, Any]) -> str | None:
+        if storage["kind"] != "BINARY" or storage["format"] == "svg":
+            return None
+        stripped = content.strip()
+        if stripped.startswith("base64:") or (stripped.startswith("data:") and ";base64," in stripped):
+            return None
+        return "Binary document content must be base64-prefixed, e.g. base64:<payload>"
+
+    @staticmethod
+    def _document_input_tokens(content: str, storage: dict[str, Any]) -> int:
+        if storage["kind"] == "BINARY":
+            return count_tokens(f"{storage['kind']} {storage['format']}")
+        return count_tokens(content)
+
     async def _handle_upload_document(self, params: dict[str, Any]) -> ToolResult:
         """
         Handle rlm_upload_document - upload or update a document.
@@ -7462,6 +7697,14 @@ Rationale: {decision.rationale}"""
         """
         path = params.get("path", "")
         content = params.get("content", "")
+        storage, storage_error = self._resolve_document_storage(
+            path=path,
+            kind=params.get("kind"),
+            format_name=params.get("format"),
+            language=params.get("language"),
+        )
+        metadata_dict = self._document_metadata_dict(params.get("metadata"))
+        metadata = self._document_metadata_payload(metadata_dict)
 
         if not path or not content:
             return ToolResult(
@@ -7470,10 +7713,17 @@ Rationale: {decision.rationale}"""
                 output_tokens=0,
             )
 
-        # Validate path
-        if not path.endswith((".md", ".txt", ".mdx")):
+        if storage_error or storage is None:
             return ToolResult(
-                data={"error": "Only .md, .txt, .mdx files are supported"},
+                data={"error": storage_error},
+                input_tokens=0,
+                output_tokens=0,
+            )
+
+        content_error = self._document_content_validation_error(content, storage)
+        if content_error:
+            return ToolResult(
+                data={"error": content_error},
                 input_tokens=0,
                 output_tokens=0,
             )
@@ -7489,16 +7739,20 @@ Rationale: {decision.rationale}"""
             # Check if soft-deleted - if so, restore it
             if existing.deletedAt is not None:
                 # Restore soft-deleted document with new content
+                update_data = {
+                    "content": content,
+                    "hash": content_hash,
+                    "size": size,
+                    "source": "mcp",
+                    "deletedAt": None,
+                    "deletedBy": None,
+                    **storage,
+                }
+                if metadata is not None:
+                    update_data["metadata"] = metadata
                 await db.document.update(
                     where={"id": existing.id},
-                    data={
-                        "content": content,
-                        "hash": content_hash,
-                        "size": size,
-                        "source": "mcp",
-                        "deletedAt": None,
-                        "deletedBy": None,
-                    },
+                    data=update_data,
                 )
                 # Invalidate index and query caches
                 self.index = None
@@ -7513,18 +7767,47 @@ Rationale: {decision.rationale}"""
                 )
             # Check if content changed
             elif existing.hash == content_hash:
-                result = UploadDocumentResult(
-                    path=path,
-                    action="unchanged",
-                    size=size,
-                    hash=content_hash,
-                    message=f"Document '{path}' is unchanged",
+                storage_changed = not self._document_storage_matches(existing, storage)
+                metadata_changed = metadata is not None and not self._document_metadata_matches(
+                    getattr(existing, "metadata", None), metadata_dict
                 )
+                if storage_changed or metadata_changed:
+                    update_data = {"source": "mcp", **storage}
+                    if metadata is not None:
+                        update_data["metadata"] = metadata
+                    await db.document.update(
+                        where={"id": existing.id},
+                        data=update_data,
+                    )
+                    result = UploadDocumentResult(
+                        path=path,
+                        action="metadata_updated",
+                        size=size,
+                        hash=content_hash,
+                        message=f"Document '{path}' metadata updated",
+                    )
+                else:
+                    result = UploadDocumentResult(
+                        path=path,
+                        action="unchanged",
+                        size=size,
+                        hash=content_hash,
+                        message=f"Document '{path}' is unchanged",
+                    )
             else:
                 # Update existing document
+                update_data = {
+                    "content": content,
+                    "hash": content_hash,
+                    "size": size,
+                    "source": "mcp",
+                    **storage,
+                }
+                if metadata is not None:
+                    update_data["metadata"] = metadata
                 await db.document.update(
                     where={"id": existing.id},
-                    data={"content": content, "hash": content_hash, "size": size, "source": "mcp"},
+                    data=update_data,
                 )
                 # Invalidate index and query caches
                 self.index = None
@@ -7539,15 +7822,19 @@ Rationale: {decision.rationale}"""
                 )
         else:
             # Create new document
+            create_data = {
+                "projectId": self.project_id,
+                "path": path,
+                "content": content,
+                "hash": content_hash,
+                "size": size,
+                "source": "mcp",
+                **storage,
+            }
+            if metadata is not None:
+                create_data["metadata"] = metadata
             await db.document.create(
-                data={
-                    "projectId": self.project_id,
-                    "path": path,
-                    "content": content,
-                    "hash": content_hash,
-                    "size": size,
-                    "source": "mcp",
-                }
+                data=create_data
             )
             # Invalidate index and query caches
             self.index = None
@@ -7563,7 +7850,7 @@ Rationale: {decision.rationale}"""
 
         return ToolResult(
             data=result.model_dump(),
-            input_tokens=count_tokens(content),
+            input_tokens=self._document_input_tokens(content, storage),
             output_tokens=count_tokens(str(result.model_dump())),
         )
 
@@ -7604,39 +7891,72 @@ Rationale: {decision.rationale}"""
         for doc_data in documents:
             path = doc_data.get("path", "")
             content = doc_data.get("content", "")
+            storage, storage_error = self._resolve_document_storage(
+                path=path,
+                kind=doc_data.get("kind"),
+                format_name=doc_data.get("format"),
+                language=doc_data.get("language"),
+            )
+            metadata_dict = self._document_metadata_dict(doc_data.get("metadata"))
+            metadata = self._document_metadata_payload(metadata_dict)
 
             if not path or not content:
                 continue
 
-            # Validate path
-            if not path.endswith((".md", ".txt", ".mdx")):
+            if storage_error or storage is None:
+                continue
+
+            if self._document_content_validation_error(content, storage):
                 continue
 
             synced_paths.add(path)
             content_hash = hashlib.sha256(content.encode()).hexdigest()
             size = len(content.encode())
-            input_tokens += count_tokens(content)
+            input_tokens += self._document_input_tokens(content, storage)
 
             if path in existing_by_path:
                 existing = existing_by_path[path]
-                if existing.hash == content_hash:
-                    unchanged += 1
-                else:
+                content_changed = existing.hash != content_hash
+                storage_changed = not self._document_storage_matches(existing, storage)
+                metadata_changed = metadata is not None and not self._document_metadata_matches(
+                    getattr(existing, "metadata", None), metadata_dict
+                )
+
+                if content_changed:
+                    update_data = {"content": content, "hash": content_hash, "size": size, "source": "mcp"}
+                    update_data.update(storage)
+                    if metadata is not None:
+                        update_data["metadata"] = metadata
                     await db.document.update(
                         where={"id": existing.id},
-                        data={"content": content, "hash": content_hash, "size": size, "source": "mcp"},
+                        data=update_data,
                     )
                     updated += 1
+                elif storage_changed or metadata_changed:
+                    update_data = {"source": "mcp", **storage}
+                    if metadata is not None:
+                        update_data["metadata"] = metadata
+                    await db.document.update(
+                        where={"id": existing.id},
+                        data=update_data,
+                    )
+                    updated += 1
+                else:
+                    unchanged += 1
             else:
+                create_data = {
+                    "projectId": self.project_id,
+                    "path": path,
+                    "content": content,
+                    "hash": content_hash,
+                    "size": size,
+                    "source": "mcp",
+                    **storage,
+                }
+                if metadata is not None:
+                    create_data["metadata"] = metadata
                 await db.document.create(
-                    data={
-                        "projectId": self.project_id,
-                        "path": path,
-                        "content": content,
-                        "hash": content_hash,
-                        "size": size,
-                        "source": "mcp",
-                    }
+                    data=create_data
                 )
                 created += 1
 
@@ -7653,7 +7973,7 @@ Rationale: {decision.rationale}"""
                         await db.document.update(
                             where={"id": doc.id},
                             data={
-                                "deletedAt": datetime.now(UTC),
+                                "deletedAt": datetime.now(timezone.utc),
                                 "deletedBy": self.user_id,
                             },
                         )
@@ -7685,6 +8005,111 @@ Rationale: {decision.rationale}"""
             data=result.model_dump(),
             input_tokens=input_tokens,
             output_tokens=count_tokens(str(result.model_dump())),
+        )
+
+    async def _handle_svg_bundle_ingest(self, params: dict[str, Any]) -> ToolResult:
+        """
+        Handle rlm_svg_bundle_ingest - create or upload SVG companion context documents.
+
+        Args:
+            params: Dict containing:
+                - svg_content: Raw SVG XML
+                - source_path: Source SVG path used for stable bundle IDs
+                - upload_prefix: Destination path prefix for generated companions
+                - include_enriched_svg: Include enriched SVG markdown companion
+                - dry_run: Return the upload plan without writing documents
+
+        Returns:
+            ToolResult with bundle identity and upload/dry-run summary
+        """
+        from src.services.svg_bundle_ingest import build_svg_bundle_ingest_payload
+
+        svg_content = params.get("svg_content") or params.get("content") or ""
+        source_path = params.get("source_path") or params.get("path") or ""
+        upload_prefix = params.get("upload_prefix", "svg-context")
+        include_enriched_svg = params.get("include_enriched_svg", True)
+        dry_run = params.get("dry_run", False)
+        reindex = params.get("reindex", False)
+        reindex_mode = str(params.get("reindex_mode", "incremental")).lower()
+
+        if not svg_content or not source_path:
+            return ToolResult(
+                data={"error": "svg_content and source_path are required"},
+                input_tokens=0,
+                output_tokens=0,
+            )
+
+        if not str(source_path).lower().endswith(".svg"):
+            return ToolResult(
+                data={"error": "source_path must end with .svg"},
+                input_tokens=count_tokens(svg_content),
+                output_tokens=0,
+            )
+
+        try:
+            payload = build_svg_bundle_ingest_payload(
+                svg_content=svg_content,
+                source_path=source_path,
+                upload_prefix=upload_prefix,
+                include_enriched_svg=include_enriched_svg,
+            )
+        except Exception as exc:
+            return ToolResult(
+                data={"error": f"Failed to parse SVG: {exc}"},
+                input_tokens=count_tokens(svg_content),
+                output_tokens=0,
+            )
+
+        result = {
+            "schema_version": "snipara.svg-bundle-ingest.v1",
+            "action": "dry_run" if dry_run else "uploaded",
+            "bundle": payload.summary(),
+            "upload_prefix": upload_prefix,
+            "include_enriched_svg": include_enriched_svg,
+            "dry_run": dry_run,
+            "reindex": reindex,
+            "reindex_mode": reindex_mode,
+        }
+
+        if not dry_run:
+            bundle_document_paths = [document.path for document in payload.documents]
+            upload_result = await self._handle_sync_documents(
+                {
+                    "documents": [
+                        {
+                            "path": document.path,
+                            "content": document.content,
+                            "metadata": {
+                                "schemaVersion": result["schema_version"],
+                                "svgContextSchemaVersion": payload.schema_version,
+                                "bundleId": payload.bundle_id,
+                                "sourceHash": payload.source_hash,
+                                "sourcePath": payload.source_path,
+                                "artifactRole": document.role,
+                                "bundleDocumentPaths": bundle_document_paths,
+                            },
+                        }
+                        for document in payload.documents
+                    ],
+                    "delete_missing": False,
+                }
+            )
+            result["upload"] = upload_result.data
+            if reindex:
+                result["reindex_job"] = (
+                    await self._handle_reindex({"kind": "doc", "mode": reindex_mode})
+                ).data
+
+        result["message"] = (
+            f"SVG bundle {payload.bundle_id} dry-run generated {len(payload.documents)} documents"
+            if dry_run
+            else f"SVG bundle {payload.bundle_id} uploaded {len(payload.documents)} documents"
+        )
+
+        return ToolResult(
+            data=result,
+            input_tokens=count_tokens(svg_content),
+            output_tokens=count_tokens(str(result)),
         )
 
     async def _handle_settings(self, params: dict[str, Any]) -> ToolResult:

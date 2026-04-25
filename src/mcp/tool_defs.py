@@ -92,6 +92,7 @@ TOOL_TIERS: dict[str, ToolTier] = {
     "rlm_repl_context": ToolTier.ADVANCED,
     "rlm_upload_document": ToolTier.ADVANCED,
     "rlm_sync_documents": ToolTier.ADVANCED,
+    "rlm_svg_bundle_ingest": ToolTier.ADVANCED,
     "rlm_request_access": ToolTier.UTILITY,  # Request access to a project
     "rlm_swarm_create": ToolTier.ADVANCED,
     "rlm_swarm_join": ToolTier.ADVANCED,
@@ -839,6 +840,14 @@ TOOL_DEFINITIONS: list[dict] = [
                     "enum": ["agent", "project", "team", "user"],
                     "default": "project",
                 },
+                "agent_id": {
+                    "type": "string",
+                    "description": "Required when scope=agent; identifies the agent-owned memory namespace",
+                },
+                "external_user_id": {
+                    "type": "string",
+                    "description": "Integrator client keys only: stable end-user ID for scope=user memory. Snipara hashes and namespaces it per integrator client.",
+                },
                 "category": {"type": "string", "description": "Optional category for grouping"},
                 "ttl_days": {
                     "type": "integer",
@@ -878,6 +887,14 @@ TOOL_DEFINITIONS: list[dict] = [
                     "type": "string",
                     "enum": ["agent", "project", "team", "user"],
                     "default": "project",
+                },
+                "agent_id": {
+                    "type": "string",
+                    "description": "Required when scope=agent; identifies the agent-owned memory namespace",
+                },
+                "external_user_id": {
+                    "type": "string",
+                    "description": "Integrator client keys only: stable end-user ID for scope=user memory. Snipara hashes and namespaces it per integrator client.",
                 },
                 "category": {"type": "string"},
                 "ttl_days": {"type": "integer"},
@@ -927,6 +944,10 @@ TOOL_DEFINITIONS: list[dict] = [
                     "items": {"type": "string", "enum": ["decision", "learning", "preference", "workflow"]},
                 },
                 "category": {"type": "string"},
+                "external_user_id": {
+                    "type": "string",
+                    "description": "Integrator client keys only: stable end-user ID for user-owned memories created from task commits.",
+                },
                 "dry_run": {"type": "boolean", "default": False},
             },
             "required": ["summary"],
@@ -961,6 +982,10 @@ TOOL_DEFINITIONS: list[dict] = [
                                 "enum": ["agent", "project", "team", "user"],
                                 "default": "project",
                             },
+                            "agent_id": {
+                                "type": "string",
+                                "description": "Required when scope=agent",
+                            },
                             "category": {"type": "string"},
                             "ttl_days": {"type": "integer"},
                             "related_to": {"type": "array", "items": {"type": "string"}},
@@ -971,6 +996,10 @@ TOOL_DEFINITIONS: list[dict] = [
                     "minItems": 1,
                     "maxItems": 50,
                     "description": "Array of memories to store (max 50)",
+                },
+                "external_user_id": {
+                    "type": "string",
+                    "description": "Integrator client keys only: stable end-user ID for user-scoped bulk memories. Applies to all memories in the call.",
                 },
             },
             "required": ["memories"],
@@ -988,6 +1017,14 @@ TOOL_DEFINITIONS: list[dict] = [
                     "enum": ["fact", "decision", "learning", "preference", "todo", "context"],
                 },
                 "scope": {"type": "string", "enum": ["agent", "project", "team", "user"]},
+                "agent_id": {
+                    "type": "string",
+                    "description": "Required when scope=agent; limits recall to one agent namespace",
+                },
+                "external_user_id": {
+                    "type": "string",
+                    "description": "Integrator client keys only: stable end-user ID for scope=user recall. Snipara hashes and namespaces it per integrator client.",
+                },
                 "category": {"type": "string", "description": "Filter by category"},
                 "limit": {
                     "type": "integer",
@@ -1024,6 +1061,14 @@ TOOL_DEFINITIONS: list[dict] = [
                     "enum": ["fact", "decision", "learning", "preference", "todo", "context"],
                 },
                 "scope": {"type": "string", "enum": ["agent", "project", "team", "user"]},
+                "agent_id": {
+                    "type": "string",
+                    "description": "Required when scope=agent; limits listing to one agent namespace",
+                },
+                "external_user_id": {
+                    "type": "string",
+                    "description": "Integrator client keys only: stable end-user ID for scope=user memory listing. Snipara hashes and namespaces it per integrator client.",
+                },
                 "category": {"type": "string"},
                 "status": {
                     "type": "string",
@@ -1225,6 +1270,14 @@ TOOL_DEFINITIONS: list[dict] = [
                     "type": "boolean",
                     "default": True,
                     "description": "Include yesterday's daily memories",
+                },
+                "agent_id": {
+                    "type": "string",
+                    "description": "Optional agent namespace to include in the session bundle",
+                },
+                "external_user_id": {
+                    "type": "string",
+                    "description": "Integrator client keys only: stable end-user ID whose personal memories should be included in the session bundle.",
                 },
             },
             "required": [],
@@ -2084,12 +2137,56 @@ updated within the threshold. Use dry_run=true to preview before recovering.""",
     # ============ Document Sync Tools ============
     {
         "name": "rlm_upload_document",
-        "description": "Upload or update a document in the project. Supports .md, .txt, .mdx files.",
+        "description": (
+            "Upload or update a document in the project. Supports text documents "
+            "(.md, .markdown, .mdx, .txt, .rst, .adoc) and binary parser documents "
+            "(.pdf, .docx, .pptx, .svg, .vsdx). Binary payloads should use "
+            "base64:<payload> except SVG, which may use raw XML."
+        ),
         "inputSchema": {
             "type": "object",
             "properties": {
                 "path": {"type": "string", "description": "Document path (e.g., 'docs/api.md')"},
-                "content": {"type": "string", "description": "Document content (markdown)"},
+                "content": {
+                    "type": "string",
+                    "description": "Document content, or base64:<payload> for binary files",
+                },
+                "kind": {
+                    "type": "string",
+                    "enum": ["DOC", "BINARY"],
+                    "description": "Document pipeline kind. Inferred from path when omitted.",
+                },
+                "format": {
+                    "type": "string",
+                    "enum": [
+                        "adoc",
+                        "docx",
+                        "markdown",
+                        "md",
+                        "mdx",
+                        "pdf",
+                        "pptx",
+                        "rst",
+                        "svg",
+                        "txt",
+                        "vsdx",
+                    ],
+                    "description": "Document format. Inferred from file extension when omitted.",
+                },
+                "language": {
+                    "type": "string",
+                    "description": "Optional language hint. Usually omitted for DOC and BINARY uploads.",
+                },
+                "metadata": {
+                    "type": "object",
+                    "description": (
+                        "Optional structured metadata such as assetClass, usageMode "
+                        "(current_truth|historical_reference|template|global_knowledge), "
+                        "clientId, sourceKind, sourceModifiedAt, sourceSnapshotAt, "
+                        "sourceContentHash, freshnessPolicy, parser, and provenance fields"
+                    ),
+                    "additionalProperties": True,
+                },
             },
             "required": ["path", "content"],
         },
@@ -2106,7 +2203,44 @@ updated within the threshold. Use dry_run=true to preview before recovering.""",
                         "type": "object",
                         "properties": {
                             "path": {"type": "string"},
-                            "content": {"type": "string"},
+                            "content": {
+                                "type": "string",
+                                "description": "Plain text or base64:<payload> for binary files",
+                            },
+                            "kind": {
+                                "type": "string",
+                                "enum": ["DOC", "BINARY"],
+                                "description": "Document pipeline kind. Inferred from path when omitted.",
+                            },
+                            "format": {
+                                "type": "string",
+                                "enum": [
+                                    "adoc",
+                                    "docx",
+                                    "markdown",
+                                    "md",
+                                    "mdx",
+                                    "pdf",
+                                    "pptx",
+                                    "rst",
+                                    "svg",
+                                    "txt",
+                                    "vsdx",
+                                ],
+                                "description": "Document format. Inferred from file extension when omitted.",
+                            },
+                            "language": {
+                                "type": "string",
+                                "description": "Optional language hint. Usually omitted for DOC and BINARY uploads.",
+                            },
+                            "metadata": {
+                                "type": "object",
+                                "description": (
+                                    "Optional structured metadata for business context, diagrams, "
+                                    "source freshness, historical references, templates, and provenance"
+                                ),
+                                "additionalProperties": True,
+                            },
                         },
                         "required": ["path", "content"],
                     },
@@ -2119,6 +2253,51 @@ updated within the threshold. Use dry_run=true to preview before recovering.""",
                 },
             },
             "required": ["documents"],
+        },
+    },
+    {
+        "name": "rlm_svg_bundle_ingest",
+        "description": (
+            "Generate a native SVG companion context bundle and optionally upload the generated "
+            "Markdown documents. Use dry_run=true to preview bundle IDs, paths, and payload size."
+            " Uploaded bundle documents store bundleId/sourceHash/sourcePath/artifactRole metadata."
+        ),
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "svg_content": {"type": "string", "description": "Raw SVG XML content"},
+                "source_path": {
+                    "type": "string",
+                    "description": "Original SVG path used for stable bundle identity",
+                },
+                "upload_prefix": {
+                    "type": "string",
+                    "default": "svg-context",
+                    "description": "Destination path prefix for generated companion documents",
+                },
+                "include_enriched_svg": {
+                    "type": "boolean",
+                    "default": True,
+                    "description": "Include an enriched SVG XML markdown companion",
+                },
+                "dry_run": {
+                    "type": "boolean",
+                    "default": False,
+                    "description": "Return the bundle summary without writing documents",
+                },
+                "reindex": {
+                    "type": "boolean",
+                    "default": False,
+                    "description": "Trigger a document reindex job after a non-dry-run upload",
+                },
+                "reindex_mode": {
+                    "type": "string",
+                    "enum": ["incremental", "full"],
+                    "default": "incremental",
+                    "description": "Document reindex mode to use when reindex=true",
+                },
+            },
+            "required": ["svg_content", "source_path"],
         },
     },
     {

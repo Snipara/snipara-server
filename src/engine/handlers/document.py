@@ -9,7 +9,7 @@ Handles:
 
 import hashlib
 from collections.abc import Callable
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from typing import Any
 
 from ...config import settings
@@ -21,7 +21,77 @@ from ...models import (
     ToolResult,
     UploadDocumentResult,
 )
+from ...services.binary_parsers import SUPPORTED_BINARY_FORMATS
 from .base import HandlerContext, count_tokens
+
+SUPPORTED_TEXT_DOCUMENT_FORMATS = ("adoc", "markdown", "md", "mdx", "rst", "txt")
+SUPPORTED_SYNC_KINDS = {"DOC", "BINARY"}
+
+
+def _document_format_from_path(path: str) -> str | None:
+    file_name = path.rsplit("/", 1)[-1]
+    if "." not in file_name:
+        return None
+    return file_name.rsplit(".", 1)[-1].lower()
+
+
+def _resolve_document_storage(
+    *, path: str, kind: Any = None, format_name: Any = None, language: Any = None
+) -> tuple[dict[str, Any] | None, str | None]:
+    inferred_format = _document_format_from_path(path)
+    normalized_format = str(format_name or inferred_format or "").strip().lower()
+    normalized_kind = str(kind or "").strip().upper()
+
+    if not normalized_kind:
+        if normalized_format in SUPPORTED_BINARY_FORMATS:
+            normalized_kind = "BINARY"
+        elif normalized_format in SUPPORTED_TEXT_DOCUMENT_FORMATS:
+            normalized_kind = "DOC"
+
+    if normalized_kind not in SUPPORTED_SYNC_KINDS:
+        supported = ", ".join(
+            f".{item}" for item in (*SUPPORTED_TEXT_DOCUMENT_FORMATS, *SUPPORTED_BINARY_FORMATS)
+        )
+        return None, f"Unsupported document type for '{path}'. Supported extensions: {supported}"
+
+    if normalized_kind == "DOC" and normalized_format not in SUPPORTED_TEXT_DOCUMENT_FORMATS:
+        supported = ", ".join(f".{item}" for item in SUPPORTED_TEXT_DOCUMENT_FORMATS)
+        return None, f"DOC uploads support only: {supported}"
+
+    if normalized_kind == "BINARY" and normalized_format not in SUPPORTED_BINARY_FORMATS:
+        supported = ", ".join(f".{item}" for item in SUPPORTED_BINARY_FORMATS)
+        return None, f"BINARY uploads support only: {supported}"
+
+    normalized_language = str(language).strip().lower() if language else None
+    return {
+        "kind": normalized_kind,
+        "format": normalized_format,
+        "language": normalized_language or None,
+    }, None
+
+
+def _document_storage_matches(existing: Any, storage: dict[str, Any]) -> bool:
+    existing_kind = str(getattr(existing, "kind", "DOC")).split(".")[-1].upper()
+    return (
+        existing_kind == storage["kind"]
+        and getattr(existing, "format", None) == storage["format"]
+        and getattr(existing, "language", None) == storage["language"]
+    )
+
+
+def _document_content_validation_error(content: str, storage: dict[str, Any]) -> str | None:
+    if storage["kind"] != "BINARY" or storage["format"] == "svg":
+        return None
+    stripped = content.strip()
+    if stripped.startswith("base64:") or (stripped.startswith("data:") and ";base64," in stripped):
+        return None
+    return "Binary document content must be base64-prefixed, e.g. base64:<payload>"
+
+
+def _document_input_tokens(content: str, storage: dict[str, Any]) -> int:
+    if storage["kind"] == "BINARY":
+        return count_tokens(f"{storage['kind']} {storage['format']}")
+    return count_tokens(content)
 
 
 async def handle_upload_document(
@@ -41,6 +111,12 @@ async def handle_upload_document(
     """
     path = params.get("path", "")
     content = params.get("content", "")
+    storage, storage_error = _resolve_document_storage(
+        path=path,
+        kind=params.get("kind"),
+        format_name=params.get("format"),
+        language=params.get("language"),
+    )
 
     if not path or not content:
         missing = []
@@ -56,10 +132,17 @@ async def handle_upload_document(
             output_tokens=0,
         )
 
-    # Validate path
-    if not path.endswith((".md", ".txt", ".mdx")):
+    if storage_error or storage is None:
         return ToolResult(
-            data={"error": "Only .md, .txt, .mdx files are supported"},
+            data={"error": storage_error},
+            input_tokens=0,
+            output_tokens=0,
+        )
+
+    content_error = _document_content_validation_error(content, storage)
+    if content_error:
+        return ToolResult(
+            data={"error": content_error},
             input_tokens=0,
             output_tokens=0,
         )
@@ -83,6 +166,7 @@ async def handle_upload_document(
                     "size": size,
                     "deletedAt": None,
                     "deletedBy": None,
+                    **storage,
                 },
             )
             # Invalidate index cache
@@ -95,7 +179,7 @@ async def handle_upload_document(
                 message=f"Document '{path}' restored from trash ({size} bytes)",
             )
         # Check if content changed
-        elif existing.hash == content_hash:
+        elif existing.hash == content_hash and _document_storage_matches(existing, storage):
             result = UploadDocumentResult(
                 path=path,
                 action="unchanged",
@@ -107,7 +191,7 @@ async def handle_upload_document(
             # Update existing document
             await db.document.update(
                 where={"id": existing.id},
-                data={"content": content, "hash": content_hash, "size": size},
+                data={"content": content, "hash": content_hash, "size": size, **storage},
             )
             # Invalidate index cache
             invalidate_index()
@@ -127,6 +211,7 @@ async def handle_upload_document(
                 "content": content,
                 "hash": content_hash,
                 "size": size,
+                **storage,
             }
         )
         # Invalidate index cache
@@ -141,7 +226,7 @@ async def handle_upload_document(
 
     return ToolResult(
         data=result.model_dump(),
-        input_tokens=count_tokens(content),
+        input_tokens=_document_input_tokens(content, storage),
         output_tokens=count_tokens(str(result.model_dump())),
     )
 
@@ -188,27 +273,35 @@ async def handle_sync_documents(
     for doc_data in documents:
         path = doc_data.get("path", "")
         content = doc_data.get("content", "")
+        storage, storage_error = _resolve_document_storage(
+            path=path,
+            kind=doc_data.get("kind"),
+            format_name=doc_data.get("format"),
+            language=doc_data.get("language"),
+        )
 
         if not path or not content:
             continue
 
-        # Validate path
-        if not path.endswith((".md", ".txt", ".mdx")):
+        if storage_error or storage is None:
+            continue
+
+        if _document_content_validation_error(content, storage):
             continue
 
         synced_paths.add(path)
         content_hash = hashlib.sha256(content.encode()).hexdigest()
         size = len(content.encode())
-        input_tokens += count_tokens(content)
+        input_tokens += _document_input_tokens(content, storage)
 
         if path in existing_by_path:
             existing = existing_by_path[path]
-            if existing.hash == content_hash:
+            if existing.hash == content_hash and _document_storage_matches(existing, storage):
                 unchanged += 1
             else:
                 await db.document.update(
                     where={"id": existing.id},
-                    data={"content": content, "hash": content_hash, "size": size},
+                    data={"content": content, "hash": content_hash, "size": size, **storage},
                 )
                 updated += 1
         else:
@@ -219,6 +312,7 @@ async def handle_sync_documents(
                     "content": content,
                     "hash": content_hash,
                     "size": size,
+                    **storage,
                 }
             )
             created += 1
@@ -236,7 +330,7 @@ async def handle_sync_documents(
                     await db.document.update(
                         where={"id": doc.id},
                         data={
-                            "deletedAt": datetime.now(UTC),
+                            "deletedAt": datetime.now(timezone.utc),
                             "deletedBy": ctx.user_id,
                         },
                     )

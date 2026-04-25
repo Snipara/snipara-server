@@ -201,6 +201,21 @@ class TestToolDefinitions:
         assert properties["mode"]["enum"] == ["incremental", "full"]
         assert properties["kind"]["enum"] == ["doc", "code"]
 
+    def test_document_sync_tools_expose_binary_contract(self):
+        """Document sync tools should expose binary parser fields."""
+        upload = next((t for t in TOOL_DEFINITIONS if t["name"] == "rlm_upload_document"), None)
+        sync = next((t for t in TOOL_DEFINITIONS if t["name"] == "rlm_sync_documents"), None)
+
+        assert upload is not None
+        assert sync is not None
+        upload_props = upload["inputSchema"]["properties"]
+        assert upload_props["kind"]["enum"] == ["DOC", "BINARY"]
+        assert "vsdx" in upload_props["format"]["enum"]
+
+        item_props = sync["inputSchema"]["properties"]["documents"]["items"]["properties"]
+        assert item_props["kind"]["enum"] == ["DOC", "BINARY"]
+        assert "vsdx" in item_props["format"]["enum"]
+
     def test_tool_count(self):
         """Test expected number of tools."""
         # There should be 43 tools based on MCP_TOOLS_COMPLETE.md

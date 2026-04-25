@@ -310,6 +310,39 @@ class MemoriesParams(BaseModel):
     )
 
 
+class MemoryInvalidateParams(BaseModel):
+    """Parameters for rlm_memory_invalidate tool."""
+
+    memory_id: str = Field(..., min_length=1, description="Memory ID to invalidate")
+    reason: str | None = Field(
+        default=None,
+        max_length=5000,
+        description="Why the memory is no longer valid",
+    )
+
+
+class MemorySupersedeParams(BaseModel):
+    """Parameters for rlm_memory_supersede tool."""
+
+    old_memory_id: str = Field(..., min_length=1, description="Memory ID being replaced")
+    text: str = Field(..., min_length=1, description="Replacement memory content")
+    type: AgentMemoryType = Field(default=AgentMemoryType.FACT, description="Memory type")
+    scope: AgentMemoryScope = Field(
+        default=AgentMemoryScope.PROJECT, description="Visibility scope"
+    )
+    category: str | None = Field(default=None, description="Optional grouping category")
+    ttl_days: int | None = Field(
+        default=None, ge=1, le=365, description="Days until memory expires (null = permanent)"
+    )
+    related_to: list[str] = Field(default_factory=list, description="IDs of related memories")
+    document_refs: list[str] = Field(default_factory=list, description="Referenced document paths")
+    reason: str | None = Field(
+        default=None,
+        max_length=5000,
+        description="Why the previous memory is being superseded",
+    )
+
+
 class ForgetParams(BaseModel):
     """Parameters for rlm_forget tool."""
 
@@ -504,7 +537,32 @@ class SyncDocumentItem(BaseModel):
     """A document to sync."""
 
     path: str = Field(..., description="Document path")
-    content: str = Field(..., description="Document content")
+    content: str = Field(
+        ...,
+        description=(
+            "Document content. Text documents use plain text; binary parser documents "
+            "should use base64:<payload> except SVG, which may use raw XML."
+        ),
+    )
+    kind: str | None = Field(
+        default=None,
+        description="Document pipeline kind. Inferred from path when omitted. Supported: DOC, BINARY.",
+    )
+    format: str | None = Field(
+        default=None,
+        description="Document format such as md, txt, pdf, docx, pptx, svg, or vsdx.",
+    )
+    language: str | None = Field(
+        default=None,
+        description="Optional language hint. Usually null for DOC and BINARY uploads.",
+    )
+    metadata: dict[str, Any] | None = Field(
+        default=None,
+        description=(
+            "Optional structured metadata such as assetClass, usageMode, clientId, "
+            "sourceKind, sourceModifiedAt, sourceSnapshotAt, and provenance fields"
+        ),
+    )
 
 
 class SyncDocumentsParams(BaseModel):
