@@ -155,7 +155,7 @@ model Team {
   // Enterprise Admin Tokens (for Enterprise plan teams)
   enterpriseAdminTokens EnterpriseAdminToken[]
 
-  // GitHub App installations (Railway-style repo linking)
+  // GitHub App installations (repo linking)
   githubInstallations   GitHubInstallation[]
 
   @@map("teams")
