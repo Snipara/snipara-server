@@ -14,13 +14,9 @@ import time
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
-from .binary_parsers import (
-    SUPPORTED_BINARY_FORMATS,
-    get_rag_ready_document_content,
-    is_rag_indexable_document,
-)
-from .chunk_quality import compute_chunk_quality
 from .embeddings import get_embeddings_service
+from .binary_parsers import SUPPORTED_BINARY_FORMATS, get_rag_ready_document_content, is_rag_indexable_document
+from .chunk_quality import compute_chunk_quality
 
 if TYPE_CHECKING:
     from prisma import Prisma
@@ -304,7 +300,6 @@ class DocumentIndexer:
         # Track chunk access for tier promotion (fire and forget)
         if track_access and results:
             import asyncio
-
             from src.services.tier_manager import batch_update_chunk_access
 
             chunk_relevance_pairs = [

@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 from io import BytesIO
-from xml.etree import ElementTree as ET
 from zipfile import ZipFile
+from xml.etree import ElementTree as ET
 
 from .base import BinaryParseResult, decode_binary_content
+
 
 WORD_NS = {"w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main"}
 CORE_NS = {"dc": "http://purl.org/dc/elements/1.1/"}

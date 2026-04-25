@@ -1,0 +1,12 @@
+[
+  {
+    "id": "equipment-topology",
+    "query": "Quels choix techniques reutiliser pour une salle de conseil avec Switch PoE, VLAN Dante, DSP et matrice HDMI ?",
+    "expected_artifact_roles": ["context", "manifest", "enriched_svg"]
+  },
+  {
+    "id": "naming-conventions",
+    "query": "Quelle nomenclature par zone et quels VLAN AV reprendre pour une nouvelle mairie ?",
+    "expected_artifact_roles": ["context", "manifest", "enriched_svg"]
+  }
+]

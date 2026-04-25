@@ -14,7 +14,6 @@ Implements:
 - Evidence management
 """
 
-import json
 import logging
 from datetime import UTC, datetime
 from typing import Any
@@ -869,7 +868,7 @@ async def complete_task(
         # Build memory content
         memory_parts = [
             f"## Task Completed: {task.title}",
-            "**Status:** COMPLETED",
+            f"**Status:** COMPLETED",
             f"**Owner:** {task.owner}",
             f"**Completed:** {datetime.now(UTC).isoformat()}",
         ]

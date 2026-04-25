@@ -23,7 +23,6 @@ from .api.deps import (
     validate_team_and_rate_limit,
 )
 from .api.graphify import router as graphify_router
-from .api.integrator import router as integrator_router
 from .auth import (
     enforce_tool_scope,
     get_effective_plan,
@@ -32,6 +31,7 @@ from .auth import (
 )
 from .config import settings
 from .db import close_db, get_db
+from .api.integrator import router as integrator_router
 from .mcp import jsonrpc_error, jsonrpc_response
 from .mcp_transport import router as mcp_router
 from .middleware import IPRateLimitMiddleware, SecurityHeadersMiddleware
@@ -47,6 +47,10 @@ from .models import (
 )
 from .rlm_engine import RLMEngine
 from .services.agent_memory import semantic_recall, store_memory
+from .services.integrator_subjects import (
+    memory_call_uses_user_scope,
+    resolve_integrator_memory_user_id,
+)
 from .services.swarm_events import subscribe_to_swarm, unsubscribe_from_swarm
 from .usage import (
     _is_demo_key,
@@ -63,6 +67,37 @@ from .usage import (
 
 logger = logging.getLogger(__name__)
 
+
+def _resolve_effective_user_id_for_tool(
+    *,
+    auth_info: dict | None,
+    default_user_id: str | None,
+    tool_name: str,
+    params: dict | None,
+) -> str | None:
+    """Resolve user identity for memory tools, including integrator end-user subjects."""
+    if (
+        auth_info
+        and auth_info.get("auth_type") == "integrator_client"
+        and memory_call_uses_user_scope(tool_name, params)
+        and not (params or {}).get("external_user_id")
+    ):
+        raise HTTPException(
+            status_code=400,
+            detail="external_user_id is required for scope=user when using an integrator client key.",
+        )
+
+    try:
+        return resolve_integrator_memory_user_id(
+            auth_info=auth_info,
+            default_user_id=default_user_id,
+            tool_name=tool_name,
+            arguments=params,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
 # ============ SENTRY INITIALIZATION ============
 
 
@@ -77,7 +112,7 @@ def _filter_sentry_event(event: dict) -> dict:
 
 
 # Initialize Sentry if DSN is configured
-sentry_dsn = settings.sentry_dsn.strip()
+sentry_dsn = (settings.sentry_dsn or "").strip()
 if sentry_dsn:
     try:
         import sentry_sdk
@@ -220,7 +255,7 @@ async def health_check() -> HealthResponse:
 @app.get("/ready", tags=["Health"])
 async def readiness_check():
     """Readiness check - verifies DB and embedding model are operational."""
-    from .services.embeddings import LIGHT_MODEL_NAME, EmbeddingsService
+    from .services.embeddings import EmbeddingsService, LIGHT_MODEL_NAME
 
     checks: dict[str, bool] = {}
     all_ok = True
@@ -314,11 +349,18 @@ async def mcp_endpoint(
     # Execute the tool with project settings from dashboard
     try:
         enforce_tool_scope(request.tool.value, api_key_info)
+        effective_user_id = _resolve_effective_user_id_for_tool(
+            auth_info=api_key_info,
+            default_user_id=api_key_info.get("user_id"),
+            tool_name=request.tool.value,
+            params=request.params,
+        )
         engine = RLMEngine(
             project.id,
             plan=plan,
             settings=project_settings,
-            user_id=api_key_info.get("user_id"),
+            user_id=effective_user_id,
+            team_id=getattr(project, "teamId", None),
             access_level=api_key_info.get("access_level", "EDITOR"),
         )
         result = await engine.execute(request.tool, request.params)
@@ -630,6 +672,7 @@ async def get_context(
     engine = RLMEngine(
         project.id,
         user_id=api_key_info.get("user_id"),
+        team_id=getattr(project, "teamId", None),
         access_level=api_key_info.get("access_level", "EDITOR"),
     )
     await engine.load_session_context()
@@ -938,7 +981,12 @@ async def recall_memories(
     api_key: Annotated[str, Depends(get_api_key)],
     query: str = Query(..., description="Search query for semantic recall"),
     type: str | None = Query(default=None, description="Filter by memory type"),
+    scope: str | None = Query(default=None, description="Filter by memory scope"),
     category: str | None = Query(default=None, description="Filter by category"),
+    external_user_id: str | None = Query(
+        default=None,
+        description="Integrator end-user ID for user-scoped memory with snipara_ic_* keys",
+    ),
     limit: int = Query(default=10, ge=1, le=50, description="Max memories to return"),
     min_relevance: float = Query(default=0.3, ge=0, le=1, description="Minimum relevance"),
     include_inactive: bool = Query(default=False, description="Include inactive memories"),
@@ -972,16 +1020,25 @@ async def recall_memories(
 
     # Use resolved project ID, not the slug from URL
     resolved_project_id = project.id
+    effective_user_id = _resolve_effective_user_id_for_tool(
+        auth_info=auth_info,
+        default_user_id=auth_info.get("user_id"),
+        tool_name="rlm_recall",
+        params={"scope": scope, "external_user_id": external_user_id},
+    )
 
     result = await semantic_recall(
         project_id=resolved_project_id,
         query=query,
         memory_type=type,
+        scope=scope,
         category=category,
         limit=limit,
         min_relevance=min_relevance,
         include_inactive=include_inactive,
         warning_threshold=warning_threshold,
+        user_id=effective_user_id,
+        team_id=getattr(project, "teamId", None),
     )
 
     return {
@@ -1027,6 +1084,12 @@ async def create_memory(
 
     # Use resolved project ID, not the slug from URL
     resolved_project_id = project.id
+    effective_user_id = _resolve_effective_user_id_for_tool(
+        auth_info=auth_info,
+        default_user_id=auth_info.get("user_id"),
+        tool_name="rlm_remember",
+        params=body,
+    )
 
     result = await store_memory(
         project_id=resolved_project_id,
@@ -1036,6 +1099,9 @@ async def create_memory(
         category=body.get("category"),
         ttl_days=body.get("ttl_days"),
         source=body.get("source", "hook"),
+        user_id=effective_user_id,
+        team_id=getattr(project, "teamId", None),
+        agent_id=body.get("agent_id"),
     )
 
     return {
@@ -1057,6 +1123,7 @@ async def sse_event_generator(
     params: dict,
     plan: Plan,
     user_id: str | None = None,
+    team_id: str | None = None,
     access_level: str = "EDITOR",
     auth_info: dict | None = None,
 ) -> AsyncGenerator[str, None]:
@@ -1076,7 +1143,19 @@ async def sse_event_generator(
     try:
         # Execute the tool
         enforce_tool_scope(tool.value, auth_info)
-        engine = RLMEngine(project_id, plan=plan, user_id=user_id, access_level=access_level)
+        effective_user_id = _resolve_effective_user_id_for_tool(
+            auth_info=auth_info,
+            default_user_id=user_id,
+            tool_name=tool.value,
+            params=params,
+        )
+        engine = RLMEngine(
+            project_id,
+            plan=plan,
+            user_id=effective_user_id,
+            team_id=team_id,
+            access_level=access_level,
+        )
         result = await engine.execute(tool, params)
 
         latency_ms = int((time.perf_counter() - start_time) * 1000)
@@ -1181,6 +1260,7 @@ async def mcp_sse_endpoint(
             parsed_params,
             plan,
             user_id=api_key_info.get("user_id"),
+            team_id=getattr(project, "teamId", None),
             access_level=api_key_info.get("access_level", "EDITOR"),
             auth_info=api_key_info,
         ),
@@ -1231,6 +1311,7 @@ async def mcp_sse_endpoint_post(
             request.params,
             plan,
             user_id=api_key_info.get("user_id"),
+            team_id=getattr(project, "teamId", None),
             access_level=api_key_info.get("access_level", "EDITOR"),
             auth_info=api_key_info,
         ),
@@ -1296,7 +1377,7 @@ async def swarm_sse_event_generator(
                     yield f"data: {json.dumps({'type': 'heartbeat', 'timestamp': datetime.utcnow().isoformat()})}\n\n"
                     last_heartbeat = time.time()
 
-            except TimeoutError:
+            except asyncio.TimeoutError:
                 # Timeout is normal, check for heartbeat
                 if time.time() - last_heartbeat >= heartbeat_interval:
                     yield f"data: {json.dumps({'type': 'heartbeat', 'timestamp': datetime.utcnow().isoformat()})}\n\n"
@@ -1345,9 +1426,7 @@ async def swarm_sse_endpoint(
 
     # Verify swarm exists and belongs to project
     db = await get_db()
-    swarm = await db.swarm.find_first(
-        where={"id": swarm_id, "projectId": project.id}
-    )
+    swarm = await db.swarm.find_first(where={"id": swarm_id, "projectId": project.id})
     if not swarm:
         raise HTTPException(status_code=404, detail=f"Swarm {swarm_id} not found")
 

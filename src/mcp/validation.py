@@ -86,6 +86,9 @@ async def validate_request(
 
     # Use actual database ID for all operations
     actual_project_id = project.id
+    auth_info["project_id"] = actual_project_id
+    auth_info["project"] = auth_info.get("project") or project
+    auth_info["team_id"] = getattr(project, "teamId", None)
 
     # Determine plan BEFORE rate limit check (plan-based limits)
     plan = get_effective_plan(project.team.subscription if project.team else None)

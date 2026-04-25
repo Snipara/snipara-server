@@ -5,6 +5,7 @@ from types import SimpleNamespace
 import pytest
 
 from src.models import Plan
+import src.services.shared_context as shared_context_service
 from src.services.shared_context import link_shared_collection_to_project
 
 try:
@@ -181,15 +182,9 @@ async def test_link_shared_collection_uses_find_first_priority_lookup(monkeypatc
             sharedcontextcollection=SimpleNamespace(update=update),
         )
 
-    monkeypatch.setattr("src.services.shared_context.get_db", fake_get_db)
-    monkeypatch.setattr(
-        "src.services.shared_context._resolve_accessible_project",
-        fake_resolve_project,
-    )
-    monkeypatch.setattr(
-        "src.services.shared_context._resolve_accessible_collection",
-        fake_resolve_collection,
-    )
+    monkeypatch.setattr(shared_context_service, "get_db", fake_get_db)
+    monkeypatch.setattr(shared_context_service, "_resolve_accessible_project", fake_resolve_project)
+    monkeypatch.setattr(shared_context_service, "_resolve_accessible_collection", fake_resolve_collection)
 
     result = await link_shared_collection_to_project(
         collection_id="col_1",

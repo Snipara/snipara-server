@@ -16,6 +16,7 @@ from ...services.agent_memory import (
     attach_memory_source_v2,
     delete_memories,
     end_of_task_commit,
+    get_memory_scope_owner_error,
     get_journal,
     invalidate_memory_v2,
     list_memories,
@@ -58,6 +59,7 @@ async def handle_remember(
     ttl_days = params.get("ttl_days")
     related_to = params.get("related_to")
     document_refs = params.get("document_refs")
+    agent_id = params.get("agent_id")
     source = params.get("source") or "mcp"
     review_status = resolve_review_status_for_source(
         ctx.settings,
@@ -71,6 +73,18 @@ async def handle_remember(
             input_tokens=0,
             output_tokens=0,
         )
+    if (
+        getattr(ctx.settings, "memory_v2_primary_read", False) is True
+        or getattr(ctx.settings, "memory_v2_dual_write", False) is True
+    ):
+        owner_error = get_memory_scope_owner_error(
+            scope,
+            user_id=ctx.user_id,
+            team_id=ctx.team_id,
+            agent_id=agent_id,
+        )
+        if owner_error:
+            return ToolResult(data={"error": owner_error}, input_tokens=count_tokens(content), output_tokens=0)
 
     # Check memory limits
     allowed, error = await check_memory_limits(ctx.project_id, ctx.user_id)
@@ -92,6 +106,9 @@ async def handle_remember(
         document_refs=document_refs,
         source=source,
         review_status=review_status,
+        user_id=ctx.user_id,
+        team_id=ctx.team_id,
+        agent_id=agent_id,
     )
 
     return ToolResult(
@@ -160,6 +177,9 @@ async def handle_remember_bulk(
         project_id=ctx.project_id,
         memories=[{**memory, "review_status": memory.get("review_status", review_status)} for memory in memories],
         source=source,
+        user_id=ctx.user_id,
+        team_id=ctx.team_id,
+        agent_id=params.get("agent_id"),
     )
 
     input_tokens = sum(count_tokens(m.get("text", "")) for m in memories)
@@ -184,6 +204,7 @@ async def handle_remember_if_novel(
     ttl_days = params.get("ttl_days")
     related_to = params.get("related_to")
     document_refs = params.get("document_refs")
+    agent_id = params.get("agent_id")
     novelty_threshold = params.get(
         "novelty_threshold",
         getattr(ctx.settings, "memory_novelty_threshold", 0.92),
@@ -203,6 +224,18 @@ async def handle_remember_if_novel(
             input_tokens=0,
             output_tokens=0,
         )
+    if (
+        getattr(ctx.settings, "memory_v2_primary_read", False) is True
+        or getattr(ctx.settings, "memory_v2_dual_write", False) is True
+    ):
+        owner_error = get_memory_scope_owner_error(
+            scope,
+            user_id=ctx.user_id,
+            team_id=ctx.team_id,
+            agent_id=agent_id,
+        )
+        if owner_error:
+            return ToolResult(data={"error": owner_error}, input_tokens=count_tokens(content), output_tokens=0)
 
     allowed, error = await check_memory_limits(ctx.project_id, ctx.user_id)
     if not allowed:
@@ -226,6 +259,9 @@ async def handle_remember_if_novel(
         allow_supersede=allow_supersede,
         source=source,
         review_status=review_status,
+        user_id=ctx.user_id,
+        team_id=ctx.team_id,
+        agent_id=agent_id,
     )
 
     return ToolResult(
@@ -272,6 +308,8 @@ async def handle_end_of_task_commit(
         ),
         deduplicate_before_write=getattr(ctx.settings, "memory_deduplicate_before_write", True),
         source=params.get("source") or "task_commit",
+        user_id=ctx.user_id,
+        team_id=ctx.team_id,
     )
 
     return ToolResult(
@@ -303,6 +341,7 @@ async def handle_recall(
     memory_type = params.get("type")
     scope = params.get("scope")
     category = params.get("category")
+    agent_id = params.get("agent_id")
     limit = params.get("limit", 5)
     min_relevance = params.get("min_relevance", 0.6)
 
@@ -321,6 +360,9 @@ async def handle_recall(
         category=category,
         limit=limit,
         min_relevance=min_relevance,
+        user_id=ctx.user_id,
+        team_id=ctx.team_id,
+        agent_id=agent_id,
     )
 
     return ToolResult(
@@ -352,6 +394,7 @@ async def handle_memories(
     scope = params.get("scope")
     category = params.get("category")
     search = params.get("search")
+    agent_id = params.get("agent_id")
     limit = params.get("limit", 20)
     offset = params.get("offset", 0)
 
@@ -363,6 +406,9 @@ async def handle_memories(
         search=search,
         limit=limit,
         offset=offset,
+        user_id=ctx.user_id,
+        team_id=ctx.team_id,
+        agent_id=agent_id,
     )
 
     return ToolResult(
@@ -703,6 +749,9 @@ async def handle_session_memories(
         max_critical_tokens=max_critical,
         max_daily_tokens=max_daily,
         include_yesterday=include_yesterday,
+        user_id=ctx.user_id,
+        team_id=ctx.team_id,
+        agent_id=params.get("agent_id"),
     )
 
     return ToolResult(

@@ -19,35 +19,7 @@ os.environ["NEXTAUTH_SECRET"] = "test-secret"
 
 def setup_module_mocks():
     """Set up module mocks for testing handlers without external dependencies."""
-    # Mock the config module
-    mock_settings = MagicMock()
-    mock_settings.database_url = os.environ["DATABASE_URL"]
-    mock_settings.neon_database_url = os.environ["NEON_DATABASE_URL"]
-    mock_settings.redis_url = os.environ["REDIS_URL"]
-    mock_settings.env = "test"
-    mock_settings.environment = "test"
-    mock_settings.debug = True
-    mock_settings.sentry_dsn = None
-    mock_settings.cors_allowed_origins = "*"
-    mock_settings.ip_rate_limit_window = 60
-    mock_settings.ip_rate_limit_requests = 1000
-    mock_settings.rate_limit_requests = 60
-    mock_settings.plan_rate_limits = {}
-
-    config_mock = MagicMock()
-    config_mock.settings = mock_settings
-    config_mock.get_settings = MagicMock(return_value=mock_settings)
-    config_mock.Settings = MagicMock(return_value=mock_settings)
-
-    # Pre-register mocked modules
-    sys.modules["src.config"] = config_mock
-
-    # Mock db module
-    db_mock = MagicMock()
-    db_mock.get_db = AsyncMock()
-    sys.modules["src.db"] = db_mock
-
-    # Mock services modules that require config/db
+    # Mock services modules that require external dependencies.
     services_mock = types.ModuleType("src.services")
     services_mock.__path__ = [
         str(Path(__file__).resolve().parent.parent / "src" / "services")

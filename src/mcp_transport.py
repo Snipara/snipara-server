@@ -53,6 +53,10 @@ from .mcp import TOOL_DEFINITIONS, jsonrpc_error, jsonrpc_response
 from .mcp.validation import validate_request
 from .models import Plan, ToolName
 from .rlm_engine import RLMEngine
+from .services.integrator_subjects import (
+    memory_call_uses_user_scope,
+    resolve_integrator_memory_user_id,
+)
 from .usage import track_usage
 
 # ============ HELPERS ============
@@ -86,6 +90,7 @@ async def handle_call_tool(
     plan: Plan,
     access_level: str = "EDITOR",
     user_id: str | None = None,
+    team_id: str | None = None,
     auth_info: dict | None = None,
 ) -> dict:
     """Handle MCP tools/call request.
@@ -106,7 +111,9 @@ async def handle_call_tool(
         JSON-RPC response with tool result or error
     """
     tool_name = params.get("name")
-    arguments = params.get("arguments", {})
+    arguments = params.get("arguments") or {}
+    if not isinstance(arguments, dict):
+        return jsonrpc_error(id, -32602, "Tool arguments must be an object")
 
     try:
         tool_enum = ToolName(tool_name)
@@ -115,7 +122,31 @@ async def handle_call_tool(
 
     try:
         enforce_tool_scope(tool_name, auth_info)
-        engine = RLMEngine(project_id, plan=plan, access_level=access_level, user_id=user_id)
+        if (
+            auth_info
+            and auth_info.get("auth_type") == "integrator_client"
+            and memory_call_uses_user_scope(tool_name, arguments)
+            and not arguments.get("external_user_id")
+        ):
+            return jsonrpc_error(
+                id,
+                -32602,
+                "external_user_id is required for scope=user when using an integrator client key.",
+            )
+
+        effective_user_id = resolve_integrator_memory_user_id(
+            auth_info=auth_info,
+            default_user_id=user_id,
+            tool_name=tool_name,
+            arguments=arguments,
+        )
+        engine = RLMEngine(
+            project_id,
+            plan=plan,
+            access_level=access_level,
+            user_id=effective_user_id,
+            team_id=team_id,
+        )
         result = await engine.execute(tool_enum, arguments)
 
         await track_usage(
@@ -154,6 +185,7 @@ async def handle_request(
     plan: Plan,
     access_level: str = "EDITOR",
     user_id: str | None = None,
+    team_id: str | None = None,
     auth_info: dict | None = None,
 ) -> dict | None:
     """Handle a single JSON-RPC request.
@@ -194,7 +226,7 @@ async def handle_request(
         return jsonrpc_response(id, {"tools": TOOL_DEFINITIONS})
     elif method == "tools/call":
         return await handle_call_tool(
-            id, params, project_id, plan, access_level, user_id, auth_info
+            id, params, project_id, plan, access_level, user_id, team_id, auth_info
         )
     elif method == "ping":
         return jsonrpc_response(id, {})
@@ -282,14 +314,26 @@ async def mcp_endpoint(
             for req in body
             if (
                 r := await handle_request(
-                    req, actual_project_id, plan, access_level, user_id, api_key_info
+                    req,
+                    actual_project_id,
+                    plan,
+                    access_level,
+                    user_id,
+                    api_key_info.get("team_id") if api_key_info else None,
+                    api_key_info,
                 )
             )
         ]
         return JSONResponse(responses)
 
     response = await handle_request(
-        body, actual_project_id, plan, access_level, user_id, api_key_info
+        body,
+        actual_project_id,
+        plan,
+        access_level,
+        user_id,
+        api_key_info.get("team_id") if api_key_info else None,
+        api_key_info,
     )
     return JSONResponse(response) if response else Response(status_code=204)
 

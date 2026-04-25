@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import posixpath
-from dataclasses import dataclass
 from pathlib import PurePosixPath
+from dataclasses import dataclass
 
 from .models import CodeGraphEdge, CodeGraphNode, CodeGraphReferenceHint, ExtractedCodeGraph
+
 
 CODE_GRAPH_EXTRACTOR_VERSION = 2
 

@@ -54,6 +54,9 @@ class ProjectSettings:
     memory_review_mode: str = "AUTO"
     memory_capture_tool_results: bool = True
     memory_capture_failures: bool = False
+    memory_v2_dual_write: bool = False
+    memory_v2_dual_read: bool = False
+    memory_v2_primary_read: bool = False
 
 
 class UsageInfo(BaseModel):

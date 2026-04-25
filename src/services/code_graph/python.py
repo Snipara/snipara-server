@@ -22,7 +22,7 @@ _SKIP_WALK_TYPES = (
 @dataclass
 class _Scope:
     owner: CodeGraphNode
-    parent: _Scope | None = None
+    parent: "_Scope | None" = None
     bindings: dict[str, str] = field(default_factory=dict)
     class_symbol_key: str | None = None
     class_method_bindings: dict[str, str] = field(default_factory=dict)

@@ -25,6 +25,14 @@ from ..services.integrator_webhooks import (
     emit_client_deleted,
     emit_client_updated,
 )
+from ..services.integrator_plans import (
+    get_client_bundle_discount_percent,
+    get_client_bundle_discount_range_percent,
+    get_client_bundle_limits,
+    get_client_bundle_pricing,
+    get_integrator_client_limit,
+    summarize_client_bundle_billing,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -72,36 +80,6 @@ class CreateApiKeyRequest(BaseModel):
 
     name: str = Field(..., min_length=1, max_length=100)
     expires_in_days: int | None = Field(default=None, ge=1, le=365)
-
-
-# ============ BUNDLE LIMITS ============
-
-BUNDLE_LIMITS = {
-    "LITE": {
-        "queries_per_month": 200,
-        "memories": 100,
-        "swarms": 1,
-        "agents_per_swarm": 5,
-        "documents": 50,
-        "storage_mb": 100,
-    },
-    "STANDARD": {
-        "queries_per_month": 2000,
-        "memories": 500,
-        "swarms": 5,
-        "agents_per_swarm": 10,
-        "documents": 200,
-        "storage_mb": 1024,
-    },
-    "UNLIMITED": {
-        "queries_per_month": -1,  # Unlimited
-        "memories": -1,
-        "swarms": -1,
-        "agents_per_swarm": 20,
-        "documents": -1,
-        "storage_mb": 10240,
-    },
-}
 
 
 # ============ HELPER FUNCTIONS ============
@@ -206,7 +184,7 @@ async def get_integrator_from_api_key(api_key: str) -> dict:
         "integrator": integrator,
         "workspace": workspace,
         "tier": integrator.tier,
-        "client_limit": integrator.clientLimit,
+        "client_limit": get_integrator_client_limit(integrator.tier),
     }
 
 
@@ -274,10 +252,8 @@ async def get_workspace(
 
     db = await get_db()
 
-    # Get client count
-    client_count = await db.integratorclient.count(
-        where={"workspaceId": workspace.id}
-    )
+    clients = await db.integratorclient.find_many(where={"workspaceId": workspace.id})
+    tier = integrator_info["tier"]
 
     return {
         "success": True,
@@ -287,9 +263,17 @@ async def get_workspace(
             "slug": workspace.slug,
             "webhook_url": workspace.webhookUrl,
             "has_webhook_secret": bool(workspace.webhookSecret),
-            "client_count": client_count,
+            "client_count": len(clients),
             "client_limit": integrator_info["client_limit"],
-            "tier": integrator_info["tier"],
+            "tier": tier,
+            "pricing": {
+                "client_bundle_discount_percent": get_client_bundle_discount_percent(tier),
+                "client_bundle_discount_range_percent": get_client_bundle_discount_range_percent(
+                    tier
+                ),
+                "discount_applies_to": "client_bundles",
+                "billing_summary": summarize_client_bundle_billing(tier, clients),
+            },
             "created_at": workspace.createdAt.isoformat(),
             "updated_at": workspace.updatedAt.isoformat(),
         },
@@ -388,13 +372,12 @@ async def create_client(
     db = await get_db()
 
     # Check client limit
-    client_count = await db.integratorclient.count(
-        where={"workspaceId": workspace.id}
-    )
-    if client_count >= integrator_info["client_limit"]:
+    client_count = await db.integratorclient.count(where={"workspaceId": workspace.id})
+    client_limit = integrator_info["client_limit"]
+    if client_limit != -1 and client_count >= client_limit:
         raise HTTPException(
             status_code=400,
-            detail=f"CLIENT_LIMIT_REACHED: You have reached your tier limit of {integrator_info['client_limit']} clients. Upgrade your tier to add more.",
+            detail=f"CLIENT_LIMIT_REACHED: You have reached your tier limit of {client_limit} clients. Upgrade your tier to add more.",
         )
 
     # Check for duplicate email
@@ -437,9 +420,7 @@ async def create_client(
 
     # Use the first team the user owns, or create error
     user_teams = integrator.user.teamMembers if integrator and integrator.user else []
-    team_membership = next(
-        (tm for tm in user_teams if tm.role in ("OWNER", "ADMIN")), None
-    )
+    team_membership = next((tm for tm in user_teams if tm.role in ("OWNER", "ADMIN")), None)
     if not team_membership:
         raise HTTPException(
             status_code=400,
@@ -471,7 +452,7 @@ async def create_client(
         f"Created client {client.id} with project {project.id} for workspace {workspace.id}"
     )
 
-    limits = BUNDLE_LIMITS.get(request.bundle, BUNDLE_LIMITS["LITE"])
+    limits = get_client_bundle_limits(request.bundle)
 
     # Emit webhook event
     await emit_client_created(
@@ -499,6 +480,7 @@ async def create_client(
             "bundle": client.bundle,
             "is_active": client.isActive,
             "limits": limits,
+            "pricing": get_client_bundle_pricing(client.bundle, integrator_info["tier"]),
             "created_at": client.createdAt.isoformat(),
         },
     }
@@ -551,6 +533,8 @@ async def list_clients(
     )
 
     total = await db.integratorclient.count(where=where_clause)
+    billing_clients = await db.integratorclient.find_many(where={"workspaceId": workspace.id})
+    tier = integrator_info["tier"]
 
     return {
         "success": True,
@@ -565,11 +549,20 @@ async def list_clients(
                     "external_id": c.externalId,
                     "bundle": c.bundle,
                     "is_active": c.isActive,
-                    "limits": BUNDLE_LIMITS.get(c.bundle, BUNDLE_LIMITS["LITE"]),
+                    "limits": get_client_bundle_limits(c.bundle),
+                    "pricing": get_client_bundle_pricing(c.bundle, tier),
                     "created_at": c.createdAt.isoformat(),
                 }
                 for c in clients
             ],
+            "pricing": {
+                "client_bundle_discount_percent": get_client_bundle_discount_percent(tier),
+                "client_bundle_discount_range_percent": get_client_bundle_discount_range_percent(
+                    tier
+                ),
+                "discount_applies_to": "client_bundles",
+                "billing_summary": summarize_client_bundle_billing(tier, billing_clients),
+            },
             "pagination": {
                 "total": total,
                 "limit": limit,
@@ -610,6 +603,7 @@ async def get_client(
 
     if not client:
         raise HTTPException(status_code=404, detail="CLIENT_NOT_FOUND")
+    tier = integrator_info["tier"]
 
     return {
         "success": True,
@@ -622,7 +616,8 @@ async def get_client(
             "external_id": client.externalId,
             "bundle": client.bundle,
             "is_active": client.isActive,
-            "limits": BUNDLE_LIMITS.get(client.bundle, BUNDLE_LIMITS["LITE"]),
+            "limits": get_client_bundle_limits(client.bundle),
+            "pricing": get_client_bundle_pricing(client.bundle, tier),
             "api_key_count": len(client.apiKeys) if client.apiKeys else 0,
             "created_at": client.createdAt.isoformat(),
             "updated_at": client.updatedAt.isoformat(),
@@ -695,6 +690,7 @@ async def update_client(
     )
 
     logger.info(f"Updated client {client_id}")
+    tier = integrator_info["tier"]
 
     # Emit webhook event with changes
     await emit_client_updated(
@@ -720,7 +716,8 @@ async def update_client(
             "email": client.email,
             "bundle": client.bundle,
             "is_active": client.isActive,
-            "limits": BUNDLE_LIMITS.get(client.bundle, BUNDLE_LIMITS["LITE"]),
+            "limits": get_client_bundle_limits(client.bundle),
+            "pricing": get_client_bundle_pricing(client.bundle, tier),
             "updated_at": client.updatedAt.isoformat(),
         },
     }
@@ -962,9 +959,7 @@ async def revoke_api_key(
     if not client:
         raise HTTPException(status_code=404, detail="CLIENT_NOT_FOUND")
 
-    api_key_record = await db.clientapikey.find_first(
-        where={"id": key_id, "clientId": client_id}
-    )
+    api_key_record = await db.clientapikey.find_first(where={"id": key_id, "clientId": client_id})
 
     if not api_key_record:
         raise HTTPException(status_code=404, detail="API_KEY_NOT_FOUND")
@@ -1052,13 +1047,11 @@ async def create_client_swarm(
         )
 
     # Check bundle limits for swarms
-    bundle_limits = BUNDLE_LIMITS.get(client.bundle, BUNDLE_LIMITS["LITE"])
+    bundle_limits = get_client_bundle_limits(client.bundle)
     max_swarms = bundle_limits.get("swarms", 1)
 
     if max_swarms != -1:
-        existing_swarms = await db.agentswarm.count(
-            where={"projectId": client.projectId}
-        )
+        existing_swarms = await db.agentswarm.count(where={"projectId": client.projectId})
         if existing_swarms >= max_swarms:
             raise HTTPException(
                 status_code=400,
@@ -1076,9 +1069,7 @@ async def create_client_swarm(
         }
     )
 
-    logger.info(
-        f"Created swarm {swarm.id} for client {client_id} project {client.projectId}"
-    )
+    logger.info(f"Created swarm {swarm.id} for client {client_id} project {client.projectId}")
 
     return {
         "success": True,

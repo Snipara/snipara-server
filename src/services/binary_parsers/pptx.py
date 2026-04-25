@@ -4,10 +4,11 @@ from __future__ import annotations
 
 import re
 from io import BytesIO
-from xml.etree import ElementTree as ET
 from zipfile import ZipFile
+from xml.etree import ElementTree as ET
 
 from .base import BinaryParseResult, decode_binary_content
+
 
 SLIDE_TEXT_NS = {"a": "http://schemas.openxmlformats.org/drawingml/2006/main"}
 CORE_NS = {"dc": "http://purl.org/dc/elements/1.1/"}

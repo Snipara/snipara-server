@@ -11,6 +11,7 @@ import redis.asyncio as redis
 from .config import settings
 from .db import get_db
 from .models import LimitsInfo, Plan
+from .services.integrator_plans import CLIENT_BUNDLE_LIMITS
 
 logger = logging.getLogger(__name__)
 
@@ -372,28 +373,6 @@ async def check_usage_limits(project_id: str, plan: Plan) -> LimitsInfo:
 
 # ============ INTEGRATOR CLIENT BUNDLE LIMITS ============
 
-# Bundle limits for integrator clients
-CLIENT_BUNDLE_LIMITS = {
-    "LITE": {
-        "queries_per_month": 200,
-        "memories": 100,
-        "swarms": 1,
-        "agents_per_swarm": 5,
-    },
-    "STANDARD": {
-        "queries_per_month": 2000,
-        "memories": 500,
-        "swarms": 5,
-        "agents_per_swarm": 10,
-    },
-    "UNLIMITED": {
-        "queries_per_month": -1,  # Unlimited
-        "memories": -1,
-        "swarms": -1,
-        "agents_per_swarm": 20,
-    },
-}
-
 
 async def check_client_usage_limits(client_id: str, bundle: str) -> LimitsInfo:
     """
@@ -423,9 +402,7 @@ async def check_client_usage_limits(client_id: str, bundle: str) -> LimitsInfo:
         # No project = no usage
         return LimitsInfo(
             current=0,
-            max=CLIENT_BUNDLE_LIMITS.get(bundle, CLIENT_BUNDLE_LIMITS["LITE"])[
-                "queries_per_month"
-            ],
+            max=CLIENT_BUNDLE_LIMITS.get(bundle, CLIENT_BUNDLE_LIMITS["LITE"])["queries_per_month"],
             exceeded=False,
             resets_at=next_month,
         )
@@ -479,9 +456,7 @@ async def check_client_memory_limits(client_id: str, bundle: str) -> LimitsInfo:
         )
 
     # Count total memories for the client's project
-    memory_count = await db.agentmemory.count(
-        where={"projectId": client.projectId}
-    )
+    memory_count = await db.agentmemory.count(where={"projectId": client.projectId})
 
     bundle_limits = CLIENT_BUNDLE_LIMITS.get(bundle, CLIENT_BUNDLE_LIMITS["LITE"])
     max_memories = bundle_limits["memories"]

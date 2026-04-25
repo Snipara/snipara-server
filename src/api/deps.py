@@ -426,6 +426,7 @@ async def execute_multi_project_query(
                 plan=plan,
                 settings=project_settings,
                 user_id=user_id,
+                team_id=getattr(project, "teamId", None),
                 access_level=project_access_level,
             )
             result = await engine.execute(ToolName.RLM_CONTEXT_QUERY, tool_params)

@@ -13,7 +13,7 @@ class UploadDocumentResult(BaseModel):
     """Result of rlm_upload_document tool."""
 
     path: str = Field(..., description="Document path")
-    action: str = Field(..., description="Action taken: 'created' or 'updated'")
+    action: str = Field(..., description="Action taken: created, updated, unchanged, restored, or metadata_updated")
     size: int = Field(..., ge=0, description="Document size in bytes")
     hash: str = Field(..., description="Content hash")
     message: str = Field(..., description="Human-readable status message")

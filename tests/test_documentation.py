@@ -7,13 +7,29 @@ This module provides automated validation for:
 """
 
 import re
+import sys
 import tomllib
 from pathlib import Path
 
 import pytest
 
-# Navigate from tests/ -> mcp-server/ -> apps/ -> RLMSaas/
-PROJECT_ROOT = Path(__file__).parent.parent.parent.parent
+def _find_project_root() -> Path:
+    """Locate either the monorepo root or the standalone FastAPI mirror root."""
+    test_file = Path(__file__).resolve()
+    for candidate in test_file.parents:
+        if (candidate / "apps/mcp-server").exists():
+            return candidate
+        if (candidate / "snipara-mcp/pyproject.toml").exists() and (candidate / "src").exists():
+            return candidate
+    return test_file.parent.parent
+
+
+PROJECT_ROOT = _find_project_root()
+MCP_SERVER_ROOT = (
+    PROJECT_ROOT / "apps/mcp-server"
+    if (PROJECT_ROOT / "apps/mcp-server").exists()
+    else PROJECT_ROOT
+)
 
 
 class TestVersionConsistency:
@@ -21,18 +37,22 @@ class TestVersionConsistency:
 
     def test_pyproject_init_version_match(self):
         """Version in pyproject.toml should match __init__.py."""
-        pyproject_path = PROJECT_ROOT / "apps/mcp-server/snipara-mcp/pyproject.toml"
-        init_path = PROJECT_ROOT / "apps/mcp-server/snipara-mcp/src/snipara_mcp/__init__.py"
+        pyproject_path = MCP_SERVER_ROOT / "snipara-mcp/pyproject.toml"
+        init_path = MCP_SERVER_ROOT / "snipara-mcp/src/snipara_mcp/__init__.py"
+        if not pyproject_path.exists() or not init_path.exists():
+            pytest.skip("snipara-mcp package not available in this checkout")
 
         # Read pyproject.toml version
         with open(pyproject_path, "rb") as f:
             pyproject = tomllib.load(f)
         pyproject_version = pyproject["project"]["version"]
 
-        # Read __init__.py version
-        init_content = init_path.read_text()
-        match = re.search(r'__version__\s*=\s*["\']([^"\']+)["\']', init_content)
-        init_version = match.group(1) if match else None
+        package_src = init_path.parents[1]
+        sys.path.insert(0, str(package_src))
+        try:
+            from snipara_mcp import __version__ as init_version
+        finally:
+            sys.path.remove(str(package_src))
 
         assert pyproject_version == init_version, (
             f"Version mismatch: pyproject.toml={pyproject_version}, "
@@ -50,6 +70,8 @@ class TestGitHubLinks:
     def test_rlm_runtime_github_links_in_docs(self):
         """All rlm-runtime GitHub links in docs/ should point to correct repo."""
         docs_path = PROJECT_ROOT / "docs"
+        if not docs_path.exists():
+            pytest.skip("docs/ not available in standalone FastAPI mirror")
 
         errors = []
         for md_file in docs_path.rglob("*.md"):
@@ -66,6 +88,8 @@ class TestGitHubLinks:
     def test_rlm_runtime_github_links_in_components(self):
         """Check web components for correct rlm-runtime GitHub links."""
         web_path = PROJECT_ROOT / "apps/web/src"
+        if not web_path.exists():
+            pytest.skip("apps/web/src not available in standalone FastAPI mirror")
 
         errors = []
         for tsx_file in web_path.rglob("*.tsx"):

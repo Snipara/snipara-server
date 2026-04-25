@@ -180,6 +180,70 @@ async def test_store_memory_persists_review_status_fields(
     assert result["review_status"] == "pending"
 
 
+def test_memory_v2_user_scope_is_owned_by_user_not_team(agent_memory_module):
+    """USER memories must stay personal to the authenticated user, even in team workspaces."""
+
+    owner = agent_memory_module._memory_v2_owner_payload(
+        project_id="proj_team",
+        scope=agent_memory_module.AgentMemoryScope.USER,
+        user_id="user_123",
+        team_id="team_123",
+        agent_id=None,
+    )
+
+    assert owner["project_id"] == "proj_team"
+    assert owner["user_id"] == "user_123"
+    assert owner["team_id"] is None
+    assert owner["agent_id"] is None
+
+
+def test_memory_v2_user_recall_filters_by_user_id_not_project_or_team(agent_memory_module):
+    """A user-scope recall should be portable across projects but isolated by user."""
+
+    where = agent_memory_module._build_memory_v2_where(
+        project_id="proj_b",
+        scope=agent_memory_module.AgentMemoryScope.USER,
+        user_id="user_123",
+        team_id="team_123",
+        agent_id=None,
+    )
+
+    owner_clause = where["AND"][0]["OR"]
+    assert owner_clause == [{"userId": "user_123", "scope": "USER"}]
+    assert "projectId" not in owner_clause[0]
+    assert "teamId" not in owner_clause[0]
+
+
+def test_memory_v2_default_recall_combines_project_team_and_personal_user(agent_memory_module):
+    """Unscoped recall should include project, team, and the current user's private memory."""
+
+    where = agent_memory_module._build_memory_v2_where(
+        project_id="proj_a",
+        scope=None,
+        user_id="user_123",
+        team_id="team_123",
+        agent_id=None,
+    )
+
+    owner_clause = where["AND"][0]["OR"]
+    assert {"projectId": "proj_a", "scope": "PROJECT"} in owner_clause
+    assert {"teamId": "team_123", "scope": "TEAM"} in owner_clause
+    assert {"userId": "user_123", "scope": "USER"} in owner_clause
+
+
+def test_memory_v2_user_scope_requires_authenticated_user(agent_memory_module):
+    """A USER memory without a user id would be shared ambiguously and must fail."""
+
+    assert (
+        agent_memory_module.get_memory_scope_owner_error(
+            "user",
+            user_id=None,
+            team_id="team_123",
+        )
+        == "scope=user requires an authenticated user_id"
+    )
+
+
 @pytest.mark.asyncio
 async def test_store_memory_clamps_ttl_and_sets_critical_tier(
     monkeypatch,

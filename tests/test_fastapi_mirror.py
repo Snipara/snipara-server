@@ -3,6 +3,8 @@
 import sys
 from pathlib import Path
 
+import pytest
+
 TEST_FILE = Path(__file__).resolve()
 PROJECT_ROOT = next(
     (
@@ -12,7 +14,8 @@ PROJECT_ROOT = next(
     ),
     None,
 )
-assert PROJECT_ROOT is not None, "Could not locate repo root for mirror sync script"
+if PROJECT_ROOT is None:
+    pytest.skip("mirror sync check requires the Snipara monorepo", allow_module_level=True)
 SCRIPTS_DIR = PROJECT_ROOT / "apps/mcp-server/scripts"
 
 if str(SCRIPTS_DIR) not in sys.path:

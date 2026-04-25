@@ -10,6 +10,9 @@ from typing import TYPE_CHECKING, Any
 from .models import ExtractedCodeGraph
 from .registry import (
     CODE_GRAPH_EXTRACTOR_VERSION,
+    FORMAT_TO_LANGUAGE,
+    SUPPORTED_CODE_FORMATS,
+    SUPPORTED_CODE_LANGUAGES,
     get_extractor_for_document,
     infer_document_language,
 )
