@@ -1,19 +1,11 @@
 """Tests for snipara_mcp.rlm_tools endpoint resolution."""
 
-from pathlib import Path
 import sys
 import types
 from unittest.mock import AsyncMock, MagicMock
 
 import httpx
 import pytest
-
-PROJECT_ROOT = Path(__file__).resolve().parents[3]
-SNIPARA_MCP_SRC = PROJECT_ROOT / "apps/mcp-server/snipara-mcp/src"
-
-if str(SNIPARA_MCP_SRC) not in sys.path:
-    sys.path.insert(0, str(SNIPARA_MCP_SRC))
-
 from snipara_mcp.rlm_tools import SniparaClient, get_snipara_tools
 from snipara_mcp.tool_contract import MCP_TOOL_DEFINITIONS
 

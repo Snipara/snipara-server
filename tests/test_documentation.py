@@ -6,12 +6,12 @@ This module provides automated validation for:
 - Documentation status accuracy (e.g., rlm-runtime deployment state)
 """
 
-import re
 import sys
 import tomllib
 from pathlib import Path
 
 import pytest
+
 
 def _find_project_root() -> Path:
     """Locate either the monorepo root or the standalone FastAPI mirror root."""
@@ -139,10 +139,7 @@ class TestAPIConsistency:
 
     def test_rlm_tools_uses_correct_api_pattern(self):
         """rlm_tools.py should use the standard API URL pattern."""
-        rlm_tools_path = (
-            PROJECT_ROOT
-            / "apps/mcp-server/snipara-mcp/src/snipara_mcp/rlm_tools.py"
-        )
+        rlm_tools_path = MCP_SERVER_ROOT / "snipara-mcp/src/snipara_mcp/rlm_tools.py"
 
         if not rlm_tools_path.exists():
             pytest.skip("rlm_tools.py not found")

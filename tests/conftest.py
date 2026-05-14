@@ -1,11 +1,17 @@
 """Shared pytest fixtures and configuration."""
 
 import os
+import sys
+from pathlib import Path
 from unittest.mock import AsyncMock, patch
 
 import pytest
-from fastapi import HTTPException
 
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+SNIPARA_MCP_SRC = PROJECT_ROOT / "snipara-mcp" / "src"
+
+if SNIPARA_MCP_SRC.exists() and str(SNIPARA_MCP_SRC) not in sys.path:
+    sys.path.insert(0, str(SNIPARA_MCP_SRC))
 
 os.environ.setdefault("DATABASE_URL", "postgresql://test:test@localhost:5432/test")
 os.environ.setdefault("NEON_DATABASE_URL", "postgresql://test:test@localhost:5432/test")

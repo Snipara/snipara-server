@@ -1,10 +1,9 @@
 """Tests for snipara-mcp session bootstrap behavior."""
 
-from pathlib import Path
-import sys
-
 import httpx
 import pytest
+import snipara_mcp.server as mcp_server
+
 from src.mcp.tool_defs import MCP_TOOL_DEFINITIONS, TOOL_DEFINITIONS
 from tests.mcp_contract_surface import (
     CODE_GRAPH_TOOL_SURFACE,
@@ -12,14 +11,6 @@ from tests.mcp_contract_surface import (
     HTASK_CRITICAL_TOOL_SURFACE,
     INDEX_TOOL_SURFACE,
 )
-
-PROJECT_ROOT = Path(__file__).resolve().parents[3]
-SNIPARA_MCP_SRC = PROJECT_ROOT / "apps/mcp-server/snipara-mcp/src"
-
-if str(SNIPARA_MCP_SRC) not in sys.path:
-    sys.path.insert(0, str(SNIPARA_MCP_SRC))
-
-import snipara_mcp.server as mcp_server
 
 
 @pytest.fixture

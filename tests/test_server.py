@@ -32,14 +32,14 @@ class TestHealthEndpoints:
         response = client.get("/")
         assert response.status_code == 200
         data = response.json()
-        assert data["name"] == "RLM MCP Server"
+        assert data["name"] == "Snipara Server"
         assert "version" in data
         assert data["docs"] == "/docs"
 
     def test_ready_requires_primary_embedding_when_preload_enabled(self, client, monkeypatch):
         """When eager preload is enabled, /ready should require the primary model."""
         from src import server
-        from src.services.embeddings import EmbeddingsService, LIGHT_MODEL_NAME, MODEL_NAME
+        from src.services.embeddings import LIGHT_MODEL_NAME, MODEL_NAME, EmbeddingsService
 
         db = AsyncMock()
         db.query_raw = AsyncMock(return_value=[{"ok": 1}])
@@ -72,7 +72,7 @@ class TestHealthEndpoints:
     def test_ready_allows_lazy_embeddings_when_preload_disabled(self, client, monkeypatch):
         """When eager preload is disabled, /ready should pass once the DB is reachable."""
         from src import server
-        from src.services.embeddings import EmbeddingsService, LIGHT_MODEL_NAME, MODEL_NAME
+        from src.services.embeddings import LIGHT_MODEL_NAME, MODEL_NAME, EmbeddingsService
 
         db = AsyncMock()
         db.query_raw = AsyncMock(return_value=[{"ok": 1}])
