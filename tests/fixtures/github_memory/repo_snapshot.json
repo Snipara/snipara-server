@@ -1,0 +1,154 @@
+{
+  "repository": {
+    "full_name": "Snipara/snipara-server",
+    "name": "snipara-server",
+    "html_url": "https://github.com/Snipara/snipara-server",
+    "default_branch": "main",
+    "token": "must-not-propagate"
+  },
+  "repository_rules": [
+    {
+      "id": "ruleset-1",
+      "name": "Require pull request review",
+      "target": "branch",
+      "source_type": "Repository",
+      "rules_count": 2,
+      "enforcement": "active",
+      "html_url": "https://github.com/Snipara/snipara-server/rules/1",
+      "updated_at": "2026-05-06T17:45:00Z"
+    }
+  ],
+  "tree": [
+    {
+      "path": "apps/mcp-server",
+      "type": "tree",
+      "sha": "tree111",
+      "html_url": "https://github.com/Snipara/snipara-server/tree/main/apps/mcp-server"
+    }
+  ],
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "sha": "abc111",
+      "size": 1200,
+      "kind": "rules",
+      "html_url": "https://github.com/Snipara/snipara-server/blob/main/AGENTS.md"
+    },
+    {
+      "path": "docs/planning/GITHUB_NATIVE_MEMORY_COMPILER_PLAN.md",
+      "sha": "abc222",
+      "size": 6400,
+      "kind": "roadmap",
+      "html_url": "https://github.com/Snipara/snipara-server/blob/main/docs/planning/GITHUB_NATIVE_MEMORY_COMPILER_PLAN.md"
+    }
+  ],
+  "issues": [
+    {
+      "number": 7,
+      "title": "Memory candidates need evidence",
+      "state": "open",
+      "html_url": "https://github.com/Snipara/snipara-server/issues/7",
+      "updated_at": "2026-05-06T18:00:00Z"
+    }
+  ],
+  "pull_requests": [
+    {
+      "number": 42,
+      "title": "Add GitHub-native memory compiler",
+      "state": "closed",
+      "merged": true,
+      "head_branch": "dev",
+      "merge_commit_sha": "abc333",
+      "html_url": "https://github.com/Snipara/snipara-server/pull/42",
+      "updated_at": "2026-05-06T19:00:00Z",
+      "body": "Decision: Keep GitHub as source truth and compile cited memories instead of storing raw GitHub noise."
+    },
+    {
+      "number": 43,
+      "title": "Draft unsupported idea",
+      "state": "open",
+      "merged": false,
+      "html_url": "https://github.com/Snipara/snipara-server/pull/43",
+      "body": "Decision: This should not become memory until merged."
+    }
+  ],
+  "review_comments": [
+    {
+      "id": 987,
+      "pull_request_number": 42,
+      "path": "apps/mcp-server/src/models/github_memory.py",
+      "line": 21,
+      "commit_id": "abc333",
+      "html_url": "https://github.com/Snipara/snipara-server/pull/42#discussion_r987",
+      "body": "Prefer stable GitHub source refs over delivery IDs so reimports stay idempotent."
+    },
+    {
+      "id": 988,
+      "pull_request_number": 42,
+      "path": "README.md",
+      "line": 5,
+      "commit_id": "abc333",
+      "html_url": "https://github.com/Snipara/snipara-server/pull/42#discussion_r988",
+      "body": "Looks good."
+    }
+  ],
+  "commits": [
+    {
+      "sha": "abc333",
+      "message": "feat: define github memory compiler contract",
+      "html_url": "https://github.com/Snipara/snipara-server/commit/abc333",
+      "committed_at": "2026-05-06T20:00:00Z"
+    }
+  ],
+  "workflow_runs": [
+    {
+      "id": 555,
+      "name": "MCP Server CI",
+      "status": "completed",
+      "conclusion": "failure",
+      "event": "push",
+      "branch": "dev",
+      "head_sha": "abc333",
+      "html_url": "https://github.com/Snipara/snipara-server/actions/runs/555",
+      "updated_at": "2026-05-06T20:30:00Z",
+      "failure_summary": "Planner quality gate failed when rlm_decompose collapsed a roadmap query."
+    }
+  ],
+  "workflow_jobs": [
+    {
+      "id": 556,
+      "run_id": 555,
+      "name": "workflow-quality-gates",
+      "status": "completed",
+      "conclusion": "failure",
+      "branch": "dev",
+      "head_sha": "abc333",
+      "html_url": "https://github.com/Snipara/snipara-server/actions/runs/555/job/556",
+      "completed_at": "2026-05-06T20:35:00Z"
+    }
+  ],
+  "check_runs": [
+    {
+      "id": 557,
+      "name": "MCP Server CI / workflow-quality-gates",
+      "status": "completed",
+      "conclusion": "failure",
+      "branch": "dev",
+      "head_sha": "abc333",
+      "html_url": "https://github.com/Snipara/snipara-server/runs/557",
+      "completed_at": "2026-05-06T20:36:00Z"
+    }
+  ],
+  "releases": [
+    {
+      "id": 558,
+      "tag_name": "v1.11.2",
+      "name": "GitHub memory compiler groundwork",
+      "target_commitish": "abc333",
+      "draft": false,
+      "prerelease": true,
+      "html_url": "https://github.com/Snipara/snipara-server/releases/tag/v1.11.2",
+      "published_at": "2026-05-06T21:00:00Z"
+    }
+  ]
+}

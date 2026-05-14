@@ -1,0 +1,71 @@
+[project]
+name = "snipara-mcp"
+version = "2.8.3"
+description = "MCP connector for Snipara project memory and context optimization"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Snipara", email = "support@starbox-group.com" }]
+keywords = ["mcp", "llm", "context", "documentation", "snipara", "claude", "cursor", "codex", "agents", "project-memory", "memory"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "mcp>=1.25.0",
+    "httpx>=0.26.0",
+    "typer>=0.9.0",
+]
+
+[project.optional-dependencies]
+rlm = ["rlm-runtime>=0.1.0"]
+dev = [
+    "build>=1.2.2",
+    "pytest>=8.2.2,<8.3.0",
+    "pytest-asyncio>=0.24.0",
+    "ruff>=0.8.0",
+]
+
+[project.scripts]
+# Main CLI (new unified interface)
+snipara = "snipara_mcp.cli:main"
+
+# MCP server entry point
+snipara-mcp = "snipara_mcp:main"
+
+# Legacy aliases (backward compatibility)
+snipara-init = "snipara_mcp.cli:init_cli"
+snipara-mcp-login = "snipara_mcp.cli:login_cli"
+snipara-mcp-logout = "snipara_mcp.cli:logout_cli"
+snipara-mcp-status = "snipara_mcp.cli:status_cli"
+
+[project.urls]
+Homepage = "https://snipara.com"
+Documentation = "https://docs.snipara.com"
+Repository = "https://github.com/alopez3006/snipara-mcp"
+Source = "https://github.com/alopez3006/snipara-webapp/tree/main/apps/mcp-server/snipara-mcp"
+
+[build-system]
+requires = ["hatchling<1.26"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/snipara_mcp"]
+
+[tool.hatch.metadata]
+license-files = []
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]

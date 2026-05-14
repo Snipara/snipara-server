@@ -1,0 +1,370 @@
+"""Context query models for Snipara Server."""
+
+from typing import Any
+
+from pydantic import BaseModel, Field, root_validator
+
+from .enums import DecomposeStrategy, PlanStrategy, SearchMode
+
+# ============ CONTEXT QUERY RESPONSE MODELS ============
+
+
+class ContextSection(BaseModel):
+    """A section of relevant context returned by rlm_context_query."""
+
+    @root_validator(pre=True)
+    def _coerce_legacy_fields(cls, values: dict[str, Any]) -> dict[str, Any]:  # noqa: N805
+        if "lines" not in values:
+            start_line = values.pop("start_line", None)
+            end_line = values.pop("end_line", None)
+            values["lines"] = (
+                int(start_line) if start_line is not None else 0,
+                int(end_line) if end_line is not None else 0,
+            )
+
+        if "token_count" not in values and "tokens" in values:
+            values["token_count"] = values.pop("tokens")
+
+        relevance_score = values.get("relevance_score")
+        if relevance_score is not None:
+            relevance = float(relevance_score)
+            if 10.0 <= relevance <= 100.0:
+                relevance = relevance / 100.0 if relevance <= 100.0 else 1.0
+            elif relevance > 100.0:
+                relevance = 1.0
+            values["relevance_score"] = relevance
+
+        values["file"] = values.get("file") or "(unknown)"
+        return values
+
+    title: str = Field(..., description="Section title/heading")
+    content: str = Field(..., description="Section content (may be truncated)")
+    file: str = Field(..., description="Source file path")
+    lines: tuple[int, int] = Field(..., description="Start and end line numbers")
+    relevance_score: float = Field(..., ge=0.0, le=1.0, description="Relevance score (0-1)")
+    token_count: int = Field(..., ge=0, description="Token count for this section")
+    truncated: bool = Field(
+        default=False, description="Whether content was truncated to fit budget"
+    )
+
+    @property
+    def start_line(self) -> int:
+        """Backward-compatible alias for legacy section consumers."""
+        return self.lines[0]
+
+    @property
+    def end_line(self) -> int:
+        """Backward-compatible alias for legacy section consumers."""
+        return self.lines[1]
+
+    @property
+    def tokens(self) -> int:
+        """Backward-compatible alias for legacy section consumers."""
+        return self.token_count
+
+
+class ContextSectionRef(BaseModel):
+    """A chunk reference returned when return_references=True.
+
+    Pass-by-reference architecture: returns chunk IDs + previews instead of full content.
+    Use rlm_get_chunk(chunk_id) to retrieve full content when needed.
+    This reduces hallucination by maintaining clear source attribution.
+    """
+
+    @root_validator(pre=True)
+    def _coerce_legacy_fields(cls, values: dict[str, Any]) -> dict[str, Any]:  # noqa: N805
+        if "lines" not in values:
+            start_line = values.pop("start_line", None)
+            end_line = values.pop("end_line", None)
+            values["lines"] = (
+                int(start_line) if start_line is not None else 0,
+                int(end_line) if end_line is not None else 0,
+            )
+
+        if "token_count" not in values and "tokens" in values:
+            values["token_count"] = values.pop("tokens")
+
+        relevance_score = values.get("relevance_score")
+        if relevance_score is not None:
+            relevance = float(relevance_score)
+            if 10.0 <= relevance <= 100.0:
+                relevance = relevance / 100.0 if relevance <= 100.0 else 1.0
+            elif relevance > 100.0:
+                relevance = 1.0
+            values["relevance_score"] = relevance
+
+        values["file"] = values.get("file") or "(unknown)"
+        return values
+
+    chunk_id: str = Field(
+        ..., description="Unique chunk identifier for retrieval via rlm_get_chunk"
+    )
+    title: str = Field(..., description="Section title/heading")
+    preview: str = Field(..., description="First ~100 characters of content for context")
+    file: str = Field(..., description="Source file path")
+    lines: tuple[int, int] = Field(..., description="Start and end line numbers")
+    relevance_score: float = Field(..., ge=0.0, le=1.0, description="Relevance score (0-1)")
+    token_count: int = Field(
+        ..., ge=0, description="Full content token count (for budget planning)"
+    )
+    keyword_score: float = Field(default=0.0, description="Keyword match score (for debugging)")
+    semantic_score: float = Field(
+        default=0.0, description="Semantic similarity score (for debugging)"
+    )
+
+    @property
+    def start_line(self) -> int:
+        """Backward-compatible alias for legacy section consumers."""
+        return self.lines[0]
+
+    @property
+    def end_line(self) -> int:
+        """Backward-compatible alias for legacy section consumers."""
+        return self.lines[1]
+
+    @property
+    def tokens(self) -> int:
+        """Backward-compatible alias for legacy section consumers."""
+        return self.token_count
+
+
+class GetChunkResult(BaseModel):
+    """Result of rlm_get_chunk tool - retrieves full content by chunk ID."""
+
+    chunk_id: str = Field(..., description="The chunk ID that was requested")
+    title: str = Field(default="", description="Section title/heading")
+    content: str = Field(default="", description="Full section content")
+    file: str = Field(default="", description="Source file path")
+    lines: tuple[int, int] = Field(default=(0, 0), description="Start and end line numbers")
+    token_count: int = Field(default=0, ge=0, description="Token count for this section")
+    found: bool = Field(default=True, description="Whether the chunk was found")
+    message: str | None = Field(default=None, description="Optional retrieval status message")
+
+
+class ContextQueryResult(BaseModel):
+    """Result of rlm_context_query tool - optimized context for the client's LLM."""
+
+    sections: list[ContextSection] = Field(
+        default_factory=list,
+        description="Ranked list of relevant sections (when return_references=False)",
+    )
+    section_refs: list[ContextSectionRef] = Field(
+        default_factory=list,
+        description="Chunk references with IDs + previews (when return_references=True). "
+        "Use rlm_get_chunk(chunk_id) to retrieve full content.",
+    )
+    references_mode: bool = Field(
+        default=False,
+        description="True if returning references instead of full content",
+    )
+    total_tokens: int = Field(
+        ..., ge=0, description="Total tokens returned (preview tokens if references_mode)"
+    )
+    max_tokens: int = Field(..., description="Token budget that was requested")
+    query: str = Field(..., description="Original query")
+    search_mode: SearchMode = Field(..., description="Search mode used")
+    search_mode_downgraded: bool = Field(
+        default=False,
+        description="Whether search mode was downgraded due to plan restrictions",
+    )
+    session_context_included: bool = Field(
+        default=False, description="Whether session context was prepended"
+    )
+    suggestions: list[str] = Field(
+        default_factory=list,
+        description="Additional sections that may be relevant but didn't fit",
+    )
+    narrower_queries: list[str] = Field(
+        default_factory=list,
+        description="Suggested narrower query strings for faster retry/recovery paths",
+    )
+    fast_context_parameters: dict[str, Any] = Field(
+        default_factory=dict,
+        description="Suggested rlm_context_query arguments for a low-latency retry",
+    )
+    recovery_guidance: list[str] = Field(
+        default_factory=list,
+        description="Concrete recovery hints when a query is broad, slow, or incomplete",
+    )
+    summaries_used: int = Field(
+        default=0,
+        ge=0,
+        description="Number of stored summaries used instead of full content",
+    )
+    timing: dict[str, int] | None = Field(
+        default=None,
+        description="Timing breakdown in milliseconds (embed_ms, search_ms, score_ms, total_ms)",
+    )
+    system_instructions: str | None = Field(
+        default=None,
+        description="System instructions to guide LLM behavior when using Snipara tools",
+    )
+    shared_context_included: bool = Field(
+        default=False,
+        description="Whether shared best practices were included (from linked collections)",
+    )
+    shared_context_tokens: int = Field(
+        default=0,
+        ge=0,
+        description="Number of tokens from shared context collections",
+    )
+    first_query_tips_included: bool = Field(
+        default=False,
+        description="Whether first-query tool tips were included (shown only on first query)",
+    )
+    # Smart Routing Hints (helps clients decide when to use RLM-Runtime)
+    routing_recommendation: str | None = Field(
+        default=None,
+        description="Recommended execution mode: 'direct' (use context as-is) or 'rlm_runtime' (use RLM for complex reasoning)",
+    )
+    routing_confidence: float | None = Field(
+        default=None,
+        ge=0.0,
+        le=1.0,
+        description="Confidence score (0-1) for the routing recommendation",
+    )
+    routing_reason: str | None = Field(
+        default=None,
+        description="Human-readable explanation for routing recommendation",
+    )
+    query_complexity: str | None = Field(
+        default=None,
+        description="Assessed query complexity: 'simple', 'moderate', or 'complex'",
+    )
+    recommended_tool: str | None = Field(
+        default=None,
+        description="Concrete MCP tool recommendation for structural queries, when available",
+    )
+    recommended_tool_arguments: dict[str, Any] = Field(
+        default_factory=dict,
+        description="Suggested arguments for the recommended MCP tool",
+    )
+    graph_hybrid_used: bool = Field(
+        default=False,
+        description="Whether a structural code-graph summary was inlined into the response",
+    )
+    graph_context_tool: str | None = Field(
+        default=None,
+        description="Code graph MCP tool used to build the inline structural summary",
+    )
+    graph_context_summary: str | None = Field(
+        default=None,
+        description="Inline structural summary generated from the persisted code graph",
+    )
+    # Auto-decompose metadata (Pro+ feature)
+    decomposed: bool = Field(
+        default=False,
+        description="Whether the query was auto-decomposed into sub-queries",
+    )
+    sub_queries: list[str] = Field(
+        default_factory=list,
+        description="Sub-queries used when decomposed=True",
+    )
+    # Decision log metadata (Phase 15)
+    decisions_included: int = Field(
+        default=0,
+        ge=0,
+        description="Number of active CRITICAL/HIGH impact decisions auto-included in context",
+    )
+    decision_tokens: int = Field(
+        default=0,
+        ge=0,
+        description="Number of tokens from auto-included decisions",
+    )
+
+
+# ============ RECURSIVE CONTEXT MODELS (Phase 4.5) ============
+
+
+class SubQuery(BaseModel):
+    """A sub-query generated by decomposition."""
+
+    id: int = Field(..., description="Sub-query ID (1-indexed)")
+    query: str = Field(..., description="The sub-query text")
+    priority: int = Field(default=1, ge=1, le=10, description="Priority (1=highest)")
+    estimated_tokens: int = Field(default=1000, ge=0, description="Estimated tokens for this query")
+    key_terms: list[str] = Field(default_factory=list, description="Key terms identified")
+
+
+class DecomposeResult(BaseModel):
+    """Result of rlm_decompose tool."""
+
+    original_query: str = Field(..., description="The original query")
+    sub_queries: list[SubQuery] = Field(default_factory=list, description="Generated sub-queries")
+    dependencies: list[tuple[int, int]] = Field(
+        default_factory=list,
+        description="Dependencies between sub-queries [(a, b) means a should be read before b]",
+    )
+    suggested_sequence: list[int] = Field(
+        default_factory=list, description="Suggested execution order (query IDs)"
+    )
+    total_estimated_tokens: int = Field(
+        default=0, ge=0, description="Total estimated tokens for all sub-queries"
+    )
+    strategy_used: DecomposeStrategy = Field(..., description="Strategy that was used")
+    diagnostic_message: str | None = Field(
+        default=None, description="Diagnostic info if decompose failed or returned empty"
+    )
+
+
+class MultiQueryResultItem(BaseModel):
+    """Result for a single query in a multi-query batch."""
+
+    query: str = Field(..., description="The original query")
+    sections: list[ContextSection] = Field(default_factory=list, description="Relevant sections")
+    tokens_used: int = Field(default=0, ge=0, description="Tokens used for this query")
+    success: bool = Field(default=True, description="Whether query succeeded")
+    error: str | None = Field(default=None, description="Error message if failed")
+
+
+class MultiQueryResult(BaseModel):
+    """Result of rlm_multi_query tool."""
+
+    results: list[MultiQueryResultItem] = Field(
+        default_factory=list, description="Results for each query"
+    )
+    total_tokens: int = Field(default=0, ge=0, description="Total tokens used")
+    queries_executed: int = Field(default=0, ge=0, description="Number of queries executed")
+    queries_skipped: int = Field(default=0, ge=0, description="Queries skipped due to budget")
+    search_mode: SearchMode = Field(..., description="Search mode used")
+
+
+class PlanStep(BaseModel):
+    """A step in an execution plan."""
+
+    step: int = Field(..., ge=1, description="Step number")
+    action: str = Field(..., description="Action to perform: decompose, context_query, multi_query")
+    params: dict[str, Any] = Field(default_factory=dict, description="Parameters for the action")
+    depends_on: list[int] = Field(default_factory=list, description="Steps this step depends on")
+    expected_output: str = Field(default="sections", description="Expected output type")
+
+
+class PlanResult(BaseModel):
+    """Result of rlm_plan tool."""
+
+    plan_id: str = Field(..., description="Unique plan identifier")
+    query: str = Field(..., description="The original query")
+    steps: list[PlanStep] = Field(default_factory=list, description="Execution steps")
+    estimated_total_tokens: int = Field(default=0, ge=0, description="Estimated total tokens")
+    strategy: PlanStrategy = Field(..., description="Strategy used")
+    estimated_queries: int = Field(default=0, ge=0, description="Estimated number of queries")
+    likely_files: list[str] = Field(
+        default_factory=list,
+        description="Likely repository files or paths to inspect for implementation work",
+    )
+    likely_modules: list[str] = Field(
+        default_factory=list,
+        description="Likely code modules or areas involved in implementation work",
+    )
+    blocking_work: list[str] = Field(
+        default_factory=list,
+        description="Critical-path work that should be done locally before sidecar tasks",
+    )
+    sidecar_work: list[str] = Field(
+        default_factory=list,
+        description="Independent work that can run in parallel or be delegated",
+    )
+    recommended_tools: list[str] = Field(
+        default_factory=list,
+        description="Higher-level MCP tools recommended for the task workflow",
+    )
