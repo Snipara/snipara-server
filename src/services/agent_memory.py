@@ -470,7 +470,7 @@ def _build_memory_v2_owner_conditions(
     if scope == AgentMemoryScope.AGENT:
         if not agent_id:
             return []
-        return [{"agentId": agent_id, "scope": "AGENT"}]
+        return [{"projectId": project_id, "agentId": agent_id, "scope": "AGENT"}]
 
     conditions = [{"projectId": project_id, "scope": "PROJECT"}]
     if user_id:
@@ -478,7 +478,7 @@ def _build_memory_v2_owner_conditions(
     if team_id:
         conditions.append({"teamId": team_id, "scope": "TEAM"})
     if agent_id:
-        conditions.append({"agentId": agent_id, "scope": "AGENT"})
+        conditions.append({"projectId": project_id, "agentId": agent_id, "scope": "AGENT"})
     return conditions
 
 

@@ -41,6 +41,33 @@ def test_normalize_memory_type_accepts_case_insensitive_values(agent_memory_modu
     assert agent_memory_module._normalize_review_status("pending") == "PENDING"
 
 
+def test_memory_v2_agent_owner_conditions_are_project_bounded(agent_memory_module):
+    """Readable agent IDs must never cross the authenticated project boundary."""
+
+    expected = {
+        "projectId": "proj_current",
+        "agentId": "agent_shared_name",
+        "scope": "AGENT",
+    }
+    explicit = agent_memory_module._build_memory_v2_owner_conditions(
+        project_id="proj_current",
+        scope=agent_memory_module.AgentMemoryScope.AGENT,
+        user_id=None,
+        team_id=None,
+        agent_id="agent_shared_name",
+    )
+    default = agent_memory_module._build_memory_v2_owner_conditions(
+        project_id="proj_current",
+        scope=None,
+        user_id=None,
+        team_id=None,
+        agent_id="agent_shared_name",
+    )
+
+    assert explicit == [expected]
+    assert expected in default
+
+
 def test_extract_task_commit_candidates_filters_receipts(agent_memory_module):
     """Task commits should keep durable statements and explain receipt skips."""
     result = agent_memory_module._extract_task_commit_candidates(
@@ -236,6 +263,43 @@ async def test_semantic_recall_excludes_pending_review_rows_by_default(
     assert result["memories"] == []
     assert find_many.await_count == 1
     assert {"status": "ACTIVE"} in find_many.await_args.kwargs["where"]["AND"]
+
+
+@pytest.mark.asyncio
+async def test_semantic_recall_agent_scope_is_bounded_to_current_project(
+    monkeypatch,
+    agent_memory_module,
+):
+    """A caller-provided agent ID must not authorize cross-project recall."""
+
+    find_many = AsyncMock(return_value=[])
+    mock_db = type(
+        "MockDb",
+        (),
+        {
+            "memory": type("MemoryRepo", (), {"find_many": find_many})(),
+            "project": None,
+        },
+    )()
+    monkeypatch.setattr(agent_memory_module, "get_db", AsyncMock(return_value=mock_db))
+
+    result = await agent_memory_module.semantic_recall(
+        project_id="proj_current",
+        query="tenant isolation",
+        scope="agent",
+        agent_id="agent_shared_name",
+    )
+
+    assert result["memories"] == []
+    assert find_many.await_args.kwargs["where"]["AND"][0] == {
+        "OR": [
+            {
+                "projectId": "proj_current",
+                "agentId": "agent_shared_name",
+                "scope": "AGENT",
+            }
+        ]
+    }
 
 
 @pytest.mark.asyncio
