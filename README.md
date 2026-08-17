@@ -1,11 +1,22 @@
 # Snipara Server
 
+[![CI](https://github.com/Snipara/snipara-server/actions/workflows/ci.yml/badge.svg)](https://github.com/Snipara/snipara-server/actions/workflows/ci.yml)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](LICENSE)
+[![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-3776AB.svg)](pyproject.toml)
+
 Open-source, self-hosted MCP server for project intelligence, context
 engineering and persistent memory for AI coding agents.
+
+Give Claude Code, Cursor, Codex, or your own MCP client a project-owned
+context and memory layer that you can run and inspect yourself.
 
 The server is designed to run on infrastructure you control. Documents,
 embeddings, memories, logs and usage records stay in your PostgreSQL database.
 No Snipara Cloud account, commercial license key or hosted service is required.
+
+Start with the server below, review the [public proof replay](https://www.snipara.com/proof),
+or reproduce the independent evidence in
+[`Snipara/snipara-examples`](https://github.com/Snipara/snipara-examples).
 
 ## What is included
 
@@ -28,6 +39,49 @@ deployment secrets.
 
 Those surfaces remain in the private Cloud repository and consume tagged,
 immutable Snipara Server releases.
+
+## Proof and verification
+
+The public evidence is deliberately split between server verification and
+product-level evaluation. The product results below are not a performance
+guarantee for every self-hosted deployment; they show the narrower conditions
+under which Snipara's context and continuity workflows were measured.
+
+### This repository
+
+The current public server release has been checked with:
+
+- **477 Python tests** passing, plus the OSS boundary verifier.
+- **102 public MCP tools** exposed by the `snipara-server-oss-v2` contract, with
+  no Cloud-only routes or `external_user_id` surface.
+- **Docker image**, Python package, and Prisma schema validation passing locally.
+- The same `lint`, `test`, and Docker build gates run in
+  [GitHub Actions](https://github.com/Snipara/snipara-server/actions).
+
+These are compatibility and release checks, not a claim that a fresh install
+has been benchmarked on your corpus. Run the boundary check yourself with:
+
+```bash
+python scripts/verify_oss_boundary.py
+pytest -q
+```
+
+### Public product evidence
+
+- **Project continuity proof replay:** six continuity-heavy coding scenarios,
+  repeated ten times per model. Aggregate passes moved from **25/180 to
+  179/180** for Codex CLI and from **7/120 to 120/120** for Claude; local
+  models moved from **0/180 to 170/180**. The replay measures project-history-
+  dependent work, not generic coding ability, and its negative control is not
+  published yet. See the [proof page](https://www.snipara.com/proof) and the
+  [dated evidence summary](https://github.com/Snipara/snipara-examples/tree/main/proof/project-continuity-2026-07).
+- **Hosted context benchmark:** a frozen 12-case GPT-4.1 run measured a mean
+  context of **6,317 tokens versus 32,000** for a fixed first-window baseline
+  (**80.26% less**), with answer quality **9.15/10 versus 8.30/10** and
+  factual accuracy **93.0% versus 69.9%**. It is one run per task, not a
+  universal model leaderboard. Recompute the committed result with the
+  standard-library verifier in the
+  [public benchmark pack](https://github.com/Snipara/snipara-examples/tree/main/benchmarks/hosted-context-2026-06).
 
 ## Quickstart with Docker
 
