@@ -23,23 +23,23 @@ Endpoints:
 
 Authentication:
     Accepts either:
-    - X-API-Key header: Project API key (rlm_...) or Team API key
-    - Authorization: Bearer header: API key or OAuth token (snipara_at_...)
+    - X-API-Key header: the local API key configured for this server
+    - Authorization: Bearer header: the same local API key
 
 Example Configuration (MCP client .mcp.json):
     {
         "mcpServers": {
             "snipara": {
                 "type": "http",
-                "url": "https://api.snipara.com/mcp/{project_slug}",
+                "url": "http://localhost:8000/mcp/{project_slug}",
                 "headers": {"X-API-Key": "rlm_..."}
             }
         }
     }
 
 Note:
-    Team-scoped queries (/mcp/team/{team_id}) are handled in server.py
-    to avoid circular imports with execute_multi_project_query.
+    The OSS transport exposes project-scoped MCP only. Team and multi-client
+    routes belong to the private Cloud and are intentionally absent.
 """
 
 import json
@@ -48,15 +48,12 @@ from typing import Any
 from fastapi import APIRouter, Header, HTTPException, Request
 from fastapi.responses import JSONResponse, Response, StreamingResponse
 
+from . import __version__
 from .auth import enforce_tool_scope
-from .mcp import TOOL_DEFINITIONS, jsonrpc_error, jsonrpc_response
+from .mcp import MCP_TOOL_DEFINITIONS, MCP_TOOL_NAME_SET, jsonrpc_error, jsonrpc_response
 from .mcp.validation import validate_request
 from .models import Plan, ToolName
 from .rlm_engine import RLMEngine
-from .services.integrator_subjects import (
-    memory_call_uses_user_scope,
-    resolve_integrator_memory_user_id,
-)
 from .usage import track_usage
 
 # ============ HELPERS ============
@@ -115,6 +112,9 @@ async def handle_call_tool(
     if not isinstance(arguments, dict):
         return jsonrpc_error(id, -32602, "Tool arguments must be an object")
 
+    if tool_name not in MCP_TOOL_NAME_SET:
+        return jsonrpc_error(id, -32602, f"Tool not available in OSS mode: {tool_name}")
+
     try:
         tool_enum = ToolName(tool_name)
     except ValueError:
@@ -122,29 +122,11 @@ async def handle_call_tool(
 
     try:
         enforce_tool_scope(tool_name, auth_info)
-        if (
-            auth_info
-            and auth_info.get("auth_type") == "integrator_client"
-            and memory_call_uses_user_scope(tool_name, arguments)
-            and not arguments.get("external_user_id")
-        ):
-            return jsonrpc_error(
-                id,
-                -32602,
-                "external_user_id is required for scope=user when using an integrator client key.",
-            )
-
-        effective_user_id = resolve_integrator_memory_user_id(
-            auth_info=auth_info,
-            default_user_id=user_id,
-            tool_name=tool_name,
-            arguments=arguments,
-        )
         engine = RLMEngine(
             project_id,
             plan=plan,
             access_level=access_level,
-            user_id=effective_user_id,
+            user_id=user_id,
             team_id=team_id,
         )
         result = await engine.execute(tool_enum, arguments)
@@ -218,12 +200,12 @@ async def handle_request(
             id,
             {
                 "protocolVersion": MCP_VERSION,
-                "serverInfo": {"name": "snipara", "version": "1.0.0"},
+                "serverInfo": {"name": "snipara", "version": __version__},
                 "capabilities": {"tools": {}},
             },
         )
     elif method == "tools/list":
-        return jsonrpc_response(id, {"tools": TOOL_DEFINITIONS})
+        return jsonrpc_response(id, {"tools": MCP_TOOL_DEFINITIONS})
     elif method == "tools/call":
         return await handle_call_tool(
             id, params, project_id, plan, access_level, user_id, team_id, auth_info
@@ -265,12 +247,12 @@ async def mcp_endpoint(
 
     Config example (MCP client):
     ```json
-    {"mcpServers": {"snipara": {"type": "http", "url": "https://api.snipara.com/mcp/{project_id}", "headers": {"X-API-Key": "rlm_..."}}}}
+    {"mcpServers": {"snipara": {"type": "http", "url": "http://localhost:8000/mcp/{project_id}", "headers": {"X-API-Key": "<SNIPARA_LOCAL_API_KEY>"}}}}
     ```
 
     Alternative (Authorization Bearer):
     ```json
-    {"mcpServers": {"snipara": {"type": "http", "url": "https://api.snipara.com/mcp/{project_id}", "headers": {"Authorization": "Bearer rlm_..."}}}}
+    {"mcpServers": {"snipara": {"type": "http", "url": "http://localhost:8000/mcp/{project_id}", "headers": {"Authorization": "Bearer <SNIPARA_LOCAL_API_KEY>"}}}}
     ```
     """
     # Accept X-API-Key header (preferred) or Authorization: Bearer
@@ -282,11 +264,7 @@ async def mcp_endpoint(
         raise HTTPException(
             status_code=401,
             detail=(
-                "Missing authentication. Get started free (100 queries/month, no credit card):\n"
-                "- MCP client: Run /snipara:quickstart\n"
-                "- VS Code: Install 'Snipara' extension and click 'Sign in with GitHub'\n"
-                "- Manual: Get an API key at https://snipara.com/dashboard\n"
-                "Docs: https://snipara.com/docs/quickstart"
+                "Missing authentication. Set X-API-Key to SNIPARA_LOCAL_API_KEY."
             ),
         )
 
@@ -369,11 +347,7 @@ async def mcp_sse(
         raise HTTPException(
             status_code=401,
             detail=(
-                "Missing authentication. Get started free (100 queries/month, no credit card):\n"
-                "- MCP client: Run /snipara:quickstart\n"
-                "- VS Code: Install 'Snipara' extension and click 'Sign in with GitHub'\n"
-                "- Manual: Get an API key at https://snipara.com/dashboard\n"
-                "Docs: https://snipara.com/docs/quickstart"
+                "Missing authentication. Set X-API-Key to SNIPARA_LOCAL_API_KEY."
             ),
         )
 

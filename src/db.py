@@ -51,10 +51,7 @@ def _prepare_database_url() -> None:
 
     if normalized_url and normalized_url != current_url:
         os.environ["DATABASE_URL"] = normalized_url
-        logger.warning(
-            "Removed schema query parameter from DATABASE_URL to preserve "
-            "tenant_snipara, public search_path for pgvector"
-        )
+        logger.warning("Removed schema query parameter from DATABASE_URL to preserve public search_path")
 
 
 async def _create_client() -> Prisma:
@@ -64,13 +61,14 @@ async def _create_client() -> Prisma:
             _prepare_database_url()
             client = Prisma()
             await client.connect()
-            # CRITICAL: Force search_path for pgvector support
-            # Multi-tenant databases (PostgreSQL) need both tenant schema (for tables) and public (for pgvector)
+            # Keep the OSS runtime on PostgreSQL's standard public schema. The
+            # local Compose database owns its schema and does not require a
+            # managed multi-tenant provider.
             try:
-                await client.execute_raw("SET search_path TO tenant_snipara, public;")
-                logger.info("Database search_path set to: tenant_snipara, public")
+                await client.execute_raw("SET search_path TO public;")
+                logger.info("Database search_path set to: public")
             except Exception as e:
-                logger.error(f"FAILED to set search_path (pgvector will not work): {e}")
+                logger.error(f"FAILED to set public search_path (pgvector may not work): {e}")
             logger.info("Database connection established")
             return client
         except Exception as e:

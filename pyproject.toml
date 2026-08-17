@@ -1,10 +1,10 @@
 [project]
 name = "snipara-server"
-version = "1.9.0"
-description = "Self-hosted MCP server for Snipara project memory and context optimization"
+version = "2.0.0"
+description = "Open source self-hosted MCP server for project memory and context optimization"
 readme = "README.md"
 requires-python = ">=3.11"
-license = { text = "Functional Source License 1.1, Apache-2.0 future license" }
+license = { text = "Apache-2.0" }
 authors = [{ name = "Snipara" }]
 
 dependencies = [

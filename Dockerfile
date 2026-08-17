@@ -4,7 +4,10 @@
 FROM python:3.12-slim AS builder
 
 WORKDIR /app
-ARG TORCH_VERSION=2.11.0
+# Keep the default image CPU-only and usable on Apple Silicon and ordinary VPS
+# hosts. Newer Torch releases may pull a full CUDA stack on ARM images even
+# though this server does not require a GPU.
+ARG TORCH_VERSION=2.2.2
 
 # Install build dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -74,6 +77,10 @@ ENV SENTENCE_TRANSFORMERS_HOME="/home/appuser/.cache/torch/sentence_transformers
 
 # Copy application code
 COPY --chown=appuser:appgroup src ./src
+# Keep the local bootstrap path available in the image. Production Cloud
+# migrations are intentionally managed outside this public repository.
+COPY --chown=appuser:appgroup prisma ./prisma
+COPY --chown=appuser:appgroup scripts ./scripts
 
 # Switch to non-root user
 USER appuser

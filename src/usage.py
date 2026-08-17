@@ -11,7 +11,6 @@ import redis.asyncio as redis
 from .config import settings
 from .db import get_db
 from .models import LimitsInfo, Plan
-from .services.integrator_plans import CLIENT_BUNDLE_LIMITS
 
 logger = logging.getLogger(__name__)
 
@@ -60,74 +59,15 @@ async def close_redis() -> None:
     _redis_available = None
 
 
-async def clear_rate_limit(api_key_id: str) -> bool:
-    """
-    Clear rate limit counter for a specific API key.
-
-    Args:
-        api_key_id: The API key ID to clear rate limits for
-
-    Returns:
-        True if cleared successfully, False if Redis unavailable
-    """
-    global _local_rate_limits
-
-    r = await get_redis()
-    if r is not None:
-        try:
-            key = f"rate_limit:{api_key_id}"
-            await r.delete(key)
-            logger.info(f"Cleared rate limit for {api_key_id[:12]}...")
-            return True
-        except Exception as e:
-            logger.error(f"Failed to clear rate limit in Redis: {e}")
-
-    # Also clear in-memory fallback
-    if api_key_id in _local_rate_limits:
-        del _local_rate_limits[api_key_id]
-        logger.info(f"Cleared in-memory rate limit for {api_key_id[:12]}...")
-
-    return r is not None
-
-
-def _is_demo_key(api_key_id: str) -> bool:
-    """Check if an API key ID is a demo key (public, stricter limits)."""
-    if not settings.demo_api_key_ids:
-        return False
-    demo_ids = {kid.strip() for kid in settings.demo_api_key_ids.split(",") if kid.strip()}
-    return api_key_id in demo_ids
-
-
-def _get_rate_limit_for_key(api_key_id: str, plan: str | None = None) -> tuple[int, int]:
-    """Return (max_requests, window_seconds) for the given key and plan.
-
-    Args:
-        api_key_id: The API key ID
-        plan: Optional plan name (FREE, PRO, TEAM, ENTERPRISE)
-
-    Returns:
-        Tuple of (max_requests, window_seconds)
-    """
-    if _is_demo_key(api_key_id):
-        return settings.demo_rate_limit_requests, settings.demo_rate_limit_window
-
-    # Use plan-based rate limits if plan is provided
-    if plan and plan in settings.plan_rate_limits:
-        return settings.plan_rate_limits[plan], settings.rate_limit_window
-
-    # Fallback to default rate limit
-    return settings.rate_limit_requests, settings.rate_limit_window
-
-
 async def check_rate_limit(
     api_key_id: str, client_ip: str | None = None, plan: str | None = None
 ) -> bool:
     """
     Check if the API key has exceeded rate limits.
 
-    Uses Redis when available, falls back to in-memory sliding window.
-    Demo keys use stricter per-IP limits (configured via DEMO_API_KEY_IDS).
-    Plan-based limits: FREE=20, PRO=120, TEAM=300, ENTERPRISE=1000 req/min.
+    Uses Redis when available, falling back to an in-memory sliding window.
+    The operator controls the technical limit through configuration; it is not
+    a commercial plan or hosted entitlement.
 
     Args:
         api_key_id: The API key ID
@@ -139,14 +79,9 @@ async def check_rate_limit(
     """
     global _fallback_warning_logged
 
-    max_requests, window = _get_rate_limit_for_key(api_key_id, plan)
-
-    # Demo keys: rate limit per IP instead of per key (since key is public)
-    is_demo = _is_demo_key(api_key_id)
-    if is_demo and client_ip:
-        rate_key_id = f"demo_ip:{client_ip}"
-    else:
-        rate_key_id = api_key_id
+    max_requests = settings.rate_limit_requests
+    window = settings.rate_limit_window
+    rate_key_id = api_key_id
 
     r = await get_redis()
 
@@ -169,8 +104,7 @@ async def check_rate_limit(
 
         count = int(count)
         if count >= max_requests:
-            label = f"demo IP {client_ip}" if is_demo else f"{api_key_id[:8]}..."
-            logger.warning(f"Rate limit exceeded for {label}")
+            logger.warning(f"Rate limit exceeded for {api_key_id[:8]}...")
             return False
 
         # Increment counter
@@ -384,104 +318,6 @@ async def check_usage_limits(project_id: str, plan: Plan) -> LimitsInfo:
     )
 
 
-# ============ INTEGRATOR CLIENT BUNDLE LIMITS ============
-
-
-async def check_client_usage_limits(client_id: str, bundle: str) -> LimitsInfo:
-    """
-    Check if an integrator client has exceeded their bundle's monthly limits.
-
-    Args:
-        client_id: The integrator client ID
-        bundle: The client's bundle (LITE, STANDARD, UNLIMITED)
-
-    Returns:
-        LimitsInfo with current usage and bundle limits
-    """
-    db = await get_db()
-
-    # Get the start of the current month
-    now = datetime.utcnow()
-    month_start = datetime(now.year, now.month, 1)
-    next_month = (month_start + timedelta(days=32)).replace(day=1)
-
-    # Get the client with project
-    client = await db.integratorclient.find_first(
-        where={"id": client_id},
-        include={"project": True},
-    )
-
-    if not client or not client.project:
-        # No project = no usage
-        return LimitsInfo(
-            current=0,
-            max=CLIENT_BUNDLE_LIMITS.get(bundle, CLIENT_BUNDLE_LIMITS["LITE"])["queries_per_month"],
-            exceeded=False,
-            resets_at=next_month,
-        )
-
-    # Count queries this month for the client's project
-    query_count = await db.query.count(
-        where={
-            "projectId": client.projectId,
-            "createdAt": {"gte": month_start},
-        }
-    )
-
-    # Get bundle limit
-    bundle_limits = CLIENT_BUNDLE_LIMITS.get(bundle, CLIENT_BUNDLE_LIMITS["LITE"])
-    max_queries = bundle_limits["queries_per_month"]
-
-    return LimitsInfo(
-        current=query_count,
-        max=max_queries,
-        exceeded=max_queries != -1 and query_count >= max_queries,
-        resets_at=next_month,
-    )
-
-
-async def check_client_memory_limits(client_id: str, bundle: str) -> LimitsInfo:
-    """
-    Check if an integrator client has exceeded their bundle's memory limits.
-
-    Args:
-        client_id: The integrator client ID
-        bundle: The client's bundle (LITE, STANDARD, UNLIMITED)
-
-    Returns:
-        LimitsInfo with current memory count and bundle limits
-    """
-    db = await get_db()
-
-    # Get the client with project
-    client = await db.integratorclient.find_first(
-        where={"id": client_id},
-        include={"project": True},
-    )
-
-    if not client or not client.project:
-        bundle_limits = CLIENT_BUNDLE_LIMITS.get(bundle, CLIENT_BUNDLE_LIMITS["LITE"])
-        return LimitsInfo(
-            current=0,
-            max=bundle_limits["memories"],
-            exceeded=False,
-            resets_at=None,
-        )
-
-    # Count total memories for the client's project
-    memory_count = await db.agentmemory.count(where={"projectId": client.projectId})
-
-    bundle_limits = CLIENT_BUNDLE_LIMITS.get(bundle, CLIENT_BUNDLE_LIMITS["LITE"])
-    max_memories = bundle_limits["memories"]
-
-    return LimitsInfo(
-        current=memory_count,
-        max=max_memories,
-        exceeded=max_memories != -1 and memory_count >= max_memories,
-        resets_at=None,  # Memories don't reset monthly
-    )
-
-
 async def track_usage(
     project_id: str,
     tool: str,
@@ -503,6 +339,9 @@ async def track_usage(
         success: Whether the request succeeded
         error: Error message if failed
     """
+    if not settings.usage_tracking_enabled:
+        return
+
     db = await get_db()
 
     await db.query.create(
@@ -713,150 +552,3 @@ async def is_scan_blocked(identifier: str) -> bool:
         # Expired - clean up
         _scan_blocks.pop(identifier, None)
     return False
-
-
-# ============ DEMO USAGE TRACKING ============
-
-DEMO_ANALYTICS_TTL = 30 * 24 * 60 * 60  # 30 days in seconds
-
-
-async def track_demo_query(client_ip: str, tool: str) -> None:
-    """
-    Track a demo query for analytics.
-
-    Stores unique IPs and query counts in Redis with 30-day retention.
-
-    Args:
-        client_ip: The client IP address
-        tool: The tool that was called
-    """
-    if not client_ip:
-        return
-
-    r = await get_redis()
-    if r is None:
-        return
-
-    try:
-        now = int(time.time())
-        today = datetime.utcnow().strftime("%Y-%m-%d")
-
-        # Track unique IPs (set with TTL)
-        ip_key = "demo_analytics:unique_ips"
-        await r.sadd(ip_key, client_ip)
-        await r.expire(ip_key, DEMO_ANALYTICS_TTL)
-
-        # Track IP first seen timestamp (hash)
-        first_seen_key = "demo_analytics:ip_first_seen"
-        if not await r.hexists(first_seen_key, client_ip):
-            await r.hset(first_seen_key, client_ip, str(now))
-        await r.expire(first_seen_key, DEMO_ANALYTICS_TTL)
-
-        # Track IP last seen timestamp (hash)
-        last_seen_key = "demo_analytics:ip_last_seen"
-        await r.hset(last_seen_key, client_ip, str(now))
-        await r.expire(last_seen_key, DEMO_ANALYTICS_TTL)
-
-        # Track total queries per IP (hash)
-        queries_key = "demo_analytics:ip_queries"
-        await r.hincrby(queries_key, client_ip, 1)
-        await r.expire(queries_key, DEMO_ANALYTICS_TTL)
-
-        # Track queries by tool (hash)
-        tool_key = "demo_analytics:tools"
-        await r.hincrby(tool_key, tool, 1)
-        await r.expire(tool_key, DEMO_ANALYTICS_TTL)
-
-        # Track daily queries (sorted set by date)
-        daily_key = "demo_analytics:daily"
-        await r.zincrby(daily_key, 1, today)
-        await r.expire(daily_key, DEMO_ANALYTICS_TTL)
-
-        # Track daily unique IPs (set per day)
-        daily_ip_key = f"demo_analytics:daily_ips:{today}"
-        await r.sadd(daily_ip_key, client_ip)
-        await r.expire(daily_ip_key, DEMO_ANALYTICS_TTL)
-
-    except Exception as e:
-        logger.debug(f"Demo analytics tracking failed (non-fatal): {e}")
-
-
-async def get_demo_analytics() -> dict:
-    """
-    Get demo usage analytics.
-
-    Returns:
-        Dictionary with demo analytics data
-    """
-    r = await get_redis()
-    if r is None:
-        return {"error": "Redis not available", "unique_ips": 0, "total_queries": 0}
-
-    try:
-        today = datetime.utcnow().strftime("%Y-%m-%d")
-
-        # Get unique IPs count
-        unique_ips = await r.scard("demo_analytics:unique_ips")
-
-        # Get total queries
-        queries_data = await r.hgetall("demo_analytics:ip_queries")
-        total_queries = sum(int(v) for v in queries_data.values()) if queries_data else 0
-
-        # Get queries by tool
-        tools_data = await r.hgetall("demo_analytics:tools")
-        tools_breakdown = {k: int(v) for k, v in tools_data.items()} if tools_data else {}
-
-        # Get daily stats (last 7 days)
-        daily_data = await r.zrevrange("demo_analytics:daily", 0, 6, withscores=True)
-        daily_stats = [{"date": d, "queries": int(c)} for d, c in daily_data] if daily_data else []
-
-        # Get today's unique IPs
-        today_unique_ips = await r.scard(f"demo_analytics:daily_ips:{today}")
-
-        # Get top IPs by query count (top 10)
-        if queries_data:
-            sorted_ips = sorted(queries_data.items(), key=lambda x: int(x[1]), reverse=True)[:10]
-            # Get first/last seen for top IPs
-            first_seen_data = await r.hgetall("demo_analytics:ip_first_seen")
-            last_seen_data = await r.hgetall("demo_analytics:ip_last_seen")
-
-            top_ips = []
-            for ip, count in sorted_ips:
-                first_seen = int(first_seen_data.get(ip, 0))
-                last_seen = int(last_seen_data.get(ip, 0))
-                top_ips.append(
-                    {
-                        "ip": _mask_ip(ip),
-                        "queries": int(count),
-                        "first_seen": datetime.fromtimestamp(first_seen).isoformat()
-                        if first_seen
-                        else None,
-                        "last_seen": datetime.fromtimestamp(last_seen).isoformat()
-                        if last_seen
-                        else None,
-                    }
-                )
-        else:
-            top_ips = []
-
-        return {
-            "unique_ips": unique_ips,
-            "total_queries": total_queries,
-            "today_unique_ips": today_unique_ips,
-            "tools_breakdown": tools_breakdown,
-            "daily_stats": daily_stats,
-            "top_users": top_ips,
-        }
-
-    except Exception as e:
-        logger.error(f"Failed to get demo analytics: {e}")
-        return {"error": str(e), "unique_ips": 0, "total_queries": 0}
-
-
-def _mask_ip(ip: str) -> str:
-    """Mask an IP address for privacy (show first two octets only)."""
-    parts = ip.split(".")
-    if len(parts) == 4:
-        return f"{parts[0]}.{parts[1]}.*.*"
-    # IPv6 or other format - just show first part
-    return ip.split(":")[0] + ":****"

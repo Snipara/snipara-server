@@ -18,7 +18,7 @@ from .jsonrpc import (
     jsonrpc_error,
     jsonrpc_response,
 )
-from .tool_defs import TOOL_DEFINITIONS
+from .tool_defs import MCP_TOOL_DEFINITIONS, MCP_TOOL_NAME_SET, MCP_TOOL_NAMES, TOOL_DEFINITIONS
 
 # Note: validate_request requires config and is not imported at module level.
 # Import directly when needed: from src.mcp.validation import validate_request
@@ -26,6 +26,9 @@ from .tool_defs import TOOL_DEFINITIONS
 __all__ = [
     # Tool definitions
     "TOOL_DEFINITIONS",
+    "MCP_TOOL_DEFINITIONS",
+    "MCP_TOOL_NAMES",
+    "MCP_TOOL_NAME_SET",
     # JSON-RPC helpers
     "jsonrpc_response",
     "jsonrpc_error",

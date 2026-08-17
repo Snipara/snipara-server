@@ -22,6 +22,7 @@ from typing import TYPE_CHECKING, Any
 
 from .config import settings
 from .db import get_db
+from .mcp.tool_defs import MCP_TOOL_NAME_SET
 
 if TYPE_CHECKING:
     from .engine.handlers.base import HandlerContext
@@ -500,7 +501,7 @@ WRITE_TOOLS = {
     ToolName.RLM_SWARM_LEAVE,  # Remove agent from swarm
     ToolName.RLM_SWARM_MEMBERS,  # List swarm agents
     ToolName.RLM_TASK_REASSIGN,  # Reassign tasks
-    # Swarm creation - moved from ADMIN to allow integrator clients to create swarms
+    # Swarm creation is available to the local operator in OSS mode.
     ToolName.RLM_SWARM_CREATE,
 }
 
@@ -2639,6 +2640,12 @@ Rationale: {decision.rationale}"""
 
         # Mode 1: Get info about specific tool
         if tool_name:
+            if tool_name not in MCP_TOOL_NAME_SET:
+                return ToolResult(
+                    data={"error": f"Unknown tool: {tool_name}"},
+                    input_tokens=count_tokens(tool_name),
+                    output_tokens=0,
+                )
             info = get_tool_info(tool_name)
             if not info:
                 return ToolResult(
@@ -2663,7 +2670,11 @@ Rationale: {decision.rationale}"""
                     input_tokens=count_tokens(tier),
                     output_tokens=0,
                 )
-            tools = list_tools_by_tier(tier_enum)
+            tools = [
+                item
+                for item in list_tools_by_tier(tier_enum)
+                if item.get("tool") in MCP_TOOL_NAME_SET
+            ]
             return ToolResult(
                 data={"tier": tier, "tools": tools, "count": len(tools)},
                 input_tokens=count_tokens(tier),
@@ -2681,6 +2692,13 @@ Rationale: {decision.rationale}"""
             include_team=include_team,
             include_admin=include_admin,
         )
+        # The recommender also knows about private Cloud capabilities. Keep
+        # those out of the public OSS help surface even for an ADMIN local key.
+        recommendations = [
+            item
+            for item in recommendations
+            if item.get("tool") in MCP_TOOL_NAME_SET
+        ]
 
         response = {
             "query": query if query else "(no query - showing primary tools)",
@@ -4691,7 +4709,7 @@ Rationale: {decision.rationale}"""
             return ToolResult(
                 data={
                     "error": "rlm_decompose requires Pro plan or higher",
-                    "upgrade_url": "/license",
+                    "upgrade_url": None,
                 },
                 input_tokens=count_tokens(query),
                 output_tokens=0,
@@ -4883,7 +4901,7 @@ Rationale: {decision.rationale}"""
             return ToolResult(
                 data={
                     "error": "rlm_multi_query requires Pro plan or higher",
-                    "upgrade_url": "/license",
+                    "upgrade_url": None,
                 },
                 input_tokens=0,
                 output_tokens=0,
@@ -5019,7 +5037,7 @@ Rationale: {decision.rationale}"""
             return ToolResult(
                 data={
                     "error": "rlm_plan requires Team plan or higher",
-                    "upgrade_url": "/license",
+                    "upgrade_url": None,
                 },
                 input_tokens=count_tokens(query),
                 output_tokens=0,
@@ -5198,27 +5216,15 @@ Rationale: {decision.rationale}"""
 
     async def _handle_multi_project_query(self, params: dict[str, Any]) -> ToolResult:
         """
-        Handle rlm_multi_project_query - query across multiple team projects.
-
-        This tool requires team-level access and must be called via the team endpoint:
-        POST /v1/team/{team_slug}/mcp
+        Handle the retired multi-project Cloud tool.
 
         Returns an error when called via the project-scoped MCP endpoint.
         """
         query = params.get("query", "")
         return ToolResult(
             data={
-                "error": "rlm_multi_project_query requires a team API key",
-                "message": "This tool queries across all projects in a team. Use the team endpoint: POST /v1/team/{team_slug}/mcp",
-                "example": {
-                    "endpoint": "https://api.snipara.com/v1/team/{team_slug}/mcp",
-                    "method": "POST",
-                    "headers": {"X-API-Key": "your-team-api-key"},
-                    "body": {
-                        "tool": "rlm_multi_project_query",
-                        "params": {"query": query or "your question here"},
-                    },
-                },
+                "error": "rlm_multi_project_query is not available in OSS mode",
+                "message": "The self-hosted server is project-local. Query one workspace at a time.",
             },
             input_tokens=count_tokens(query),
             output_tokens=0,
@@ -5463,7 +5469,7 @@ Rationale: {decision.rationale}"""
             return ToolResult(
                 data={
                     "error": "rlm_store_summary requires Pro plan or higher",
-                    "upgrade_url": "/license",
+                    "upgrade_url": None,
                 },
                 input_tokens=count_tokens(summary),
                 output_tokens=0,
@@ -5590,7 +5596,7 @@ Rationale: {decision.rationale}"""
             return ToolResult(
                 data={
                     "error": "rlm_get_summaries requires Pro plan or higher",
-                    "upgrade_url": "/license",
+                    "upgrade_url": None,
                 },
                 input_tokens=0,
                 output_tokens=0,
@@ -5702,7 +5708,7 @@ Rationale: {decision.rationale}"""
             return ToolResult(
                 data={
                     "error": "rlm_delete_summary requires Pro plan or higher",
-                    "upgrade_url": "/license",
+                    "upgrade_url": None,
                 },
                 input_tokens=0,
                 output_tokens=0,
@@ -5795,7 +5801,7 @@ Rationale: {decision.rationale}"""
             return ToolResult(
                 data={
                     "error": "rlm_shared_context requires Pro plan or higher",
-                    "upgrade_url": "/license",
+                    "upgrade_url": None,
                 },
                 input_tokens=0,
                 output_tokens=0,
@@ -5917,7 +5923,7 @@ Rationale: {decision.rationale}"""
             return ToolResult(
                 data={
                     "error": "rlm_list_templates requires Pro plan or higher",
-                    "upgrade_url": "/license",
+                    "upgrade_url": None,
                 },
                 input_tokens=0,
                 output_tokens=0,
@@ -5979,7 +5985,7 @@ Rationale: {decision.rationale}"""
             return ToolResult(
                 data={
                     "error": "rlm_get_template requires Pro plan or higher",
-                    "upgrade_url": "/license",
+                    "upgrade_url": None,
                 },
                 input_tokens=0,
                 output_tokens=0,
@@ -6113,7 +6119,7 @@ Rationale: {decision.rationale}"""
             return ToolResult(
                 data={
                     "error": "rlm_create_collection requires Team plan or higher",
-                    "upgrade_url": "/license",
+                    "upgrade_url": None,
                 },
                 input_tokens=0,
                 output_tokens=0,
@@ -6182,7 +6188,7 @@ Rationale: {decision.rationale}"""
             return ToolResult(
                 data={
                     "error": "rlm_get_collection_documents requires Team plan or higher",
-                    "upgrade_url": "/license",
+                    "upgrade_url": None,
                 },
                 input_tokens=0,
                 output_tokens=0,
@@ -6239,7 +6245,7 @@ Rationale: {decision.rationale}"""
             return ToolResult(
                 data={
                     "error": "rlm_link_collection requires Team plan or higher",
-                    "upgrade_url": "/license",
+                    "upgrade_url": None,
                 },
                 input_tokens=0,
                 output_tokens=0,
@@ -6297,7 +6303,7 @@ Rationale: {decision.rationale}"""
             return ToolResult(
                 data={
                     "error": "rlm_unlink_collection requires Team plan or higher",
-                    "upgrade_url": "/license",
+                    "upgrade_url": None,
                 },
                 input_tokens=0,
                 output_tokens=0,
@@ -6385,7 +6391,7 @@ Rationale: {decision.rationale}"""
             return ToolResult(
                 data={
                     "error": "rlm_upload_shared_document requires Team plan or higher",
-                    "upgrade_url": "/license",
+                    "upgrade_url": None,
                 },
                 input_tokens=0,
                 output_tokens=0,
@@ -6496,7 +6502,7 @@ Rationale: {decision.rationale}"""
             return ToolResult(
                 data={
                     "error": "rlm_list_business_collections requires Team plan or higher",
-                    "upgrade_url": "/license",
+                    "upgrade_url": None,
                 },
                 input_tokens=0,
                 output_tokens=0,
@@ -6565,7 +6571,7 @@ Rationale: {decision.rationale}"""
             return ToolResult(
                 data={
                     "error": "rlm_ensure_business_collection requires Team plan or higher",
-                    "upgrade_url": "/license",
+                    "upgrade_url": None,
                 },
                 input_tokens=0,
                 output_tokens=0,
@@ -6677,7 +6683,7 @@ Rationale: {decision.rationale}"""
             return ToolResult(
                 data={
                     "error": "rlm_upload_business_document requires Team plan or higher",
-                    "upgrade_url": "/license",
+                    "upgrade_url": None,
                 },
                 input_tokens=0,
                 output_tokens=0,
@@ -6799,7 +6805,7 @@ Rationale: {decision.rationale}"""
             return ToolResult(
                 data={
                     "error": "rlm_list_client_projects requires Team plan or higher",
-                    "upgrade_url": "/license",
+                    "upgrade_url": None,
                 },
                 input_tokens=0,
                 output_tokens=0,
@@ -6852,7 +6858,7 @@ Rationale: {decision.rationale}"""
             return ToolResult(
                 data={
                     "error": "rlm_create_client_project requires Team plan or higher",
-                    "upgrade_url": "/license",
+                    "upgrade_url": None,
                 },
                 input_tokens=0,
                 output_tokens=0,
@@ -7070,7 +7076,7 @@ Rationale: {decision.rationale}"""
         allowed, error = await check_memory_limits(self.project_id, self.user_id)
         if not allowed:
             return ToolResult(
-                data={"error": error, "upgrade_url": "/license"},
+                data={"error": error, "upgrade_url": None},
                 input_tokens=count_tokens(content),
                 output_tokens=0,
             )
@@ -7152,7 +7158,7 @@ Rationale: {decision.rationale}"""
         allowed, error = await check_memory_limits(self.project_id, self.user_id)
         if not allowed:
             return ToolResult(
-                data={"error": error, "upgrade_url": "/license"},
+                data={"error": error, "upgrade_url": None},
                 input_tokens=count_tokens(content),
                 output_tokens=0,
             )
@@ -7272,7 +7278,7 @@ Rationale: {decision.rationale}"""
         if not allowed:
             total_tokens = sum(count_tokens(m.get("text", "")) for m in memories)
             return ToolResult(
-                data={"error": error, "upgrade_url": "/license"},
+                data={"error": error, "upgrade_url": None},
                 input_tokens=total_tokens,
                 output_tokens=0,
             )
@@ -9686,7 +9692,7 @@ Rationale: {decision.rationale}"""
             requested_level=requested_level,
             status="pending",
             message="Access request submitted. A project admin will review your request.",
-            dashboard_url=f"https://app.snipara.com/team/projects/{project.slug}/access-requests",
+            dashboard_url="not-applicable-in-oss-mode",
         )
 
         return ToolResult(
@@ -9724,7 +9730,7 @@ Rationale: {decision.rationale}"""
                 data={
                     "error": "rlm_load_document requires a Pro plan or higher.",
                     "current_plan": self.plan.value,
-                    "upgrade_url": "/license",
+                    "upgrade_url": None,
                 },
                 input_tokens=0,
                 output_tokens=0,
@@ -9787,7 +9793,7 @@ Rationale: {decision.rationale}"""
                 data={
                     "error": "rlm_load_project requires a Team plan or higher.",
                     "current_plan": self.plan.value,
-                    "upgrade_url": "/license",
+                    "upgrade_url": None,
                 },
                 input_tokens=0,
                 output_tokens=0,
@@ -9872,7 +9878,7 @@ Rationale: {decision.rationale}"""
                 data={
                     "error": "rlm_orchestrate requires a Team plan or higher.",
                     "current_plan": self.plan.value,
-                    "upgrade_url": "/license",
+                    "upgrade_url": None,
                 },
                 input_tokens=0,
                 output_tokens=0,
@@ -10069,7 +10075,7 @@ Rationale: {decision.rationale}"""
                 data={
                     "error": "rlm_repl_context requires a Pro plan or higher.",
                     "current_plan": self.plan.value,
-                    "upgrade_url": "/license",
+                    "upgrade_url": None,
                 },
                 input_tokens=0,
                 output_tokens=0,

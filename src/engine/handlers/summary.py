@@ -59,7 +59,7 @@ async def handle_store_summary(
         return ToolResult(
             data={
                 "error": "rlm_store_summary requires Pro plan or higher",
-                "upgrade_url": "/license",
+                "upgrade_url": None,
             },
             input_tokens=count_tokens(summary),
             output_tokens=0,
@@ -189,7 +189,7 @@ async def handle_get_summaries(
         return ToolResult(
             data={
                 "error": "rlm_get_summaries requires Pro plan or higher",
-                "upgrade_url": "/license",
+                "upgrade_url": None,
             },
             input_tokens=0,
             output_tokens=0,
@@ -304,7 +304,7 @@ async def handle_delete_summary(
         return ToolResult(
             data={
                 "error": "rlm_delete_summary requires Pro plan or higher",
-                "upgrade_url": "/license",
+                "upgrade_url": None,
             },
             input_tokens=0,
             output_tokens=0,

@@ -1,62 +1,38 @@
 # Licensing
 
-Snipara Server is commercial, source-available enterprise software.
+Snipara Server is free and open source software under the Apache License,
+Version 2.0.
 
-## Production Use
+## What the license allows
 
-Production self-hosted use requires:
+The Apache-2.0 license permits personal, educational and commercial use,
+including modification, redistribution and operation as a hosted service,
+subject to the license terms and notices.
 
-- a signed Snipara enterprise license agreement
-- a deployment-specific `SNIPARA_LICENSE_KEY`
-- `SNIPARA_LICENSE_REQUIRED=true`
+It does not grant rights to Snipara trademarks, logos or branding. Do not imply
+endorsement or affiliation without permission.
 
-The license key must be stored in the customer's secret manager or deployment
-environment. It must not be committed to Git.
+## Contributions
 
-## Source License
+Contributions are accepted under the repository contribution terms. Do not
+submit customer data, private Cloud code, secrets, credentials or proprietary
+deployment material.
 
-The repository source is distributed under the Functional Source License,
-Version 1.1, with an Apache-2.0 future license. See the repository
-[LICENSE](../LICENSE) file for the controlling terms.
+## Runtime privacy
 
-The Functional Source License permits broad internal use under its terms, but
-it does not grant trademark rights and does not permit offering Snipara Server
-as a competing hosted or managed context optimization service.
+The server does not require a Snipara account or send data to Snipara Cloud.
+Usage tracking, when enabled, writes a local query ledger to PostgreSQL. Sentry,
+remote embedding services and other external providers are opt-in through
+environment variables.
 
-## Runtime Configuration
+## Distribution checklist
 
-For local evaluation:
+Do not publish artifacts containing:
 
-```text
-SNIPARA_LICENSE_REQUIRED=false
-SNIPARA_LICENSE_KEY=
-```
+- API keys, passwords, tokens or private certificates;
+- database URLs with credentials;
+- customer documents, prompts or memory contents;
+- private Cloud URLs, deployment paths or internal runbooks;
+- unreviewed generated reports or debug payloads.
 
-For production:
-
-```text
-SNIPARA_LICENSE_REQUIRED=true
-SNIPARA_LICENSE_KEY=<issued-by-snipara>
-```
-
-The `/license` endpoint reports:
-
-- product name
-- license mode
-- whether a key is configured
-- whether a key is required
-- a non-sensitive key fingerprint
-
-It never returns the license key.
-
-## Distribution Rules
-
-Do not publish release artifacts that contain:
-
-- real license keys
-- customer data
-- API keys
-- database credentials
-- private certificates
-- provider-specific production secrets
-- internal evaluation reports or debug payloads
+See [LICENSE](../LICENSE) for the controlling license text.

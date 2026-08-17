@@ -40,13 +40,8 @@ class Settings(BaseSettings):
         "PRO": 120,
         "TEAM": 300,
         "ENTERPRISE": 2000,
-        "PARTNER": 5000,  # Partners/Integrators with heavy polling
+        "PARTNER": 5000,  # Compatibility only for old private data
     }
-
-    # Demo key rate limiting (stricter, public key)
-    demo_api_key_ids: str = ""  # comma-separated DB IDs of demo API keys
-    demo_rate_limit_requests: int = 5  # requests per minute per IP for demo keys
-    demo_rate_limit_window: int = 60  # seconds
 
     # IP-based rate limiting (public endpoints + authenticated FREE aggregate cap)
     ip_rate_limit_requests: int = 300  # requests per window per IP
@@ -86,15 +81,13 @@ class Settings(BaseSettings):
         "ENTERPRISE": 90,  # 90-day trash retention
     }
 
-    # Self-remote license key.
-    # Local evaluation can run without a key. Production enterprise deployments
-    # should set SNIPARA_LICENSE_REQUIRED=true and provide SNIPARA_LICENSE_KEY.
-    snipara_license_key: str = ""
-    snipara_license_required: bool = False
+    # Local operator authentication. When configured, this static key is the
+    # only credential required by the OSS runtime.
+    snipara_local_api_key: str = ""
 
-    # Optional commercial/admin surfaces. Disabled in the on-prem base package
-    # unless a deployment explicitly enables them.
-    enable_integrator_admin_api: bool = False
+    # Local usage tracking is stored in PostgreSQL only. It is never sent to a
+    # Snipara service. Operators may disable the local query ledger if desired.
+    usage_tracking_enabled: bool = False
 
     # Internal API secret for server-to-server calls (e.g., web app → MCP server)
     # Used by reindex endpoint and other internal operations
@@ -107,7 +100,9 @@ class Settings(BaseSettings):
     environment: str = "development"
 
     # Embeddings
-    preload_embeddings: bool = True
+    # Local installs load the embedding model lazily. Operators can opt into a
+    # warm startup with PRELOAD_EMBEDDINGS=true.
+    preload_embeddings: bool = False
     embedding_service_url: str = ""
     embedding_service_local_only: bool = False
     embedding_service_timeout_overhead: float = 2.0

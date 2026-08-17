@@ -1,80 +1,38 @@
-# Self-Hosted Enterprise
+# Self-Hosted Snipara Server
 
-Snipara Self-Hosted Enterprise is for organizations that need Snipara Server
-inside their own infrastructure boundary.
+Snipara Server is the open source, self-hosted runtime for organizations and
+individual operators who want project context and memory inside their own
+infrastructure boundary.
 
-## Typical Requirements
-
-- data residency or sovereignty controls
-- private network or air-gapped deployment
-- internal model and agent platforms
-- existing PostgreSQL, Redis, monitoring, and secret management
-- enterprise security review and support commitments
-
-## Included Server Capabilities
+## Included capabilities
 
 - streamable HTTP MCP endpoint
 - source-backed project context retrieval
-- reviewed durable project memory
-- shared team context
+- persistent project memory and decisions
 - document indexing and chunk retrieval
-- code graph retrieval when indexing is enabled
-- audit metadata and rate limiting
-- Docker-based local evaluation setup
+- optional code graph and multi-agent tools
+- local PostgreSQL/pgvector and Redis Compose setup
+- local API-key authentication and local-only usage tracking
 
-## Commercial Terms
+## Operator responsibilities
 
-Production use is paid enterprise software and requires a Snipara commercial
-agreement. The agreement defines:
-
-- licensed deployment scope
-- support level
-- update cadence
-- permitted users and environments
-- renewal and termination terms
-- any customer-specific add-ons
-
-The software enforces license configuration through deployment settings:
-
-```text
-SNIPARA_LICENSE_REQUIRED=true
-SNIPARA_LICENSE_KEY=<issued-by-snipara>
-```
-
-## Infrastructure Responsibilities
-
-Self-hosted operators are responsible for:
+Operators are responsible for:
 
 - database backups and restore testing
-- Redis persistence and sizing
-- TLS termination
+- TLS termination and network access control
 - secret rotation
 - patching base images and dependencies
 - observability and alerting
-- access control and audit retention
-- release promotion through staging before production
+- Redis sizing and persistence when enabled
+- release promotion and rollback
 
-## Security Boundary
+## Security boundary
 
-Do not publish or redistribute artifacts containing:
+Configure SNIPARA_LOCAL_API_KEY, restrict CORS, and put internet-facing
+deployments behind a trusted TLS reverse proxy. Do not publish environment
+files, credentials, customer documents, embeddings or private Cloud runbooks.
 
-- real `.env` files
-- license keys
-- API keys
-- database URLs with credentials
-- private certificates
-- customer documents or embeddings
-- generated evaluation reports
-- debug payloads
-- private deployment runbooks
+## License
 
-## Getting Started
-
-1. Review [README.md](README.md).
-2. Review [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
-3. Configure secrets through your deployment platform.
-4. Set `SNIPARA_LICENSE_REQUIRED=true` for production.
-5. Verify `/health`, `/ready`, and `/license`.
-
-For enterprise licensing and support, contact Snipara through the official
-commercial channel.
+The server is distributed under Apache-2.0. See [LICENSE](LICENSE) and
+[docs/LICENSING.md](docs/LICENSING.md).

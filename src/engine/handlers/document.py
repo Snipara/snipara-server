@@ -497,7 +497,7 @@ async def handle_request_access(
         requested_level=requested_level,
         status="pending",
         message="Access request submitted. A project admin will review your request.",
-        dashboard_url=f"https://app.snipara.com/team/projects/{project.slug}/access-requests",
+        dashboard_url="not-applicable-in-oss-mode",
     )
 
     return ToolResult(

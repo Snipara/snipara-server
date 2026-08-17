@@ -125,7 +125,7 @@ class TestMCPEndpoints:
         assert response.status_code == 401
         data = response.json()
         assert data["success"] is False
-        assert "Invalid API key" in data["error"]
+        assert "Invalid local API key" in data["error"]
 
     def test_context_requires_api_key(self, client):
         """Test that context endpoint requires API key."""

@@ -5,11 +5,12 @@ Database-dependent tests are skipped when Prisma is not generated.
 """
 
 import pytest
+
 from src.models import Plan, SettingsResult
 
 # Try to import RLMEngine, skip engine tests if Prisma not generated
 try:
-    from src.rlm_engine import RLMEngine, ProjectSettings
+    from src.rlm_engine import ProjectSettings, RLMEngine
     PRISMA_AVAILABLE = True
 except RuntimeError:
     PRISMA_AVAILABLE = False

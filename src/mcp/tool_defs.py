@@ -25,6 +25,7 @@ Tool Tiers:
     - ADVANCED (🔴): Multi-agent swarms and expert orchestration
 """
 
+from copy import deepcopy
 from enum import StrEnum
 
 
@@ -3655,6 +3656,63 @@ EXPOSED_TOOL_DEFINITIONS: list[dict] = [
 
 EXPOSED_TOOL_NAMES: set[str] = {tool["name"] for tool in EXPOSED_TOOL_DEFINITIONS}
 
-MCP_TOOL_DEFINITIONS: list[dict] = EXPOSED_TOOL_DEFINITIONS
+# These tools are Cloud-only because they expose team workspaces, client
+# workspaces, business collections, access requests or tenant profiles. They
+# remain in the historical contract data for migration reference but are not
+# advertised or callable by the public self-hosted server.
+OSS_EXCLUDED_TOOL_NAMES = frozenset(
+    {
+        "rlm_multi_project_query",
+        "rlm_shared_context",
+        "rlm_list_templates",
+        "rlm_get_template",
+        "rlm_list_collections",
+        "rlm_create_collection",
+        "rlm_get_collection_documents",
+        "rlm_link_collection",
+        "rlm_unlink_collection",
+        "rlm_upload_shared_document",
+        "rlm_list_business_collections",
+        "rlm_ensure_business_collection",
+        "rlm_upload_business_document",
+        "rlm_list_client_projects",
+        "rlm_create_client_project",
+        "rlm_load_project",
+        "rlm_request_access",
+        "rlm_tenant_profile_create",
+        "rlm_tenant_profile_get",
+    }
+)
+
+def _sanitize_oss_tool_definition(tool: dict) -> dict:
+    """Remove hosted-only identity hints from the public tool metadata."""
+
+    def sanitize(value):
+        if isinstance(value, dict):
+            return {
+                key: sanitize(item)
+                for key, item in value.items()
+                if key != "external_user_id"
+            }
+        if isinstance(value, list):
+            return [sanitize(item) for item in value]
+        if isinstance(value, str):
+            return (
+                value.replace("integrator external_user_id", "local user identity")
+                .replace("external_user_id", "local user identity")
+                .replace("Integrator client keys only", "Local operator keys only")
+                .replace("per integrator client", "for the local installation")
+                .replace("integrator workflows", "hosted workflows")
+            )
+        return value
+
+    return sanitize(deepcopy(tool))
+
+
+MCP_TOOL_DEFINITIONS: list[dict] = [
+    _sanitize_oss_tool_definition(tool)
+    for tool in EXPOSED_TOOL_DEFINITIONS
+    if tool["name"] not in OSS_EXCLUDED_TOOL_NAMES
+]
 MCP_TOOL_NAMES: list[str] = [tool["name"] for tool in MCP_TOOL_DEFINITIONS]
 MCP_TOOL_NAME_SET: set[str] = set(MCP_TOOL_NAMES)

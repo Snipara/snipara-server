@@ -423,8 +423,8 @@ def main() -> int:
     )
     parser.add_argument(
         "--api-url",
-        default=os.environ.get("SNIPARA_API_URL", "https://api.snipara.com"),
-        help="Snipara API URL. Defaults to SNIPARA_API_URL or https://api.snipara.com.",
+        default=os.environ.get("SNIPARA_API_URL", "http://localhost:8000"),
+        help="Snipara API URL. Defaults to SNIPARA_API_URL or http://localhost:8000.",
     )
     parser.add_argument(
         "--api-key",

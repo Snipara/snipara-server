@@ -9,30 +9,24 @@ from contextlib import asynccontextmanager
 from datetime import datetime
 from typing import Annotated
 
-from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request, Response
+from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
 
 from . import __version__
 from .api.deps import (
-    execute_multi_project_query,
     get_api_key,
     get_client_ip,
     sanitize_error_message,
     validate_and_rate_limit,
-    validate_team_and_rate_limit,
 )
 from .api.graphify import router as graphify_router
-from .api.integrator import router as integrator_router
 from .auth import (
     enforce_tool_scope,
-    get_effective_plan,
-    get_team_by_slug_or_id,
-    validate_team_api_key,
 )
 from .config import settings
 from .db import close_db, get_db
-from .mcp import jsonrpc_error, jsonrpc_response
+from .mcp import MCP_TOOL_NAME_SET
 from .mcp_transport import router as mcp_router
 from .middleware import IPRateLimitMiddleware, SecurityHeadersMiddleware
 from .models import (
@@ -47,56 +41,15 @@ from .models import (
 )
 from .rlm_engine import RLMEngine
 from .services.agent_memory import semantic_recall, store_memory
-from .services.integrator_subjects import (
-    memory_call_uses_user_scope,
-    resolve_integrator_memory_user_id,
-)
-from .services.licensing import get_license_status, validate_license_configuration
 from .services.swarm_events import subscribe_to_swarm, unsubscribe_from_swarm
 from .usage import (
-    _is_demo_key,
-    check_rate_limit,
     check_usage_limits,
-    clear_rate_limit,
     close_redis,
-    get_demo_analytics,
     get_usage_stats,
-    log_security_event,
-    track_demo_query,
     track_usage,
 )
 
 logger = logging.getLogger(__name__)
-
-
-def _resolve_effective_user_id_for_tool(
-    *,
-    auth_info: dict | None,
-    default_user_id: str | None,
-    tool_name: str,
-    params: dict | None,
-) -> str | None:
-    """Resolve user identity for memory tools, including integrator end-user subjects."""
-    if (
-        auth_info
-        and auth_info.get("auth_type") == "integrator_client"
-        and memory_call_uses_user_scope(tool_name, params)
-        and not (params or {}).get("external_user_id")
-    ):
-        raise HTTPException(
-            status_code=400,
-            detail="external_user_id is required for scope=user when using an integrator client key.",
-        )
-
-    try:
-        return resolve_integrator_memory_user_id(
-            auth_info=auth_info,
-            default_user_id=default_user_id,
-            tool_name=tool_name,
-            arguments=params,
-        )
-    except ValueError as exc:
-        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 # ============ SENTRY INITIALIZATION ============
@@ -142,15 +95,9 @@ else:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan handler for startup/shutdown."""
-    # Startup
-    validate_license_configuration()
-    license_status = get_license_status()
-    logger.info(
-        "Starting Snipara Server v%s (license mode: %s, required: %s)",
-        __version__,
-        license_status["mode"],
-        license_status["required"],
-    )
+    # Startup. The OSS runtime has no commercial license gate or telemetry
+    # handshake; all state remains in the operator's database.
+    logger.info("Starting Snipara Server v%s (self-hosted OSS mode)", __version__)
 
     # Validate CORS configuration in production
     if not settings.debug and settings.cors_allowed_origins == "*":
@@ -187,7 +134,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="Snipara Server",
-    description="Self-remote MCP and project memory runtime for Snipara Enterprise",
+    description="Self-hosted MCP and project memory runtime for local and self-hosted workflows",
     version=__version__,
     lifespan=lifespan,
 )
@@ -209,11 +156,6 @@ app.add_middleware(
 
 # Mount MCP Streamable HTTP transport
 app.include_router(mcp_router)
-
-# Mount optional Integrator Admin API only when explicitly enabled. The base
-# on-prem package keeps remote/commercial admin workflows disabled by default.
-if settings.enable_integrator_admin_api:
-    app.include_router(integrator_router)
 
 # Mount Graphify-compatible export surface
 app.include_router(graphify_router)
@@ -260,12 +202,6 @@ async def health_check() -> HealthResponse:
         version=__version__,
         timestamp=datetime.utcnow(),
     )
-
-
-@app.get("/license", tags=["Health"])
-async def license_check() -> dict:
-    """Return non-sensitive self-hosted license configuration status."""
-    return get_license_status()
 
 
 @app.get("/ready", tags=["Health"])
@@ -363,27 +299,26 @@ async def mcp_endpoint(
         project_id, api_key, client_ip=client_ip
     )
 
-    # Track demo queries for analytics (fire-and-forget)
-    if _is_demo_key(api_key_info.get("id", "")):
-        await track_demo_query(client_ip, request.tool.value)
-
     # Check usage limits
     limits = await check_usage_limits(project.id, plan)
     if limits.exceeded:
         raise HTTPException(
             status_code=429,
-            detail=f"Monthly usage limit exceeded: {limits.current}/{limits.max} queries. Upgrade your plan to continue.",
+            detail=(
+                f"Local usage limit exceeded: {limits.current}/{limits.max} queries. "
+                "Adjust the operator's local limits or retention policy."
+            ),
         )
 
     # Execute the tool with project settings from dashboard
     try:
+        if request.tool.value not in MCP_TOOL_NAME_SET:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Tool not available in OSS mode: {request.tool.value}",
+            )
         enforce_tool_scope(request.tool.value, api_key_info)
-        effective_user_id = _resolve_effective_user_id_for_tool(
-            auth_info=api_key_info,
-            default_user_id=api_key_info.get("user_id"),
-            tool_name=request.tool.value,
-            params=request.params,
-        )
+        effective_user_id = api_key_info.get("user_id")
         engine = RLMEngine(
             project.id,
             plan=plan,
@@ -436,248 +371,6 @@ async def mcp_endpoint(
             error=sanitize_error_message(e),
             usage=UsageInfo(latency_ms=latency_ms),
         )
-
-
-@app.post("/v1/team/{team_slug}/mcp", response_model=MCPResponse, tags=["MCP"])
-async def team_mcp_endpoint(
-    team_slug: str,
-    request: MCPRequest,
-    api_key: Annotated[str, Depends(get_api_key)],
-) -> MCPResponse:
-    """
-    Execute team-scoped MCP tools.
-
-    This endpoint only allows rlm_multi_project_query with a team API key.
-    """
-    start_time = time.perf_counter()
-
-    api_key_info, team, plan = await validate_team_and_rate_limit(team_slug, api_key)
-
-    if request.tool != ToolName.RLM_MULTI_PROJECT_QUERY:
-        raise HTTPException(status_code=400, detail="Invalid tool for team API key")
-
-    try:
-        result_payload, input_tokens, output_tokens = await execute_multi_project_query(
-            team,
-            plan,
-            request.params,
-            user_id=api_key_info.get("user_id"),
-        )
-
-        latency_ms = int((time.perf_counter() - start_time) * 1000)
-
-        return MCPResponse(
-            success=True,
-            result=result_payload,
-            usage=UsageInfo(
-                input_tokens=input_tokens,
-                output_tokens=output_tokens,
-                latency_ms=latency_ms,
-            ),
-        )
-    except HTTPException:
-        raise
-    except Exception as e:
-        latency_ms = int((time.perf_counter() - start_time) * 1000)
-        return MCPResponse(
-            success=False,
-            error=sanitize_error_message(e),
-            usage=UsageInfo(latency_ms=latency_ms),
-        )
-
-
-# ============ TEAM MCP TRANSPORT (JSON-RPC) ============
-
-# Tool definition for team endpoint (only rlm_multi_project_query)
-TEAM_TOOL_DEFINITION = {
-    "name": "rlm_multi_project_query",
-    "description": "Query across all projects in a team. Returns ranked context from multiple documentation sets.",
-    "inputSchema": {
-        "type": "object",
-        "properties": {
-            "query": {"type": "string", "description": "The question to answer"},
-            "max_tokens": {
-                "type": "integer",
-                "default": 16000,
-                "description": "Total token budget across all projects",
-            },
-            "per_project_limit": {
-                "type": "integer",
-                "default": 10,
-                "description": "Max sections per project",
-            },
-            "project_ids": {
-                "type": "array",
-                "items": {"type": "string"},
-                "default": [],
-                "description": "Filter to specific projects (empty = all)",
-            },
-            "exclude_project_ids": {
-                "type": "array",
-                "items": {"type": "string"},
-                "default": [],
-                "description": "Projects to exclude",
-            },
-        },
-        "required": ["query"],
-    },
-}
-
-
-@app.post("/mcp/team/{team_id}", tags=["MCP Transport"])
-async def team_mcp_transport_endpoint(
-    team_id: str,
-    request: Request,
-    x_api_key: str | None = Header(None, alias="X-API-Key"),
-    authorization: str | None = Header(None),
-):
-    """
-    Team MCP Streamable HTTP endpoint (JSON-RPC format).
-
-    This endpoint supports the MCP protocol for team-scoped queries.
-    Only the rlm_multi_project_query tool is available.
-
-    Config example (MCP client):
-    ```json
-    {"mcpServers": {"snipara-team": {"type": "http", "url": "https://api.snipara.com/mcp/team/{team_id}", "headers": {"X-API-Key": "rlm_team_..."}}}}
-    ```
-    """
-    # Accept X-API-Key header (preferred) or Authorization: Bearer
-    if x_api_key:
-        api_key = x_api_key
-    elif authorization:
-        api_key = authorization[7:] if authorization.startswith("Bearer ") else authorization
-    else:
-        raise HTTPException(
-            status_code=401,
-            detail=(
-                "Missing authentication. Get started free (100 queries/month, no credit card):\n"
-                "- MCP client: Run /snipara:quickstart\n"
-                "- VS Code: Install 'Snipara' extension and click 'Sign in with GitHub'\n"
-                "- Manual: Get an API key at https://snipara.com/dashboard\n"
-                "Docs: https://snipara.com/docs/quickstart"
-            ),
-        )
-
-    # Validate team and API key
-    team = await get_team_by_slug_or_id(team_id)
-    if not team:
-        raise HTTPException(status_code=404, detail="Team not found")
-
-    api_key_info = await validate_team_api_key(api_key, team.id)
-    if not api_key_info:
-        log_security_event(
-            "auth.failed",
-            "team",
-            team_id,
-            api_key[:12],
-            team_id=team.id,
-            details={"reason": "invalid_team_api_key"},
-        )
-        raise HTTPException(status_code=401, detail="Invalid API key")
-
-    # Determine plan BEFORE rate limit check (plan-based limits)
-    plan = get_effective_plan(team.subscription)
-
-    # Check rate limit with plan-based limits
-    if not await check_rate_limit(api_key_info["id"], plan=plan.value):
-        max_requests = settings.plan_rate_limits.get(plan.value, settings.rate_limit_requests)
-        log_security_event(
-            "rate_limit.exceeded",
-            "api_key",
-            api_key_info["id"],
-            api_key_info.get("user_id", api_key_info["id"]),
-            team_id=team.id,
-        )
-        raise HTTPException(status_code=429, detail=f"Rate limit exceeded: {max_requests}/min")
-
-    # Parse JSON-RPC request
-    try:
-        body = await request.json()
-    except Exception:
-        return JSONResponse(jsonrpc_error(None, -32700, "Parse error"), status_code=400)
-
-    # Extract user_id for ACL checks
-    team_user_id = api_key_info.get("user_id")
-
-    # Handle batch requests
-    if isinstance(body, list):
-        responses = []
-        for req in body:
-            resp = await _handle_team_request(req, team, plan, user_id=team_user_id)
-            if resp:  # Skip notifications (no id)
-                responses.append(resp)
-        return JSONResponse(responses)
-
-    # Handle single request
-    response = await _handle_team_request(body, team, plan, user_id=team_user_id)
-    return JSONResponse(response) if response else Response(status_code=204)
-
-
-async def _handle_team_request(
-    body: dict, team: any, plan: Plan, user_id: str | None = None
-) -> dict | None:
-    """Handle a single JSON-RPC request for team endpoint."""
-    method = body.get("method")
-    id = body.get("id")
-    params = body.get("params", {})
-
-    if id is None:  # Notification - no response
-        return None
-
-    if method == "initialize":
-        return jsonrpc_response(
-            id,
-            {
-                "protocolVersion": "2024-11-05",
-                "serverInfo": {"name": "snipara-team", "version": "1.0.0"},
-                "capabilities": {"tools": {}},
-            },
-        )
-    elif method == "tools/list":
-        return jsonrpc_response(id, {"tools": [TEAM_TOOL_DEFINITION]})
-    elif method == "tools/call":
-        return await _handle_team_call_tool(id, params, team, plan, user_id=user_id)
-    elif method == "ping":
-        return jsonrpc_response(id, {})
-    else:
-        return jsonrpc_error(id, -32601, f"Method not found: {method}")
-
-
-async def _handle_team_call_tool(
-    id: any, params: dict, team: any, plan: Plan, user_id: str | None = None
-) -> dict:
-    """Handle MCP tools/call request for team endpoint."""
-    tool_name = params.get("name")
-    arguments = params.get("arguments", {})
-
-    if tool_name != "rlm_multi_project_query":
-        return jsonrpc_error(
-            id,
-            -32602,
-            f"Tool not available on team endpoint: {tool_name}. Only rlm_multi_project_query is supported.",
-        )
-
-    try:
-        result_payload, input_tokens, output_tokens = await execute_multi_project_query(
-            team,
-            plan,
-            arguments,
-            user_id=user_id,
-        )
-
-        return jsonrpc_response(
-            id,
-            {
-                "content": [
-                    {"type": "text", "text": json.dumps(result_payload, indent=2, default=str)}
-                ],
-            },
-        )
-    except HTTPException as e:
-        return jsonrpc_error(id, -32000, e.detail)
-    except Exception as e:
-        return jsonrpc_error(id, -32000, str(e))
 
 
 @app.get("/v1/{project_id}/context", tags=["MCP"])
@@ -756,87 +449,6 @@ async def get_stats(
 
     stats = await get_usage_stats(project_id, days)
     return {"project_id": project_id, **stats}
-
-
-@app.get("/v1/admin/demo-analytics", tags=["Admin"])
-async def demo_analytics(
-    x_internal_secret: Annotated[str | None, Header(alias="X-Internal-Secret")] = None,
-):
-    """
-    Get demo usage analytics (internal endpoint).
-
-    Tracks unique IPs, query counts, tool usage breakdown, and daily trends
-    for queries made with the demo API key.
-
-    Requires X-Internal-Secret header for authentication.
-
-    Returns:
-        Demo analytics data including:
-        - unique_ips: Total unique IP addresses
-        - total_queries: Total demo queries
-        - today_unique_ips: Unique IPs today
-        - tools_breakdown: Queries by tool type
-        - daily_stats: Daily query counts (last 7 days)
-        - top_users: Top 10 IPs by query count (masked for privacy)
-    """
-    # Require internal secret
-    if not settings.internal_api_secret:
-        raise HTTPException(status_code=500, detail="Internal API secret not configured")
-    if not x_internal_secret or x_internal_secret != settings.internal_api_secret:
-        raise HTTPException(status_code=401, detail="Invalid or missing internal secret")
-
-    analytics = await get_demo_analytics()
-    return {"success": True, "data": analytics}
-
-
-@app.post("/v1/admin/clear-rate-limit", tags=["Admin"])
-async def admin_clear_rate_limit(
-    project_slug: str = Query(description="Project slug to clear rate limits for"),
-    x_internal_secret: Annotated[str | None, Header(alias="X-Internal-Secret")] = None,
-):
-    """
-    Clear rate limits for all API keys associated with a project.
-
-    This admin endpoint removes rate limit counters from Redis, allowing
-    immediate recovery from rate limit exceeded states.
-
-    Requires X-Internal-Secret header for authentication.
-
-    Args:
-        project_slug: The project slug (e.g., "vutler")
-
-    Returns:
-        List of cleared API key IDs and count
-    """
-    if not settings.internal_api_secret:
-        raise HTTPException(status_code=500, detail="Internal API secret not configured")
-    if not x_internal_secret or x_internal_secret != settings.internal_api_secret:
-        raise HTTPException(status_code=401, detail="Invalid or missing internal secret")
-
-    db = await get_db()
-
-    # Find project by slug
-    project = await db.project.find_first(where={"slug": project_slug})
-    if not project:
-        raise HTTPException(status_code=404, detail=f"Project '{project_slug}' not found")
-
-    # Get all API keys for this project
-    api_keys = await db.apikey.find_many(where={"projectId": project.id})
-
-    cleared = []
-    for key in api_keys:
-        success = await clear_rate_limit(key.id)
-        if success:
-            cleared.append(key.id[:12] + "...")
-
-    logger.info(f"Admin cleared rate limits for project {project_slug}: {len(cleared)} keys")
-
-    return {
-        "success": True,
-        "project": project_slug,
-        "cleared_count": len(cleared),
-        "cleared_keys": cleared,
-    }
 
 
 @app.post("/v1/{project_id}/reindex", tags=["MCP"])
@@ -1012,10 +624,6 @@ async def recall_memories(
     type: str | None = Query(default=None, description="Filter by memory type"),
     scope: str | None = Query(default=None, description="Filter by memory scope"),
     category: str | None = Query(default=None, description="Filter by category"),
-    external_user_id: str | None = Query(
-        default=None,
-        description="Integrator end-user ID for user-scoped memory with snipara_ic_* keys",
-    ),
     limit: int = Query(default=10, ge=1, le=50, description="Max memories to return"),
     min_relevance: float = Query(default=0.3, ge=0, le=1, description="Minimum relevance"),
     include_inactive: bool = Query(default=False, description="Include inactive memories"),
@@ -1049,12 +657,7 @@ async def recall_memories(
 
     # Use resolved project ID, not the slug from URL
     resolved_project_id = project.id
-    effective_user_id = _resolve_effective_user_id_for_tool(
-        auth_info=auth_info,
-        default_user_id=auth_info.get("user_id"),
-        tool_name="rlm_recall",
-        params={"scope": scope, "external_user_id": external_user_id},
-    )
+    effective_user_id = auth_info.get("user_id")
 
     result = await semantic_recall(
         project_id=resolved_project_id,
@@ -1113,12 +716,7 @@ async def create_memory(
 
     # Use resolved project ID, not the slug from URL
     resolved_project_id = project.id
-    effective_user_id = _resolve_effective_user_id_for_tool(
-        auth_info=auth_info,
-        default_user_id=auth_info.get("user_id"),
-        tool_name="rlm_remember",
-        params=body,
-    )
+    effective_user_id = auth_info.get("user_id")
 
     result = await store_memory(
         project_id=resolved_project_id,
@@ -1171,13 +769,13 @@ async def sse_event_generator(
 
     try:
         # Execute the tool
+        if tool.value not in MCP_TOOL_NAME_SET:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Tool not available in OSS mode: {tool.value}",
+            )
         enforce_tool_scope(tool.value, auth_info)
-        effective_user_id = _resolve_effective_user_id_for_tool(
-            auth_info=auth_info,
-            default_user_id=user_id,
-            tool_name=tool.value,
-            params=params,
-        )
+        effective_user_id = user_id
         engine = RLMEngine(
             project_id,
             plan=plan,

@@ -27,7 +27,7 @@ def mock_validate_api_key_invalid():
     with patch("src.server.validate_and_rate_limit", new_callable=AsyncMock) as mock:
         mock.side_effect = HTTPException(
             status_code=401,
-            detail="Invalid API key. Get a free key at https://snipara.com/dashboard (100 queries/month, no credit card)",
+            detail="Invalid local API key.",
         )
         yield mock
 

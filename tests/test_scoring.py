@@ -6,11 +6,11 @@ No database or external dependencies required.
 
 
 from src.engine.scoring import (
-    adjust_score_for_query_intent,
     STOP_WORDS,
+    adjust_score_for_query_intent,
     calculate_keyword_score,
-    compute_keyword_weights,
     classify_query_weights,
+    compute_keyword_weights,
     expand_keywords,
     extract_keywords,
     filter_ubiquitous_keywords,

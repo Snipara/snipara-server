@@ -63,9 +63,9 @@ ruff format src/
 ## License
 
 By contributing, you agree that your contributions will be licensed under the
-FSL-1.1-Apache-2.0 license (see [LICENSE](LICENSE)).
+Apache-2.0 license (see [LICENSE](LICENSE)).
 
 ## Questions?
 
 Open a [GitHub Issue](https://github.com/snipara/snipara-server/issues) or
-visit [snipara.com](https://snipara.com) for documentation.
+Read the repository documentation for the self-hosted runtime and local setup.

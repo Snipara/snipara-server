@@ -93,7 +93,7 @@ async def handle_remember(
     allowed, error = await check_memory_limits(ctx.project_id, ctx.user_id)
     if not allowed:
         return ToolResult(
-            data={"error": error, "upgrade_url": "/license"},
+            data={"error": error, "upgrade_url": None},
             input_tokens=count_tokens(content),
             output_tokens=0,
         )
@@ -164,7 +164,7 @@ async def handle_remember_bulk(
     if not allowed:
         total_tokens = sum(count_tokens(m.get("text", "")) for m in memories)
         return ToolResult(
-            data={"error": error, "upgrade_url": "/license"},
+            data={"error": error, "upgrade_url": None},
             input_tokens=total_tokens,
             output_tokens=0,
         )
@@ -240,7 +240,7 @@ async def handle_remember_if_novel(
     allowed, error = await check_memory_limits(ctx.project_id, ctx.user_id)
     if not allowed:
         return ToolResult(
-            data={"error": error, "upgrade_url": "/license"},
+            data={"error": error, "upgrade_url": None},
             input_tokens=count_tokens(content),
             output_tokens=0,
         )
@@ -643,7 +643,7 @@ async def handle_journal_append(
     allowed, error = await check_memory_limits(ctx.project_id, ctx.user_id)
     if not allowed:
         return ToolResult(
-            data={"error": error, "upgrade_url": "/license"},
+            data={"error": error, "upgrade_url": None},
             input_tokens=count_tokens(text),
             output_tokens=0,
         )

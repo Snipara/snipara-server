@@ -177,22 +177,6 @@ class TestApiModuleStructure:
         content = deps_path.read_text()
         assert "async def validate_and_rate_limit(" in content
 
-    def test_deps_contains_validate_team_and_rate_limit(self):
-        """Test deps.py contains validate_team_and_rate_limit function."""
-        from pathlib import Path
-
-        deps_path = Path(__file__).parent.parent / "src" / "api" / "deps.py"
-        content = deps_path.read_text()
-        assert "async def validate_team_and_rate_limit(" in content
-
-    def test_deps_contains_execute_multi_project_query(self):
-        """Test deps.py contains execute_multi_project_query function."""
-        from pathlib import Path
-
-        deps_path = Path(__file__).parent.parent / "src" / "api" / "deps.py"
-        content = deps_path.read_text()
-        assert "async def execute_multi_project_query(" in content
-
     def test_deps_contains_sanitize_error_message(self):
         """Test deps.py contains sanitize_error_message function."""
         from pathlib import Path

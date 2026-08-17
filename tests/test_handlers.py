@@ -5,13 +5,13 @@ Uses mocks for database and service calls.
 """
 
 # IMPORTANT: Import conftest_handlers first to set up mocks before other imports
-import tests.conftest_handlers  # noqa: F401
-
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
+import tests.conftest_handlers  # noqa: F401
 from src.engine.handlers import HandlerContext, count_tokens
+from src.engine.handlers.htask import handle_htask_tree
 from src.engine.handlers.memory import (
     handle_end_of_task_commit,
     handle_forget,
@@ -20,7 +20,6 @@ from src.engine.handlers.memory import (
     handle_remember,
     handle_remember_if_novel,
 )
-from src.engine.handlers.htask import handle_htask_tree
 from src.engine.handlers.session import (
     handle_clear_context,
     handle_context,

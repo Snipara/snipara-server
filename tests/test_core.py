@@ -3,7 +3,6 @@
 These tests verify the extracted core utilities work correctly.
 """
 
-import pytest
 
 from src.engine.core import (
     ABSTRACT_QUERY_MIN_SECTIONS,

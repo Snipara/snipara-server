@@ -1,20 +1,14 @@
-"""Request validation for MCP transport.
-
-This module handles authentication validation and usage limit checks
-for MCP requests. Supports both API keys and OAuth tokens.
-"""
+"""Request validation for the self-hosted MCP transport."""
 
 from ..auth import (
     get_effective_plan,
     get_project_with_team,
     validate_api_key,
-    validate_client_api_key,
-    validate_oauth_token,
+    validate_local_api_key,
 )
 from ..config import settings
 from ..models import Plan
 from ..usage import (
-    check_client_usage_limits,
     check_plan_ip_rate_limit,
     check_rate_limit,
     check_usage_limits,
@@ -28,11 +22,11 @@ async def validate_request(
 ) -> tuple[dict | None, Plan, str | None, str | None]:
     """Validate authentication and check usage limits.
 
-    Supports both API keys (rlm_...) and OAuth tokens (snipara_at_...).
+    Supports a local operator key and a compatibility database API key.
 
     Args:
         project_id_or_slug: Project ID or slug from URL
-        api_key: API key or OAuth token from header
+        api_key: local operator key or compatibility database key
         client_ip: Optional client IP for rate limiting
 
     Returns:
@@ -50,34 +44,20 @@ async def validate_request(
 
     auth_info = None
 
-    # Check if it's an OAuth token
-    if api_key.startswith("snipara_at_"):
-        auth_info = await validate_oauth_token(api_key, project_id_or_slug)
+    # A configured local key is the OSS authentication boundary.
+    if settings.snipara_local_api_key.strip():
+        auth_info = await validate_local_api_key(api_key, project_id_or_slug)
         if not auth_info:
-            return (
-                None,
-                Plan.FREE,
-                "Invalid or expired OAuth token. Re-authenticate at https://snipara.com/dashboard or run /snipara:quickstart",
-                None,
-            )
-    # Check if it's an integrator client key
-    elif api_key.startswith("snipara_ic_"):
-        auth_info = await validate_client_api_key(api_key, project_id_or_slug)
-        if not auth_info:
-            return (
-                None,
-                Plan.FREE,
-                "Invalid client API key. Contact your integrator for access.",
-                None,
-            )
+            return None, Plan.FREE, "Invalid local API key.", None
     else:
-        # Fall back to API key validation
+        # Compatibility path for an existing private installation. New OSS
+        # installs should configure SNIPARA_LOCAL_API_KEY.
         auth_info = await validate_api_key(api_key, project_id_or_slug)
         if not auth_info:
             return (
                 None,
                 Plan.FREE,
-                "Invalid API key. Get a free key at https://snipara.com/dashboard (100 queries/month, no credit card)",
+                "Invalid API key.",
                 None,
             )
 
@@ -91,19 +71,14 @@ async def validate_request(
     auth_info["project"] = auth_info.get("project") or project
     auth_info["team_id"] = getattr(project, "teamId", None)
 
-    # Determine plan BEFORE rate limit check (plan-based limits)
-    plan = get_effective_plan(project.team.subscription if project.team else None)
+    # Local operator mode is unrestricted by commercial plan entitlements.
+    plan = (
+        Plan.ENTERPRISE
+        if auth_info.get("auth_type") == "local"
+        else get_effective_plan(project.team.subscription if project.team else None)
+    )
 
-    # Use PARTNER rate limits for integrator clients (higher limits for heavy polling)
-    # This applies both when:
-    # 1. Using snipara_ic_* client API key (auth_type == "integrator_client")
-    # 2. Using regular rlm_* API key on a project that belongs to an integrator client
     rate_limit_plan = plan.value
-    if auth_info.get("auth_type") == "integrator_client":
-        rate_limit_plan = "PARTNER"
-    elif auth_info.get("is_integrator_project"):
-        # Regular API key on an integrator project also gets PARTNER limits
-        rate_limit_plan = "PARTNER"
 
     # Check rate limit with plan-based limits
     if not await check_rate_limit(auth_info["id"], client_ip=client_ip, plan=rate_limit_plan):
@@ -133,30 +108,8 @@ async def validate_request(
             None,
         )
 
-    # Check bundle limits for integrator clients
-    if auth_info.get("auth_type") == "integrator_client":
-        client_id = auth_info.get("client_id")
-        client_bundle = auth_info.get("client_bundle", "LITE")
-        if client_id:
-            bundle_limits = await check_client_usage_limits(client_id, client_bundle)
-            if bundle_limits.exceeded:
-                log_security_event(
-                    "bundle_limit.exceeded",
-                    "client",
-                    client_id,
-                    auth_info.get("user_id", auth_info["id"]),
-                    details={"bundle": client_bundle, "current": bundle_limits.current, "max": bundle_limits.max},
-                )
-                return (
-                    None,
-                    plan,
-                    f"Monthly query limit exceeded for {client_bundle} bundle: {bundle_limits.current}/{bundle_limits.max}. Contact your provider to upgrade.",
-                    None,
-                )
-    else:
-        # Standard usage limits for non-integrator clients
-        limits = await check_usage_limits(actual_project_id, plan)
-        if limits.exceeded:
-            return None, plan, f"Monthly limit exceeded: {limits.current}/{limits.max}", None
+    limits = await check_usage_limits(actual_project_id, plan)
+    if limits.exceeded:
+        return None, plan, f"Monthly limit exceeded: {limits.current}/{limits.max}", None
 
     return auth_info, plan, None, actual_project_id

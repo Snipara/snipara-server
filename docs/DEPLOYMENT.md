@@ -1,76 +1,82 @@
 # Self-Hosted Deployment
 
-This guide describes the generic on-prem deployment path for Snipara Server.
-Provider-specific production runbooks are not part of this repository.
+This guide describes the generic deployment path for Snipara Server. Provider-
+specific production runbooks are intentionally kept outside this repository.
 
 ## Requirements
 
 - PostgreSQL 14 or newer with pgvector
-- Redis 7 or newer
+- Redis 7 or newer (recommended; the server has an in-memory fallback)
 - Python 3.11 or newer
-- Container runtime for Docker Compose or Kubernetes
-- TLS termination through your ingress, reverse proxy, or load balancer
-- Secret manager for database URLs, Redis URLs, API keys, and license keys
+- Docker Compose or another container runtime
+- TLS termination through an operator-controlled ingress or reverse proxy
+- Secret management for DATABASE_URL, Redis URL and the local API key
 
-## Local Evaluation
+## Local deployment
 
 ```bash
 cp .env.example .env
+# Set a long random SNIPARA_LOCAL_API_KEY in .env.
 docker compose up --build
 ```
 
-Then initialize a first local project and API key:
+In another terminal:
 
 ```bash
-export DATABASE_URL="postgresql://snipara:snipara-dev-password@localhost:5433/snipara"
+set -a
+source .env
+set +a
 bash scripts/setup.sh
 ```
 
-## Production Environment
+The setup creates one local workspace at the slug local. It never creates a
+Cloud account or sends project data to Snipara.
 
-Set these variables through your deployment platform or secret manager:
+## Production configuration
+
+Set these through the deployment platform:
 
 ```text
 DATABASE_URL
 REDIS_URL
-SNIPARA_LICENSE_KEY
-SNIPARA_LICENSE_REQUIRED=true
+SNIPARA_LOCAL_API_KEY
 CORS_ALLOWED_ORIGINS
 ```
 
-Do not commit real `.env` files. Do not copy provider-specific production
-configuration into this repository.
+Optional:
 
-## Health Checks
-
-```http
-GET /health
-GET /ready
-GET /license
+```text
+PRELOAD_EMBEDDINGS
+EMBEDDING_SERVICE_URL
+SENTRY_DSN
+USAGE_TRACKING_ENABLED
 ```
 
-`/license` returns configuration status only. It does not expose the license
-key.
+Do not commit real environment files or credentials.
 
-## Upgrade Workflow
+## Health checks
 
-1. Pull the new release.
-2. Review database migrations under `prisma/migrations/`.
-3. Back up PostgreSQL.
-4. Apply migrations in staging.
-5. Run MCP smoke tests and application health checks.
-6. Deploy to production.
-7. Verify `/health`, `/ready`, and representative MCP tool calls.
+```text
+GET /health
+GET /ready
+```
 
-## Release Hygiene
+The MCP smoke endpoint is POST /mcp/local with X-API-Key authentication.
 
-Before distributing a release artifact, verify that it does not contain:
+## Upgrade workflow
 
-- `.env` files
-- cloud provider secrets
-- private keys or certificates
-- local developer paths
-- internal evaluation reports
-- debug payloads
-- customer data
-- SaaS monetization or operations runbooks
+1. Pin a released Snipara Server tag or image digest.
+2. Back up PostgreSQL and verify restore procedures.
+3. Review public schema changes and test them on a copy.
+4. Deploy to staging and run health plus MCP smoke tests.
+5. Promote the same immutable artifact.
+6. Keep the previous image digest available for rollback.
+
+The local setup script may use Prisma db push only against a fresh local database.
+Production Cloud migrations use the private migration process.
+
+## Release hygiene
+
+Before distributing an artifact, verify that it contains no environment files,
+credentials, customer documents, private Cloud code, internal runbooks,
+developer paths or debug payloads.

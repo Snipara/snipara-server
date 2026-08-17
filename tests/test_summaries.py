@@ -4,18 +4,20 @@ These tests focus on model validation. Database-dependent handler tests
 are skipped when Prisma is not generated.
 """
 
-import pytest
 from datetime import datetime
+
+import pytest
+
 from src.models import (
-    Plan,
-    SummaryType,
-    StoreSummaryParams,
-    StoreSummaryResult,
-    GetSummariesParams,
-    GetSummariesResult,
-    SummaryInfo,
     DeleteSummaryParams,
     DeleteSummaryResult,
+    GetSummariesParams,
+    GetSummariesResult,
+    Plan,
+    StoreSummaryParams,
+    StoreSummaryResult,
+    SummaryInfo,
+    SummaryType,
 )
 
 # Try to import RLMEngine, skip handler tests if Prisma not generated

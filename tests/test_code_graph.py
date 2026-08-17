@@ -320,7 +320,11 @@ async def test_code_graph_indexer_supports_typescript_documents():
 @pytest.mark.asyncio
 async def test_code_graph_indexer_resolves_cross_file_reference_hints():
     """Cross-file reference hints should become heuristic edges when the target exists."""
-    from src.services.code_graph.models import CodeGraphNode, CodeGraphReferenceHint, ExtractedCodeGraph
+    from src.services.code_graph.models import (
+        CodeGraphNode,
+        CodeGraphReferenceHint,
+        ExtractedCodeGraph,
+    )
 
     db = AsyncMock()
     indexer = CodeGraphIndexer(db)
