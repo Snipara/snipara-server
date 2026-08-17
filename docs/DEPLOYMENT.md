@@ -59,6 +59,7 @@ Do not commit real environment files or credentials.
 ```text
 GET /health
 GET /ready
+GET /capabilities
 ```
 
 The MCP smoke endpoint is POST /mcp/local with X-API-Key authentication.

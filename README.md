@@ -1,7 +1,7 @@
 # Snipara Server
 
-Open source, self-hosted MCP server for project context, semantic search and
-persistent agent memory.
+Open-source, self-hosted MCP server for project intelligence, context
+engineering and persistent memory for AI coding agents.
 
 The server is designed to run on infrastructure you control. Documents,
 embeddings, memories, logs and usage records stay in your PostgreSQL database.
@@ -16,6 +16,8 @@ No Snipara Cloud account, commercial license key or hosted service is required.
 - PostgreSQL + pgvector and Redis local Compose services
 - local API-key authentication and local-only usage tracking
 - tests, Docker build and a reproducible local setup
+
+Public compatibility contract: `snipara-server-oss-v2`.
 
 ## What is deliberately excluded
 
@@ -56,6 +58,8 @@ The local MCP endpoint is:
 ```text
 http://localhost:8000/mcp/local
 ```
+
+The public capability contract is available at `http://localhost:8000/capabilities`.
 
 Example MCP configuration:
 

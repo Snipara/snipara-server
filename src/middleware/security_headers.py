@@ -6,6 +6,7 @@ Adds security headers to all HTTP responses using pure ASGI pattern.
 from uuid import uuid4
 
 from ..config import settings
+from ..contract import OSS_CONTRACT
 
 
 class SecurityHeadersMiddleware:
@@ -39,6 +40,7 @@ class SecurityHeadersMiddleware:
                 headers = list(message.get("headers", []))
                 # Add security headers
                 headers.append((b"x-request-id", request_id.encode()))
+                headers.append((b"x-snipara-contract", OSS_CONTRACT.encode()))
                 headers.append((b"x-content-type-options", b"nosniff"))
                 headers.append((b"x-frame-options", b"DENY"))
                 headers.append((b"x-xss-protection", b"1; mode=block"))

@@ -55,6 +55,13 @@ def hash_api_key(key: str) -> str:
     return hashlib.sha256(key.encode()).hexdigest()
 
 
+def validate_internal_secret(candidate: str | None) -> bool:
+    """Validate the optional server-to-server secret without leaking its value."""
+    configured = settings.internal_api_secret.strip()
+    supplied = (candidate or "").strip()
+    return bool(configured and supplied) and hmac.compare_digest(supplied, configured)
+
+
 def normalize_api_key_scopes(scopes: list[str] | None) -> list[str]:
     """Normalize stored API-key scopes into a stable, validated list."""
     normalized: list[str] = []

@@ -23,8 +23,10 @@ from .api.deps import (
 from .api.graphify import router as graphify_router
 from .auth import (
     enforce_tool_scope,
+    validate_internal_secret,
 )
 from .config import settings
+from .contract import public_capabilities
 from .db import close_db, get_db
 from .mcp import MCP_TOOL_NAME_SET
 from .mcp_transport import router as mcp_router
@@ -151,7 +153,7 @@ app.add_middleware(
     allow_origins=settings.cors_origins_list,
     allow_credentials=True,
     allow_methods=["GET", "POST", "OPTIONS"],
-    allow_headers=["Content-Type", "Authorization", "X-API-Key"],
+    allow_headers=["Content-Type", "Authorization", "X-API-Key", "X-Request-Id"],
 )
 
 # Mount MCP Streamable HTTP transport
@@ -253,6 +255,12 @@ async def readiness_check():
         content=response.model_dump(mode="json"),
         status_code=200 if all_ok else 503,
     )
+
+
+@app.get("/capabilities", tags=["Health"])
+async def capabilities():
+    """Expose only the non-secret OSS contract used by compatible adapters."""
+    return public_capabilities()
 
 
 @app.get("/", tags=["Health"])
@@ -502,7 +510,7 @@ async def reindex_project(
         # Internal server-to-server authentication
         if not settings.internal_api_secret:
             raise HTTPException(status_code=500, detail="Internal API secret not configured")
-        if x_internal_secret != settings.internal_api_secret:
+        if not validate_internal_secret(x_internal_secret):
             raise HTTPException(status_code=401, detail="Invalid internal secret")
 
         # Look up project directly (no user context needed for internal calls)
@@ -590,7 +598,7 @@ async def get_reindex_status(
     if x_internal_secret:
         if not settings.internal_api_secret:
             raise HTTPException(status_code=500, detail="Internal API secret not configured")
-        if x_internal_secret != settings.internal_api_secret:
+        if not validate_internal_secret(x_internal_secret):
             raise HTTPException(status_code=401, detail="Invalid internal secret")
 
         project = await db.project.find_first(where={"id": project_id})

@@ -50,6 +50,25 @@ def test_plan_ip_rate_limit_only_applies_to_free():
     assert usage.should_apply_plan_ip_rate_limit(None) is False
 
 
+def test_internal_secret_validation_is_constant_time_and_fail_closed(monkeypatch):
+    from src import auth
+
+    monkeypatch.setattr(auth.settings, "internal_api_secret", "internal-test-secret")
+
+    assert auth.validate_internal_secret("internal-test-secret") is True
+    assert auth.validate_internal_secret("wrong-secret") is False
+    assert auth.validate_internal_secret("") is False
+    assert auth.validate_internal_secret(None) is False
+
+
+def test_internal_secret_validation_rejects_empty_configuration(monkeypatch):
+    from src import auth
+
+    monkeypatch.setattr(auth.settings, "internal_api_secret", "")
+
+    assert auth.validate_internal_secret("internal-test-secret") is False
+
+
 @pytest.mark.asyncio
 async def test_paid_plans_bypass_plan_ip_rate_limit(monkeypatch):
     from src import usage

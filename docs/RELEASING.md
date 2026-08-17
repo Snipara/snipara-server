@@ -4,6 +4,10 @@ Releases are tag-driven. The repository is the source of truth for the public
 runtime; the private Cloud consumes only the immutable image digest produced by
 the release workflow.
 
+The release contract is `snipara-server-oss-v2`. The public repository contains
+the contract identifier and capability document, but never the private Cloud
+adapter, customer identity mapping or deployment credentials.
+
 ## Before tagging
 
 Run the same checks used by CI:
@@ -19,6 +23,12 @@ docker build -t snipara-server:local .
 Confirm that the change does not introduce Cloud credentials, private URLs,
 customer data, hosted-only migrations or a new public tool that depends on
 Cloud identity.
+
+Run the public-boundary check before tagging:
+
+```bash
+python scripts/verify_oss_boundary.py
+```
 
 ## Release workflow
 

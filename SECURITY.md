@@ -2,9 +2,10 @@
 
 ## Reporting a vulnerability
 
-Please do not open a public issue for a security vulnerability. Contact the
-Snipara maintainers privately with a description, reproduction steps and the
-affected version. Do not include customer data or credentials.
+Please do not open a public issue for a security vulnerability. Use the
+[private GitHub security advisory form](https://github.com/Snipara/snipara-server/security/advisories/new)
+with a description, reproduction steps and the affected version. Do not
+include customer data or credentials.
 
 The self-hosted server is intended to run behind an operator-controlled
 network boundary. Always configure `SNIPARA_LOCAL_API_KEY`, restrict CORS,
