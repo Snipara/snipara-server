@@ -121,7 +121,7 @@ jobs:
                 source_sha: "${{ needs.validate.outputs.source_sha }}",
                 image: "${{ env.IMAGE }}",
                 image_digest: "${{ needs.image.outputs.digest }}",
-                compatibility: "cloud-mcp-v1",
+                compatibility: "snipara-server-oss-v2",
                 release_url: "https://github.com/${{ github.repository }}/releases/tag/${{ needs.validate.outputs.release_ref }}"
               }
             });
