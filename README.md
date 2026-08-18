@@ -1,34 +1,96 @@
-# Snipara Server
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/snipara-logo-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="assets/snipara-logo-light.svg">
+    <img src="assets/snipara-logo-light.svg" alt="Snipara" width="300">
+  </picture>
+</p>
 
-[![CI](https://github.com/Snipara/snipara-server/actions/workflows/ci.yml/badge.svg)](https://github.com/Snipara/snipara-server/actions/workflows/ci.yml)
-[![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](LICENSE)
-[![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-3776AB.svg)](pyproject.toml)
+<h1 align="center">Snipara</h1>
 
-Your AI coding agents forget your project. Snipara gives them a shared,
-persistent brain.
+<p align="center"><strong>The open-source Project Brain for AI coding agents</strong></p>
 
-Connect Claude Code · Codex · Cursor · Gemini CLI · Windsurf · or any MCP client
-to the same project memory: decisions, changes, relevant code, and work from
-other agents.
+<p align="center">Claude Code · Codex · Cursor · Gemini CLI · Windsurf · MCP</p>
 
-The server is designed to run on infrastructure you control. Documents,
+<p align="center">
+  <a href="https://github.com/Snipara/snipara-server/actions/workflows/ci.yml"><img src="https://github.com/Snipara/snipara-server/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/Open%20Source-Yes-45D6B5.svg" alt="Open source"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache--2.0-blue.svg" alt="Apache-2.0 license"></a>
+  <a href="#self-hosted-quickstart"><img src="https://img.shields.io/badge/Self--hosted-Ready-7C6CFF.svg" alt="Self-hosted"></a>
+  <a href="https://modelcontextprotocol.io/"><img src="https://img.shields.io/badge/MCP-Compatible-132033.svg" alt="MCP compatible"></a>
+  <a href="pyproject.toml"><img src="https://img.shields.io/badge/Python-3.11%2B-3776AB.svg" alt="Python 3.11+"></a>
+</p>
+
+<p align="center"><a href="#get-started"><strong>Get started in one command ↓</strong></a></p>
+
+Your agent already knows how to code. The problem is that it forgets your
+project.
+
+Snipara gives Claude Code, Codex, Cursor, Gemini CLI, Windsurf, and any MCP
+client a shared project memory: decisions, changes, relevant code, and work
+from other agents.
+
+<p align="center">
+  <img src="assets/snipara-project-brain-demo.gif" alt="A short walkthrough showing an agent moving from a blank session to a project-grounded answer with Snipara" width="960">
+</p>
+
+The public server is designed to run on infrastructure you control. Documents,
 embeddings, memories, logs and usage records stay in your PostgreSQL database.
-No Snipara Cloud account, commercial license key or hosted service is required.
+No Snipara Cloud account or hosted service is required for self-hosting.
 
-### Without Snipara
+## Get started
 
-```text
-New agent session → task description → broad search → rediscover decisions
+The same activation engine works with Snipara Cloud or with an existing local
+Snipara Server. Both paths seed the project and verify a first Project Brain
+answer so the first run proves the workflow instead of only installing files.
+
+### Cloud
+
+From the project you want to connect:
+
+```bash
+npx create-snipara@latest
 ```
 
-### With Snipara
+The default path connects to Snipara Cloud, writes the agent MCP configuration,
+seeds a small README/docs corpus, and verifies a first project-grounded answer.
 
-```text
-New agent session → project memory → relevant changes and code → first edit
+### Self-hosted
+
+Start the server locally, then connect the same activation engine:
+
+```bash
+./scripts/quickstart.sh
 ```
 
-The goal is simple: your agents stop starting from zero when the project has
-already made decisions, changed files, or moved work forward.
+```bash
+export SNIPARA_LOCAL_API_KEY="<your-local-key>"
+npx create-snipara@latest --self-hosted \
+  --server-url http://localhost:8000/mcp/local \
+  --api-key "$SNIPARA_LOCAL_API_KEY"
+```
+
+Both paths aim to finish with: endpoint connected, repository seed submitted,
+and first Project Brain answer verified.
+
+## Why it matters
+
+| Without Snipara | With Snipara |
+| --- | --- |
+| New session starts from a task description | New session starts from project memory |
+| Agent searches broadly and rediscovers decisions | Agent retrieves decisions, changes, and relevant code |
+| Work from other agents is invisible | Every connected agent can build on the same context |
+
+<p align="center">
+  <img src="assets/project-brain-flow.svg" alt="Claude Code, Codex, Cursor, Gemini CLI and Windsurf connect to the Snipara Project Brain, which returns code, decisions, memory and changes" width="1200">
+</p>
+
+## What the Project Brain remembers
+
+- **Decisions** — why the project chose a design, dependency, or boundary.
+- **Changes** — what moved, which files matter, and what another agent already did.
+- **Code** — relevant project structure, symbols, and impact paths.
+- **Memory** — durable project context and session continuity.
 
 ## What is included
 
@@ -42,41 +104,6 @@ already made decisions, changed files, or moved work forward.
 
 Public compatibility contract: `snipara-server-oss-v2`.
 
-## Choose your path
-
-### Fastest first experience: Cloud or self-hosted
-
-From the project you want to connect:
-
-```bash
-npx create-snipara@latest
-```
-
-The default path connects to Snipara Cloud. It detects the project, writes the
-agent MCP configuration, seeds a small README/docs corpus, and verifies a first
-project-grounded answer. To use an existing Snipara Server instead, run the
-same activation engine with:
-
-```bash
-npx create-snipara@latest --self-hosted \
-  --server-url http://localhost:8000/mcp/local \
-  --api-key "$SNIPARA_LOCAL_API_KEY"
-```
-
-Both paths aim to finish with: endpoint connected, repository seed submitted,
-and first Project Brain answer verified.
-
-### Run the server yourself
-
-For a private, local-first deployment, use the one-command bootstrap:
-
-```bash
-./scripts/quickstart.sh
-```
-
-It creates a local API key, starts PostgreSQL, Redis, and Snipara, initializes a
-local workspace, and prints the MCP endpoint. No Cloud account is required.
-
 ## What is deliberately excluded
 
 The public server is not the Snipara Cloud application. It does not include
@@ -89,14 +116,12 @@ immutable Snipara Server releases.
 
 ## Self-hosted quickstart
 
-The fastest path is the one-command bootstrap:
+The one-command bootstrap creates a local API key, starts PostgreSQL, Redis, and
+Snipara, initializes a local workspace, and prints the MCP endpoint:
 
 ```bash
 ./scripts/quickstart.sh
 ```
-
-It creates a local API key, starts PostgreSQL, Redis, and Snipara, initializes a
-local workspace, and prints the MCP endpoint.
 
 For an explicit, step-by-step setup:
 
@@ -104,9 +129,6 @@ For an explicit, step-by-step setup:
 cp .env.example .env
 # Replace the placeholder SNIPARA_LOCAL_API_KEY with a long random value.
 docker compose up -d --build
-```
-
-```bash
 docker compose exec -T snipara bash /app/scripts/setup.sh
 ```
 
@@ -117,13 +139,8 @@ curl http://localhost:8000/health
 curl http://localhost:8000/ready
 ```
 
-The local MCP endpoint is:
-
-```text
-http://localhost:8000/mcp/local
-```
-
-The public capability contract is available at `http://localhost:8000/capabilities`.
+The local MCP endpoint is `http://localhost:8000/mcp/local` and the public
+capability contract is available at `http://localhost:8000/capabilities`.
 
 Example MCP configuration:
 
@@ -166,9 +183,9 @@ Never put real keys, customer data or provider credentials in Git.
 ## Proof and verification
 
 The public evidence is deliberately split between server verification and
-product-level evaluation. The product results below are not a performance
-guarantee for every self-hosted deployment; they show the narrower conditions
-under which Snipara's context and continuity workflows were measured.
+product-level evaluation. Product results are not a performance guarantee for
+every self-hosted deployment; they show the narrower conditions under which
+Snipara's context and continuity workflows were measured.
 
 ### This repository
 
