@@ -1,8 +1,11 @@
-"""Build the short README demo GIF from deterministic, product-shaped frames.
+"""Build the public README demo GIF.
 
-The artifact is intentionally a compact conceptual walkthrough, not a claim that
-the exact UI is part of the self-hosted server. It gives a new visitor a visual
-answer to: what changes when an agent can recall the project?
+The animation is a short explanatory walkthrough: a blank agent session becomes
+a project-grounded answer. The abstract background was generated with the
+Zorai project's FAL workflow, while all visible Snipara branding and product
+copy are composited locally from the canonical v2 logo assets. Keeping those
+layers separate prevents image generation from inventing a lookalike logo,
+watermark, or unreadable product UI.
 """
 
 from __future__ import annotations
@@ -10,14 +13,16 @@ from __future__ import annotations
 import math
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageEnhance, ImageFont, ImageOps
 
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "assets" / "snipara-project-brain-demo.gif"
+BACKGROUND = ROOT / "assets" / "snipara-continuity-background.jpg"
+LOGO = ROOT / "assets" / "brand-logo-v2-inverted.png"
 WIDTH, HEIGHT = 960, 540
 FPS = 10
-DURATION_SECONDS = 12
+DURATION_SECONDS = 10
 
 
 def font(size: int, mono: bool = False) -> ImageFont.FreeTypeFont:
@@ -39,115 +44,217 @@ def font(size: int, mono: bool = False) -> ImageFont.FreeTypeFont:
     return ImageFont.load_default()
 
 
-FONT = {"xs": font(14), "sm": font(16), "body": font(20), "title": font(30), "hero": font(42), "mono": font(16, mono=True)}
+FONT = {
+    "micro": font(12),
+    "xs": font(14),
+    "sm": font(16),
+    "body": font(19),
+    "hero": font(39),
+    "mono": font(15, mono=True),
+}
 
 
-def rounded(draw: ImageDraw.ImageDraw, box: tuple[int, int, int, int], fill: str, radius: int = 18, outline: str | None = None, width: int = 1) -> None:
-    draw.rounded_rectangle(box, radius=radius, fill=fill, outline=outline, width=width)
+def clamp(value: float, lower: float = 0.0, upper: float = 1.0) -> float:
+    return max(lower, min(upper, value))
 
 
-def text_center(draw: ImageDraw.ImageDraw, xy: tuple[int, int], value: str, typeface: ImageFont.FreeTypeFont, fill: str) -> None:
+def ease(value: float, start: float, end: float) -> float:
+    """Smoothstep timing that gives cards a calm, deliberate entrance."""
+    x = clamp((value - start) / (end - start))
+    return x * x * (3 - 2 * x)
+
+
+def rgba(hex_color: str, alpha: int = 255) -> tuple[int, int, int, int]:
+    value = hex_color.removeprefix("#")
+    return (int(value[0:2], 16), int(value[2:4], 16), int(value[4:6], 16), alpha)
+
+
+def draw_centered(draw: ImageDraw.ImageDraw, xy: tuple[int, int], value: str, typeface: ImageFont.FreeTypeFont, fill) -> None:
     bbox = draw.textbbox((0, 0), value, font=typeface)
     draw.text((xy[0] - (bbox[2] - bbox[0]) / 2, xy[1] - (bbox[3] - bbox[1]) / 2), value, font=typeface, fill=fill)
 
 
-def progress(t: float, start: float, end: float) -> float:
-    if t <= start:
-        return 0.0
-    if t >= end:
-        return 1.0
-    x = (t - start) / (end - start)
-    return x * x * (3 - 2 * x)
+def rounded_panel(
+    image: Image.Image,
+    box: tuple[int, int, int, int],
+    fill: tuple[int, int, int, int],
+    radius: int = 18,
+    outline: tuple[int, int, int, int] | None = None,
+    width: int = 1,
+) -> None:
+    layer = Image.new("RGBA", image.size, (0, 0, 0, 0))
+    panel = ImageDraw.Draw(layer)
+    panel.rounded_rectangle(box, radius=radius, fill=fill, outline=outline, width=width)
+    image.alpha_composite(layer)
 
 
-def draw_mark(draw: ImageDraw.ImageDraw, x: int, y: int, scale: int = 1) -> None:
-    color = "#68E5C7"
-    purple = "#9B8CFF"
-    draw.rounded_rectangle((x, y, x + 42 * scale, y + 42 * scale), radius=12 * scale, fill="#F8FAFC")
-    cx, cy = x + 21 * scale, y + 21 * scale
-    draw.line((cx, y + 10 * scale, cx, y + 32 * scale), fill="#0E1726", width=2 * scale)
-    draw.line((x + 10 * scale, cy, x + 32 * scale, cy), fill="#0E1726", width=2 * scale)
-    draw.ellipse((cx - 6 * scale, cy - 6 * scale, cx + 6 * scale, cy + 6 * scale), fill="#0E1726")
-    for dx, dy, fill in ((10, 10, purple), (32, 10, color), (10, 32, color), (32, 32, purple)):
-        draw.ellipse((x + (dx - 3) * scale, y + (dy - 3) * scale, x + (dx + 3) * scale, y + (dy + 3) * scale), fill=fill)
+def add_logo(image: Image.Image, x: int, y: int, width: int, opacity: float = 1.0) -> None:
+    logo = Image.open(LOGO).convert("RGBA")
+    ratio = width / logo.width
+    logo = logo.resize((width, round(logo.height * ratio)), Image.Resampling.LANCZOS)
+    if opacity < 1:
+        alpha = logo.getchannel("A").point(lambda value: round(value * clamp(opacity)))
+        logo.putalpha(alpha)
+    image.alpha_composite(logo, (x, y))
+
+
+def background_frame(t: float) -> Image.Image:
+    """Use the FAL still as a restrained texture, with a deterministic drift."""
+    if BACKGROUND.exists():
+        source = Image.open(BACKGROUND).convert("RGB")
+        source = ImageOps.fit(source, (WIDTH + 96, HEIGHT + 54), method=Image.Resampling.LANCZOS)
+        # Keep the generated texture stable so the GIF can delta-compress it;
+        # the motion comes from the staged UI, pulse, cursor, and progress rail.
+        pan_x = 42
+        pan_y = 22
+        image = source.crop((pan_x, pan_y, pan_x + WIDTH, pan_y + HEIGHT)).convert("RGBA")
+        image = ImageEnhance.Color(image).enhance(0.68)
+        image = ImageEnhance.Brightness(image).enhance(0.58)
+    else:
+        image = Image.new("RGBA", (WIDTH, HEIGHT), rgba("#07111F"))
+
+    veil = Image.new("RGBA", image.size, rgba("#07111F", 155))
+    image.alpha_composite(veil)
+
+    # A very soft moving bloom connects the FAL texture to the UI states.
+    bloom = Image.new("RGBA", image.size, (0, 0, 0, 0))
+    bloom_draw = ImageDraw.Draw(bloom)
+    cx = 550 + round(math.sin(t * 0.52) * 90)
+    cy = 190 + round(math.cos(t * 0.43) * 22)
+    for radius, alpha in ((220, 7), (150, 10), (92, 15)):
+        bloom_draw.ellipse((cx - radius, cy - radius, cx + radius, cy + radius), fill=rgba("#46D6D0", alpha))
+    image.alpha_composite(bloom)
+    return image
 
 
 def render(t: float) -> Image.Image:
-    image = Image.new("RGB", (WIDTH, HEIGHT), "#0A1220")
+    image = background_frame(t)
     draw = ImageDraw.Draw(image)
 
-    # A quiet background grid makes the state change legible without looking like a dashboard.
-    for x in range(0, WIDTH, 48):
-        draw.line((x, 0, x, HEIGHT), fill="#101D31", width=1)
-    for y in range(0, HEIGHT, 48):
-        draw.line((0, y, WIDTH, y), fill="#101D31", width=1)
+    # Keep the background legible as atmosphere, not as a second UI. Draw the
+    # low-opacity grid on its own layer because ImageDraw does not composite
+    # alpha when drawing directly onto an RGBA image.
+    grid = Image.new("RGBA", image.size, (0, 0, 0, 0))
+    grid_draw = ImageDraw.Draw(grid)
+    for x in range(0, WIDTH, 64):
+        grid_draw.line((x, 0, x, HEIGHT), fill=rgba("#C7D8F0", 4), width=1)
+    for y in range(0, HEIGHT, 64):
+        grid_draw.line((0, y, WIDTH, y), fill=rgba("#C7D8F0", 3), width=1)
+    image.alpha_composite(grid)
+    draw = ImageDraw.Draw(image)
 
-    draw_mark(draw, 42, 28)
-    draw.text((96, 38), "Snipara Project Brain", font=FONT["body"], fill="#F8FAFC")
-    rounded(draw, (752, 30, 918, 68), "#102A2A", 18, "#28564F")
-    draw.ellipse((771, 43, 783, 55), fill="#68E5C7")
-    draw.text((793, 38), "MCP connected", font=FONT["xs"], fill="#A8F1DE")
+    add_logo(image, 40, 22, 184)
+    rounded_panel(image, (758, 26, 918, 58), rgba("#0C252A", 205), radius=16, outline=rgba("#3BD6BA", 115))
+    draw = ImageDraw.Draw(image)
+    draw.ellipse((777, 37, 787, 47), fill="#6DE7C8")
+    draw.text((798, 32), "MCP connected", font=FONT["micro"], fill="#C5F7EA")
 
-    draw.text((42, 99), "Your agent already knows how to code.", font=FONT["hero"], fill="#F8FAFC")
-    draw.text((42, 145), "The problem is that it forgets your project.", font=FONT["hero"], fill="#A9B7D2")
+    draw.text((40, 93), "Your agent knows how to code.", font=FONT["hero"], fill="#F5F8FF")
+    draw.text((40, 138), "It just forgets the project.", font=FONT["hero"], fill="#AAB9D2")
 
-    without = progress(t, 0.4, 2.3)
-    with_brain = progress(t, 2.4, 5.0)
-    answer = progress(t, 5.0, 8.4)
-    close = progress(t, 8.5, 10.5)
+    left_in = ease(t, 0.45, 1.45)
+    handoff = ease(t, 2.5, 4.3)
+    answer = ease(t, 4.35, 6.55)
+    close = ease(t, 7.15, 8.5)
 
-    # Left card: the blank-session loop.
-    left_x, right_x, card_y, card_w, card_h = 42, 492, 224, 426, 214
-    rounded(draw, (left_x, card_y, left_x + card_w, card_y + card_h), "#131F32", 22, "#25344D")
-    draw.text((left_x + 24, card_y + 22), "WITHOUT SNIPARA", font=FONT["xs"], fill="#8392AC")
-    rounded(draw, (left_x + 24, card_y + 58, left_x + card_w - 24, card_y + 122), "#0C1524", 14)
-    draw.text((left_x + 42, card_y + 78), "I need to understand this codebase...", font=FONT["mono"], fill="#A9B7D2")
-    draw.text((left_x + 24, card_y + 148), "Search files", font=FONT["sm"], fill="#B8C4D7")
-    draw.text((left_x + 24, card_y + 178), "Rediscover decisions", font=FONT["sm"], fill="#B8C4D7")
-    draw.text((left_x + 260, card_y + 148), "Start over", font=FONT["sm"], fill="#FFB4A9")
-    draw.text((left_x + 260, card_y + 178), "Every session", font=FONT["sm"], fill="#FFB4A9")
-    if without > 0:
-        draw.line((left_x + 24, card_y + card_h - 16, left_x + 24 + int((card_w - 48) * without), card_y + card_h - 16), fill="#66758F", width=3)
+    left_x, right_x, card_y, card_w, card_h = 40, 492, 222, 428, 218
 
-    # Right card: the remembered project path.
-    alpha = int(255 * with_brain)
-    if alpha:
-        rounded(draw, (right_x, card_y, right_x + card_w, card_y + card_h), "#122A2A", 22, "#2E7468")
-        draw.text((right_x + 24, card_y + 22), "WITH SNIPARA", font=FONT["xs"], fill="#8FF0D5")
-        rounded(draw, (right_x + 24, card_y + 58, right_x + card_w - 24, card_y + 122), "#0B1B23", 14, "#24564F")
-        draw_mark(draw, right_x + 42, card_y + 69, 1)
-        draw.text((right_x + 100, card_y + 76), "Project Brain", font=FONT["body"], fill="#F8FAFC")
-        draw.text((right_x + 100, card_y + 103), "context returned in seconds", font=FONT["xs"], fill="#8FF0D5")
-        lines = [
-            "Decision: PostgreSQL is the source of truth",
-            "Change: auth moved behind the service boundary",
-            "Relevant: 3 files, 2 prior agent sessions",
-        ]
-        visible = int(round(answer * len(lines)))
-        for index, line in enumerate(lines[:visible]):
-            draw.ellipse((right_x + 28, card_y + 151 + index * 20, right_x + 35, card_y + 158 + index * 20), fill="#68E5C7")
-            draw.text((right_x + 48, card_y + 143 + index * 20), line, font=FONT["xs"], fill="#D4F7EE")
+    # Blank session: the agent has to reconstruct the project from scratch.
+    left_shift = round((1 - left_in) * -24)
+    lx = left_x + left_shift
+    rounded_panel(image, (lx, card_y, lx + card_w, card_y + card_h), rgba("#0A1423", round(225 * left_in)), radius=22, outline=rgba("#566580", round(150 * left_in)), width=1)
+    draw = ImageDraw.Draw(image)
+    if left_in > 0:
+        draw.text((lx + 24, card_y + 20), "BLANK SESSION", font=FONT["micro"], fill="#C9D4E8")
+    rounded_panel(image, (lx + 24, card_y + 55, lx + card_w - 24, card_y + 111), rgba("#07101C", round(238 * left_in)), radius=13, outline=rgba("#20304A", round(180 * left_in)))
+    draw = ImageDraw.Draw(image)
+    prompt = "I need to understand this codebase..."
+    if left_in > 0:
+        draw.text((lx + 42, card_y + 74), prompt, font=FONT["mono"], fill="#D5DFF0")
+        cursor_x = lx + 42 + draw.textlength(prompt, font=FONT["mono"]) + 8
+        draw.line((cursor_x, card_y + 75, cursor_x, card_y + 94), fill="#6DE7C8", width=2)
+    blank_lines = [("Search files", "broad rediscovery"), ("Revisit decisions", "session starts over")]
+    for index, (label, detail) in enumerate(blank_lines):
+        yy = card_y + 139 + index * 28
+        if left_in > 0:
+            draw.ellipse((lx + 25, yy + 4, lx + 32, yy + 11), fill="#F19A8E")
+            draw.text((lx + 43, yy), label, font=FONT["sm"], fill="#D7E0EF")
+            draw.text((lx + 205, yy + 1), detail, font=FONT["micro"], fill="#A4B0C5")
 
-    # Bottom story line.
-    if close:
-        draw.line((170, 484, 790, 484), fill="#2B3A55", width=3)
-        stages = [(170, "Agent asks"), (480, "Snipara recalls"), (790, "First edit")]
+    # Handoff: a real Snipara logo sits at the center of the transition.
+    if handoff > 0:
+        draw.line((470, 332, 492, 332), fill="#6DE7C8", width=2)
+        pulse_x = 470 + round(22 * handoff)
+        draw.ellipse((pulse_x - 5, 327, pulse_x + 5, 337), fill="#F5FFFC")
+
+    right_shift = round((1 - handoff) * 28)
+    rx = right_x + right_shift
+    rounded_panel(image, (rx, card_y, rx + card_w, card_y + card_h), rgba("#0B2526", round(232 * handoff)), radius=22, outline=rgba("#51D5B4", round(210 * handoff)), width=1)
+    draw = ImageDraw.Draw(image)
+    if handoff > 0:
+        draw.text((rx + 24, card_y + 20), "WITH SNIPARA", font=FONT["micro"], fill="#8BF0D4")
+    add_logo(image, rx + 24, card_y + 51, 126, handoff)
+    draw = ImageDraw.Draw(image)
+    if handoff > 0:
+        draw.text((rx + 166, card_y + 62), "context ready", font=FONT["body"], fill="#F2FFFC")
+        draw.text((rx + 166, card_y + 91), "source-backed · shared · persistent", font=FONT["micro"], fill="#A7EAD9")
+
+    lines = [
+        ("Decision", "PostgreSQL is the source of truth"),
+        ("Change", "Auth moved behind the service boundary"),
+        ("Relevant", "3 files · 2 prior agent sessions"),
+    ]
+    visible = answer * len(lines)
+    for index, (label, value) in enumerate(lines):
+        line_progress = clamp(visible - index)
+        if line_progress <= 0:
+            continue
+        yy = card_y + 131 + index * 25
+        draw.ellipse((rx + 24, yy + 5, rx + 31, yy + 12), fill="#6DE7C8")
+        draw.text((rx + 42, yy), label, font=FONT["micro"], fill="#8BF0D4")
+        draw.text((rx + 104, yy - 1), value, font=FONT["xs"], fill="#E1FBF4")
+        if line_progress < 1:
+            draw.line((rx + 42, yy + 20, rx + 42 + round(330 * line_progress), yy + 20), fill="#6DE7C8", width=2)
+
+    # A tiny story rail lands only after the answer is visible.
+    if close > 0:
+        rail_y = 482
+        draw.line((455, rail_y, 880, rail_y), fill="#8291AB", width=2)
+        stages = [(455, "Agent asks"), (665, "Snipara recalls"), (880, "Agent starts")]
         for index, (x, label) in enumerate(stages):
-            fill = "#68E5C7" if index < 2 or close > 0.45 else "#556680"
-            draw.ellipse((x - 10, 474, x + 10, 494), fill=fill)
-            text_center(draw, (x, 520), label, FONT["xs"], "#D4DDEC")
-        draw.text((42, 474), "Project context, not a blank session.", font=FONT["body"], fill="#F8FAFC")
+            reached = ease(close, index * 0.25, min(1, index * 0.25 + 0.45))
+            if reached > 0:
+                draw.ellipse((x - 8, rail_y - 8, x + 8, rail_y + 8), fill="#6DE7C8")
+                draw_centered(draw, (x, 510), label, FONT["micro"], "#DDE7F3")
+        draw.text((40, 470), "Project context, not a blank session.", font=FONT["body"], fill="#F5F8FF")
 
-    return image
+    # A short, unobtrusive progress indicator makes the loop feel intentional.
+    draw.rounded_rectangle((40, 526, 920, 529), radius=2, fill="#162740")
+    draw.rounded_rectangle((40, 526, 40 + round(880 * clamp(t / DURATION_SECONDS)), 529), radius=2, fill="#6DE7C8")
+    return image.convert("RGB")
 
 
 def main() -> None:
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
-    frames = [render(index / FPS).quantize(colors=256, method=Image.Quantize.MEDIANCUT) for index in range(DURATION_SECONDS * FPS)]
-    # Keep full frames instead of delta-optimizing them: GitHub's image viewer
-    # and several Markdown previews handle full-frame GIFs more consistently.
-    frames[0].save(OUTPUT, save_all=True, append_images=frames[1:], duration=1000 // FPS, loop=0, optimize=False, disposal=2)
-    print(f"wrote {OUTPUT} ({len(frames)} frames, {DURATION_SECONDS}s)")
+    frame_count = DURATION_SECONDS * FPS
+    palette = render(0).quantize(colors=128, method=Image.Quantize.MEDIANCUT)
+    frames = [palette]
+    frames.extend(
+        render(index / FPS).quantize(palette=palette, dither=Image.Dither.NONE)
+        for index in range(1, frame_count)
+    )
+    # Optimized deltas keep the README asset lightweight while remaining
+    # compatible with GitHub's Markdown image viewer.
+    frames[0].save(
+        OUTPUT,
+        save_all=True,
+        append_images=frames[1:],
+        duration=round(1000 / FPS),
+        loop=0,
+        optimize=True,
+        disposal=1,
+    )
+    print(f"wrote {OUTPUT} ({frame_count} frames, {DURATION_SECONDS}s, {FPS}fps)")
 
 
 if __name__ == "__main__":
