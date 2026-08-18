@@ -1,8 +1,8 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/snipara-logo-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="assets/snipara-logo-light.svg">
-    <img src="assets/snipara-logo-light.svg" alt="Snipara" width="300">
+    <source media="(prefers-color-scheme: dark)" srcset="assets/brand-logo-v2-inverted.png">
+    <source media="(prefers-color-scheme: light)" srcset="assets/brand-logo-v2-transparent.png">
+    <img src="assets/brand-logo-v2-transparent.png" alt="Snipara" width="300">
   </picture>
 </p>
 
